@@ -5,6 +5,8 @@
 	
 	<META HTTP-EQUIV="Content-Type" CONTENT="text/html;CHARSET=iso-8859-1">
 	<META http-equiv="Content-Script-Type" content="text/javascript">
+	<META HTTP-EQUIV="Pragma" CONTENT="no-cache">
+	<META HTTP-EQUIV="Expires" CONTENT="-1">
 	<TITLE>
 Table Browser	</TITLE>
 	<LINK REL="STYLESHEET" HREF="/style/HGStyle.css">
@@ -22,19 +24,20 @@ Table Browser	</TITLE>
 	<table BORDER=0 CELLSPACING=0 CELLPADDING=0 bgcolor="#2636D1" height="24"><TR>
 	 	<TD VALIGN="middle"><font color="#89A1DE">&nbsp;
 
-&nbsp;<A HREF="/index.html?org=Human&db=hg18&hgsid=84962660" class="topbar">
+&nbsp;<A HREF="/index.html?org=Human&db=hg18&hgsid=87778340" class="topbar">
            Home</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgGateway?org=Human&db=hg18&hgsid=84962660" class="topbar">
+       <A HREF="/cgi-bin/hgGateway?org=Human&db=hg18&hgsid=87778340" class="topbar">
            Genomes</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgTracks?org=Human&db=hg18&hgsid=84962660" class="topbar">
+       <A HREF="/cgi-bin/hgTracks?org=Human&db=hg18&hgsid=87778340" class="topbar">
            Genome Browser</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgBlat?command=start&org=Human&db=hg18&hgsid=84962660" class="topbar">           Blat</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgTables?org=Human&db=hg18&hgsid=84962660&hgta_doMainPage=1" class="topbar">
+       <A HREF="/cgi-bin/hgBlat?command=start&org=Human&db=hg18&hgsid=87778340" class="topbar">           Blat</A> &nbsp;&nbsp;&nbsp;
+       <A HREF="/cgi-bin/hgTables?org=Human&db=hg18&hgsid=87778340&hgta_doMainPage=1" class="topbar">
            Tables</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgNear?org=Human&db=hg18&hgsid=84962660" class="topbar">
+       <A HREF="/cgi-bin/hgNear?org=Human&db=hg18&hgsid=87778340" class="topbar">
            Gene Sorter</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgPcr?org=Human&db=hg18&hgsid=84962660" class="topbar">
+       <A HREF="/cgi-bin/hgPcr?org=Human&db=hg18&hgsid=87778340" class="topbar">
            PCR</A> &nbsp;&nbsp;&nbsp;
+<A HREF="/cgi-bin/hgSession?org=Human&db=hg18&hgsid=87778340&hgS_doMainPage=1" class="topbar">Session</A>&nbsp;&nbsp;&nbsp;
        <A HREF="/FAQ/" class="topbar">
            FAQ</A> &nbsp;&nbsp;&nbsp;
 
@@ -60,7 +63,7 @@ Table Browser</b></FONT></TD></TR></TABLE>
 	
 
 Use this program to retrieve the data associated with a track in text format, to calculate intersections between tracks, and to retrieve DNA sequence covered by a track. See <A HREF="#Help">Using the Table Browser</A> for a description of the controls in this form. For more complex queries, you may want to use our <A HREF="http://genome.ucsc.edu/FAQ/FAQdownloads#download29">public MySQL server</A>. Refer to the <A HREF="../goldenPath/credits.html">Credits</A> page for the list of contributors and usage restrictions associated with these data.<FORM ACTION="../cgi-bin/hgTables" NAME="mainForm" METHOD=POST>
-<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="84962660">
+<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87778340">
 <SCRIPT>
 function setRadioCheck(varName, value) 
 {
@@ -172,6 +175,7 @@ return !gotEnterKey(e);
 &nbsp;&nbsp;&nbsp;<B>track:</B>
 <SELECT NAME="hgta_track" onChange="document.hiddenForm.hgta_track.value=document.mainForm.hgta_track.options[document.mainForm.hgta_track.selectedIndex].value; document.hiddenForm.hgta_group.value=document.mainForm.hgta_group.options[document.mainForm.hgta_group.selectedIndex].value; document.hiddenForm.hgta_regionType.value=regionType; document.hiddenForm.position.value=document.mainForm.position.value; document.hiddenForm.hgta_outputType.value=document.mainForm.hgta_outputType.options[document.mainForm.hgta_outputType.selectedIndex].value; document.hiddenForm.hgta_outFileName.value=document.mainForm.hgta_outFileName.value; document.hiddenForm.clade.value=document.mainForm.clade.options[document.mainForm.clade.selectedIndex].value; document.hiddenForm.db.value=document.mainForm.db.options[document.mainForm.db.selectedIndex].value; document.hiddenForm.org.value=document.mainForm.org.options[document.mainForm.org.selectedIndex].value;  document.hiddenForm.hgta_table.value=0;document.hiddenForm.submit();">
  <OPTION VALUE="knownGene" SELECTED>Known Genes
+ <OPTION VALUE="ccdsGene">CCDS
  <OPTION VALUE="refGene">RefSeq Genes
  <OPTION VALUE="xenoRefGene">Other RefSeq
  <OPTION VALUE="mgcGenes">MGC Genes
@@ -243,9 +247,9 @@ return !gotEnterKey(e);
 &nbsp;<INPUT TYPE=SUBMIT NAME="hgta_doSchema" VALUE="describe table schema" ></TD></TR>
 <TR><TD><B>region:</B>
 <SCRIPT>
-var regionType='genome';
+var regionType='range';
 </SCRIPT>
-<INPUT TYPE=RADIO NAME="hgta_regionType" VALUE="genome" onClick="regionType='genome';" CHECKED> genome <INPUT TYPE=RADIO NAME="hgta_regionType" VALUE="range" onClick="regionType='range';"> position <INPUT TYPE=TEXT NAME="position" SIZE=26 VALUE="chrX:151073054-151383976" onFocus="setRadioCheck('hgta_regionType', 'range'); regionType='range'">
+<INPUT TYPE=RADIO NAME="hgta_regionType" VALUE="genome" onClick="regionType='genome';"> genome <INPUT TYPE=RADIO NAME="hgta_regionType" VALUE="range" onClick="regionType='range';" CHECKED> position <INPUT TYPE=TEXT NAME="position" SIZE=26 VALUE="chrX:151073054-151383976" onFocus="setRadioCheck('hgta_regionType', 'range'); regionType='range'">
 <INPUT TYPE=SUBMIT NAME="hgta_doLookupPosition" VALUE="lookup" ></TD></TR>
 <TR><TD><B>identifiers (names/accessions):</B>
 <INPUT TYPE=SUBMIT NAME="hgta_doPasteIdentifiers" VALUE="paste list" > <INPUT TYPE=SUBMIT NAME="hgta_doUploadIdentifiers" VALUE="upload list" ></TD></TR>
@@ -276,7 +280,7 @@ var regionType='genome';
 <A HREF="/cgi-bin/cartReset?destination=/cgi-bin/hgTables">click here</A>.
 </FORM>
 <FORM ACTION="../cgi-bin/hgTables" METHOD="GET" NAME="hiddenForm">
-<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="84962660"><input type="hidden" name="clade" value="">
+<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87778340"><input type="hidden" name="clade" value="">
 <input type="hidden" name="org" value="">
 <input type="hidden" name="db" value="">
 <input type="hidden" name="hgta_group" value="">
@@ -335,7 +339,7 @@ Browser User's Guide</A>.
         all tables associated with the track specified in the <em>track</em> 
         list.</LI>
         
-        <LI><B>Describe Table Schema: </B>Displays schema information for the 
+        <LI><B>describe table schema: </B>Displays schema information for the 
         tables associated with the selected track.</LI>
         
         <LI><B>region: </B>Restricts the query to a
@@ -347,7 +351,7 @@ Browser User's Guide</A>.
         range, such as chrX:100000-200000, or a gene name or other id in 
         the text box.</LI>
         
-        <LI><B>Lookup:</B> Press this button after typing in a gene name or 
+        <LI><B>lookup:</B> Press this button after typing in a gene name or 
         other id in the position text box to look up the chromosome position
         
         <LI><B>identifiers</B> (selected tracks only)<B>: </B>Restricts the 
@@ -417,10 +421,10 @@ Browser User's Guide</A>.
         
         </UL>
         </LI>
-        <LI><B>Get Output: </B>Submits a data query based on the specified 
+        <LI><B>get output: </B>Submits a data query based on the specified 
         parameters and returns the output.</LI>
         
-        <LI><B>Summary/Statistics: </B>Displays statistics about the data 
+        <LI><B>summary/statistics: </B>Displays statistics about the data 
         specified by the parameters.</LI>
         
         </UL>
