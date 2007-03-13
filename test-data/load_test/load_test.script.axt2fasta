@@ -1,0 +1,15 @@
+#
+load_cookies	test0.jar
+go		http://localhost:9999/tool_runner?tool_id=upload1
+code	200
+fv		1	file_type	"axt"
+formfile	1	file_data	"test-data/1.axt" 
+submit
+go		http://localhost:9999/tool_runner?tool_id=axt_to_fasta
+code	200
+fv		1	axt_file	"1.axt"
+fv		1	dbkey_1	'hg17'
+fv		1	dbkey_2	"panTro1"
+submit
+clear_cookies
+

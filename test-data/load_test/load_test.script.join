@@ -1,0 +1,22 @@
+#Join
+load_cookies	test0.jar
+go		http://localhost:9999/tool_runner/index?tool_id=upload1
+code	200
+fv		1	file_type	"bed"
+formfile	1	file_data	"test-data/1.bed" 
+submit
+go		http://localhost:9999/tool_runner/index?tool_id=upload1
+code	200
+fv		1	file_type	"bed"
+formfile	1	file_data	"test-data/2.bed" 
+submit
+go http://localhost:9999/tool_runner/index?tool_id=join1
+code	200
+fv		1	input1	"1.bed"
+fv		1	input2	"2.bed"
+submit
+fv		1	field1	"2"
+fv		1	field2	"2"
+submit
+clear_cookies
+

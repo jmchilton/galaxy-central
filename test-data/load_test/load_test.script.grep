@@ -1,0 +1,16 @@
+#
+load_cookies	test0.jar
+go		http://localhost:9999/tool_runner?tool_id=upload1
+code	200
+fv		1	file_type	"bed"
+formfile	1	file_data	"test-data/1.bed" 
+submit
+go		http://localhost:9999/tool_runner?tool_id=Grep1
+code	200
+fv		1	input	"1.bed"
+fv		1	invert	"false"
+fv		1	pattern	"^chr[0-9]*"
+submit
+clear_cookies
+
+

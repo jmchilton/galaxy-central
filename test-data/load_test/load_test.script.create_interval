@@ -1,0 +1,12 @@
+#
+load_cookies	test0.jar
+go		http://localhost:9999/tool_runner?tool_id=createInterval
+code	200
+fv		1	chrom	"chr7"
+fv		1	start	"100"
+fv		1	end	"1000"
+fv		1	name	"myinterval"
+fv		1	strand	"plus"
+submit
+clear_cookies
+
