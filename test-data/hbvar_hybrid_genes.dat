@@ -1,0 +1,11 @@
+#chrom	chromStart	chromEnd	HbVar.ID	commonName	HGVSname	mutationType
+#coordinates using UCSC numbering system (chromStart zero based)
+chr11	5204719	5212172	HbVar.742	Hb Lepore-Hollandia	U01317.1:g.54897_62294del	hybrids
+chr11	5204443	5211905	HbVar.743	Hb Lepore-Baltimore	U01317.1:g.55171_62570del	hybrids
+chr11	5204375	5211848	HbVar.744	Hb Lepore-Boston-Washington	U01317.1:g.55239_62638del	hybrids
+chr11	5204546	5211851	HbVar.745	Hb Parchman	U01317.1:g.[54856_62253del ; 55178_62577dup]	hybrids
+chr11	5204760	5212202	HbVar.745	Hb Parchman	U01317.1:g.[54856_62253del ; 55178_62577dup]	hybrids
+chr11	5204789	5212173	HbVar.746	Hb Miyada	U01317.1:g.54856_62253dup	hybrids
+chr11	5204760	5210865	HbVar.747	Hb P-Congo	U01317.1:g.56164_63515dup	hybrids
+chr11	5204433	5211790	HbVar.750	Hb P-India	U01317.1:g.55239_62638dup	hybrids
+chr11	5204436	5227246	HbVar.751	Hb Kenya	U01317.1:g.39849_62577del	hybrids
