@@ -24,20 +24,20 @@ Table Browser	</TITLE>
 	<table BORDER=0 CELLSPACING=0 CELLPADDING=0 bgcolor="#2636D1" height="24"><TR>
 	 	<TD VALIGN="middle"><font color="#89A1DE">&nbsp;
 
-&nbsp;<A HREF="/index.html?org=Human&db=hg18&hgsid=87778340" class="topbar">
+&nbsp;<A HREF="/index.html?org=Human&db=hg18&hgsid=87784805" class="topbar">
            Home</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgGateway?org=Human&db=hg18&hgsid=87778340" class="topbar">
+       <A HREF="/cgi-bin/hgGateway?org=Human&db=hg18&hgsid=87784805" class="topbar">
            Genomes</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgTracks?org=Human&db=hg18&hgsid=87778340" class="topbar">
+       <A HREF="/cgi-bin/hgTracks?org=Human&db=hg18&hgsid=87784805" class="topbar">
            Genome Browser</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgBlat?command=start&org=Human&db=hg18&hgsid=87778340" class="topbar">           Blat</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgTables?org=Human&db=hg18&hgsid=87778340&hgta_doMainPage=1" class="topbar">
+       <A HREF="/cgi-bin/hgBlat?command=start&org=Human&db=hg18&hgsid=87784805" class="topbar">           Blat</A> &nbsp;&nbsp;&nbsp;
+       <A HREF="/cgi-bin/hgTables?org=Human&db=hg18&hgsid=87784805&hgta_doMainPage=1" class="topbar">
            Tables</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgNear?org=Human&db=hg18&hgsid=87778340" class="topbar">
+       <A HREF="/cgi-bin/hgNear?org=Human&db=hg18&hgsid=87784805" class="topbar">
            Gene Sorter</A> &nbsp;&nbsp;&nbsp;
-       <A HREF="/cgi-bin/hgPcr?org=Human&db=hg18&hgsid=87778340" class="topbar">
+       <A HREF="/cgi-bin/hgPcr?org=Human&db=hg18&hgsid=87784805" class="topbar">
            PCR</A> &nbsp;&nbsp;&nbsp;
-<A HREF="/cgi-bin/hgSession?org=Human&db=hg18&hgsid=87778340&hgS_doMainPage=1" class="topbar">Session</A>&nbsp;&nbsp;&nbsp;
+<A HREF="/cgi-bin/hgSession?org=Human&db=hg18&hgsid=87784805&hgS_doMainPage=1" class="topbar">Session</A>&nbsp;&nbsp;&nbsp;
        <A HREF="/FAQ/" class="topbar">
            FAQ</A> &nbsp;&nbsp;&nbsp;
 
@@ -63,7 +63,7 @@ Table Browser</b></FONT></TD></TR></TABLE>
 	
 
 Use this program to retrieve the data associated with a track in text format, to calculate intersections between tracks, and to retrieve DNA sequence covered by a track. See <A HREF="#Help">Using the Table Browser</A> for a description of the controls in this form. For more complex queries, you may want to use our <A HREF="http://genome.ucsc.edu/FAQ/FAQdownloads#download29">public MySQL server</A>. Refer to the <A HREF="../goldenPath/credits.html">Credits</A> page for the list of contributors and usage restrictions associated with these data.<FORM ACTION="../cgi-bin/hgTables" NAME="mainForm" METHOD=POST>
-<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87778340">
+<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87784805">
 <SCRIPT>
 function setRadioCheck(varName, value) 
 {
@@ -280,7 +280,7 @@ var regionType='range';
 <A HREF="/cgi-bin/cartReset?destination=/cgi-bin/hgTables">click here</A>.
 </FORM>
 <FORM ACTION="../cgi-bin/hgTables" METHOD="GET" NAME="hiddenForm">
-<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87778340"><input type="hidden" name="clade" value="">
+<INPUT TYPE=HIDDEN NAME="hgsid" VALUE="87784805"><input type="hidden" name="clade" value="">
 <input type="hidden" name="org" value="">
 <input type="hidden" name="db" value="">
 <input type="hidden" name="hgta_group" value="">
