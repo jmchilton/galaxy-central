@@ -2,480 +2,780 @@
 a score=85620.000000
 s hg17.chr7     127471584 104 + 158628139 GAGATATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggaattattattgtgtgataatggtcttgcagttac-acagaaattcttcctta-ttttt 
 s panTro1.chr6  129885465 104 + 161576975 GAGACATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggagttattattgtgtgataatggtcttgcagttac-acagaaattcttcctta-ttttt 
+i panTro1.chr6                            C 0 C 0                                                                                                        
 s rheMac2.chr3  165788377 105 + 196418989 GAGATATTT-GGggaaatttg-gtatagactagctt--tcatgatgtaagggagttatttttgtgtgataatggccctacagttac-acagaaattcttccttatttttt 
+i rheMac2.chr3                            C 0 C 0                                                                                                        
 s canFam2.chr14  52847428 108 -  63938239 gagatattt-gggggaatttgaatgtagtgttgctcttttgtgatgctaagaaattataattgtctgatgatagtctcgtggttatgggggaaatgcttcctta-ttttt 
+i canFam2.chr14                           I 4750 I 198                                                                                                   
 s bosTau2.chr4   19312415 103 -  69556449 -agacattg-ggtaaaattcaaatgcagactagctc----atgatgttaaagaattactcttgtgtggtaatggtcttgtgatagagatagaaatgcttcctta-ttttt 
+i bosTau2.chr4                            M 120077 I 1                                                                                                   
 s rn3.chr4       56182200  95 + 187371129 ----TATTTGGGGGAAATATG-ATGTGCA----CTT--CCATGATCTTAAAGAATTGCTACTGTTTGATAGTGATCTTATGGTTAA-ATAAAAAAAAT--CTTA-GTTGT 
+i rn3.chr4                                I 3727 C 0                                                                                                     
 
 a score=113319.000000
 s hg17.chr7     127471688 183 + 158628139 tgggaagcaccaaagta-------gggataaaatgtcatgatgtgtgcaatacactttaaaatgtttttgccaaaataattaa-------------------------tgaagc--aaatatg-gaaaataataattattaaatctaggtgatgggtatattgtagttcactatagtattgcacacttttctgtatgtttaaatttttcattta-------------------aaaa 
 s panTro1.chr6  129885569 183 + 161576975 tgggaaacaccaaagta-------gggataaaatgtcatgatgtgtgcaatacgctttaaaatatttttgccaaaataattaa-------------------------tgaagc--aaatatg-gaaaataataattattaaatctaggtgatgggtatattgtagttcactatagtattgcacacttttctgtatgtttaaaattttcattta-------------------aaaa 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                       
 s rheMac2.chr3  165788482 202 + 196418989 tgggaagcacaaaagta-------gggataaaatgtcatgatgtgtacaatatgctttaaaatatttttgccaaaataattaa-------------------------tgaagc--aaatatg-gaaaataataactgttaaatctaggtgttgggtatattgcagttcattatgttattgcacacttttctgtgtgtttaaaattttcatttaaaaatatgttttaaaaatgaaaa 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                       
 s rn3.chr4       56182295 194 + 187371129 TAGAAAATACTCAAATATTTAGGGGCGTGACAATGTCACAGTGTCTGCAATTTGCTTTAAAGATTTTT-----AAATATTTAAAAAAGTTTTAATAATTTTGAAAAACTGAAGCTACACTATG-GGAAGTGGTAATTGTTACATATGGGTAATAAGTAT-----AATTCGTTATATTAT-------TTTTC------TTAGAATTTTTCATTTG-------------------AAAA 
+i rn3.chr4                                C 0 I 959                                                                                                                                                                                                                                     
 s bosTau2.chr4   19312519 138 -  69556449 agataaacacttaagtattta---aggatgaaacgccctgatgtttgtaatttgctttagaatattttagccaaaagaattaa-------------------------tgatgc--aaatatgcaaaaagagta--cgttaaacctaa------------------------------------------------atttgCGATTttcattta-------------------aaaa 
+i bosTau2.chr4                            I 1 I 19                                                                                                                                                                                                                                      
 s canFam2.chr14  52847734 160 -  63938239 agacacaaactgaagtattta---aggatgaaatgtcatgatgtttgcaattggctttaaaatattttagccaaaa-agtaaa-------------------------tgaagc--AAATATGGGAAGACAATAATCATTAAATCTAGGTGATGCATAC---------------------------TTTTCCATATGTTTGAAATTTTCATTTA-------------------AAAA 
+i canFam2.chr14                           I 198 I 225                                                                                                                                                                                                                                   
 
 a score=94204.000000
 s hg17.chr7     127471910 164 + 158628139 caatgaccaa----------------------------------------------------------------------------------------------atagactcctaccaa-ctc-aaagaatgcacattctCTG-GGAAACATGTTTCCATTAGGAAGCCTCGAATGCAATGTGACTGTGGTCTCCAGGACCTG-TGTGATCCTGGCTTTTCCTGTTCCCTCCG---CATCATCACTGCAGGTGTGTTTTCCCAAG 
 s panTro1.chr6  129885791 164 + 161576975 caatgaccaa----------------------------------------------------------------------------------------------atagactcctaccaa-ctc-aaagaatgcacattctCTG-GGAAACATGTTTCCATTAGGAAGCCTCGAATGCAATGTGACTGTGGTCTCCAGGACATG-TGTGATCCTGGCTTTTCCTGTTCCCTCTG---CATCATCACTGCAGGTGTATTTTCCCAAG 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                   
 s rheMac2.chr3  165788723 162 + 196418989 caatgaccaa----------------------------------------------------------------------------------------------atagacccctaccga-ctc-aaagaatgtacattctTTG-GGAAACATGTTTCCATCAGAAAATCTCAAATGCAATGTGACTGGGGTCTCCAGGACCTG-TGTGAGCCTGGCTTTTCCTGTTCCCTCCA---CATCATCACTGCAGGTGTATTTTCCC--G 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                   
 s rn3.chr4       56183448 257 + 187371129 --ATGACCAATATACACTGTTTACATGTATAGCATTGTGAATGGAGACATAAAAAGATAATCTAGCTTTGTGCTAGGTAGGTGCTGAGCTCTTAACAGTGCTGGGCAGAAACCTATAAC-CTC-ACAGGGTGGGTTGTCTTTG-AGGAGCGTGCTAACCCTAGGAAGTCTCAAATACAATGTGATGGTTGCCCCCAGGCACCACCTTGAACCTGGTCTTCCTGGTTTCTTTCA---CACCATTACCACAAATACATTTTCTCAGG 
+i rn3.chr4                                I 959 C 0                                                                                                                                                                                                                                                                 
 s bosTau2.chr4   19312715 168 -  69556449 atgtgaacaa---------------------------------------------------------------------------------------------aacggacccgtgtgggactcggcggagcacacagattttgcgggagCACGTTCCCGTTAGGAAGTCTCTGATGCAATACGACCGGTGCCTTCAGGACCTG-TG--AGGCTGACTTTCCTTA-CCCCTCCACACCATCATCAAGGCAGGTGTGATTTTCCAGG 
+i bosTau2.chr4                            C 0 I 12                                                                                                                                                                                                                                                                  
 s canFam2.chr14  52848158 168 -  63938239 cagtgaacaa---------------------------------------------------------------------------------------------aacagagccctgcagt-cttgatggagcacacaacctttg-gggaaCATGTTTCCATAAGAAAGTCTCCAATGTGATCTGA-TGGTGCCGCCAGGACCTA-TGTCAGCCTACCGTTCCATGTCCCCTCCACACCATCATCACTGCAGGTGTGTTTTCCCACA 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                   
 
 a score=-123387.000000
 s hg17.chr7     127474799 154 + 158628139 C--CTGGGCTT-CCCTGGCGTCCA--GGGCCGTCGG---------------------GGCCGAGTCCCGATTCGCTCCCACCCCGAAGCCGCGCCAGGACCAACGAGGGCGCAGCCGTATGCCCCAGCCCGCTCCGCGGAGCCCCTCACAGCCAcccccgccc---cgaccgcgccccgcgcg 
 s panTro1.chr6  129888653 154 + 161576975 C--CTGGGCTT-CCCTGGCGTCCA--GGGCCGTCGG---------------------GGCCGAGTCCCGATTCGCTCCCACCCCGAAGCCGCGCCAGGGCCAAGGAGGGCGCAGCCGTATGCCCCAGCCTGCTCCGCGGAGCCCCTCACAGCCAcccccgccc---cgaccgcgccccgcgcg 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                 
 s rheMac2.chr3  165791644 149 + 196418989 A--CTGGGCTT-CCCGGGCTTACA--GGGCCGTCGG---------------------GGCCGAGTCCTGGTTCGCTCCCGCCCGGAGGCCGCGCCCGGGCCAGCGAGGGCGCCACCGGATGCCCCAGCCCGCTCCACGGAGCCCCTCACAGTCAcccccgccc---cggccgcgcccc----- 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                 
 s rn3.chr4       56184939 107 + 187371129 CAACCGGGTT-----AGGTATGCAAAGAGCCGTCGG--------------AAGAAGCAACTG-GTTCTGGCTCGCT---------------------GGC------------CTCCCTGTCCCAAAGCAGGCCTTCTATAGCCC-----------------------GACTGCTCCCCGCGGT 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                 
 s bosTau2.chr4   19312895 147 -  69556449 ---CCGGGTTTCCCCGGGGGCCCA--GAGCCGTCGGGTCTTGCCGCCCAGCGGAGCTGGCTG-CTCCGGCCTCACT---------------------GTC-----GGGGCGCCACCG---CCCCCAGCCGGCTCAGAGGAACCCCTCACCGCCACCCTGTCCCAGGCGGCCGTTCCCCGAGA- 
+i bosTau2.chr4                            I 12 C 0                                                                                                                                                                                
 s canFam2.chr14  52849821  82 -  63938239 ---------------------------GGCCGTCGG---------------------GGCAG-CTCCG----CTTG---------------------GTC-----GAGGTcc-----------ccggcgggcccggg-----ccctcgaggacgcggcgctcccgccagccgccccc------ 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                 
 
 a score=52355.000000
 s hg17.chr7     127474953 114 + 158628139 gcTCGAAGCACCTTCCCAAGGGGCTGGTCCTTGC----------GCCATAGTCGCGCCGGAGCCTCTGGAGGGACATCAAGGATTT-CTCGCTCCTA-CCAGCCACCCCCAAATTTTTGGGAGGTA 
 s panTro1.chr6  129888807 114 + 161576975 gcTCGAAGCACCTTCCCGAGGGGCTGGTCCTTGC----------GCCATAGTCGGGCCGGAGCCTCTGGAGGGACATCAAGGATTT-CTCGCTCCTA-CCAGCCACCCCCAAATTTTTGGGAGGTA 
+i panTro1.chr6                            C 0 C 0                                                                                                                        
 s rheMac2.chr3  165791793 107 + 196418989 -------gcACCTTCCCGAGGGGCCGATCCTTGC----------GCCATAGTCGCGCCAGAGCCTCTGGCGGGACATCGAGGACTT-CTCGCTCCTG-CCAGCCAACCCCAAATTTTTGGGAGGTA 
+i rheMac2.chr3                            C 0 C 0                                                                                                                        
 s rn3.chr4       56185046 117 + 187371129 GCTGGCAGCACCATCCCAAGGGACCCGTCCTTAAACTACCTTAGACTACCGCTGCTCTGTAGCTGCTGGCGCGACCTCCAGGATTACCCGGCTCATA-CCAAGCGCCCCCAACT--------CGCA 
+i rn3.chr4                                C 0 C 0                                                                                                                        
 s bosTau2.chr4   19313042  75 -  69556449 --------------CCCGAGGGTCAGATCCTGGG----------GCC--------------------------ACCTCGAGGATTT-CTCACACCTGCCCAGCCACCCCCAACTTTTCAGGCGATA 
+i bosTau2.chr4                            C 0 C 0                                                                                                                        
 s canFam2.chr14  52849903  19 -  63938239 -------------------------gcccttggg----------gcc--------------------------gccccgg---------------------------------------------- 
+i canFam2.chr14                           C 0 C 0                                                                                                                        
 
 a score=686179.000000
 s hg17.chr7     127475067 598 + 158628139 CCCAAGGGTGCGCGCG-TGGCTCCTGGCGC-GCCGAGGCCCTCCCTCGAGGCCCCGCGA------------------GGTGCACACTGCGGGCCCAGGGCTAGCAGCCGCCCGGCACGTCGCTACCCTGAGG---GGCGGGGCGGGAGCTGGCGCTAGAAATGCGCCGGGGCCTGCGGGGCAGTTGCGCAAGTTGTGATCGGGCCGCTATAAGAGGGGCGGGCAGGCATGGAGCCCCG--------TAGGAATCGCAGCGCCAGCGGTTGCAAGGTAAGGCCCC-G-GCGCGCTCCTTCCTCCTTCTCTGCTGGTCTTTCTTGGCAGGCCACAGGGCCCCACACAACTCTGGATCCCGGGGAAACTGAGTCAGGAGG-GATGCAGGGCGGATGGCTTAGTTCTGGACTATGATAGCTTTGTACCGAG-----TTCTAGCCAGATAGAAGGTTACCGGGAGCTGGGGAGCGTTGGATTTGCTGCTGGGCTGTGCCGGTGCCCAGAAGGCAG------GACCTTGCAGAACCAGCCAGGTCCCTGGGAGACTGTCAGACCCACCAACCTGGTGGCATTCGCAGAGCTGAGATGCATTGGAAATTGCCTTGGGCACATCCCCAAAGATCAGGATGTCCCACCCCAG 
 s panTro1.chr6  129888921 598 + 161576975 CCCAAGGGTGCGCGCG-TGGCTCCTGGCGC-GCCGAGGCCCTCCCTCGAGGCCCCGCGA------------------GGTGCACACTGCGGGCCCAGGGCTAGCAGCCGCCCGGCACGTCGCTACCCTGAGG---GGCGGGGCGGGAGCTGGCGCTAGAAATGCGCCGGGGCCTGCGGGGCAGTTGCGCAAGTTGTGATCGGGCCGCTATAAGAGGGGCGGGCAGGCATGGAGCCCCG--------TAGGAATCGCAGCGCCAGCGGTTGCAAGGTAAGGCCCC-G-GCGCGCTCCTTCCTCCTTCTCTGCTGGTCTTTCTTGGCAGGCCACAGGGCCCCACACAACTCTGGATCCCGGGGAAACTGAGTCAGGAGG-GAGGCAGGGCGGATGGCTTAGTTCTGGACTATGATAGCTTTGTACCGAG-----TTCTAGCCAGATAGAAGGTTACCGGGAGCTGGGGAGCGCTGGATTTGCTGCTGGGCTGTGCCGGTGCCCAGAAGGCAG------GACCTTGCAGAACCAGCCAGGTCCCTGGGAGACTGTCAGACCCACCAACCTCGTGGCATTCGCAGAGCTGAGATGCATTGGAAATTGCCTTGGGCACATCCCCAAAGATCAGGATGTGCCACCCCAG 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s rheMac2.chr3  165791900 592 + 196418989 CCCGAGGGTGCGCGCG-TGGCTCCTGGTGA-GCCGAGGCCCTCCCTCGAGGCCCCGCGA------------------GGCGCACACTGCGGGCCCGGGGCTCGCAGCCGCCCCGCACGTCGCTACCCTGAGG---GGCGGGGCGGAAGCTGGCGTTTGGAGTGCCCCGGGGCCTGCAGGGCAGTTGCGCAAGTTGTGA-AGGGCCGCTATAAGAGGGGCGGGCAGGCATGGAGCCCCG--------GAGGAATCGCGGAGCCGGCGACTGCAAGGTAAGGCCCC-G-GCGCGCTCCTTCCTCCTTCTCTGCTGGTCTTTCTTGGCAGGCCACAGCGCCCCACCCCACTCTGGATCCCGGGGAAACTGAGTCAGGAG------------GGATGGCTTAGTTCTGGACTATGATAGCTTTGTACCGAG-----TTCTAGCCAGAGAGAAGGCTACTGGGATTGGAGGAGCGTTGGATTCGCTGCTGGGCTGTGCCGGTGCCCAAAAGGCAGGACTCTGACCTTGCAGAACTAGCCAGGTCCCTGGGAGACTGTCAGACCCACCAACCTCGTGGCATTCGCAGAGCTAAGATGCACTGGAAATTGCCTTGGGCACATCCGCAAAGATCAGGGTGTCCCACCCCGG 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s rn3.chr4       56185163 523 + 187371129 CTCGAGGGAGCG-------------------GCTGAAGTCCTCCCTTGAGGCACCCAGAGCAGGACCTGGCTCCTGCGTGGAGCACT----------AGGCTGCAACAGCC---ACCGTCGCTGACCCGCTG---GGTGGGGCGGGAATTGGCGCTCGCAAGG-ACTGGGGCTGGCCGGGCAGTTGCGCAAGTTGCACTGGGGCAACTATAAGAGGGGCAGGCAGGCATGGAGCCCCG--------GAGGAATCCCTGCTCCAGCAGCTGCAAGGTAAGGCCTT-GGGCGCATTACTTTCTC---CTCCACCAGTCTTTC-TGATAG-------CACCCCACCCAGCCCTGGAAATTAGAGAAACTGAGGCAAGAAG-GAGGTAGTGTGGACAGCTTGGTGCTGAACTA----AGTTTTGCAGGGAAGGACTCTGCAGACGGAGCGAAAGAGGCTGGGAGCTGAGGGGCATTAGAATCCTGGCTGGGCCG-GCCTGTGCCCACAGGGCACCAACCTGTTCTTGCAAAGCCAGCCAGGACTCCAAGCCTGTCTTTGGTC------------------TGCAGACTTGAG--------------------------------ATGATTAGGGG-----ACAG--- 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s bosTau2.chr4   19313117 571 -  69556449 CCGGAGGGTGGGCGTG-GGGCTCCTGGTGCATCCGAGTCCCTCCCTGGAGTCCCC--GA-----------------------------------------ccgcggccgcccggcccgacgctgccccgccgcccggcagggcgggagccggcgctgcgggtgcgccccggccagccgggcAGTTGCGCAAGTTGTGCTTCGGCGGCTATAAGAGGGGCGGGCAGGCATGGAGCCCCGGAGGGATCGAGGAATCGCGGCGCCAGCAGCGGCGAGGTAAGTGCCC-G-GCTCTCTCCTTTCTACTTCTCCGCCGGTCTTTCTTGGCAGGCCACCCAGCCCAGCCCA-CCCGGGACCCCGGGGAAACTGAGGCAGGCGA-AGGGCAGGGCGGACGGCTTGGTTCTGGATTGGGGTAACTTTGCACCAGAG----TTCTAACCGGTGGGAAGACGGCTGGGAGCCGGGGAACGTTAGCTTTGGGGCTGGGATGTGCC--TGCC-------CAGGAATCAGCGCTCCAGGAGCCAGCCTGGGCCCCAGGAGACTGCCAGAGCCTCCAGCCC---------TGCCT--TTGACATGCTTTGGAAACGGCCTTGAGCACACCCCCAAAGATCAGGATACCTCGCCCCCA 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s canFam2.chr14  52849922 532 -  63938239 ---------gggcgcgcgggctcc---ggcagccgaggccctccctcgaggcccg--gg----------------------------------------cccgcgg--------------------ccgccgccgggcggggcgggggctggcgctcggggtgcg-gcgggcctgccggccAGATGCGCAAGTTGCGCTCGGGCGGCTATAAGAGGGGCGGGCAGGCATGGAGCCCCG--------GAGGAGTCGCGGCGCCAGCAGCTGCGAGGTAAGGGCCCGG-GCGCGCTGCTCTTTCCCTCTCCGCCGGTCTTTCTGGGCCAGGCACCACCCCCCACCCC-CCC-GAACGCCGGGGAAACTGAGGCGCGCGAGGGGGCGGGGCGCATGGCTTGGTTCTGGACCTTGGCGGCTTCGTGGCGGGG----TTCTGACGGGAGGGAAGGCAGCGGGGAGATCTGGA--------TTCGGGGCCGGGCTGTGCCGGTGCCCACGGAGCAGGAATCTGTGC-CATGGAGCC-GCCGGGGCCCCAGGAGACTGTCAGAGCCCGCGGCCC---------AGCTG--CTGAGATGCTGTGGAAATTGCCTCGAGCACATCCCCAAAGATCAGGGTACCCTGCCCCCA 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
 a score=-22498.000000
 s hg17.chr7     127475665 56 + 158628139 TCTGAAGGAG-------ATAAAGTTGGGGGTAGGAGAGACGCAG-ATGCAAGTGATC---AGTCTCA 
 s panTro1.chr6  129889519 56 + 161576975 TCTGAAGGAG-------ATAAAGTTGGGGGTAGGAGGGACGCAG-ATGCAAGTGATC---AGTCTCA 
+i panTro1.chr6                           C 0 C 0                                                             
 s rheMac2.chr3  165792492 56 + 196418989 TCTGGAGGAG-------ACAAACTTGGGGGTAGGAGGGATGCAG-ATGCAAGTGATC---AGTCTCA 
+i rheMac2.chr3                           C 0 C 0                                                             
 s rn3.chr4       56185686 64 + 187371129 --AGATGAACAGATCCGGCAAGGCTGGGCGTGCAGTGGA-GCAGCCCACAGCTTTCTGCCTTCCTGA 
+i rn3.chr4                               C 0 C 0                                                             
 s bosTau2.chr4   19313688 45 -  69556449 TGTGCAGAGG-------ATGTGCGTTGAGTTTCTGAGG----AG------TGTGA-----GTTCTGA 
+i bosTau2.chr4                           C 0 C 0                                                             
 s canFam2.chr14  52850454 49 -  63938239 TCCGGAGGCG-------GTGAAGTTGAGGGCGCTGGGGGTTCGG------GATGA-----GCGCTGG 
+i canFam2.chr14                          C 0 C 0                                                             
 
 a score=89877.000000
 s hg17.chr7     127475721 252 + 158628139 GTCCCAGACA---TTGCCTTGCTCTGCGGGTAGGAATTCAGGATTCATTTTCCAGGGAAG--------TTCCTGACCTCTGAATGAGAGGGGCTGTGTAAGGCCAATGCCTGGGAGGAAGGCAAGGAT-GAGTAGAGGTGGGGGGAAACAAGTGTCAGGAAGA--CTC-----------------------------------------------AAAATCTTCC--------AGAGAAATTGTG-CAGGG-TCTTACCAGATCTGTCCTCAAAGCCATGCAAATTGCCTTCTTTGCAATGCATACAATGAGGTGTCTCTGGG 
 s canFam2.chr14  52850503 261 -  63938239 GTTTCTGAGGACTAGCTTTTGCTCCGCGGCTAAGAATTCGGGCATCATTTTCCAGCGGGGGGTCTTCATCTCTGGTGTCTGATTGCAAGGATTTGTATAAGGCCAAAGCCTAGGAAGGGAAGCACTGCGGAGTAGAGGCGGAAAGAAA-AC---TCAGGAAGAACCCC------------------------------------------------AAATGTCTC--------AGAGAGATTCTG-ACGAG-TCTCACCACATCTGGCCTTCAAGCCAAGCCAACGGTCTTCTTCACAGTGGATGAAATTGGGGTTTTCTGGG 
+i canFam2.chr14                           C 0 I 226                                                                                                                                                                                                                                                                                                                           
 s bosTau2.chr4   19313733 246 -  69556449 GGGTGTAAAG---GAGTCTTGGTCTGCAGATGAGAATTCAGGCAACGTTTTCCAGCAGGG--------TTCCTGACTTGTGAATGCGAAGGACTGTATAAAACCCAGGCCATAGCATGGAG--ATGAGGAAGTAGGGGTGAGCAGAAA-AA---CTGGGAGAA--CCC------------------------------------------------AAATCTCCC--------AAAGAAATTATG-GAAGA-TCTCACTCCATCTGTCCTCAAAGTCATGAGAACTGCCTTCTACACTGTGGATAAAATAGGTTTCCTTTGGG 
+i bosTau2.chr4                            C 0 I 21                                                                                                                                                                                                                                                                                                                            
 s rn3.chr4       56185750 245 + 187371129 AGACCAGATA---CAGCTTCGCTTTGCTG-TAAGAATTC-------ATTTTCCATTGAGG--------ACCT-----------------------------------ACCTAGTACTAAAACTACTGTTAAGTAGAGATAGGTAGAAA-AACTGTCAGGAAGA--ACACACACACACACACACACACACACACACACACACACACACACCCCAAATGAACCATCACCAACAACGAAGAAGCTAGGATAGGACTCTTTCCACATCTGTCC-CAAAGCCATACAAATTATCTTCTTCAGAAGACA-------------------- 
+i rn3.chr4                                C 0 I 54                                                                                                                                                                                                                                                                                                                            
 s rheMac2.chr3  165792548 251 + 196418989 GACCTAGACA---CTGCCTTGCTCTGCAAGTAGGAATTCAGGCTTCATTTTCCAGGG-AG--------TTCCTGACTTCTGAATGGGAGGGGCTGTATAAGGCCAATGCCCAGGAGGAAGGCAATGAT-GAGTAGAGGT-GGGGGAAACAAGTGTCAGGAAGA--CTC----------------------------------------------AAAAATCTTCC--------AGAGAAATTGTG-CAGGG-TCTCACCAGATCTGTCCTCAAAGCCATGCAAATTGCCTTCTTTGCAATGCATACAATGAGGTGTCGTTGGG 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                             
 s panTro1.chr6  129889575 252 + 161576975 GTCCTAGACA---TTGCCTTACTCTGCGGGTAGGAATTCAGGCTTCATTTTCCAGGGAAG--------TTCCTGACCTCTGAATGAGAGGGGCTGTGTAAGGCCAATGCCTAGGAGGAAGGCAACGAT-GAGTAGAGGTGGGGGGAAACAAGTGTCAGGAAGA--CTC-----------------------------------------------AAAATCTTCC--------AGAGAAATTGTG-CAGGG-TCTTACCAGATCTGTCCTCAAAGCCATGCAAATTGCCTTCTTTGCAATGCATACAATGAGGTGTCTCTGGG 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                             
 
 a score=27420.000000
 s hg17.chr7     127475992 28 + 158628139 GGAACTTCTAGCCAGGACTGCTAAATAC 
 s panTro1.chr6  129889846 28 + 161576975 GGAACTTCTAGCCAGGACTGCTAAATAC 
+i panTro1.chr6                           C 0 C 0                      
 s rheMac2.chr3  165792818 28 + 196418989 CGAACCTCTAGCCAGGACTGCTAAATAC 
+i rheMac2.chr3                           C 0 C 0                      
 s rn3.chr4       56186049 28 + 187371129 GGCATTTCTACCCAGGATGGTTAAATGC 
+i rn3.chr4                               I 54 C 0                     
 s bosTau2.chr4   19314032 28 -  69556449 CATTTCTCTAGCCAAAACTGATAAATGC 
+i bosTau2.chr4                           I 17 C 0                     
 s canFam2.chr14  52851023 27 -  63938239 GGCCTCTCTAGTCAATACCG-CAAATAC 
+i canFam2.chr14                          I 18 C 0                     
 
 a score=8847.000000
 s hg17.chr7     127476020 45 + 158628139 GCGCTGTTGGCCCACCAGGCTCACCT--------ATAGCCTT-CCTTCAGT-----------CTG 
 s canFam2.chr14  52851050 44 -  63938239 CCGCTGTTGGCAGGTGGGCCCCAGGT--------CGAGTCC--CCTCCTCT-----------CCT 
+i canFam2.chr14                          C 0 C 0                                                           
 s bosTau2.chr4   19314060 54 -  69556449 ACACTATTGGCAGGTGGGCCCCCGGTGACACCTGCCAGTCCTGCCTTCTCT-----------CCT 
+i bosTau2.chr4                           C 0 C 0                                                           
 s rn3.chr4       56186077 54 + 187371129 ACATTGCCAGCCTG--AGGCCCCAAC--------ATGCCCCT-CCTTCAGCTGTCTTTCTCGCTG 
+i rn3.chr4                               C 0 C 0                                                           
 s rheMac2.chr3  165792846 45 + 196418989 GCGCTGTTGGCCCACCAGCCTCACAT--------ATAGCCTT-CCTTCAGT-----------CTG 
+i rheMac2.chr3                           C 0 C 0                                                           
 s panTro1.chr6  129889874 45 + 161576975 GCTCTGTTGGCCCACCAGGCTCGCCT--------ATAGCCTT-CCTTCAGT-----------CTG 
+i panTro1.chr6                           C 0 C 0                                                           
 
 a score=15200.000000
 s hg17.chr7     127476065 32 + 158628139 GGCTTGGTTTGGATTTCACTGTGGGTGCCATC 
 s panTro1.chr6  129889919 32 + 161576975 CGCTTGGTTTGGATTTCACTGTGGGTGCCATC 
+i panTro1.chr6                           C 0 C 0                          
 s rheMac2.chr3  165792891 32 + 196418989 TGCTTGGTTTGGATTTCACTGTGGGTACCTTC 
+i rheMac2.chr3                           C 0 C 0                          
 s rn3.chr4       56186131 30 + 187371129 GGGTTCATTA-GACTGCATTCTGAATATGGT- 
+i rn3.chr4                               C 0 C 0                          
 s bosTau2.chr4   19314114 32 -  69556449 GGCTTGGTTTCGATTTCTTGGTGGATGGGTTT 
+i bosTau2.chr4                           C 0 C 0                          
 s canFam2.chr14  52851094 31 -  63938239 GGCCTGGTTTACATTCACT-GTGAGTGTGGTT 
+i canFam2.chr14                          C 0 C 0                          
 
 a score=96725.000000
 s hg17.chr7     127476097 110 + 158628139 GCCTTTACACTCCTGTTTCTATAGTTTAAAGATAGTGGTGCTTTGGGAAAGTGACTCCTTAAATACAGTTAGGTCCAAGTGAGACA------AGTGGCCTGGCTGTCATTTCAGAA 
 s panTro1.chr6  129889951 110 + 161576975 GCCTTTACACTCCTGTTTCTATAGTTTAAAGATAGTGGTGCTTTGGGAAAGTGACTCCTTAAATACAGTTAGGTCCAAGTGAGACA------AGTGGCCTGGCTGTCATTTCAGAA 
+i panTro1.chr6                            C 0 C 0                                                                                                              
 s rheMac2.chr3  165792923 110 + 196418989 GCCTTTACACTCCTGTTTCTATAGTTTAAAGATGGTGGTGTTTTGGGAAAGTGACTCCTTAAATACAATTAGGTCCAAGTGAGACA------AGTAGCCTGGCTGTCATTTCAGAA 
+i rheMac2.chr3                            C 0 C 0                                                                                                              
 s rn3.chr4       56186161  80 + 187371129 GCCCATATACTCC----TCTATGTCTTC------------CTCTGGG-AAGTGGTGCGTTAAATATGGTCAGATACCA-------------------CCGCGCTGCCTTGTGTGAA 
+i rn3.chr4                                C 0 C 0                                                                                                              
 s bosTau2.chr4   19314146 113 -  69556449 GCCTTCACACTCCAGTTTCTATAGCTTAAAGAT-GTGGCACTTTGGAAAAGTGAATTCTTAAATACAGTTTGATCCAAGT--GACACTCAATGGTGACCTGGTTGTCATTTGAGAA 
+i bosTau2.chr4                            C 0 C 0                                                                                                              
 s canFam2.chr14  52851125 106 -  63938239 GTCTTCCCATTCCAGTTTCTAGAGCTTCAAGATGGTGGCATTTTGGAATTGTGAATCCTTACTTACAGCTGGATCCAA----GACA------AGCGGCCTGCTTGTCACTTGAGAA 
+i canFam2.chr14                           C 0 C 0                                                                                                              
 
 a score=23394.000000
 s hg17.chr7     127476207 34 + 158628139 TAGCAGCTTCCAAGAGG----------TGATTAATTTCTGTTGG 
 s panTro1.chr6  129890061 34 + 161576975 TAGCAGCTTCCAAGAGG----------TGATTAATTTCTGTTGG 
+i panTro1.chr6                           C 0 C 0                                      
 s rheMac2.chr3  165793033 34 + 196418989 TAGCAACTTGGAAGAGG----------TGATTAATTTCTGTTGG 
+i rheMac2.chr3                           C 0 C 0                                      
 s rn3.chr4       56186241 44 + 187371129 TTGCTACTTGGGAGAGGACAAGGCAATCAAGTCATTTCTATTGG 
+i rn3.chr4                               C 0 C 0                                      
 s bosTau2.chr4   19314259 21 -  69556449 TAGCAGCCTTGGAGAGGATT-----------------------G 
+i bosTau2.chr4                           C 0 C 0                                      
 s canFam2.chr14  52851231 40 -  63938239 GAGCAGTTTGGGAGAGGATGAAA----GGATTGATTTCTGCTAG 
+i canFam2.chr14                          C 0 C 0                                      
 
 a score=179740.000000
 s hg17.chr7     127476241 304 + 158628139 AAGGGTGAT-CTTTGGGGAGGT--GGGTGAAGAGCAGAGACTTGGTGGTACCGTTCCAGGAGCACAG------GCTCTCT-----TCCTTTGCA--GTGCAGAATGACCTCTGGCAGCCGGAGTTGTGTTTGTTCTGTAGGATTCTGAGGTGG----GCCATGGGCAGCTGGAACTGGG-------GAATTTTGCCAATCTCTTTCATATTAGGATTGTCTGCAGAACCAGATATG----GAGGC--TTCTAGCAACGTGAGTGCTCCTGTTCTAATGCCCTTAGAAACAAGAAGGCCACACTGATCATTTCTCTCACTTAGGCAGGGAGACAAGGC 
 s panTro1.chr6  129890095 304 + 161576975 AAGGGTGAT-CTTTGGGGAGGT--GGGTGAAGAGCAGAGACTTGGTGGTACCGTTCCAGGAGCACAG------GCTCTCT-----TCCTTTGCA--GTGCAGAATGACCTCTGGCAGCCGGAGTTGTGTTTGTTCTGTAGGATTCTGAGGTGG----GCCATGGGCAGCTGGAACTGGG-------GAATTTTCCCAATCTCTTTCCTATTAGGATTGTCTGCAGAACCAAATATG----GAGGC--TTCTAGCAACGTGGGTGCTCCTGTTCTAATGCCCTTAGAAACAAGAAGGCCACACTGATCATTTCTCTCACTTAGGCAGGGAGACAAGGC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                           
 s rheMac2.chr3  165793067 299 + 196418989 AAGGGTGAT-CTTTGGGGAGGT--GGGCGAAGAGCAGAGACTCGGTGGTACCGTTCCAGGAGCACAA------GCTCTCT-----TCCTTTGCA--GTGCAGAATGACCTCTGGCAGCCGGGGTTGTGTTTGTTCTGTAGGATTCTGAGCTGG----GCCATGG--AGCTGGAACCGGG-------GAGTGTTCCCAATCTCTTTCCTATTAGGATTGTCTGCAGAACCAAATATG----GAGCC--TTCTAGCAACGTGAGTGCTCCTGTTCTAATGCCCTTAGAAAC---AAGGCCACACTGATCATCTCTCTCACTTAGGCAGGGAGACAAAGC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                                           
 s rn3.chr4       56186285 299 + 187371129 GAGCATAGTGTTCAGGGGAGGT--AGGCAGAGGGCGGAGACTTGGTGGCACCATTGTGGGAGCATAG------GTTCTCTGGGCGTCCTTTGCAAGGTGGAAATGGACTTCCAGTAGTGAGAGTCATAATTTTTTTGTAGAGTTCTT-GGTGG----ACAGTGGTCAGCTGGGACTGGGG------GAGCATTTCTGAGCTTTTCCTGATCTGTATGGTACCTAGAACCAAACTTGAGAAGAGGCATGTCTAACA--GTCAG-GTCACTCTCCTGGAGAGTATA--------AGGACCACACTGATCATGTATTTCGTTGAGGCATGGA-------- 
+i rn3.chr4                                C 0 I 367                                                                                                                                                                                                                                                                                                                                         
 s bosTau2.chr4   19314280 280 -  69556449 GAAGGTAGT-CTGCAGGGGAGGCGAGGCAGAGGGCAGGGACTGGAAGGC-AAGATGCAAGAGCTCAA------AGATTCC-----CCAC-------G------CTGTCCTCTGTCCAGCCTC-TGGTGTTTGCTCTGTAGAG-CCTAAGGTGGCAGTGCAGTGGGCAGCTAGGACCAGGTGGGACAGAGGATATCCAGGCTC-TTCCCACCGGGACGGTGTGCAGAACCA----------CAGTC------------------GCTCCCACTCTGATGCCCTCCTGAGCAGGAAGGTCTTGCTGATCTTTTCTCTCATGCAGGCAGGGGGAGAAGGC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                                                           
 s canFam2.chr14  52851271 287 -  63938239 AAGGGTGGT-CTTTGGGGTGGGCAGGGCAGAGGGCAGATACTTGTAGGC-CAGACCAAGGAGCATAGTTCCTTGCCTCCC-----CCTT-------GTAGGACCTAACCACTGTCATCCCTC-TTAAGTTC-CCCTGTAGAGTTCTGAGGTGG----GCAGCAGTGAGCTGGGACTA-GTGGGAGAGA-GATACCCAATCTCTTTCCCACCAGGTTGGTCTGCAGAACCA----------TAGTC------------------GCTGCCATTCTAACGTCCTCATGAGCAGAGATGTCAAGCCAATCATTTCTCTCACTTAGGTAGGGGGAGAAGGC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                                                                           
 
 a score=682002.000000
 s hg17.chr7     127476555 280 + 158628139 CAGTGGATGCTTTTAGGTTCTTTCCCTTCCCAAGCAGTTGTGGACATTGGGCTGA-GGGGAACATTTCCACATTGGCTAAAGGAGCGTCCTCCTCATATTTTGTACATTTTATACCCAA--AATAA-CTCTTCTTGGTATTT-GGGGAAATATTTTCCTCCCCGTCCATTCCAGGAAATGGCTCCAAGTGCCAAGGACAGAGCCAGGGAAGTTGCAATGAATTCCTGCCCGTCAGCCCCAGGCAGATGCCTTGCACGTCTGAGTGGCCCATGCAGAGCGTGGAGG 
 s panTro1.chr6  129890409 280 + 161576975 CAGTGGATGCTTTTCGGTTCTTTCCCTTCCCAAGCAGTTGTGGACATTGGGCTGA-GGGGAACATTTCCACGTTGGCTAAAGGAGCGTCCTCCTCATATTCTGTACATTTTATACCCAA--AATAA-CTCTTCTTGGTATTT-GGGGAAATATTTTCCTCCCCCTCCATTCCAGGAAATGGCTCCAAGTGCCAAGGACAGAGCCAGGGAAGTTGCAATGAATTCCTGCCCGTCAGCCCCAGGCAGATGCCTTGCACATCTGAGTGGCCCATGCAGAGCGTGGAGG 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                       
 s rheMac2.chr3  165793376 280 + 196418989 CAGTGGATGCTTTCAGGTTCTTTCCCTTCCCAAGCAGTTGTGGACATTGGGCTGA-GGGGAACTTTTCCATGTTGGCTAAAGGAGCATCCTCCTCATATTTTGTACATTTTATACCCAA--AATAA-CTCTTCTTGGTATTT-GGGGAAATATTTTCCTCCCCCTCCATTCCAGGAAATGGTTCCAAGTGCCAAGGACAGAGCCAGGGAAGTTGCAATGAATTCCTGCCCGTCAGCCCCAGGCAGATGCCTCACACGTCTGAGTGGCCCATGCAGAGCGCGGAGG 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                       
 s rn3.chr4       56186951 285 + 187371129 CAATAACTCTTTTTGGGTTCTGTCCTTCCTCAAGCACTCAAGGACACTGGGCTGAGGGGGAACATGCCCATGTTGACTAAAGAAGCATCCTTCTCATATTTGGTAGATCTTATACCCAAGTAACAAGCTCTTCTTGGTATCTGGGGGAAATATTTTCCTCCCCCTGTGTTCCAGGAAAAAGCTCAAAAAGCCAAAGACGGAGCCAGGAACGCTGCAATAAATTCCTGTCCATCAGCCCCAGGCAGATGCCTCGCATGTCTCGGTGACCCATGTGGGACGCAGAGA 
+i rn3.chr4                                I 367 C 0                                                                                                                                                                                                                                                                                     
 s bosTau2.chr4   19314570 280 -  69556449 CAGTGGGTGTGGCTCAGTTCTTTGCTTT-TCAAGCAGTTGAGGACATTGGGCTGA-GAGGAACGTTTCCATGTTGGCCAAAGGAGCATCCCTCTCGTATTTTGTACATCTTATGCCCAA--AATAA-CTCTTCTTGGTATTTGGGGGAAATATTTTCCTCCCCCTCCATTCCAGGAAATGGCTCCAAGCGCCAAGGACAGAGCCAAGGAGATTGCAATGAATTCCTGCCCGTCAGCCGCAGGCGGATGCCTCTCGAGTCTGAGTGGCCTGTGCAGGGTGTGGAGG 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                       
 s canFam2.chr14  52851568 280 -  63938239 CAGTGAATGTTTTTAGGTTCTTCCCTTT-TCTAGCAATAGAGGACATTAGGCTGA-GGGGAACGTTTCCATGTTGGCCAAAGGAGCGTCCTTCTCATATTTTGTACATCTTATGCCCAA--AATAA-CTCTTCTTGGTATTTGGGGGAAATATTTTCCTCCCCCTCCGTTCCAGGAAATGGCTCCAAGCGCCAAGGACAGAGCCAGGGAGATTGCAATGAATTCCTGCCTTTCAGCCGCAGGCAGATGCCTTTCATGTCTGAGTGGCCTGTGCAGGGTGTGGAGG 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                       
 
 a score=75835.000000
 s hg17.chr7     127476835 100 + 158628139 TGGCCGCC----------------ACGGAA-C------------CTGGGTCAATGT-CCCACCCCCG----CTTAGATGCCAC-CAGGGG--CGTGGGAGCCAAG--------------GAG--AGAAG-AGGGGCTCCAGGAAGGTAGAGTCC 
 s panTro1.chr6  129890689 104 + 161576975 TGGCCGCC----------------ACGGAA-T------------CTGGGTCAATGT-CCTACTCCCGCCCACTTAGATGCCAC-CAGGGG--CGTGGGAGCCAAG--------------GAG--AGAAG-AGGGGCTCCAGGAAGGTAGAGTCC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                    
 s rheMac2.chr3  165793656  99 + 196418989 TGGCCACC----------------ACGGAA-C------------CTGGGTCAATGT-CCCACCCCCA----CTTAGA-ACCCC-CAGGGG--CGTGGGAGCCAAG--------------GAG--AAAAG-AGGGGCTCCAGGAAGGTAGAGTCC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                    
 s rn3.chr4       56187236 121 + 187371129 TGGCTGTCCCAGACGATTCCCTTTACGCAGCC------------ATCAGTCTCTGT-TGCACCCCAG----CCTGCATCCCCC-TACAGGCACATGGGGGACAGG--------------GAGATAGAGC-AGGGTCTCCAGGAACACAGAATTC 
+i rn3.chr4                                C 0 C 0                                                                                                                                                    
 s bosTau2.chr4   19314850 121 -  69556449 TGACCGCT--------------TGGGAGAA-C------------CTGGGTCTTTGTCCCCACTCTAG----CCTCGATGCCACTTAGGGGGACGTGGTGGTGGTGGTCAGTGGGAGTCAGAG--AGAGATTAGGGCTCCAGCGATGGGGAATCC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                    
 s canFam2.chr14  52851848 118 -  63938239 TGGCCACT--------------TGGGAGAG-CTCTACTCACAGACCCAGTCATTGTCCCCGCTCCAG----CCTAGATGTCACCCAAGGGGATGAGGGGGTTGAG--------------GAG--AGAGA-TAGGGCTTCAGGGAAGTGGAGTCC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                    
 
 a score=144517.000000
 s hg17.chr7     127477082 200 + 158628139 TTCTTCTTTGTCCACACAGTTGTCTCAGAGAAACAGAG--AGGTT-GTTTCTGCTTAAAAACAACACACTTGGTGTCTGGGCCCAC-AGACTCCTTTGCACTTATTCCACGTGTGACAGCCAATGTGCCTCGTTGCTTAGCAGACAGCATGTTACCGTCTTTCCTGCTCAGTTTGT----------------TAGCTCT----ATGGAATGGAATTTATAATCA 
 s panTro1.chr6  129890940 200 + 161576975 TTCTTCTTTGTCCACACAGTTGTCTCAGAGAAACAGAG--AGGTT-GTTTCTGCTTAAAAACAACACACTTGGTGTCTGGGTCCAC-AGACTTCTTTGCACTTATTCCACGTGTGACAGCCAATGTGCCTCGTTGCTTAGCAGACAGCATGTTACCATCTTTCCTGCTCAGTTTGT----------------TAGCTCT----CTGGAATGGAATCTATAATCA 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                          
 s rheMac2.chr3  165793902 197 + 196418989 TTCTTC---GTCCACACATTTGTCTCAGAGAAACAGAG--AGGTT-GTTTCTGCTTAAAAACAACACACTTGGTGTCTGGGCTCAC-AGACTCCTTTGCACTTATTCCACATGTGACAGCTGATGTGCCTTGTTGCTTAGCAGACAGCATGCTACCGTCTTTCCTGCTCAGTTTGT----------------TAGCTCT----CTGGAATGGAATCTATAATCA 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                          
 s rn3.chr4       56187357 186 + 187371129 TTCTCCTCTGTCTATCCAGTTACCTCCAAGAAATGCAG--AGGTTAGATTAGAGGGGAAGACGAGGCACT-------CGGATACACTAGGAGGCTCAGCAC-TGCTCCCCATGGGAAGGCAGATGTCCCCCACTCTACAGAAAACTGCCTGTTCCCATCTCTCTTGCT--GCCTGT----------------GAGCTCT----CTG-----TGATCTACAATC- 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                          
 s bosTau2.chr4   19315127 191 -  69556449 TTCTTCTTTGTCCACACAATTGTCTCAGAGAAGTAGAA--AGGAT-GTTTCGGCTTAAAAACAACACACCTGCCACCTGGGCCCAC-AGAATCCTTTGCACTT----CGTGTGTGACAACAGATGTACCTTGCTTCTCAGCAATCGGCATTTTACAGTGTTTCCTGCTCCATTCATCCAT------------CAGCTCT----CTG------GA---ATGATCG 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                          
 s canFam2.chr14  52852118 203 -  63938239 TTCTACTTTGTCCACACAGTTGTCTTAGAGAAGTAGAAAGAGGTT-GTTTCTGCTTAAAAACAGCACACCTGATGCCTGGGCTCAG-GGAGTTCTTTGTGCTTATTCTATGTGTGACAACAGATGT-------------GCAAACTGCATTTTACAAGCTTTCCTGCTCAGTTTGTCAGTATCCCCCCTGCCCCGCTCCAGAACTG------GATTCGTGCTCG 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                          
 
 a score=97359.000000
 s hg17.chr7     127477282 91 + 158628139 ATGCCCATACCAACATTTCACTAATATCATAGGAGATTTAGTCTCCATCTGGGTGTACATTACATTTG--CTCTGGGG-TGCTCCAGGCT-GGGG 
 s canFam2.chr14  52852321 93 -  63938239 GTGCCAATGCCGACATCTCACTGATTTCATTGAAGATTTCATCCCCACCTGTGTGCACATTGTGCTTGTAGTCTGGGGATGCACTGGGCT-GGG- 
+i canFam2.chr14                          C 0 C 0                                                                                         
 s bosTau2.chr4   19315318 92 -  69556449 GTGTCGATGCTGATATCTCATCCATCCCACAGAAGATTTCATTCCCATCT-TACACATACTGAGTTTGTACTCTAGGG-TACTCCAGACT-GGGT 
+i bosTau2.chr4                           C 0 C 0                                                                                         
 s rn3.chr4       56187543 85 + 187371129 ATGTCCGTGCTGACATTTCACCAAAACCAT---AGACTAAGTCTCCATCTGTGTGCACATTGCCTTTG--CCCTCAGG-AGAACCAC----AGAG 
+i rn3.chr4                               C 0 C 0                                                                                         
 s rheMac2.chr3  165794099 92 + 196418989 ATGCCCATACCAACATTTCACTAATACCATAGGAGATTTAGTCTCCATCTGGGTGTACATTACATTTG--CTCTGGGG-TGCTCCAGGCTGGGGG 
+i rheMac2.chr3                           C 0 C 0                                                                                         
 s panTro1.chr6  129891140 91 + 161576975 ATGCCCATACCAACATTTCACTAATATCATAGGAGATTTAGTCTCCATCTGGGCGTACATTACATTTG--CTCTGGGG-TGCTCCAGGCT-GGGG 
+i panTro1.chr6                           C 0 C 0                                                                                         
 
 a score=110713.000000
 s hg17.chr7     127477373 285 + 158628139 GGTTGCCAAGGAAGAGAAGA----GAAACCGCAGAGAAGAC---GGGAGGGCAGGGCAGGGGTCTCTGAGAAGGGGAGGGGTCCCAGAGTGCAGGAGCAGGAGCCAGGCTCATGAAAGGGGCCACGGGCGGGAGTATCCAGGGACGGCAGTCAAGATGGAGCACAGCTTAGGAAGCTGAA-GGGAATCCTGGCCCACCTGGGTGC-------------TAGAGGGCACATAGGAAGTGCAGGAAGCAGACCAAGGTCCCCAAGAGAGGGAGACCTGGACGCTGAAGCATTTTCTGTCTTTATTAAG 
 s panTro1.chr6  129891231 285 + 161576975 GGTTGCCAAGGAAGAGAAGA----GAAACTGCAGAGAAGAC---GGGAGGGGAGAGCAGGGGTCTCTGAGAAGGGGAGGGGTCCCAGAGTGCAGGAGCAGGAGCCAGGCTCATGAAAGGGGCCACGGCGGGGAGTATCCAGGGACGGCAGTCAAGATGGAGCACAGCTTAGGAAGCTGAA-GGGAATCCTGGCCCACCTGGGTGC-------------TAGAGGGCACATAGGAAGTGCAGGAAGCAGACCAAGGTCCCCAAGAGAGGGAGACCTGGACACTGAAGCATTTTCTGTCTTTATTAAG 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                            
 s rheMac2.chr3  165794191 285 + 196418989 GGTTGCCAAGGAAGAGAAGA----GAAACCGCAGAGAAGAT---GGGAGGGCAGAGCAGGGGTCTCTGAGAAGGGCAGGGGTCCCAGAGTGCAGGAGCAGGAGCCAGGCTCACGAATGGGTCCATGGGAGGGAGTACCTAGGGATGACAGTCAAGATGGAGCAGAGCTTAGGAAGCTGAA-GGGAATCCTGGCCCACCTGGGTGC-------------TAGAGGGCACATAGGAAGTGCAGGAAGCAGACCAAGGTCCCCAAGAAAGGGAGACTTGGACACTGAAGCATTTTCTGTCTTTATTAAG 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                            
 s rn3.chr4       56187628 236 + 187371129 TTCTGC-----------AGG----GAAGCCACAAAGTAAGCAGTAAGAGATCAGCA-TGGGTCCCTTGGCAAAGACAGGGCACCTAGAGCACTGGAAATGGA--CAGCT-CGTGGAGGGGTGTGTGGTGGGGAGTCACTGGGAATGACAGTCCACAC--AGCA-------------------------CAGAACTATGTAGGTGGGGGCGGGGGGGAGGGGAGGATACAGAGGAGATGT-GGAGGCTCTCCAAAGCTTTGGAGGGAGAGAAAGC------------TACGTTA-----------AG 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                                                                                            
 s bosTau2.chr4   19315410 266 -  69556449 G--TGCCAAAGAAGTGGA------GAAGCCACAGGGAAGAG----TCTGAGCAGAGCAGAGACCTCTGAGAAGGGCAGGAGGCCCAGAGCACAGTAAGAGGAGCCAGGCTGATGAATGGGACCAAGACAGGGAGTATCT-GGGACAATAGTTAAGATGGAACAGAATTCAGGAAGCTGAATGGGAATAGGGGCCCATGT-AGTGT-------------TAGAGGACACCTGTGGGGTACAAGACA-------------CCGTGAAAAGGAGATCAGGATTCTGCAGCATTTTCTGTCTTCATTAAG 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                            
 s canFam2.chr14  52852414 223 -  63938239 --------GAGGAGTGCAAAGGCGGGGGCTACAGAGAAGAA-------AAGAGGGAGAGGGGTCTCTGAGGAGGGCAGGAGGCCCAGAGC-----AGCTGGAGCCAGGCTGATGAATGGAACTA---------------------------------------------AGGAAGCTGAA-AGGAATGGGGATCCACAT-GGTGC-------------TGGAGGACACATAAAAGGTGCAGGAAGCCAACCAAGAGACCCGTTAAAGGGAGATGTGGAAGCCAAAGTGATTTCTA---TCATTAAG 
+i canFam2.chr14                           C 0 I 196                                                                                                                                                                                                                                                                                                          
 
 a score=94945.000000
 s hg17.chr7     127477658 45 + 158628139 ACAACTCCGTAAGAATTCCTGCTGGGCCAAAGTGAATTCTAGGAT 
 s panTro1.chr6  129891516 45 + 161576975 ACAACTCTATAAGAATTCCTGCTGGGCCAAAGTGAATTCTAGGAT 
+i panTro1.chr6                           C 0 C 0                                       
 s rheMac2.chr3  165794476 45 + 196418989 ACAACTTCATAAGAATTCCTGCTGGGCCAAAGTGAATTCTAGGAT 
+i rheMac2.chr3                           C 0 C 0                                       
 s rn3.chr4       56187864 45 + 187371129 ACAGTCTCTTAGGTACTTCTGTTGGGCACAAGTAAATTCTAAAAT 
+i rn3.chr4                               C 0 I 103                                     
 s bosTau2.chr4   19315676 44 -  69556449 AAAGCTTCTTAGGAATTCCTGCTGGGCAAAACTGAATTCTA-GAT 
+i bosTau2.chr4                           C 0 C 0                                       
 s canFam2.chr14  52852833 45 -  63938239 aTAATTTCCTAGGGATTCCTGCTGGGCAAAAGTGAATTCTACGAT 
+i canFam2.chr14                          I 196 C 0                                     
 
 a score=195259.000000
 s hg17.chr7     127477703 145 + 158628139 GCGACTTTAAGATGGGAGCAAGCGAACCATTGAGGAGGCAGGTTACCCTAGTTAGCCAATGCAGATCGAGAATGGGAAATCTTTCatttattcatgcaacagatatttaacgaagccctgccgtgttccaggcctgt--gatagatg 
 s panTro1.chr6  129891561 145 + 161576975 GTGACTTTAAGATGGGAGCAAGTGAACCATTGAGGAGGTAGGTTACCCTAGTTAGCCAATGCAGATCGAGAATGGGAAATCTCTCatttattcatgcaacaaatatttaacaaagccctgccgtgttccaggcctgt--gatagatg 
+i panTro1.chr6                            C 0 C 0                                                                                                                                             
 s rheMac2.chr3  165794521 145 + 196418989 GTGACTTTAAGATGGGAGCAAGTGAACCATTGAGGAGTTAGGTTACCCTGGTTAGCCAATGCAGATCGAGAATGGGAAATCTTTCatttattcatgcaacaaatatttaatgaagccctgctgtgttccaggcttgt--ggtagatg 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                             
 s rn3.chr4       56188012 137 + 187371129 ATGATTTTCAAGTGG--------AAGCCACCTTAGGGACAGTTTAGCCTGGTCAGCCAATGGTGATGAAGGATGGGGAATACTTTACTTATTCATTCAACAAAAGTTGAATAAACACCTGCCCTGCGTCAGGCCTTT--GATAAATG 
+i rn3.chr4                                I 103 C 0                                                                                                                                           
 s bosTau2.chr4   19315720 145 -  69556449 G-GACTTTAAAATGGAAGCAGCCTAACCATC-TAGAGGTAGGTTAACCTCATTAGATAATGAAAACCAGAGATGGGAAATATTTCATtcactcattccacaaacattcagtgaggacctactctgtgccaaggccttgggggagatg 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                             
 s canFam2.chr14  52852878 142 -  63938239 GTGACTTTGAGACAGGCGCAGGTGAACCACAGTAGAGGTAGGTTAACCTGGTGAGACAATGAAGATCAGAGATGGGAAATATttgatttat---ttcaacaattatttaatgagtacctgctgtgtgccaggccctC--GGGAAATG 
+i canFam2.chr14                           C 0 C 0                                                                                                                                             
 
 a score=23722.000000
 s hg17.chr7     127477848  87 + 158628139 ctggaacaggtacagagat-------------------------Acaggtgtcattaattgatcagggcaa--cctctc---cttctgagt--cttgctggag-cttcagatgcccctca 
 s panTro1.chr6  129891706  87 + 161576975 ctggaacaggtacagaggt-------------------------Acaggtgtcattaattgatcagggcaa--cctctc---cttctgagt--cttgctggag-cttaagatgcccctca 
+i panTro1.chr6                            C 0 C 0                                                                                                                  
 s rheMac2.chr3  165794666  80 + 196418989 ctggAACAGG--------T-------------------------ACACGTGtcattaactgatcagggcag--cctctc---cttctgagt--ctcgttggagacttcagatgcccctca 
+i rheMac2.chr3                            C 0 C 0                                                                                                                  
 s rn3.chr4       56188149  86 + 187371129 CCGAACCAAG--------T-------------------------GCAGATGTCATTAATGGATTGTGGTACAGCCCCCCAAGCCTCCTGGTGTGTGGCAGGAG-CTCCAGATTCCTTCTG 
+i rn3.chr4                                C 0 C 0                                                                                                                  
 s bosTau2.chr4   19315865 103 -  69556449 tt-gaacaag--------tgACAtattcaccactcctggatccagcagacatcagtgattgatcacagcac--cttatc---cctctcata--ctggaggggg-cttcagattcctctcc 
+i bosTau2.chr4                            C 0 I 1                                                                                                                  
 s canFam2.chr14  52853020  43 -  63938239 CTGGAACAAG--------TAGCacgtccccgactcctgcacctggaagaca--------------------------------------------------------------------- 
+i canFam2.chr14                           C 0 C 0                                                                                                                  
 
 a score=12231.000000
 s hg17.chr7     127477935 38 + 158628139 cacagagctcgagggagcctc-aacaattgatcagaagt 
 s panTro1.chr6  129891793 38 + 161576975 cacagagctcaagggagcctc-aaaaattgatcagaagt 
+i panTro1.chr6                           C 0 C 0                                 
 s rheMac2.chr3  165794746 38 + 196418989 cacagagctcgagggagcctc-aaaaactgatcagaggc 
+i rheMac2.chr3                           C 0 C 0                                 
 s rn3.chr4       56188235 33 + 187371129 GACAGTGCTCCGGGAAGCCACTGAAAATTGATC------ 
+i rn3.chr4                               C 0 C 0                                 
 s bosTau2.chr4   19315969 38 -  69556449 ctcagcactccaaggaaccac-aaaacctgatcagagtt 
+i bosTau2.chr4                           I 1 I 36                                
 s canFam2.chr14  52853063 14 -  63938239 -tcactagttgatgg------------------------ 
+i canFam2.chr14                          C 0 C 0                                 
 
 a score=27292.000000
 s hg17.chr7     127478284 64 + 158628139 agattagagctgaaacaggagtagaaacctatctg-tatctctgATGA-GATCAGATC---------TTTCTGAT 
 s rn3.chr4       56188268 43 + 187371129 -----AGAGTTGACGCAGGAGTTGAAATCTATTTGCTTTCCCTAATGG--------------------------- 
+i rn3.chr4                               C 0 C 0                                                                     
 s canFam2.chr14  52853147 69 -  63938239 -gatcagagttgacac-----tggaaacccatgtgttatccctAATGAGGATCAGATCTGAGGGTGGTTTATGAG 
+i canFam2.chr14                          I 29 C 0                                                                    
 s bosTau2.chr4   19316043 27 -  69556449 A------------------------------------------------GATTGAATCTAAGGGTAGTTTCTGAT 
+i bosTau2.chr4                           I 36 C 0                                                                    
 s panTro1.chr6  129892128 64 + 161576975 agattagagctgaaacaggagtagaaacctatctg-tatctctgATGA-GATCAGATC---------TTTCTGAT 
+i panTro1.chr6                           C 0 C 0                                                                     
 s rheMac2.chr3  165795108 63 + 196418989 agattagagctgacacagga-tagaaacctatctg-tatctctgATGA-GATCAGATC---------TTTCTGAT 
+i rheMac2.chr3                           C 0 C 0                                                                     
 
 a score=268900.000000
 s hg17.chr7     127478348 205 + 158628139 GAACAGAAAGAATGTAACCCCTGTACTCACACCCTCTCTGCTGGTTACATATGTTAACACGATTTCTCAAATGAGGCTTTTGGTTGCAAATAAGAGAAAATCACTCACGCT-GGCCCTGTGT--TTTTCAAATTGTTTATTGTGATCAACATTTGAAAAAAGAGCCGAGACTCTCAAGAGTGCATTACCCACGGTAAGGGTGAATTTT 
 s canFam2.chr14  52853216 193 -  63938239 GAGTACGAAGACTATAACCCCCACACCCACACTCTGGCTGCTGGTTAAGTAGGTTAAC---ATTTCTGAAACAAGGCTTTCAGTTGCAGATAAGAGAAAACCACTCATGCT-AGCTCAGTGT----GTCAAACAACATATTGCAACCCACATTTAAAAAACAGA-----ACTCTTAGGAGTATATCACTCACAGT--AAGTGAATTTG 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                          
 s bosTau2.chr4   19316070 203 -  69556449 GAACAGAAAAACTATAACCCTTGCACCCACATTCTGGCTACCAATTAAGTATGTTAACCTGATTTCTCAACCAGGCTCCTTACTTGCAAATAAGAGAAAATCACTCATGCT-AGCTCAGTGT----TTTCAACTGCATATTGCAACCAACACTTAAAACCAGGATGGAGACTCTCCAGTATGCATCACCCATAGTGAAGATGAATTTT 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                          
 s rn3.chr4       56188311 205 + 187371129 GAATGAAAGCAATATAACCCCCTCACCCACACTGTGCCTACCAGCTAAGAATGTCAGCATGATTTCTCAAGCAAGGCCTTTGGTTGCAGAGAAGAGAAAATTGCTCCTGCTAAGCTTAGTGACTTTTTCAAATTGTGTACCATGGCCAACACTTGAGGAATGAGATAAAATCCCCACG---AGATCACCTGCAGCAAGGGCAGATCCT 
+i rn3.chr4                                C 0 I 2126                                                                                                                                                                                                       
 s rheMac2.chr3  165795171 205 + 196418989 GAACAGAAAGAATGTAACCCCTGTACTCACACCCTGTCTGAGGGTTACATATGTTAACACGATTTCTCAAATGAGGCTTTTGGTTGCAAACAAGAGAAAATCGCTCATGCT-GGCCCTGTGT--TTTTCAAATTGTATATTGTAATCAACATTTGAAAAAAGAGCCAAGACTCTCAAGAGTGCATTACCCATGGTAAGGGTGAATTTT 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                          
 s panTro1.chr6  129892192 205 + 161576975 GAACAGAAAGAATGTAACCCCTGTACTCACACCCTCTCTGCTGGTTACATATGTTAACACGATTTCTCAAATGAGGCTTTTGGTTGCAAATAAGAGAAAATCACTCACGCT-GGCCCTGTGT--TTTTCAAACTGTTTATTGTGATCAACATTTGAAAAAAGAGCCGAGACTCTCAAGAGTGCATTACCCATGGTAAGGGTGAATTTT 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                          
 
 a score=57983.000000
 s hg17.chr7     127479649 40 + 158628139 ATGTT-ACCTGAATTTAATTCACAGTAGCATACAAAAGACT 
 s panTro1.chr6  129893520 40 + 161576975 ATGTT-ACCTGAATTTAATTCACAGTAGCATACAAAAGACT 
+i panTro1.chr6                           C 0 C 0                                   
 s rheMac2.chr3  165796482 40 + 196418989 ATGTT-ACCTGAATTTAATTCACAGTAGCATACCAAAGACT 
+i rheMac2.chr3                           C 0 C 0                                   
 s rn3.chr4       56190642 40 + 187371129 ACATT-ATCTGAATTTAATTCATAGTAGCATACCAAAGACT 
+i rn3.chr4                               I 2126 C 0                                
 s bosTau2.chr4   19317317 22 -  69556449 ACAttcagttcagttcagttca------------------- 
+i bosTau2.chr4                           C 0 I 815                                 
 s canFam2.chr14  52854416 40 -  63938239 ACATT-ATCTGAATTTAATTCACACTAGCACATCAAGGATT 
+i canFam2.chr14                          C 0 C 0                                   
 
 a score=11030.000000
 s hg17.chr7     127480766 46 + 158628139 CATTTCATCTGTGCAGCTCCAGGGGCTCCACATTCTAC-TCTTCTCA 
 s bosTau2.chr4   19318509 27 -  69556449 -------------------GTGGAGCT-CATTCACTGGTTTTTCTCT 
+i bosTau2.chr4                           C 0 C 0                                         
 s rheMac2.chr3  165797276 47 + 196418989 CGTTTCATCCGTGCAGCCCCAGGGGCTCCACGTTCTACTTTTTCTCA 
+i rheMac2.chr3                           C 0 C 0                                         
 s panTro1.chr6  129894638 46 + 161576975 CATTTCATCTGTGTAGCCCCAGGAGCTCCACATTCTAC-TTTTCTCA 
+i panTro1.chr6                           C 0 C 0                                         
 s canFam2.chr14  52855029 43 -  63938239 CATT----TCCTTTTCCCTGGGAGGCTCCATTTTCTGGTTTTTCTCC 
+i canFam2.chr14                          I 7 C 0                                         
 s rn3.chr4       56191219 39 + 187371129 -------CTGGAGCTGCCTTAGGGCCTCCCCTCGCCGC-TGTTCTTT 
+i rn3.chr4                               I 386 C 0                                       
 
 a score=49723.000000
 s hg17.chr7     127480812 136 + 158628139 TTTCTTCTCCAGGGTACCCA----------TGGCAAGGGATGAGGGT--AGAAGATGGGGCA--GCCAGGCCTTGATTAAAGGA---------------GAAGGAAGGCAG-CCTGT-GGAGA------------GGGCAGCCCAGGGAGTGCAGA--------GAGAAGTGGGCCATGAGGGAGAC 
 s rn3.chr4       56191258 138 + 187371129 TAACCTCTCCAGTGTGCCC-----------TGCCAGGGAGTCACAGTGGAGAAGGGGAGGCA--T---GGCATGGGTAGATGGCCACGGGGGTTGGGGAAGAGGCAGGCAGCCCTCA-GGTGA--------------GCTTTCCAGT-------GA--------GAAGACCTGA--GTAAAACAGA- 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                     
 s canFam2.chr14  52855072 141 -  63938239 TTTCTTCTCCAGTGCACCAGTATAGGGGAATAGTAGGGGATGCTGGTAAAGATGATGGGGAGTGGCAGGGTCTTAATTAGGGAG---------------AGGGAAAG-------TGACAGTGAAAGCTGGTGAACAGGAAGTCCAGAGGATGAGCA------------------------GGGCACC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                     
 s panTro1.chr6  129894684 136 + 161576975 TTTCTTCTCCAGGGTACCCA----------TGGCAAGGGATGAGGGT--AGAAGATGGGGCA--GCCAGGCCTTGATTAAAGGA---------------GAAGGAAGGCAG-CCTGT-GGAGA------------GGGCAGCCCAGGGAGTGCAGA--------GAGAAGTGGGCCATGAGGGAGAC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                     
 s rheMac2.chr3  165797323 136 + 196418989 TTTCTTCTCCAGGGCACCCA----------TGGCTAGGGATGAGGGT--AGAAGATGGGGCA--GCAGGGCCTTGATTAAAGGA---------------GAAGGAAGGCAG-CCTGT-GGAGA------------AGGTGGCCCAGGGAATGCAGA--------GAGGAGCAGGCTGTGAGGGAGAT 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                     
 s bosTau2.chr4   19318536 160 -  69556449 TTTTTTCTCCAGTGCCCCTG----------TGGCAGGGGATGCTGGTAGACCTGATGGGGCATGGTCAGGTCTTAATTCAAGGA---------------AAGGAAAGGCAG-TCTGA-AGCACAAGTTAGTTGGCAGGGCATCTAGAGGATGCACAGACCCACAGAAGAGTGGGTGGTGGGGAAGCC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                     
 
 a score=21825.000000
 s hg17.chr7     127480948  98 + 158628139 AGCAGAGTGCAGGCTGCGTCCC----AAATGAGCATACAGCCCACTGTGAGCCCACC-ATCTTCCT---AGA-GACCCCTCTCCTCTCC----AGGAGCTGCTTCAGTAGC 
 s rheMac2.chr3  165797459  98 + 196418989 AGCAGAGTGCAGGCTGCGTCCC----AAATGAGCACACCGCCCACTGCGAGCCCACC-ACCTGCCT---AGA-GACCCCTCTCCTCTCC----AGCATCTGCTCCAGTAGC 
+i rheMac2.chr3                            C 0 C 0                                                                                                         
 s panTro1.chr6  129894820  98 + 161576975 AGCAGAGTGCAGGCTGCGTCCC----AAATGAGCACACGGCCCACTGTGAGCCCACC-ATCTTCCT---AGA-GACCCCTCTCCTCTCC----AGGAGCTGCTTCAGTAGC 
+i panTro1.chr6                            C 0 C 0                                                                                                         
 s canFam2.chr14  52855213  94 -  63938239 AGCAGAGTGAATGGGAGGCCTT-GGCCAGTGTGCAAGCCACCC--------ATTGGT-ACCCCCGG---AGGTACCCATCTCCCTCCCC----AGGCCCCGCTTGAATAAT 
+i canFam2.chr14                           C 0 C 0                                                                                                         
 s bosTau2.chr4   19318696 110 -  69556449 AGCGGAGTGGAGGGGAGACCTCAGGGTGGAGAGCAAGCCTCCCCCTTCATGAGCAGC-ACACACAGTCCAGCTACCCCCTACCCTCTCCCAGTAGTGCCCCCTTCCTCTCC 
+i bosTau2.chr4                            C 0 C 0                                                                                                         
 s rn3.chr4       56191396  84 + 187371129 AGCAGAGGGCAGG-----------------GAGGTAGCCTCCCCAT----GCCTACCCATCCTCCT---GAATGGCCCCTCTTCCTTCCA---AGGCTCTGCTGCAATAGT 
+i rn3.chr4                                C 0 C 0                                                                                                         
 
 a score=120952.000000
 s hg17.chr7     127481046 212 + 158628139 ACTCA---------GAGGAAAGAATGATGC--------TGTATCAACATTTCAGCAGCTCATCTTTTAACTCTAAGAAAATGGCAGCTCCTAAATGTTCAA--AACTGCTTTGGAAACTTCTGGAG---AGAGGTTTTGCAGCTCAGGCAGACAGCTGATCGCGGCCTTTCTTCCACCC--------CAACCCATGCTCTCCCCATGCTCTCCTGCCACAG-CTGCAGCG-GGC-CCCTGGGTCC 
 s rheMac2.chr3  165797557 212 + 196418989 TCTCA---------GAGGAAAGAATGATGC--------TGTATCAACATTTCATCAGCTCATCTTTTCACTCTAAGAAAATGGCAGCTCCTAAATGTTCAA--AACTGCTTTGGAAACTTCTGGAG---AGAGGTTTTACAGCTCAAGCAGACAGCTGACCGCGGCCTTTCTTTCACCC--------CAACCCATGCCCTCCCCGTGCTTTCCTGCCACAG-TTGCAGTG-GGC-CCTTGGGTCC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                               
 s panTro1.chr6  129894918 212 + 161576975 ACTCA---------GAGGAAAGAATGATGC--------TGTATCAACATTTCAGCAGCTCATCTTTTAACTCTAAGAAAATGGCAGCTCCTAAATGTTCAA--AACTGCTTTGGAAACTTCTGGAG---AGAGGTTTTGCAGCTCAGGCAGACAGCTGATCGCGGCCTTTCTTCCACCC--------CAACCCATGCTCTCCCCATGCTTTCCTGCCACAG-CTGCAGCG-GGC-CCCTGGGTCC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                               
 s canFam2.chr14  52855307 212 -  63938239 GGGCAGAGAGAAATAAAGGAGACAGGATGT--------TGTATTAACATGTCAACAGTTCACCTTTTAACTCTCAGACAATGACAGCTCCTAAATGTTCAA--AACCATTTTGGAAACTTCTAGAGAGAAAAGGTTTTGCAGCCCAGGCAGCTGGCTGACAATCACCTTTGTCCTCCCT-GTTCCTCCCACCTTGGCTCT----------------------TTCCACCTGGGCACTGCTCGGTC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                               
 s bosTau2.chr4   19318806 182 -  69556449 AGGC--------------------------------------TCAACATTTCAGCAGTTC---------TTCTGAGAAAAAGACAGCTCCTTAA-------------ACATTTAAAACTTCTAGAGGGAAAAGGCTTTGCAGCCCAGGCAGATGGCTGACACCTGCCTTTTTCCCTCATGGCTCCTCCCACCTCCACTCT--CTACTCACTCTTGTCAGTGGCTCCAGCC-AGCACTCCTGGGTC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                               
 s rn3.chr4       56191480 189 + 187371129 -CCCA----GAAGTGAGGAACGTGGTGTACTACCTCAGTGTGTCAGTATGTTAGCAACTCCTCTGCCAGCTCCTAGGCTACAACAACTCCTAA---GTTAACCACTCACATCAGAAACTTCC--AA---AAAGGTTTTTTTG--TGGCCAGGTAGCTGCCAGTAACCTTTCTCCCTGCC--------C-ACCCATCCATC-------------------------------GGC-TCCCTGGAAT 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                               
 
 a score=52502.000000
 s hg17.chr7     127481258 60 + 158628139 TACATTTGCAGCCC------------TTTGTCTCTGAGCTCAGA-----CTTCCAATTCCAAGCGGCAGCTGGGCAG 
 s rheMac2.chr3  165797769 60 + 196418989 TACATTTGCAGCCA------------TTTGTCTCTGAGCTCAGA-----CTTCCAATTCCAAGCGGCAGCTGGACAG 
+i rheMac2.chr3                           C 0 C 0                                                                       
 s panTro1.chr6  129895130 60 + 161576975 TACATTTGCAGCCC------------TTTGTCTCTGAGCTCAGA-----CTTCCAATTCCAAGCAGCAGCTGGGCAG 
+i panTro1.chr6                           C 0 C 0                                                                       
 s canFam2.chr14  52855519 59 -  63938239 TACTTGTGTGGCCC------------TGTTTTTCTGAA-TGTGA-----CTCCCAATCTCAGCTGTTAGCTGGATAG 
+i canFam2.chr14                          C 0 C 0                                                                       
 s bosTau2.chr4   19318988 77 -  69556449 TCTGTCTGCAGCACCCCCTCCCCTTTTTTTTTCCTGAACTGAGACCCCCCCCCCAGTTCCAGCTGTCAGCGGGACAG 
+i bosTau2.chr4                           C 0 C 0                                                                       
 s rn3.chr4       56191669 64 + 187371129 CACATCCATGGCCC------------CTTTCTCTTGAGCTCCAACCAA-CCCCCAATTCTAACTGGCAACTAGAAAG 
+i rn3.chr4                               C 0 I 360                                                                     
 
 a score=351065.000000
 s hg17.chr7     127483497 349 + 158628139 tgagagctggcacaggacacttctgcttatatttcactggccagaacttagtcacatggtcacacctagttgggagactctgagaagtaaagtatttattctagatggccatatccctacc-taagacttggagttttctatgactggggaagaacggaagacaagatattgggaaa-gactagcagcctctactaAAAGGGTGATCtgtg----------------------------------------------------------------ttgat------------------------------------gtgc---------------------------------------gtgtgtgtgtg-------------atg--------tttgtatgagcatgtgtgttatgtgttgtgtgt--TGGTGGGGCA--GATTCTTGCGAGCACTTTGGTCTCAGATGGACCTGCTACCAGTTCTCTCTGCAGACCCCC-ATAGGTTTCTCCTA 
 s panTro1.chr6  129897370 349 + 161576975 tgagagctggcacaggacacttctgcttatatttcactggccagaatttagtcacatggtcacacctagttgggagactctgagaagtaaagtatttattctagatggccatatccctacc-taagacttggagttttctatgactggggaagaatggaagacaagatattgggaaa-gactagcagcctctactaAAAGGGTGATCTGTG----------------------------------------------------------------TTGAt------------------------------------gtgt---------------------------------------gtgtgtgtgtg-------------atg--------tgtctatgagcatgtgtgttatgtgttgtgtgt--TGGTGGGGCA--GATTCTTGCGAGCACTTTGGTCTCAGATGGACCTGCTACCAGTTCTCTCTGCAGACCCCC-ATAGGTTTCTCCTA 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 s rheMac2.chr3  165800304 345 + 196418989 tgagagctggcacaggacacttctgcttatatttcactggccagaatttagtcacatggccacacctagttgggagactctgaaacgtaaagtagttattctagatggccatatccctacc-taagacttggagttttctatgactggggaagaacggaagacaagatactgggaaa-gactaacagcctctactaAAGGGGTGATCtgtg----------------------------------------------------------------ttgat-------------------------------------------------------------------------------gtgtgtatgtg-------------acg--------tgtgtatgagtatttgtgttatgtgttgtgtgt--TGGTGGGGCA--GATTCTTGCGAGCACTTTGCTCTCAGATGGACCTGCTACCAGTTCTCTCTGCAGACCCTC-ATGGGTTTCCCCTA 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 s rn3.chr4       56192093 338 + 187371129 TGAGAGCTGCCACATGGCTCTTCTGCTTTTGGTTGGATGATCAGCATTTGGCTGCATACCTGTGCCTAA-CGGCAGAAGC----AAGCCTAGTGGTTATTCTCCATGGCCACACCTCTCCCTTAGGACTTGGCGT-CCTTTCAACTGGGAAAGAAAGAAAAATAAGACATGGGGAGA-AACTAGTAATCGCCAC-AACATGGCTATGTACC----------------------------------------------------------------TTGAT------------------------------------GTGT---------------------------------------TAGTGTATGTGTGCCT--------GTG--------T-TGCATAAGCA-----------TGTTATGTGC--TGTTGGGACATCAGTTCTTAACATGACCTTGATCTCAGGTGGATCTGTGACCACTTCTCTCTGCAAGCGCCG-ATGTATGTCCCAGA 
+i rn3.chr4                                I 360 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 s bosTau2.chr4   19321495 480 -  69556449 caagaactgccacatcgaacttctgcttgtattc-agttgcc------------cagaatca-------------gcagctgggaaataaagtatttattctgaatggccacctctctatc-taa-acttgga-tgttctgttaattgggaagaagg---gaatagatcctggagacgaatcaccagcctctAGCAAAAGGGTTAGACGTGCGATAggacttctctggtggtccagtggttaagactccatgcttccaatgcaagggacccaggtttgatcctttgtcggggaactaagatcccatgtgcctcaaagtgcagcaaaaaaaaTTTTTTTTAATTAAAAGGGTTAGATGAATTGTGTGTGTGTGCCCACCTGAGTATGCTGTGTTCTACATGTGAGCAAGTG-GTTTCATGTTGTGTGTG-TGGTGGACCG--GCGTCTCCTCATCACTTTGATCTCAGATGGGCCTGTTACGAGTTCTCTCTGCAGCGCCCCCAGGGAGCTCCCCTA 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 s canFam2.chr14  52857038 335 -  63938239 caagagctgccacacagcacccatgctgatactt-aatggccagactttagtggcatagccaaacctagttgggggaagctgagaagtgtagtatttattctcgatgg-cacatcaccatc-taa-acttgga-tattctattacttgggaagaaggaaagaatagatattggagac-aactacctgcttctactaAAAGGGTTTGATGTG----------------------------------------------------------------TTGAT------------------------------------GTGT---------------------------------------TTGTGTATGTG-------------ATG-TGTGTTGTGTATGCAAGCACATG-------TATTGTGTGTGTTGGTGGGCCA--CGTTCTCTCCTCCACTTGGATCTCAGATGGACTTGGTATGGATTCTCT-------------ACAGAACTCCCCTA 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              
 
 a score=256952.000000
 s hg17.chr7     127483846 168 + 158628139 AACCTGGCCT-CTCCTATTAGGCAGCCTTACTCAGCGGCAGCTTCTCAGCTCCATGTTTTCAAGGAACCACAATTTATTTCCAGCATCCACTGAAGCATATTATCAGTGGTGATAGAGGGGGCTTGTAAAACTGTTTTTCCACTTAGGTATTAGAGGGTGGCCATTATT 
 s panTro1.chr6  129897719 168 + 161576975 AACCTGGCCT-CTCCTACTAGGCAGCCTTACTCAGCGGCAGCTTCTCAGCTCCATGTTTTCAAGGAACCACAATTTATTTCCAGCATCCACTGAAGCATATTATCAGTGGTGATAGAGGGGGCTTGTAAAACTGTTTTTCCACTTAGGTATTAGAGGGTGGCCATTATT 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                   
 s rheMac2.chr3  165800649 168 + 196418989 AACCTGGCCT-CTCCTATTAGGCAGCCTTACTCAGCGGCAGCTTCTCATCTCCATGTTTTCAAGGAACCACAATTTATTTCCAGCATCCACTGAAGCATATTATCCATGGTGATAGAGGCGGCTTATAAAACTGTTTTTCCACTTAGGTATTAGAGGATGGCCATTATA 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                   
 s rn3.chr4       56192431 166 + 187371129 AGCCTGGCCT-ATCATCTTCCGCACACTTACTTGGCAGCAGCATCTCGATTCCACATTTCCAGGGCGCTGTGATTTATTGCCAGCATCTACTGAGGCATAGTGTCCATGCCG--AGAGAGGCCTTGTAAACCTGCCTGTCCATTCTGATAGTACGGGGTGGCCATTGTG 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                   
 s bosTau2.chr4   19321975 167 -  69556449 ACCCTGGCCT-GTCCTCTTAGGCAGGCTTACTCAGCAGCAGCTTCTCAGTTCCACATCT-CAAGGAACTGTGATTTATTTTCAGTGCCCACTGAAGCGTATTATCCATGGTGATCGAGGGGGCTAGTAAAACTGTTTTTCCACTCAGGTATTACAAGGTGGCCATGACA 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                   
 s canFam2.chr14  52857373 163 -  63938239 AATCTGGCCTCCTCCTCTTAGGCAGATTTAC----CAGCAGCTTCTCAGTTCCACATTT-CAAGGAACTACAATGTATTTTCTGCATCCACTGAAGCATATTATCAGCGGTAATAGA-GGGGCTTGTAAAACTGTTTTCCCACTCAGATGTTACATGGTGGCCATTATG 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                   
 
 a score=74289.000000
 s hg17.chr7     127484014 53 + 158628139 TGAGAGTGACTATG-----ACCACAGTTAATCTGGTAATAAATTCTCTTGGGTAGGAG 
 s panTro1.chr6  129897887 53 + 161576975 CGAGAGTGACTATG-----ACCACAGTTAATCTGGTAATAAATTCTCTTGGGTAGGAG 
+i panTro1.chr6                           C 0 I 294                                                  
 s rheMac2.chr3  165800817 53 + 196418989 TGAGAGTGACTATG-----ACCACAGTTAATCTGGTAATAAATTCTCTTGAGTAGGAG 
+i rheMac2.chr3                           C 0 I 292                                                  
 s rn3.chr4       56192597 54 + 187371129 TGAAAATAGCTACGGTATAACCATAGTTAATCTGCTAGTAAG----CTTGGTCAGGAA 
+i rn3.chr4                               C 0 C 0                                                    
 s bosTau2.chr4   19322142 53 -  69556449 TGCGAGTGACTATG-----ATCAGAGTTAATCTGGTAATAAATTCTCTTGGGAAGGAG 
+i bosTau2.chr4                           C 0 C 0                                                    
 s canFam2.chr14  52857536 53 -  63938239 TGAGAGCGACTACG-----AGCAGAGTTAATCTGGTAATAAATTCTCTCGGGAAGGAG 
+i canFam2.chr14                          C 0 C 0                                                    
 
 a score=-4798.000000
 s hg17.chr7     127484067 16 + 158628139 GAAAGG------------------------AAAGGATGCT 
 s rn3.chr4       56192651  6 + 187371129 GGAGGG---------------------------------- 
+i rn3.chr4                               C 0 I 974                                
 s rheMac2.chr3  165801162 16 + 196418989 gaaagg------------------------aaaggatgct 
+i rheMac2.chr3                           I 292 C 0                                
 s panTro1.chr6  129898234 16 + 161576975 gaaagg------------------------aaaggatgct 
+i panTro1.chr6                           I 294 C 0                                
 s canFam2.chr14  52857589 34 -  63938239 ----GGTGTCAT--ACCCAAGAATCCTAGAAAAGGGTACC 
+i canFam2.chr14                          C 0 I 15                                 
 s bosTau2.chr4   19322195 36 -  69556449 ----GGTATCATTAACACATAAATCCTAGAAAAGGTTACC 
+i bosTau2.chr4                           C 0 I 15                                 
 
 a score=4365.000000
 s hg17.chr7     127484507 31 + 158628139 TTTctggatct---------------gaatcctgactctgtcatgg 
 s panTro1.chr6  129898744 31 + 161576975 TTTctggatct---------------gaatcctgactctgtcatgg 
+i panTro1.chr6                           C 0 C 0                                        
 s rheMac2.chr3  165801600 31 + 196418989 TCTctggatct---------------gaatcctgactctgacatgg 
+i rheMac2.chr3                           C 0 C 0                                        
 s rn3.chr4       56193631 30 + 187371129 TTGCTGGATTT---------------CAGT-CTGTCCCGCACACAG 
+i rn3.chr4                               I 974 I 15                                     
 s bosTau2.chr4   19323013 46 -  69556449 tttctgggtgtggcacctttggctatgaatcctagctttgcagctt 
+i bosTau2.chr4                           I 1 C 0                                        
 s canFam2.chr14  52858571 35 -  63938239 TTTctgggttaagca-----------gaagcctgactctgccactt 
+i canFam2.chr14                          I 1 C 0                                        
 
 a score=94680.000000
 s hg17.chr7     127484538 76 + 158628139 acctgtttgactttgggcaagttgactcctattcctgagccccatatt-tttctcttctgtgaaattcagattaaaa 
 s canFam2.chr14  52858606 70 -  63938239 gcttgtttga------gcaagttaacacattttcttgaccctcctttt-ccccctttttataaatTTCAGATTAAAA 
+i canFam2.chr14                          C 0 I 194                                                                     
 s bosTau2.chr4   19323059 75 -  69556449 acttgtttgactttggacaagtccgcatgttttcttgggtttcacatt-tcccc-attgataaaatCCAGATTTTAA 
+i bosTau2.chr4                           C 0 C 0                                                                       
 s rn3.chr4       56193676 77 + 187371129 ATCGTTTTGACTTTGGGAAACTCGGCTCATCTTTCTGAGCCTCATTTGTTTTCTCTTCTGTAAAATTCAGATTAAAA 
+i rn3.chr4                               I 15 C 0                                                                      
 s rheMac2.chr3  165801631 76 + 196418989 acctgtttgactttgagcaagttgactcctcttcctgagccccatatt-tttctcttctgtaaaattcagattaaaa 
+i rheMac2.chr3                           C 0 C 0                                                                       
 s panTro1.chr6  129898775 76 + 161576975 acctgtttgactttgggcaagttgactcctattcctgagccccatatt-tttctcttttgtaaaattcagattaaaa 
+i panTro1.chr6                           C 0 C 0                                                                       
 
 a score=55780.000000
 s hg17.chr7     127484614 58 + 158628139 A-AA---CATGGCTTTGATCAAACATTATAAATAATATATAGACAGACTGCTTGTTTTTATT 
 s panTro1.chr6  129898851 58 + 161576975 A-AA---CATGGCTTTGATCAAACATTATAAATAATATATAGACAGACTGCTTGTTTTTATT 
+i panTro1.chr6                           C 0 C 0                                                        
 s rheMac2.chr3  165801707 58 + 196418989 A-AA---CATGGCTTTGATCAAACATTATAAATAATATATAGACAGACTGCTTGTTTTTATT 
+i rheMac2.chr3                           C 0 C 0                                                        
 s rn3.chr4       56193753 58 + 187371129 AGAG---CGTACCTTGAAGCAAGCACGATAAATAATATATAAGCAGATTGCTCGTTTTGG-C 
+i rn3.chr4                               C 0 C 0                                                        
 s bosTau2.chr4   19323134 57 -  69556449 -AAACCCCATACTTTGGATCAAGCATTATAATATAGAAATAGACTGCTTCTTTCTTTT---- 
+i bosTau2.chr4                           C 0 I 800                                                      
 s canFam2.chr14  52858870 54 -  63938239 -aAG---CATACCTTTGAGCAAGCCttataaataatatataaatagtttatttctatt---- 
+i canFam2.chr14                          I 194 C 0                                                      
 
 a score=176176.000000
 s hg17.chr7     127484702 101 + 158628139 GCCATCTATGGACAGAAAATGTATTACCTGTCTTC-ATCAAGACCCAGACGAGGAAGAACACGAAAAGCGGAGATTAATTTTACTGCCATCTCCAGAACCGT 
 s canFam2.chr14  52858955 101 -  63938239 GCCACCTGTGGACAGAAAATGTATCATCTGTTTTT-ATTAAGACCCAGATGAGACAAAACATAAAAAGCAGAGATTAACCCTTTTGCCTTCTCCAGAACCTT 
+i canFam2.chr14                           C 0 C 0                                                                                                
 s bosTau2.chr4   19323991 102 -  69556449 GCCACCTATGGACAGAAAATGCATTACCTGTTTTTAATCAAGACCCAGATGAAACAGAACACAAAAAGCAGAGATGAACTTCTCCGCCATCTCCAAAACCTT 
+i bosTau2.chr4                            I 800 C 0                                                                                              
 s rn3.chr4       56193842  94 + 187371129 ACCACTGATGGAGGACAGCCGTGTTACCTGTTCCC-ACCAAGACCCAGATGAGGAAGAACAGAA-----AGAAGTTAGTTTTTCTGCTGTCTCCCC--TCTT 
+i rn3.chr4                                C 0 C 0                                                                                                
 s rheMac2.chr3  165801795 101 + 196418989 GCCATCTATGGACAGAAAATGTATTACCTGTTTTC-ATCAAGACCCAGACGATGAAGAACATGAAAAGCGGAGATTAACTTTACTACCCTCTCCAGAACCTT 
+i rheMac2.chr3                            C 0 C 0                                                                                                
 s panTro1.chr6  129898939 101 + 161576975 GCCATCTATGGACAGAAAATATATTACCTGTCTTC-ATCAAGACCCAGACGAGGAAGAACACGAAAAGCGGAGATTAATTTTACTGCCATCTCCAGAACCTT 
+i panTro1.chr6                            C 0 C 0                                                                                                
 
 a score=371409.000000
 s hg17.chr7     127484803 224 + 158628139 CATCCTAATATTTACTTACATTTTATTATTATTTCAGGCTCATGCACATATACTTAGCATGGATCATTGGCCACAGACTCGCATACATTTAACTTTATTACCTTT-TGCCTCATGTATCTCATTAAAATTTTGCTGCTTAATCAAGGATCTGCATATTATTTTAATTTTAGAATTCACAGTTCCAAGACTTTGAAAGTTTCAAGCGTTCTGGGTGaatgtg---------------ttat 
 s panTro1.chr6  129899040 224 + 161576975 CATCCTAATATTTACTTACATTTTATTATTATTTCAGGCTCATGCACATATACTTAGCATGGATCATTGGCCACAGACTCGCATACATTTAACTTTATTACCTTT-TGCCTCATGTATCTCATTAAAACTTTGCTGCTTAATCAAGGATCTGCATATTATTTTAATTTTAGAATTCACAGTTCCAAGACTTTGAAAGTTTCAAGCGTTCTGGGTGaatgtg---------------ttat 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                          
 s rheMac2.chr3  165801896 224 + 196418989 CATCCTAATATTTACTTACATTTTATTATTATTTCAGGCTCATGCACATATACTTAGCATGGATCATTGGCCACAGACTTGCATACATTTAACTTTATTACCTTT-TGCCTCATGTATCTCATTAAAACTTTGCTGCTTAATCAAGGATCTGCATATTATTTTAATTTTAGAATTCACAGTTCCAAGACTTTGGAAGTTTCAAGCGTTCTGGGTGaatgtg---------------ttat 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                          
 s rn3.chr4       56193936 217 + 187371129 CATCCTAATATTCATGAACGTCTTTATT---ATTCAGGCTCATACGTACACCCTTAGTACGGTTCACTGGCTACAGGCTTGCATACATTTAACTTTATTACCTTTCTGCCTCATGCATCTCATCAGGCCTCTATTTCTTAATCAAGAATCTGCAGA--GTGTTAATTTAAAAACCGATGGCTCTATGAC-TGGAAA--TTCCAGCATTCTAAGCAACCATG---------------CTAG 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                          
 s bosTau2.chr4   19324093 233 -  69556449 CATGTTAATACTTAA-CACCCATAATCATTCTTTCAGGCTCATCCACACATACTTAGCATGGATCATTGGC--CAGACTTGCAGGCATTTAACCTGATTACCTTT-TGCCTCATGTATCTCATTAAAACTTCACAGCTTAATCAAGGACCTGCATA--TTATGAATGTTAGAATTCACGGTTCCATGACTTTG-GAGTTTCAGACATCCTGAGTGAACACGGTAGGCTGAGAGTGTATGT 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                          
 s canFam2.chr14  52859056 217 -  63938239 CATGCTAATATTTACTTACATTTGATTATCATTTCAGGCTCATGCACACAACCTTAGCATGGATCA-------CAGACTCGCATACATTTAACTTTATTACCTTT-TGTCTTATGTATCTCATTAAAACTTTGCTGCTTATTCAAGGATCTGCATA--TTATTAATATTAGAATTCATTGTGCCATGACTTTGAAAGTGTCAAACATTCTGGATGaacacg-------------ttatat 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                          
 
 a score=105109.000000
 s hg17.chr7     127485027 140 + 158628139 gctctctcccgccaccatgtctttataccccctgatttctcagccac-tatggcaaccactttctactcttagta-gcccatatttagtc--caatccccagctcaggagacacttctt-ccagggagccccctgtgccttccag 
 s panTro1.chr6  129899264 140 + 161576975 gctctctcccgccaccatgtctttataccccctgatttctcagccac-tatggcaaccactttctactcttagta-gcccatattcagtc--caatccccagctcaggagacacttctt-ccagggagccccctatgcgttccgg 
+i panTro1.chr6                            C 0 C 0                                                                                                                                           
 s rheMac2.chr3  165802120 140 + 196418989 gctctctcccgccgccatgtctttatgccccctgatttctcagctac-tatggcaaccactttctactcttagta-gcccatattcagtc--caatccccagctcaggagacacttctt-ccagggagccccctgtgcgctctgg 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                           
 s rn3.chr4       56194153 117 + 187371129 GTCCTCTCCTGCCTCCACGACTTTGCA-CGTCTCGGCTCTTGGCCACTTGTGGTAACTGTGTTCTACTCTCC-CA-GCCTGTTCTTGGTC-TTCGACACCAGCCAAGGC----------------AAACCC--------ATTCTG 
+i rn3.chr4                                C 0 C 0                                                                                                                                           
 s bosTau2.chr4   19324326 145 -  69556449 gctctctctggccttcaggtctttgtaccagctgctctcttggccacttatggcaaccactttgtattcttccaagacctcccctttgccttcaatacccagctcaggcgacacctcttctcagggagGCCACTTTGTAATCCTG 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                           
 s canFam2.chr14  52859273 142 -  63938239 agtctcttctgcctccatgcctttaaaccaactgttttc-tggcctcttgtggcaaccactctccattcttacta-acccatactgggtttttaatacccagctcaggtgacacctctt-tcagagagccccctttgtactcctg 
+i canFam2.chr14                           C 0 C 0                                                                                                                                           
 
 a score=10223.000000
 s hg17.chr7     127485167 22 + 158628139 tagtatcttgtacct--------g----cccttt 
 s panTro1.chr6  129899404 22 + 161576975 tggtatcttgtacct--------g----cccttt 
+i panTro1.chr6                           C 0 C 0                            
 s rheMac2.chr3  165802260 22 + 196418989 tggtatctcgtacct--------g----cccttt 
+i rheMac2.chr3                           C 0 C 0                            
 s rn3.chr4       56194270 26 + 187371129 TGATATCAAACACTT--------GTCCCCTCCCC 
+i rn3.chr4                               C 0 C 0                            
 s bosTau2.chr4   19324471 30 -  69556449 CAATATCTTGTCCTTCTTGCAGAG----CTCTTT 
+i bosTau2.chr4                           C 0 I 111                          
 s canFam2.chr14  52859415 22 -  63938239 tgacatcttgcactt--------g----ttcttc 
+i canFam2.chr14                          C 0 C 0                            
 
 a score=63714.000000
 s hg17.chr7     127485189 61 + 158628139 ttgcaaagctctttcctcctggcttagaatggcccattgacctgtttgtttctcctattaa 
 s panTro1.chr6  129899426 60 + 161576975 ttgcaaagctctttcctcctggcttagaatggcc-attgacctgtttgtttctcctattaa 
+i panTro1.chr6                           C 0 C 0                                                       
 s rheMac2.chr3  165802282 61 + 196418989 ttgcaaagctctttcctcctggcttagaatggcccattgacctgtttgcttctcctattaa 
+i rheMac2.chr3                           C 0 C 0                                                       
 s rn3.chr4       56194296 37 + 187371129 TTGTGGAGC----------------------GCCTACTTGCTTGTCTGTCCCTCCTGTT-- 
+i rn3.chr4                               C 0 C 0                                                       
 s bosTau2.chr4   19324612 56 -  69556449 TTGCAGAGCTCTTTCCTCCTGTACTGCTACGGCCtgtttac-----tatctcccctattaa 
+i bosTau2.chr4                           I 111 C 0                                                     
 s canFam2.chr14  52859437 61 -  63938239 ttgtgaagtttattcttcctgtattggaatggtctgcttacctgtttatctctcttattaa 
+i canFam2.chr14                          C 0 I 195                                                     
 
 a score=51195.000000
 s hg17.chr7     127485250 93 + 158628139 actgtaagccactcgagggt-agagagcatctgttgttcaccattgcatcctcggtgctgagcactgcgtctgacatattatttagaaggtcag 
 s panTro1.chr6  129899486 93 + 161576975 actttaagccactcgagggt-agagagcatctgttgttcaccattgcatcctcggtgctgagcactgtgtctgacatattatttagaaggtcag 
+i panTro1.chr6                           C 0 C 0                                                                                        
 s rheMac2.chr3  165802343 93 + 196418989 actgtaagccactcgagggt-agagagcatctgttgttcagtattgcatcctcggtgccgagcactgtgtctgacatattatttagaaggtcag 
+i rheMac2.chr3                           C 0 C 0                                                                                        
 s rn3.chr4       56194333 64 + 187371129 ACCCCGAGCCGCAGGAGGGT-AGGAAGTATCTTC------------CCTCCTTGGT-----GTCCTGCGTCGGAC------------TGGCGGA 
+i rn3.chr4                               C 0 C 0                                                                                        
 s bosTau2.chr4   19324668 89 -  69556449 actggaaacactttgagagtaaaaaaacatccgttgttcactgtggcatccttggtgcccagcactgcgtctg----atta-tcagaccttctg 
+i bosTau2.chr4                           C 0 C 0                                                                                        
 s canFam2.chr14  52859693 92 -  63938239 agcataagcaacctgagagt-agagagcatctgttgttcacgattctatccttggtgcctggcgctgtatctgacacatta-gcagatcttctg 
+i canFam2.chr14                          I 195 C 0                                                                                      
 
 a score=119427.000000
 s hg17.chr7     127485343 98 + 158628139 taagtgctagtgggatTCAGGCTCCCAGTGGGTGGGAGAGAAAGGACGTAAGGAAGCAAGTGGTAAAGGCCCTCACAGA-GTATCAGCAGGCTGGTGTG 
 s panTro1.chr6  129899579 98 + 161576975 taagtgctagtgggatTCAGGCTCCCAGTGGGTGGGAGAGAAAGGATGTAAGGAAGCAAGTGGTAAAGGCCCTCACAGA-GTATCAGCAGGCTGGTGTG 
+i panTro1.chr6                           C 0 C 0                                                                                             
 s rheMac2.chr3  165802436 94 + 196418989 taagtgctagtgggatTCAGGCTCCCAGTGGGTGGGAGAGAAAGGAAGTAAGGAAGCAAGTGGTAAAGGACATCATAGA-GTATCA----GCTTCTGTG 
+i rheMac2.chr3                           C 0 C 0                                                                                             
 s rn3.chr4       56194397 94 + 187371129 GAAATGCTGCTAGGATTCAGATTCCCA----GTGGGAGAGGAAGGAAGTTATGGATC-AGTAATGAAGACCTTAACAGACATAACAAGAGGCTGCTGCG 
+i rn3.chr4                               C 0 C 0                                                                                             
 s bosTau2.chr4   19324757 95 -  69556449 taagtgCCCATCGGAGTCAGGCTCCCA----ATGGGAGAGAAAGGAAGCAATAAAGCCAGTGGTAAATGCCATCACGGAGGTATCAGTGCGCTGCTGTG 
+i bosTau2.chr4                           C 0 C 0                                                                                             
 s canFam2.chr14  52859785 95 -  63938239 ccagtgctggctgcatTCAGGCTCCCA----GTAGGAGAGAAAGGAAGTAATAAAACCAGTGATAAATGCCATCACAGAGGTATCGGTAGGCTGCCATG 
+i canFam2.chr14                          C 0 C 0                                                                                             
 
 a score=184164.000000
 s hg17.chr7     127485441 175 + 158628139 A-GGGAGAAATGCAGAGGATGGGTGAGTAGCAT--AATCGCTAATGAT-AGGGTAATGATAGAGCACATTTCACAACACCTTt-aagccctttcacgtgcatcagataatttgatcctcataaaagcctagagatagatatattacagg-gatgaaggtggagtattttgtggttatgtga 
 s panTro1.chr6  129899677 175 + 161576975 A-GGGAGAAATGCAGAGGATGGGTGAGTAGCAT--AATCACTAATGAT-AGGGTAATGATAGAGCACATTTCACAACACCTTt-aagccctttcacatgcattagataatttgatcctcataaaagcctagagatagatatattacagg-gatgaaggtggagtattttgtggctatgtga 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                               
 s rheMac2.chr3  165802530 166 + 196418989 A-GAGAGAAATGCAGAGGACAGGTGAGTAGCAT--AATCGCTAACGAT-AGGGtaatgatagagcacatttcacaacactttc-aagccctttcacatgcattatctaatttgatcctcataaaagcctagagacaggtgtattacagg-gatgaaggtggagtattttgta--------- 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                               
 s rn3.chr4       56194491 134 + 187371129 GTGAGACTAACAGGAAGGGCGAG---GCAGCCCTGGGTCCCTAATGAT-----------------------------------------CTTCCACACGCATTAGCTAATTTGATCTTCATAAAAGCTCAGAGAAGGGTAGACCATAGG-GAGGAAGGT--AGTTTTGAGTGGTTATGTGA 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                               
 s bosTau2.chr4   19324852 172 -  69556449 A-GAGAGTAATGAAGAGGAC-----AGTCACAT--AATCTCTAATAAT-AGGGTAGTAATAGAGAACCTTTCACAACTCCTTTAaagctctttcacgcacattatctaatttgatcctcataaaaccctggagataggtacattgtgggggatacagggggagtttttagcggttatggga 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                               
 s canFam2.chr14  52859880 174 -  63938239 G-GAGAGTAATGGAGACGGCA----AGTAACAT--AATCTCTAGTAATAAGGATAGTAATATAGTACATTTCACAACACCTTTAaagctcttgcacatgcattgtctcatttgatcctcataaaagtctagagataggtatattgcaggagatgaaggtggagtttttagtggttttgtga 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                               
 
 a score=139163.000000
 s hg17.chr7     127485616 125 + 158628139 tatgtt-taaaattatgcagtgagtaaatgactgggttcaaaccagaccttaaaagtctgttatctttccCTCG-AGCATGCAATGAAGTCTACATCATCCCTACCATG----TCCATTTGATCACACCCT 
 s canFam2.chr14  52860054 115 -  63938239 tctgtt-taaagtcaggcagctattaaatggctggattcagaccagaccttaaaagcc---catctcttcctcacagcTTGCAATAAAGTCA-------TACCACGACA----TCCATTCACTCATGCAC- 
+i canFam2.chr14                           C 0 C 0                                                                                                                             
 s bosTau2.chr4   19325024  79 -  69556449 tatgcc-tgcagtcgtacagctattaaatgtctggattcaaaccagaccttgaaagcc----------------------------------------------cgccg----tccacccgctcgtgccc- 
+i bosTau2.chr4                            C 0 C 0                                                                                                                             
 s rn3.chr4       56194625 117 + 187371129 TATACCTTGCAGTTAGGCAGTGAGTAAATGACAACATTCAACCTAGACCATAAGAGTCGGTTCTCTTTCCCTTGAAATATGCAACAAGACCT---CCATCATCATCAAA----TCCATTTG---ACA---- 
+i rn3.chr4                                C 0 C 0                                                                                                                             
 s rheMac2.chr3  165802696 127 + 196418989 ---aat-taaaattattcagtgagtaaatgactgggttcaaaccaggccttaaaaatctgttctttttcccttgaagcacgcAATGAAGTCTACATCATCCCTACCATGTCCATCCATTTGATCACACCCT 
+i rheMac2.chr3                            C 0 C 0                                                                                                                             
 s panTro1.chr6  129899852 125 + 161576975 tatgct-taaaattatgcagtgagtaaatgactgggttcaaaccagaccttaaaagtctgttatttttcccttg-agcatgcAATGAAGTCTACATCATCCCTACCATG----TCCATTTGATCACACCCT 
+i panTro1.chr6                            C 0 C 0                                                                                                                             
 
 a score=234288.000000
 s hg17.chr7     127485741 224 + 158628139 GGCCTCACAGCTCTGTGGTCTACAGGATACCTCATGGTGGTTTTATTGACCAGACAATAATCCTCTTTCTAAGGGGATGCATTTCATTAATACAT-ATGTAG-----ATCATGAATTGTCTTTGACTTTGAGGGGATGGTAGC----CAGAGCAGAAAGCAAAGCTGATTTTCATCCCCGTCTGG------TAATGTGGTTGGTAATGTG-----AAGATGGGTGTATTCTGAGATACCGGCTCC 
 s panTro1.chr6  129899977 224 + 161576975 GGCCTCACAGCTCTGTGGTCTACAGGATACTTCATGGTGGTTTTATTGACCAGACAATAATCCTCTTCCTAAGGGGATGCATTTCATTAATACAT-ATGTAG-----ATAATGAATTGTCTTTGACTTTGAGGGGATGGTAGC----CAGAGCAGAAAGCAAAGCTGATTTTCATCCCCGTCTGG------TAATGTGGTTGGTAATGTG-----AAGATGGGTGTATTCTGAGATACTGGCTCC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                               
 s rheMac2.chr3  165802823 225 + 196418989 GGCCTCCCAGCTCTGTGGTCTACAGGATACCTCATGGTGGTTTTATTGACCAGACAATAATCCTCTTCCTAAGAGGATGTATTTCATTAATACAT-AGGTAG-----ATAATGAATTGTCTTTGACTTTGAGGGGATGGTAGC----CAGGGCAAAAAGCAAAGCTGATTTTCATTTCCATCCAG------TAATGTGGTTGGTAATGGG----TCAGATGGATGTATTCTGAGATACCAGCTCC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                               
 s rn3.chr4       56194742 214 + 187371129 AGACTT---GCCCCATGATCTATAGGACACATCACTGTGGTTTTATCAAACTGTC---AATACTCTTCCCAAGGGTGGGCATTTCATTG-------ATCTAGGTTCCATAATGAATTGTCTTTGACTTTGACAAGATGGTAGCTAGTTAGGGAAGAAAGCAAGTTTTA--TCTATCCACAGCCTA------CAGCA-GGTTGGCAGCAGCACCACTGGATGGATTTA--------TATTGGG-TC 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                               
 s bosTau2.chr4   19325103 221 -  69556449 tggctcactgcTGCGTGGTCTACAGCACACCTC-CTGTGGTTTTCTTGATTCCGCCGCAC--CTCTCCCCAGGGGAGTGCCTTTCATTACTGTCATTTCTAG-----ACAATGAATTGTCTTTGA------GGAGATGATAGC----CATGGCAGACAGCAAATCTTGTTGTTATCCGCATCTGAAGACCTGGATGCGGGTGGTAACGGA----GCACGTGGGTGTTCTCGGAGAT--CGACGAT 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                               
 s canFam2.chr14  52860169 218 -  63938239 TGGCTTACTGCTCTGTGGTCTATTCCACATCACTTTGTTGTTTATTTGGTCAGGTCTTAC----TTCCCCACGGACATGCATTTCATTAATGTAA-TTCTAG-----ATAACAAATTGTCTTTGACAC---TGAGATGATTGC----TATGGCAGAAGGCAAGTCTCATTTTTATCCACATCCGA------TGATGAGGTTGGTAACAGG----ACTTATGGGTATTTTCTGAGATACCAGCAAC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                               
 
 a score=594240.000000
 s hg17.chr7     127485965 213 + 158628139 TTGCAGTGTGTGGTTCCTTCTGTTTTCAGGCCC---AAGAA---GCCCATCCTGGGAAGGAAAATGCATTGGGGAACCCTGTGCGGATTCTTGTGGCTTTGGCCCTATCTTTTCTATGTCCAAGCTGTGCCCATCCAAAAAGTCCAAGATGACACCAAAACCCTCATCAAGACAATTGTCACCAGGATCAATGACATTTCACACACGGTAAGGAGAGTA 
 s panTro1.chr6  129900201 213 + 161576975 TTGCAGTGTGTGGTTCCTTCTGTTTTCAGGCCC---AAGAA---GCACATCCTGGGAAGGAAAATGCATTGGGGAACCCTGTGCGGATTCTTGTGGCTTTGGCCCTATCTTTTCTATGTCCAAGCTGTGCCCATCCAAAAAGTCCAAGATGACACCAAAACCCTCATCAAGACAATTGTCACCAGGATCAATGACATTTCACACACGGTAAGGAGAGTA 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                     
 s rheMac2.chr3  165803048 213 + 196418989 TTGCAATGTGTGGTTCCTTCTGTTTTCAGGCCC---AAGAA---GCACATCCTGAGAAGGAAAATGTATTGGAGAACCCTGTGGGGATTCTTGTGGCTTTGGCCCTATCTGTTCTACATCCAAGCTGTGCCCATCCAAAAAGTCCAAAGTGACACCAAAACCCTCATCAAGACAATTGTCACCAGGATCAATGACATTTCACACACGGTAAGGAGAGTC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                     
 s rn3.chr4       56194956 218 + 187371129 TTGAAAA-TGGCATTCCTTCTGTTTCTAGGTCCAAGAAGAAGAAGAAGACCCCAGCGAGGAAAATGTGCTGGAGACCCCTGTGCCGGTTCCTGTGGCTTTGGTCCTATCTGTCCTATGTTCAAGCTGTGCCTATCCACAAAGTCCAGGATGACACCAAAACCCTCATCAAGACCATTGTCACCAGGATCAATGACATTTCACACACGGTAGGGAGTCTC 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                     
 s bosTau2.chr4   19325324 213 -  69556449 GTGCCACGTGTGGTTTCTTCTGTTTTCAGGCCC---CAGAA---GCCCATCCCGGGAAGGAAAATGCGCTGTGGACCCCTGTATCGATTCCTGTGGCTTTGGCCCTATCTGTCTTACGTGGAGGCTGTGCCCATCTGCAAGGTCCAGGATGACACCAAAACCCTCATCAAGACAATTGTCACCAGGATCAATGACATCTCACACACGGTAGGGAGGGAC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                     
 s canFam2.chr14  52860387 213 -  63938239 CTGCTATGCGTGGTTCCTTCTGTTTTCAGGCCC---AAGAA---GCACAGCCGGGGAAGGAAAATGCGTTGTGGACCTCTGTGCCGATTCCTGTGGCTTTGGCCCTATCTGTCCTGTGTTGAAGCTGTGCCAATCCGAAAAGTCCAGGATGACACCAAAACCCTCATCAAGACGATTGTCGCCAGGATCAATGACATTTCACACACGGTAGGGAGGGTC 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                     
 
 a score=9345.000000
 s hg17.chr7     127486178 31 + 158628139 T-GCGGGGA--CAA------AGTAGAACTGCAGCCAGCCC 
 s panTro1.chr6  129900414 31 + 161576975 T-GCGGGGA--CAA------AGTAGAACTGCAGCCAGCCC 
+i panTro1.chr6                           C 0 C 0                                  
 s rheMac2.chr3  165803261 31 + 196418989 T-GTGGGGA--CAA------AGTGGAACTGCAGCCAGCCT 
+i rheMac2.chr3                           C 0 C 0                                  
 s rn3.chr4       56195174 37 + 187371129 TTGTGGGGAAGCAAAGGAGAAGTAGGGCTAGAACCAG--- 
+i rn3.chr4                               C 0 C 0                                  
 s bosTau2.chr4   19325537 30 -  69556449 T-GGG-AGA--CGA------GGTAGAACCGTGGCCATCCC 
+i bosTau2.chr4                           C 0 I 48                                 
 s canFam2.chr14  52860600 31 -  63938239 T-GGGAAGA--CAA------AGTAGAACCAAGACCGGCCC 
+i canFam2.chr14                          C 0 I 2                                  
 
 a score=-7006.000000
 s hg17.chr7     127486974  61 + 158628139 GGGGAAACCCAGGCCTCAGCGATTAGCTGAG----------CCACATGCAGG------CACAGCCACTG------------------------------------TCTCTTTC 
 s bosTau2.chr4   19325615  49 -  69556449 -----------GGCCCCAG---------------------------------------TGG---CCTGG----------ACGCCCCCCTGGCATAAAGACAGC-TCCTCTCCT 
+i bosTau2.chr4                            I 48 C 0                                                                                                          
 s canFam2.chr14  52860633 102 -  63938239 GGGGAAACCAGGACCTCAGATGGTAGTTGAGGCCTGTGCAGCCACATATAGGGGCCA-TGGTGGCCTTG----------ACACCTCCCCGTGGTACAAACAGCAGCCTTttct 
+i canFam2.chr14                           I 2 C 0                                                                                                           
 s rn3.chr4       56195504  98 + 187371129 -AGGAAGCCCAGCCCTCCATGGCTAGCTGAG-------------CATGTAAGGCTCACATCAGGCCTGGGAGAACCCACGTTCCTCCCTGAT-TCCACAGACCACTCTCTCCC 
+i rn3.chr4                                C 0 C 0                                                                                                           
 s rheMac2.chr3  165804050  61 + 196418989 GGGGAAACCCAGGCCTCAGAGATTAGCTGAG----------CCACATGCAGG------CACAGCCATTG------------------------------------TCTCTTTC 
+i rheMac2.chr3                            C 0 C 0                                                                                                           
 s panTro1.chr6  129901204  61 + 161576975 GGGGAAACCCAGGCCTCAGAGATTAGCTGAG----------CCACATGCAGG------CACAGCCACTG------------------------------------TCTCTTTC 
+i panTro1.chr6                            C 0 C 0                                                                                                           
 
 a score=197304.000000
 s hg17.chr7     127487035 389 + 158628139 CTTCCTGTCCCCTCTGTCCCCACCTTCTGCGCTCGCCTTCCTCCCTGACTTCACTTCCTTGAATCTTAGTGCCTACGACCAGAGGGAGCTGTGAAGTTCCTTG----TGTCCCATTGGCAGGA-ACAAGACCCCCAGAAGCATCTCCTCAGGGCCTCTATCCCATCTC-TAGATGTGCTTGTCATTAGG-Gttcttgtagttc--cagctgatctctggcc------------ctgccgctcaaagatacccaaaagagcgagtctaccctttttcacattcaaccctctactgatttgcaaatagcagtcagtgcccaccctggtcttttctctggggtccagcaggcctagaccttcagccattttcctgatgaGGTCTGTAtttgaaattaggaagat---------------------------------------------------------------------taagtttga 
 s panTro1.chr6  129901265 390 + 161576975 CTTCCTGTCCCCTCTGTCCCCACCTTCTGCACTCGCCTTCCTCCCTGACTTCACTTCCTTGAATCTTAGTGCCTACGACCAGAGGGAGCTGTGAATTTCCTTG----TGTCCCATTGGCAGGT-GCAAGACCCCCAGAAGCATCTCCTCAGGGCCTCTATCCCATCTCCTAGATGTGCTTGTCATTAGG-GTTCTTGTAGTTC--CAGCTGATCTCTGGCC------------CTGCCGCTCAAAGATACCCAAAAGAGCGAGTCTACCCTTTTTCACGTTCAACCCTCTACTGATTTGCAAATAGCAGTCAGTGCCCACCGTGGTCTTTTCTCTGGGGTCCAGCAGGCCTAGACCTTCAGCCATTTTCCTgatgaggtctgtatttgaaattaggaagat---------------------------------------------------------------------taagtttga 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 s rheMac2.chr3  165804111 388 + 196418989 CTTCCTCTCCCCTCTGTCCCTGCCTTCTGCGCTCGCCTTCCTCCCTGACTTCACTTCCTTGAATCTTAGTGCCTACGACTAGAGGGAGCCATGAAGTTCCTTG----CAGCCCATTGGC-TGT-GCAAGACCCCCAGCAGCATCTCCTCGGGGCCTCTATCCCATCTC-TAGATGTGCTTGTCATTAGG-Gttcttgtagttc--cagttgatctctggcc------------ccacctctagaagatacccaaaagagtgagtctaccctttttcacattcagccctctactgatttgcaaataggagtcagtgcccaccctggtcttttctCTGGAGTCCAGTAGGCCTAGACCTTCTGCCATTTTCCTGATGAGGTCTATAtttgaaattaggaagat---------------------------------------------------------------------taagtttga 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 s rn3.chr4       56195602 357 + 187371129 CTTCCTTAGCCCTTTGTTTCTGTCTCTCTCTTTCTCTTTCCTCCATGAAACTACTTCCTTGAGT-CTAGTTCCCAGGGTATAAG-AATCCCTAAAGGTCATGGCATTCATTCCATTGACATATGACTGGCTTCCCAGCAGTGTCTCCACTGGGCAAG------------AGGA----------TCTAAC-GGT-TTCTAACTA--CAGCTTCTC-CTGCCAGTTCCT---GTTACTCCTTTCAAAGTCACACA-GAGAGCAATCTTTCCCTCCTTTACAACCAATCTTCTGTGAAGTTGCTGACAGCTGTCAGTGCCCACCGTAGTC-TTTCTCCGAGACTCAGCA-TCCTACATCTTCAGTCATTTCCTC----AGAAGTATCT---AAGCGA--------------------------------------------------------------------------------TTCGT 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 s canFam2.chr14  52860735 306 -  63938239 cttcctctctctccatctcccaccttct-ccctctccttcctctCTGA---------TGCAAGTCCTAGTGCCTAGGACCAAAGAGAGCCATAAAGGTCTTTG----TGTCCCACTGGCAGGTGACCAGACTCCTAGTTGCATCCCCTCTAGGCCTCTGTCACATCTCTAGAATGTACTCATCATTGGGCATTCTTCC-------TAGATGAACTCTAGCC-CCGTGAAGCTTCTCCCTGTTACTGTTAGCC---------------------------------------------------------------------------------CTGGGGTCCACAG-GCCTAGACCTTCAGCCATTTCCCAGATGACAGCTGTAtttggaattaggaagac---------------------------------------------------------------------caaatgtga 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 s bosTau2.chr4   19325664 454 -  69556449 CCTCCACTTCCCTTGCCTCCCGCCTTCT-CACTCTCCTCCCTCCCAGA---------CCGGAATCCTAGTGCCCAGGCCCAGAAGGAGTCACAGAGGTCCTGG----GGTCCCCTTGGCAGGTGGCCAGAACCCCAGCAGCAGTCCCTCTGGGCCTccatctcatttctagaatgttttagtcgttaggcattcttcctgcctggtaactgagcttagacc-ctgcgagctcattactcattactgccagccc----tgcctgtcaagccctcttcagatacaaccctctgtgtttttgtaaatagttatcagtgtctcttGGGGCATTTTTTCTGAGGTCCATAA-GCTCAGACCTGCAACCA-----CAGATGAGGTCTGTATTTAGAATGAGGGAGATGTctgtaaagtcttaagctagtcaggttccacaaggtttttaaactccagtttcctcatctagaaaatgaaagtggga 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
 
 a score=23020.000000
 s hg17.chr7     127487424  69 + 158628139 a------------------------------------------------------------------------------tcttcacac-----------------------ttctgat---------------------------------------gtctgtgagatcttcagcaagttc--cttactgtct-----------------------------ttaagccttgt-tttcatc 
 s panTro1.chr6  129901655  69 + 161576975 a------------------------------------------------------------------------------tcttcacac-----------------------ttctgat---------------------------------------gtctgtgagatcttcagcaagttc--cttaatgtct-----------------------------ttaagccttgt-tttcatc 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                           
 s rheMac2.chr3  165804499  69 + 196418989 a------------------------------------------------------------------------------tcttcacat-----------------------ttctgat---------------------------------------gtctaggagatcttcagcacgttc--cttaatgtct-----------------------------ttaagccttgg-tttcatc 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                           
 s rn3.chr4       56195959  76 + 187371129 A------------------------------------------------------------------------------TCTCACCAC-----------------------ATCTGCTTCCC-----------------------------------ATCCGTAAGATCTTAGGCAAGTTCTTCCCGTGGTCT-----------------------------TTAAACCTTGAGTTTTACC 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                           
 s canFam2.chr14  52861041  73 -  63938239 a------------------------------------------------------------------------------tcttcacgc-----------------------ttctgttctct-----------------------------------atctgtaaaatcttaagctaattc--ctcaatgtct-----------------------------tgaagcctcag-tttccat 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                           
 s bosTau2.chr4   19326118 236 -  69556449 aagtgttagttgctcagtcatgtccaactctttgagaccccatgaactgtagtctaccaggctcctctgtccatgaaattcttcaggcaagaatactggagtggcttgttattttcttctcccaacaagatcttcccaacccagggattgaacctgggtcttctaaattgcaggcagattc--tttaccgtctgagccaccagggaaacccataagaccttgtgaagact--a-ttaagat 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                           
 
 a score=42091.000000
 s hg17.chr7     127487493 84 + 158628139 at----ctggataatggggatatcac-acactattcacaaggttgttatgaggcctaaattagctaaagcaATTGAATCCTCCT---TACCC 
 s panTro1.chr6  129901724 84 + 161576975 at----ctggataatggggatatcac-acactattcacaaggttgttatgaggcctaaattagctaaagcaATTGAATCCTCCT---TACCC 
+i panTro1.chr6                           C 0 C 0                                                                                      
 s rheMac2.chr3  165804568 84 + 196418989 at----ctggataatagggatatcac-acactattcagaaggttgttatgagacctaaattagctaaagcaggtgaaTCCTCCT---TACTC 
+i rheMac2.chr3                           C 0 C 0                                                                                      
 s rn3.chr4       56196035 77 + 187371129 AT----CTTGACAATGGTAACATCAT-ATCACATCACCAA-GTTGTTCTAAGGCTTAAACGGGCTACAGCAAAAGA--CTTCCT---T---- 
+i rn3.chr4                               C 0 C 0                                                                                      
 s canFam2.chr14  52861114 84 -  63938239 ag----cctgatagtgggactatcataagggacttcacaagattgttaggagat-tcagttagttaaagcaagtgaTCTCCCCT---CACCC 
+i canFam2.chr14                          C 0 I 102                                                                                    
 s bosTau2.chr4   19326354 91 -  69556449 agTCATCTAGACAACAAGACTATCTTAATAGTCTTCATAAGGTCTTCATGAGAC-TAAATTAGATAAAGCAAGTGACCCTCCCTGAATACCC 
+i bosTau2.chr4                           C 0 I 87                                                                                     
 
 a score=178436.000000
 s hg17.chr7     127487577 413 + 158628139 CCTGCATGGAGCTCTCTGGAGACTTCCACGTCTCCTGGTCATTGTGGGTGTCTTATGGTAGTCTTGGGCAGTTAGGGAGAAGTTAGGTGTCTGGAAGCAAAGATGGCTCAGAACTAGAT-AGAGTC-TTGGGCATTTTATAGATAAAAACTCTTG----TCTC--Cttt-aaaaataat-aaaaaaaaattaGCTGGGCATATTAGCCACTCAGCAAGACTGCACGTGATAGATCCCGAGTGCCCC-ACCTTGGGTGGTGT-AATACACAATATCACGGGAGCCCCGGGTAGTAACCACGGAGGTGTCAGCCTCAGTGCTGTGGGCAG-ATGGATGGGGAGAG---CCTCCCGGAACTGGAGTCACTGGAGCAGGGTTG-----GGGGGCCTCACT------------GAGGGTACG-----------GCCTTGATCTCTAAGGAGGAGGGACTGCC 
 s canFam2.chr14  52861300 363 -  63938239 ccagcacggagcAATCTAGAGATTTCCACATCTCCTGCCCATTATGGATGTCTGACAGTGGCCTTGGGCAGCCAGGAAGAAGTTAGGTGGCCAGAAGCAGGGACAGCTCAGAACTAGATAAGAGCC-TTGGGCATTTTA-AGAGAGAAGTCTATGAGTCTCCTTGCTTTCATG-------------------------------------------GGGCCACGCATGATAGGTCCAGAGTGTCCC-GGCTTGGGTGGTGCA---------------GAGAGT------------------------------GAGTGCCACAGGCAGTGGAGAAGGGGAGAA---CTCCTGGTAACCAGTGTTACTGGAGCAGAGGAGTGAGATGGGACACTCTTTGGCGGGGGAGGGGGGTGGTGGAGGAGGTCCAGCCTTGACTCCTGAGGGGGTAAGAGGCCT 
+i canFam2.chr14                           I 102 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 s bosTau2.chr4   19326532 352 -  69556449 CCTGCGTGGAGCAATCTGGAGACTTCCACATCTCCTGACCACTCTATATTTCTAACAGTGGCTTTGGGAAGCCAGAGAGCAGTTAGGTAGCCAGAAGCGGGGACAGATCAGAAATAGAC-AGTGTC-T---GCATTTCCTAGAGAAAAGCCCTTAAAT-TCATTGCTTTCAAA-ACAGT----------------------------CATTCAGC-AAGCTGTACACAATAGACCCAGAGTGCCCC-AACCTGTGTGGTGCC---------------GGGATT------------------------------GATTGCTGTGGGTGGCGGGGGAGGGGAGAGCCCCTCCTGGTAACCAGGGTTACTTGAGCAGAGCAGTGAGCTGGGGCATCGCT------------GGGGTAATG-----------GCCTGAATCCCTTAGGGGGTGAGACTTCC 
+i bosTau2.chr4                            I 87 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                  
 s rn3.chr4       56196112 294 + 187371129 -----CTGGAGCCATCTGGAGCC------ACATCCTGGCCAATGTGGATGCCTCACAGTGGCCTT-GGCAGCCCAGGAGAGGCTCCATATTCAGGATCAAGGACAACTTAAATTAAGAC-A----T-TTGTACGTTTTGT--AGAGAAGTTCTCA----TCAT--CTTTCAAAAATAGT--------------------------------CATCAGGGCTGCACATGGAGAGACCCAACTACCCA-AATGTGGGTAGAAATGAGA-----------GGAAGC------------------------------CAGTG-----------------GGGAAAAC--CCTTCCCATAACCAGATTCAGCAGAGT--GGGGG-----AGGGGCAC------------------------A-----------ACTTTGA-CCCTAATGAGGGAGAACCAC- 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 s rheMac2.chr3  165804652 411 + 196418989 CCTGCATGCAGCTCTCCGGAG------ACATCTCCTGGTCATTGTGGGTGTCTCATGGTGGTCTTGGGCAGTTAAGGAGAAGTTAGGTGTCCAGAAGCAAAGATGGCTCAGAACTAGAT-AGAGTC-TTGGGCATTTTGTAGAGAAAAACTCTTG----TCTC--CTTTCaaaaataataaaaaaaaaattaGCTGGGCATATTAGCCACTCAGCAAGGCTGCACGTGATAGCTCCTGAGTGCCCCAACTTTGGGTGGTGTCAATACACGATATCACGGGAGCCCAGGGTAGTCACCACAGAGGTGTCAGCCTCAGTGCTGTGGGCAG-ATGGATGGGGAGAG--CCCCCCCGGAACTGGAGTCACTGGAGCAGGGTT------GGGGACCTCACT------------GAGGGTACG-----------ACCTTGATCTCTAAGGAGGAGGGACTGCC 
+i rheMac2.chr3                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 s panTro1.chr6  129901808 414 + 161576975 CCTGCATGGAGCTTTCTGGAGACTTCCACGTCTCCTGGTCATTGTGGGTGTCTCATGGTAGTCTTGGGCAGTTAGGGAGAAGTTAGGTGTCTGGAAGCAAAGATGGCTCAGAACTAGAT-AGAGTCATTGGGCATTTTATAGATAAAAACTCTTG----TCTC--Cttt-aaaaataat-aaaaaaaatttaGCTGGGCATATTAGCCACTCAGCAAGACTGCACGTGATAGATCCCGAGTGCCCC-ACCTTGGGTGGTGT-AATACACGATATCACGGGAGCCCCGGGTAGTAACCACGGAGGTGTCAGCCTCAGTGCTGTGGGCAG-ATGGATGGGGAGAG---CCTCCTGGAACTGGAGTCACTGGAGCAGGGTTG-----GGGGGCCTCACT------------GAGGGTACG-----------GCCTTGATCTCTAAGGAGGAGGGACTGCC 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
 
 a score=6716.000000
 s hg17.chr7     127487990 88 + 158628139 TGGAAAAGCTGACTGGGAGGGAGGACTCGGCTGGGGGTAGAAGGGACTAGGGAAGGCTGGGGGTGGGGGTGCTTATGGAGGACCTCAG 
 s panTro1.chr6  129902222 88 + 161576975 TGGAAAAGCTGACTGGGAGGGAGGACTCGGCTGGGGGTAGAAGGGACTAGGGAAGGCTGGGGGTGGGGGTGCTTATGGAGGACCTCAG 
+i panTro1.chr6                           C 0 C 0                                                                                  
 s rheMac2.chr3  165805063 88 + 196418989 TGGAAAAGCTGACTGGGAGAGAGGACTCGGCTGGGGGTGAAAGGGACTAGAGAAAGCAGGGGGTGGGGGTGCTTATGCAGGACCTCAG 
+i rheMac2.chr3                           C 0 C 0                                                                                  
 s rn3.chr4       56196406 45 + 187371129 ---ACAAGAAGACTAGGAGGGAGAGATCTGATGAGGGTAG--GAGGCTAG-------------------------------------- 
+i rn3.chr4                               C 0 C 0                                                                                  
 s bosTau2.chr4   19326884 76 -  69556449 TGGAGAATCTGACTGTGAGGGAGGAGTCTGCTTGGGGTGGAAGAG------------TTGGGGACGGGGAATGTACGGAAGACCTCAA 
+i bosTau2.chr4                           C 0 C 0                                                                                  
 s canFam2.chr14  52861663 87 -  63938239 TGGAGAACCTGACTGGGAGCAAGGAATCCTCTGGGGGCAAAAGAGGGTGA-TGATGTCTGGGGAAGGGGCACTTCAGGAGGACCTCAG 
+i canFam2.chr14                          C 0 C 0                                                                                  
 
 a score=-1055.000000
 s hg17.chr7     127488078 21 + 158628139 ATGCCTGGGGAACAGACTCCA 
 s panTro1.chr6  129902310 21 + 161576975 ATGCCTGGGGAACAGACTCCA 
+i panTro1.chr6                           C 0 C 0               
 s rheMac2.chr3  165805151 21 + 196418989 ATTCCTGGGGAACAGACTCCA 
+i rheMac2.chr3                           C 0 C 0               
 s rn3.chr4       56196451 10 + 187371129 -----------AGAAAATATA 
+i rn3.chr4                               C 0 C 0               
 s bosTau2.chr4   19326960 17 -  69556449 -TGCCTGGGGAAGAAACT--- 
+i bosTau2.chr4                           C 0 C 0               
 s canFam2.chr14  52861750 20 -  63938239 -TGCCTGGGGAAGAGACTTCA 
+i canFam2.chr14                          C 0 C 0               
 
 a score=130699.000000
 s hg17.chr7     127488099 120 + 158628139 CTAAATAAAACATATGAAACCATGGCTGGTTCTTCAGCAGAGGCCATGTAGAGAAAGGAATGACCTAGGAAAGTTGGCCTGGAAGTGGAGGGAAGGATGGTGTGGGAAAAGCAGGAA--------TCT 
 s panTro1.chr6  129902331 120 + 161576975 CTAAATAAAACATAGGAAACCATGGCTGGTTCTTCAGCAGAGGCCATGTAGAGAAAGGAATGACCTAGGAAAGTTGGCCTGGAAGTGGAGGGAAGGATGGTGTGGGAAGAGCAGGAA--------TCT 
+i panTro1.chr6                            C 0 C 0                                                                                                                          
 s rheMac2.chr3  165805172 116 + 196418989 CTAAATAAGACACAGGAAACCACGGCTGATTCTTCAGCAGAGGCCATGCAGAGACAGGAATGACCTGGGAAAGTCG----GGAAGTGGAGGGAAGGATGGTGTGGGAAGAGCAGGAA--------TCT 
+i rheMac2.chr3                            C 0 C 0                                                                                                                          
 s rn3.chr4       56196461  95 + 187371129 -------AGGAATGGAGAGCTAT---------------GGATGTCATTTGGAGAAAGGAATTGCTCCACA---TTAGTC-AGAAGCGAAGGGTGGAATGGTTCGGAATGAACAGAAA-------GTCT 
+i rn3.chr4                                C 0 C 0                                                                                                                          
 s bosTau2.chr4   19326977 126 -  69556449 -CAAGCAGGAAATAGGGAGTCATGGCTGGTTCTATAGCAGA-GTCATTTGGAAAAGGGAACAGCCTGCAAAGGCTGGTCTGGAGGCAAAGGGCAGGGTGGTTTGGGAAGGGCAGAAAGATAGGAGCCC 
+i bosTau2.chr4                            C 0 C 0                                                                                                                          
 s canFam2.chr14  52861770 127 -  63938239 CTAAGTAAG-AATCAGGCCTCATGGCTGGGTCTACAGCAGAGGCCATTTCCAGGAGAGAACCACCTGCGAGGATTGGTCTGGAAGGGGAGGGCAGGGTGATTTGGGAAGAGTAGGAGTACAGAAGTCC 
+i canFam2.chr14                           C 0 C 0                                                                                                                          
 
 a score=71742.000000
 s hg17.chr7     127488219 67 + 158628139 CGGAGACCAGCTTAGAGGCTTGGCAGTCACCTGGGTGCAGG-ATACAAGGGCCTGAGCCAAAGTGGTG 
 s canFam2.chr14  52861897 66 -  63938239 AGGAAA-CAGCTTGGAAGCTTGGCAGCCCCTGGGGCACAAG-AAACAAGGGCCTGGGCCAGGGTGGTG 
+i canFam2.chr14                          C 0 C 0                                                              
 s bosTau2.chr4   19327103 66 -  69556449 AGGAGACCAGCTTGGAAACATGGTGGTCACGTGGGCACAAG-AAGTAAGGGCCCAGG-GAGGATGGTG 
+i bosTau2.chr4                           C 0 C 0                                                              
 s rn3.chr4       56196556 67 + 187371129 GGGAGACCAGCTCCATGGCTC-CCAGTCAGCTGACCACAGGAAAATAAGGACCTGAACCAGGAAGGTG 
+i rn3.chr4                               C 0 C 0                                                              
 s rheMac2.chr3  165805288 67 + 196418989 TGGAGACCATCTTAGAGGCTTGGCAGTCACCTGGGCACAAG-ATACAAGGGCCTGAGCCAAAGTGGTG 
+i rheMac2.chr3                           C 0 C 0                                                              
 s panTro1.chr6  129902451 67 + 161576975 CGGAGACCAGCTTAGAGGCTTGGCAGTCACCTGGGTGCAGG-ATACAAGGGCCTGAGCCAAAGTGGTG 
+i panTro1.chr6                           C 0 C 0                                                              
 
 a score=1420585.000000
 s hg17.chr7     127488286 553 + 158628139 AGGGAGGGTGGAAGGAGGCAGCCCAGAGAATGACCCTCCATGCCCACGGGGAAGGCAGA-------GGGCTCT-GAGAGCGATT--CCTCCCACATGCTGAGCACTTGTTCTCCCTCTTCCTCCTGCATAGCAGTCAGTCTCCTCCAAACAGAAAGTCACCGGTTTGGACTTCATTCCTGGGCTCCACCCCATCCTGACCTTATCCAAGATGGACCAGACACTGGCAGTCTACCAACAGATCCTCACCAGTATGCCTTCCAGAAACGTGATCCAAATATCCAACGACCTGGAGAACCTCCGGGATCTTCTTCACGTGCTGGCCTTCTCTAAGAGCTGCCACTTGCCCTGGGCCAGTGGCCTGGAGACCTTGGACAGCCTGGGGGGTGTCCTGGAAGCTTCAGGCTACTCCACAGAGGTGGTGGCCCTGAGCAGGCTGCAGGGGTCTCTGCAGGACATGCTGTGGCAGCTGGACCTCAGCCCTGGGTGCTGAGGCCTTGAAGGTCACTCTTCCTGCAAGGACTACGTTAAGGGAAGGAACTCTGGCTTCCAGGTATCTCCAGGA 
 s panTro1.chr6  129902518 553 + 161576975 AGGGAGGGTGGAAGGAGGCAGCCCAGAGAATGACCCTCCATGCCCATGGGGAAGGCAGA-------GGGCTCT-GAGAGCGATT--CCTCCCACATGCTGAGCACTTGTTCTCCCTCTTCCTCCTGCATAGCAGTCAGTCTCCTCCAAACAGAAGGTCACCGGTTTGGACTTCATTCCTGGGCTCCACCCTATCCTGACCTTATCCAAGATGGACCAGACACTGGCAGTCTACCAACAGATCCTCACCAGTATGCCTTCCAGAAACATGATCCAAATATCCAACGACCTGGAGAACCTCCGGGACCTTCTTCACGTGCTGGCCTTCTCTAAGAGCTGCCACTTGCCCTGGGCCAGTGGCCTGGAGACCTTGGACAGCCTGGGGGGTGTCCTGGAAGCTTCAGGCTACTCCACAGAGGTGGTGGCCCTGAGCAGGCTGCAGGGGTCTCTGCAGGACATGCTGTGGCAGCTGGACCTCAGCCCTGGGTGCTGAGGCCTTGAAGGTCACTCTTCCTGCAAGGACTACGTTAAGGGAAGGAACTCTGGCTTCCAGGTATCTCCAGGA 
+i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s rheMac2.chr3  165805355 551 + 196418989 AGGGAGGGTGGAAGGAGGCAGCCAAGAGAATGACCCTCC-TGCCCAC-GGGAAGGTGGA-------AGGCTCT-GAGAGTGATT--CCTCCCACGTGCTGAGCACTTGTTCTCCCTCTTCCTCCCGCATAGCAGTCGGTCTCCTCCAAACAGAGGGTCACTGGTTTGGACTTCATTCCTGGGCTCCACCCCGTCCTGACCTTATCCCAGATGGACCAGACACTGGCAGTCTACCAACAGATCCTCATCAATCTGCCTTCCAGAAACGTGATCCAAATATCCAACGACTTGGAGAATCTCCGGGACCTTCTTCACCTGCTGGCCTTCTCTAAGAGCTGCCATTTGCCCTTGGCCAGTGGCCTGGAGACCTTGGAGAGCCTGGGGGATGTCCTGGAAGCTTCACTCTACTCCACAGAGGTAGTGGCCCTGAGCAGGCTGCAGGGGTCTCTGCAGGACATGCTGTGGCAGCTGGACCTCAGCCCTGGGTGCTGAGGCCTTGAAGGTCACTCTTCCTGCAAGGACTACATTGAGGGAAGGAACTCTGGCTTCTAGGTGTCTCCAGGA 
+i rheMac2.chr3                            C 0 I 10                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            
 s rn3.chr4       56196623 536 + 187371129 AGAA-----GGAGAGAGGCAGCTCAG---------------GCTCACGGACATGAGGGA-------GGGCTCTGGAGAGCGATTTCCCTGCCATTTGCTGAGCACCTGTTGTTCCTCTTCCTCCTGCACAGCAGTCGGTATCCGCCAGGCAGAGGGTCACCGGTTTGGACTTCATTCCCGGGCTTCACCCCATTCTGAGTTTGTCCAAGATGGACCAGACCCTGGCAGTCTATCAACAGATCCTCACCAGCTTGCCTTCCCAAAACGTGCTGCAGATAGCTCATGACCTGGAGAACCTGCGAGACCTCCTCCATCTGCTGGCCTTCTCCAAGAGCTGCTCCCTGCCGCAGACCCGTGGCCTGCAGAAGCCAGAGAGCCTGGATGGCGTCCTGGAAGCCTCGCTCTACTCCACAGAGGTGGTGGCTCTGAGCAGGCTGCAGGGCTCTCTGCAGGACATTCTTCAACAGTTGGACCTTAGCCCTGAATGCTGAGGTTTCCAAGACCACCGGGCTCCCGAGGATCATGTTGAGGGAAGAAACCTTGGCTCCCAGGTATCCTCAGGA 
+i rn3.chr4                                C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s bosTau2.chr4   19327169 537 -  69556449 TGGAAGCGGGGGAGGAAGC--------------ACCTCTACGCTCTAGGGAAAGGCGGAGTCAGGGGAGCTCTGAGGAGC---TGCCCTCTCTCCCACTGAGCTCTTGCTCTCCC-CTTCCTCCTGCATAGCAGTCCGTCTCCTCCAAACAGAGGGTCACTGGTTTGGACTTCATCCCTGGGCTCCACCCTCTCCTGAGTTTGTCCAAGATGGACCAGACATTGGCGATCTACCAACAGATCCTCACCAGTCTGCCTTCCAGAAATGTGGTCCAAATATCCAATGACCTGGAGAACCTCCGGGACCTTCTCCACCTGCTGGCCGCCTCCAAGAGCTGCCCCTTGCCGCAGGTCAGGGCCCTGGAGAGCTTGGAGAGCTTGGGCGTTGTCCTGGAAGCTTCCCTCTACTCCACCGAGGTGGTGGCCCTGAGCCGGCTGCAGGGGTCACTACAGGACATGTTGCGGCAGCTGGACCTCAGTCCCGGGTGCTGAAGCCTTGAAGGCCTCTCTTCC--------CAAAGTCCAGGGAAGAAACCTGAGCTTCTGGCTGTCCACAGGA 
+i bosTau2.chr4                            C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 s canFam2.chr14  52861963 536 -  63938239 AGGAAGGAGGAGAGGAGGCAAGCAAGAGAGCGGACCTCCACGCTCATGGGAGAGGCCGA--------CACCTTGCAGAAC---CGACTTGT------CTGAGATCCTGCTCTCCCTTTTCCTCTGGCCCAGCAGTCTGTCTCCTCCAAACAGAGGGTCGCTGGTCTGGACTTCATTCCTGGGCTCCAACCAGTCCTGAGTTTGTCCAGGATGGACCAGACGTTGGCCATCTACCAACAGATCCTCAACAGTCTGCATTCCAGAAATGTGGTCCAAATATCTAATGACCTGGAGAACCTCCGGGACCTTCTCCACCTGCTGGCCTCCTCCAAGAGCTGCCCCTTGCCCCGGGCCAGGGGCCTGGAGACCTTTGAGAGCCTGGGCGGCGTCCTGGAAGCCTCACTCTACTCCACAGAGGTGGTGGCTCTGAGCAGACTGCAGGCGGCCCTCCAGGACATGCTTCGGCGGCTGGACCTCAGCCCTGGGTGCTGAGACCTCGAAGGCTTCTCTTCC--------CCAAGTCGAGGAGAG-AACCTGGGCTCCCAGGTGTCTCCAGG- 
+i canFam2.chr14                           C 0 C 0                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             
 
