@@ -1,5 +1,5 @@
 ##maf version=1
-a score=85620.000000
+a score=85620.0
 s hg17.chr7     127471584 104 + 158628139 GAGATATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggaattattattgtgtgataatggtcttgcagttac-acagaaattcttcctta-ttttt 
 s panTro1.chr6  129885465 104 + 161576975 GAGACATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggagttattattgtgtgataatggtcttgcagttac-acagaaattcttcctta-ttttt 
 i panTro1.chr6                            C 0 C 0                                                                                                        
@@ -12,7 +12,7 @@ i bosTau2.chr4                            M 120077 I 1
 s rn3.chr4       56182200  95 + 187371129 ----TATTTGGGGGAAATATG-ATGTGCA----CTT--CCATGATCTTAAAGAATTGCTACTGTTTGATAGTGATCTTATGGTTAA-ATAAAAAAAAT--CTTA-GTTGT 
 i rn3.chr4                                I 3727 C 0                                                                                                     
 
-a score=113319.000000
+a score=113319.0
 s hg17.chr7     127471688 183 + 158628139 tgggaagcaccaaagta-------gggataaaatgtcatgatgtgtgcaatacactttaaaatgtttttgccaaaataattaa-------------------------tgaagc--aaatatg-gaaaataataattattaaatctaggtgatgggtatattgtagttcactatagtattgcacacttttctgtatgtttaaatttttcattta-------------------aaaa 
 s panTro1.chr6  129885569 183 + 161576975 tgggaaacaccaaagta-------gggataaaatgtcatgatgtgtgcaatacgctttaaaatatttttgccaaaataattaa-------------------------tgaagc--aaatatg-gaaaataataattattaaatctaggtgatgggtatattgtagttcactatagtattgcacacttttctgtatgtttaaaattttcattta-------------------aaaa 
 i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                       
@@ -25,7 +25,7 @@ i bosTau2.chr4                            I 1 I 19
 s canFam2.chr14  52847734 160 -  63938239 agacacaaactgaagtattta---aggatgaaatgtcatgatgtttgcaattggctttaaaatattttagccaaaa-agtaaa-------------------------tgaagc--AAATATGGGAAGACAATAATCATTAAATCTAGGTGATGCATAC---------------------------TTTTCCATATGTTTGAAATTTTCATTTA-------------------AAAA 
 i canFam2.chr14                           I 198 I 225                                                                                                                                                                                                                                   
 
-a score=94204.000000
+a score=94204.0
 s hg17.chr7     127471910 164 + 158628139 caatgaccaa----------------------------------------------------------------------------------------------atagactcctaccaa-ctc-aaagaatgcacattctCTG-GGAAACATGTTTCCATTAGGAAGCCTCGAATGCAATGTGACTGTGGTCTCCAGGACCTG-TGTGATCCTGGCTTTTCCTGTTCCCTCCG---CATCATCACTGCAGGTGTGTTTTCCCAAG 
 s panTro1.chr6  129885791 164 + 161576975 caatgaccaa----------------------------------------------------------------------------------------------atagactcctaccaa-ctc-aaagaatgcacattctCTG-GGAAACATGTTTCCATTAGGAAGCCTCGAATGCAATGTGACTGTGGTCTCCAGGACATG-TGTGATCCTGGCTTTTCCTGTTCCCTCTG---CATCATCACTGCAGGTGTATTTTCCCAAG 
 i panTro1.chr6                            C 0 C 0                                                                                                                                                                                                                                                                   
