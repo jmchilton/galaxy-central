@@ -1,0 +1,23 @@
+track type=wiggle_0 name="Conservation" description="Human/Chimp/Mouse/Rat/Chicken Multiz Alignments & PhyloHMM Cons"
+#	output date: 2007-10-23 14:29:10 UTC
+#	chrom specified: chrX
+#	position specified: 151073054-151383976
+#	This data has been compressed with a minor loss in resolution.
+#	(Worst case: 0.00747734)  The original source data
+#	(before querying and compression) is available at 
+#		http://hgdownload.cse.ucsc.edu/downloads.html
+variableStep chrom=chrX span=1
+151117437	0.14351
+151117438	0.139843
+151117439	0.132509
+151117440	0.139843
+151117441	0.169179
+151117442	0.257185
+151117443	0.319523
+151117444	0.367193
+151117445	0.400195
+151117446	0.425864
+151117447	0.444198
+151117448	0.455199
+151117449	0.462533
+151117450	0.4662
