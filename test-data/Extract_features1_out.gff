@@ -1,0 +1,8 @@
+##gff-version 2
+##Date: Thu Mar 23 11:21:17 2006
+##bed2gff.pl $Rev: 601 $
+##Input file: ./database/files/61c6c604e0ef50b280e2fd9f1aa7da61.dat
+chr5	bed2gff	CCDS3972.1_cds_0_0_chr5_56241230_f	56241230	56241327	.	+	.	score "0";
+chr6	bed2gff	CCDS4855.1_cds_0_0_chr6_41411593_f	41411593	41411644	.	+	.	score "0";
+chr7	bed2gff	CCDS5401.1_cds_0_0_chr7_26907299_r	26907299	26907654	.	+	.	score "0";
+chr8	bed2gff	CCDS6324.1_cds_0_0_chr8_118881132_r	118881132	118881317	.	+	.	score "0";
