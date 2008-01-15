@@ -1,5 +1,5 @@
 ## gff-version 2
-## bed2gff.pl $Rev: 601 $
+## bed_to_gff_converter.py
 
 chr1	bed2gff	CCDS989.1_cds_0_0_chr1_147962193_r	147962193	147962580	.	+	.	score "0";
 chr1	bed2gff	CCDS990.1_cds_0_0_chr1_147984546_f	147984546	147984630	.	+	.	score "0";
