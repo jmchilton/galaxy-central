@@ -38,7 +38,7 @@ Z = Glx		0		0.000  		0.000
 Property	Residues		Number		Mole%
 Tiny		(A+C+G+S+T)		561		100.000
 Small		(A+B+C+D+G+N+P+S+T+V)	561		100.000
-Aliphatic	(I+L+V)			0		 0.000
+Aliphatic	(A+I+L+V)		135		24.064
 Aromatic	(F+H+W+Y)		0		 0.000
 Non-polar	(A+C+F+G+I+L+M+P+V+W+Y)	339		60.428
 Polar		(D+E+H+K+N+Q+R+S+T+Z)	222		39.572
