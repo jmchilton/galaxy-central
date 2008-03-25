@@ -24,9 +24,9 @@ GAGATATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggaattattattgtgtgataatggtcttgc
 GAGACATTT-GGggaaatttt-gtatagactagctt--tcacgatgttagggagttattattgtgtgataatggtcttgcagttac-acagaaattcttcctta-ttttt
 >rheMac2.chr3(+):165788377-165788482|rheMac2_2
 GAGATATTT-GGggaaatttg-gtatagactagctt--tcatgatgtaagggagttatttttgtgtgataatggccctacagttac-acagaaattcttccttatttttt
->canFam2.chr14(-):52847428-52847536|canFam2_2
+>canFam2.chr14(-):11090703-11090811|canFam2_2
 gagatattt-gggggaatttgaatgtagtgttgctcttttgtgatgctaagaaattataattgtctgatgatagtctcgtggttatgggggaaatgcttcctta-ttttt
->bosTau2.chr4(-):19312415-19312518|bosTau2_2
+>bosTau2.chr4(-):50243931-50244034|bosTau2_2
 -agacattg-ggtaaaattcaaatgcagactagctc----atgatgttaaagaattactcttgtgtggtaatggtcttgtgatagagatagaaatgcttcctta-ttttt
 >rn3.chr4(+):56182200-56182295|rn3_2
 ----TATTTGGGGGAAATATG-ATGTGCA----CTT--CCATGATCTTAAAGAATTGCTACTGTTTGATAGTGATCTTATGGTTAA-ATAAAAAAAAT--CTTA-GTTGT
@@ -41,9 +41,9 @@ tgggaaacaccaaagta-------gggataaaatgtcatgatgtgtgcaatacgctttaaaatatttttgccaaaa----
 tgggaagcacaaaagta-------gggataaaatgtcatgatgtgtacaatatgctttaaaatatttttgccaaaa----------taattaa-------------------------tgaagc--aaatatg---gaaaataataactgttaaatctaggt-----gttgggtatattgcagttcattatgttattgcacacttttctgtgtgtttaaaattttcatttaaaaatatgttttaaaaatg-------aaaa-
 >rn3.chr4(+):56182295-56182489|rn3_3
 TAGAAAATACTCAAATATTTAGGGGCGTGACAATGTCACAGTGTCTGCAATTTGCTTTAAAGATTTTT-----AAA----------TATTTAAAAAAGTTTTAATAATTTTGAAAAACTGAAGCTACACTATG---GGAAGTGGTAATTGTTACATATGGGT-----AATAAGTAT-----AATTCGTTATATTAT-------TTTTC------TTAGAATTTTTCATTTG--------------------------AAAA-
->bosTau2.chr4(-):19312519-19312657|bosTau2_3
+>bosTau2.chr4(-):50243792-50243930|bosTau2_3
 agataaacacttaagtattta---aggatgaaacgccctgatgtttgtaatttgctttagaatattttagccaaaa----------gaattaa-------------------------tgatgc--aaatatg--caaaaagagta--cgttaaacctaa-----------------------------------------------------atttgCGATTttcattta--------------------------aaaa-
->canFam2.chr14(-):52847734-52847894|canFam2_3
+>canFam2.chr14(-):11090345-11090505|canFam2_3
 agacacaaactgaagtattta---aggatgaaatgtcatgatgtttgcaattggctttaaaatattttagccaaaa-----------agtaaa-------------------------tgaagc--AAATATG--GGAAGACAATAATCATTAAATCTAGGT-----GATGCATAC---------------------------TTTTCCATATGTTTGAAATTTTCATTTA--------------------------AAAA-
 >dasNov1.scaffold_256527(+):393-625|dasNov1_3
 agacgcatgctgaagcatgta---aggataaaatgtcgtggtgtttgtaatttattctaaaacattttagccaaaaacaaataaataaataaa-------------------------tgaagc--aaatatgggggaaatgtttaattgttaaatctagatttaacacggtatataccgtgcttcattatactagtctctacttttccatgtgtttgaaattttCATTAAAATGTTTGTTTGTTGTCTGTTTTAATGAAAT
@@ -54,9 +54,9 @@ actttgagctagacaccaggctatgagcta-ggagcatag
 actttgagctagataccaggttatgagcta-ggagcatag
 >panTro1.chr6(+):129885752-129885791|panTro1_4
 actttgagctagacaccaggctatgagcta-ggagcatag
->bosTau2.chr4(-):19312676-19312715|bosTau2_4
+>bosTau2.chr4(-):50243734-50243773|bosTau2_4
 tcttcgtgcaacgcacggggctatcaatgt-gggatacag
->canFam2.chr14(-):52848119-52848158|canFam2_4
+>canFam2.chr14(-):11090081-11090120|canFam2_4
 ACATCAtgctagatcctggactatgagctg-ggtatatag
 >dasNov1.scaffold_256527(+):625-665|dasNov1_4
 CCTTTGTGCTAGCCACTGGGATGAAAGCTAGGGAACACAG
@@ -71,9 +71,9 @@ caatgaccaa----------------------------------------------------------------------
 caaaaaccaa------------------------------------------------------------------------------------------------aaaaACCTATAGC-CTC-ACAGGGTGGGTTGTCTTTG-AGGAACATGCATCCGCTAGAAAGTCCCAAGTACACTATGACAGTTG--CCCAGGCCCCGCCTTAAACCTGGTTTTCCTGGTTTCTTTCA---CATCATTACCACGAATATATTTCCTCAAG
 >rn3.chr4(+):56183448-56183705|rn3_5
 --ATGACCAATATACACTGTTTACATGTATAGCATTGTGAATGGAGACATAAAAAGATAATCTAGCTTTGTGCTAGGTAGGTGCTGAGCTCTTAACAGTGCTGGGCAGAAACCTATAAC-CTC-ACAGGGTGGGTTGTCTTTG-AGGAGCGTGCTAACCCTAGGAAGTCTCAAATACAATGTGATGGTTGCCCCCAGGCACCACCTTGAACCTGGTCTTCCTGGTTTCTTTCA---CACCATTACCACAAATACATTTTCTCAGG
->bosTau2.chr4(-):19312715-19312883|bosTau2_5
+>bosTau2.chr4(-):50243566-50243734|bosTau2_5
 atgtgaacaa---------------------------------------------------------------------------------------------aacggacccgtgtgggactcggcggagcacacagattttgcgggagCACGTTCCCGTTAGGAAGTCTCTGATGCAATACGACCGGTGCCTTCAGGACCTG-TG--AGGCTGACTTTCCTTA-CCCCTCCACACCATCATCAAGGCAGGTGTGATTTTCCAGG
->canFam2.chr14(-):52848158-52848326|canFam2_5
+>canFam2.chr14(-):11089913-11090081|canFam2_5
 cagtgaacaa---------------------------------------------------------------------------------------------aacagagccctgcagt-cttgatggagcacacaacctttg-gggaaCATGTTTCCATAAGAAAGTCTCCAATGTGATCTGA-TGGTGCCGCCAGGACCTA-TGTCAGCCTACCGTTCCATGTCCCCTCCACACCATCATCACTGCAGGTGTGTTTTCCCACA
 >dasNov1.scaffold_256527(+):665-786|dasNov1_5
 CAGTGAGCAA-----------------------------------------------------------------------------------------------CAGCCTGGCTCCGT-CC--GGGGGCCGCTCAGCAGCTC-GGGAGCGTGGAGACG---GGAAGTCTGTCACGCGATGCG-----------CTGGGCCCG------------CTGTTCCCGCCCCCCTCC---CCCC----------------TTTCCCAAG
@@ -88,7 +88,7 @@ TTTTAAA------CATTTACTCTCCCAGTAGCCTTGCATCTCGAGGAATCCCTGTATAGTGGT-ACATGAATATAACACA
 TTTAAAGAAAGTACCCCCTCCTTTCCAGT-GCCTCAAATCTAGAAGAATATTCATAGTGAAGT-GC------------------------ACAGCCGGGTGGTGCATGGTA-ATCTGGAAGTCACCTCTGCAAATCTT-TCC----------------TGTTGGTGCTGTGAAGGCACCAGGACTTCAAGAGTA
 >rn3.chr4(+):56183705-56183879|rn3_6
 TTTAAAAGAAGT-CCCACTCCTTTCCAGT-GCCCTAGATCTAGAAGCACATTCATAATGATGT-ACAC-----TAACCC----------GACAGCTGTGTGGTATATGGTA-TCCCGGAAGTCACCTCAGCAAACCTT-TCCCGGGGAACCTACATGGTGTTGGTGCTGTGAAGGTACCAGGTTGTCAAGGGTA
->canFam2.chr14(-):52848326-52848496|canFam2_6
+>canFam2.chr14(-):11089743-11089913|canFam2_6
 TTTTAAA------TATCTGC-TTCCCGGTGGCCTTGAGTCTAGAGGAGTCCCCCCACTATGGTGGCACTAATACTGAAGGTCAGAAATAATCAGTTCTGTGGTGCATGTTGCCCCTGAGGTTCTGTTCGGGAAACTTC-TTC-TGAGCAC----ATGCACCTGGCACTGCAAACGTACCAGGA-----------
 >dasNov1.scaffold_256527(+):786-964|dasNov1_6
 TTTTAAA------AATTTACCTTCCCAGTGGCGGTGAATCCGGAGGAATACGGAAACTGGGGC-GCACTACCATGACACGTGTCAAA-AATCAGTTCCGTGGTCCGTGGAGGGCCTGGGGTTC------GAAAATCTTGTCC-CGAGCACCCCCGTGCGCCTGGCACCGCGACAGTGACAGGACTGAAGCGTG-
@@ -103,7 +103,7 @@ gatggccca-atccctgtcctct-
 AATGGCAGAGGGCTCTGTTCTCT-
 >rn3.chr4(+):56183879-56183902|rn3_7
 AATGGCAGAGGCCCCTGTTCTCT-
->canFam2.chr14(-):52848691-52848713|canFam2_7
+>canFam2.chr14(-):11089526-11089548|canFam2_7
 GGAGACTTG-ATGCCTGCCTTCC-
 >dasNov1.scaffold_256527(+):964-987|dasNov1_7
 GACGGCCAG-ACCTCTGCCCTCGG
@@ -116,7 +116,7 @@ taaaacctaagggaggagaTGGAAAG-GGGCACCCAACCCAGACTGAGAGACAGGAATTAGCTGCAAGGGGAACTAGGAA
 taaaacctaatggaggagatggaATG-GGTCACCCAACCCGGACTGAGAGACAGGAATTAGCTGCAAGGGTAACCAGGACAAGCTTCTCTA---ATGATG--GAGAGACCCTA-GTGGAATGGGGAGATTCTTCTGGGAGAAGCGATGGATTCGTAGTTGGGCATCCCCACAGAGGGACTGGAAAGAAAAAAGACCTGGAGGAACCA------ATGTGC-AATGTATGTGTGTTTCCTGGTTcaagggctggcaaactttctcta--aagggccagatagaaaacattttaggctttgtaagccaagg---caaaatcgaggag-attacatgggtacttatacaacaagaataaacaatt---tccacaa--tttttattcacagaattcaaaa---ctttat----agacac---agaaatgtaaatttcctgt
 >rn3.chr4(+):56183902-56184219|rn3_8
 ------------------------------------GTCCATAGTCAAAG------------------------------AAGCCTCTCAG---ATGGAG--AGCAGGGCCTATGCAAAAGAGGGGGCTTCTGTAGGCAGAAGGGATGGACTAGCCTCCGGACATAGCCATAGAGAGGCTGGCAGGACTGAGACCCAGGAGAAGCCAGCGCAGGTGTGCGGGCGTGTGTATATTTCATAGTTTGCAGGTTGG----------------------------CAAACAATTCCTGCTTTGCAGGCCAAGA---GGAAACTGAAGGTGACCCCGTGAGTGCTTAC---ACAAGAGAAAACAAG-------ACAA-TTTTTGGTTGACCAAATTCAGAA---CTTTATTTGAGGATGC---TAAAGTTTAAATTTCTTTT
->canFam2.chr14(-):52848716-52849096|canFam2_8
+>canFam2.chr14(-):11089143-11089523|canFam2_8
 TACAGCCTGTGGGCAGAGGTGGGAAGAGGTCACGCAAGCCAGTTGGAATGAGGGGAGTTGGCTGGAAAGGTGACCAGGACAAGCTACTTCAACCAGGAAG--AAGAGACCCCG-GTG----------------CTTGGAGAAGGCCTGATTGAGCAGTCCTGCATGCCCGCCCAC-GACTGGCAGGAATAAAGACCCAGAAGAGCTA------ACGTGC-AATGTA------TTTTCTAGTTCCAgggttggcaaactttctctct-aagggtgggatgataaacattttaggcttttcagaccaaga---ggcgacatcagag-ggtatgtaggt---------acaagagggaaaagttgcccccggaa-ttttttg--gataaaattcaaaa---ctttacttagggatgc---caaaatgtaaacttcatat
 >dasNov1.scaffold_256527(+):987-1401|dasNov1_8
 CTAAATCTCGCGGAGAAGGTGGAACA-GGTTACCCAAACCCGACCGAG-GAGGCGAGTTG---GAAACGGCGACTGGGACAAGCTCCCTCA---GAGACGGAGAGAGACCCCA-GTGGAAGGGGGGAGAGGCTCTTAGGGAAACGATGGGGGGACCCGCCCGCACCCGCACAGAGGCGCTGGCAGGCACAGCGGCCCCGAGGAGCCC------AGGAGC-AGGGC-TGTGT-TCCCCTGCATcaggggttggcaaactttttctgcaaagggccagatagtaaatattttaggctttgcaaaccaagaagtagaaagggaggcc-attatgtacgtatttatatagcaagagagaacattt---cccacaatttttttattgacagaatttaaaacttctttattgatgaacaccaaagaaacttgaatttcatat
@@ -127,7 +127,7 @@ aattttcccat---gagaactattcttcttttgtttt
 aattttcacat---aagaactattcttcttttgtttt
 >panTro1.chr6(+):129886562-129886596|panTro1_9
 aattttcccgt---gagaactattcttcttttgtttt
->canFam2.chr14(-):52849096-52849131|canFam2_9
+>canFam2.chr14(-):11089108-11089143|canFam2_9
 aatggtcatgt--ccataactattcttcttttatttt
 >dasNov1.scaffold_256527(+):1401-1433|dasNov1_9
 aattttcacatatcacgaagtatttttttttt-----
