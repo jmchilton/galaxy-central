@@ -2,8 +2,8 @@
 %âãÏÓ\r
 1 0 obj
 <<
-/CreationDate (D:20080403111938)
-/ModDate (D:20080403111938)
+/CreationDate (D:20080414133351)
+/ModDate (D:20080414133351)
 /Title (R Graphics Output)
 /Producer (R 2.6.2)
 /Creator (R)
@@ -40,8 +40,8 @@ q
 Q q
 BT
 0.000 0.000 0.000 rg
-/F3 1 Tf 14.00 0.00 -0.00 14.00 78.77 397.45 Tm (histogram of continueous high quality scores) Tj
-/F2 1 Tf 12.00 0.00 -0.00 12.00 114.74 18.72 Tm (Continueous High Quality Score length \(bp\)) Tj
+/F3 1 Tf 14.00 0.00 -0.00 14.00 81.89 397.45 Tm (Histogram of continuous high quality scores) Tj
+/F2 1 Tf 12.00 0.00 -0.00 12.00 118.08 18.72 Tm (Continuous High Quality Score length \(bp\)) Tj
 /F2 1 Tf 0.00 12.00 -12.00 0.00 12.96 183.86 Tm (Frequency \(%\)) Tj
 ET
 Q q
@@ -130,7 +130,7 @@ Q
 endstream
 endobj
 8 0 obj
-2673
+2671
 endobj
 3 0 obj
 <<
@@ -177,15 +177,15 @@ xref
 0000000000 65535 f 
 0000000021 00000 n 
 0000000163 00000 n 
-0000003121 00000 n 
-0000003204 00000 n 
+0000003119 00000 n 
+0000003202 00000 n 
 0000000212 00000 n 
 0000000295 00000 n 
 0000000375 00000 n 
-0000003101 00000 n 
-0000003308 00000 n 
-0000003565 00000 n 
-0000003662 00000 n 
+0000003099 00000 n 
+0000003306 00000 n 
+0000003563 00000 n 
+0000003660 00000 n 
 trailer
 <<
 /Size 12
@@ -193,5 +193,5 @@ trailer
 /Root 2 0 R
 >>
 startxref
-3764
+3762
 %%EOF
