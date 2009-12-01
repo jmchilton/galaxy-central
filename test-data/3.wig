@@ -1,0 +1,37 @@
+track type=wiggle_0 name="LaminB1 (Tig3)" description="NKI LaminB1 DamID Map (log2-ratio scores, Tig3 cells)"
+#	output date: 2009-07-22 15:55:44 UTC
+#	chrom specified: chr20
+#	position specified: 1-62435964
+#	data values >= 4
+#	This data has been compressed with a minor loss in resolution.
+#	(Worst case: 0.0448672)  The original source data
+#	(before querying and compression) is available at 
+#		http://hgdownload.cse.ucsc.edu/downloads.html
+variableStep chrom=chr20 span=60
+1953668	4.029
+9749454	4.033
+12219969	4.053
+12571904	4.548
+12663417	4.207
+15198014	4.041
+16613945	4.526
+16994767	4.08
+19456653	4.014
+37706076	4.293
+38010695	4.14
+38418792	4.133
+38595669	4.032
+40038834	4.144
+50693133	4.206
+51294426	4
+52890600	4.12
+57414708	4.026
+57623989	4.031
+58977191	5.678
+59059925	4.325
+variableStep chrom=chr12 span=60
+1953668	-4.029
+9749454	-4.033
+12219969	-4.053
+12571904	-4.548
+12663417	-4.207
