@@ -1,0 +1,41 @@
+ FID  IID       PEDSEX       SNPSEX       STATUS            F
+ 101    1            2            0      PROBLEM          nan
+ 101    2            2            0      PROBLEM          nan
+ 101    3            1            0      PROBLEM          nan
+ 105    1            2            0      PROBLEM          nan
+ 105    2            2            0      PROBLEM          nan
+ 105    3            1            0      PROBLEM          nan
+ 112    1            1            0      PROBLEM          nan
+ 112    2            2            0      PROBLEM          nan
+ 112    3            1            0      PROBLEM          nan
+ 117    1            2            0      PROBLEM          nan
+ 117    2            2            0      PROBLEM          nan
+ 117    3            1            0      PROBLEM          nan
+  12    1            1            0      PROBLEM          nan
+  12    2            2            0      PROBLEM          nan
+  12    3            1            0      PROBLEM          nan
+  13    1            1            0      PROBLEM          nan
+  13    2            2            0      PROBLEM          nan
+  13    3            1            0      PROBLEM          nan
+1334    1            1            0      PROBLEM          nan
+1334   10            1            0      PROBLEM          nan
+1334   11            2            0      PROBLEM          nan
+1334   12            1            0      PROBLEM          nan
+1334   13            2            0      PROBLEM          nan
+1334    2            2            0      PROBLEM          nan
+1340    1            1            0      PROBLEM          nan
+1340   10            2            0      PROBLEM          nan
+1340   11            1            0      PROBLEM          nan
+1340   12            2            0      PROBLEM          nan
+1340    2            2            0      PROBLEM          nan
+1340    9            1            0      PROBLEM          nan
+1341    1            1            0      PROBLEM          nan
+1341   11            1            0      PROBLEM          nan
+1341   12            2            0      PROBLEM          nan
+1341   13            1            0      PROBLEM          nan
+1341   14            2            0      PROBLEM          nan
+1341    2            2            0      PROBLEM          nan
+1344    1            1            0      PROBLEM          nan
+1344   12            1            0      PROBLEM          nan
+1344   13            2            0      PROBLEM          nan
+1345   12            1            0      PROBLEM          nan

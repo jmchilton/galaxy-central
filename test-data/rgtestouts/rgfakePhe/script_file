@@ -1,0 +1,7 @@
+{'pN':'normtest','pT':'rnorm','pP':"{'Mean':'100', 'SD':'10'}"}
+{'pN':'cattest','pT':'cat','pP':"{'values':'red,green,blue'}"}
+{'pN':'uniftest','pT':'.series.phetype','pP':"{'low':'1','hi':'100'}"}
+{'pN':'gammatest','pT':'rgamma','pP':"{'Alpha':'1', 'Beta':'0.1'}"}
+{'pN':'poissontest','pT':'poisson','pP':"{'lamb':'1.0',}"}
+{'pN':'exptest','pT':'exponential','pP':"{'Mean':'100.0',}"}
+{'pN':'weibtest','pT':'weibull','pP':"{'Alpha':'1.0', 'Beta':'0.1'}"}

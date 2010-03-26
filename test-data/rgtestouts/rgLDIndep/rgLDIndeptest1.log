@@ -1,0 +1,169 @@
+## Rgenetics: http://rgenetics.org Galaxy Tools rgLDIndep.py started 25/03/2010 21:01:24
+## Rgenetics January 4 2010: http://rgenetics.org Galaxy Tools rgLDIndep.py Plink pruneLD runner
+## ldindep now executing plink --noweb --bfile /opt/galaxy/test-data/tinywga --indep-pairwise 10000 5000 0.1 --out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1 --mind 1 --geno 1 --maf 0 --hwe 0 --me 1 1
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.log ]
+Analysis started: Thu Mar 25 21:01:24 2010
+
+Options in effect:
+	--noweb
+	--bfile /opt/galaxy/test-data/tinywga
+	--indep-pairwise 10000 5000 0.1
+	--out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+	--mind 1
+	--geno 1
+	--maf 0
+	--hwe 0
+	--me 1 1
+
+Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ] 
+25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Before frequency and genotyping pruning, there are 25 SNPs
+27 founders and 13 non-founders found
+0 markers to be excluded based on HWE test ( p <= 0 )
+	0 markers failed HWE test in cases
+	0 markers failed HWE test in controls
+Total genotyping rate in remaining individuals is 0.995
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 25 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+14 nuclear families, 1 founder singletons found
+13 non-founders with 2 parents in 13 nuclear families
+0 non-founders without 2 parents in 0 nuclear families
+10 affected offspring trios
+0 phenotypically discordant parent pairs found
+Converting data to Individual-major format
+Filtering SNPs/families for Mendel Error rates above 1, 1
+0 Mendel errors detected in total
+0 families ( 0 individuals ) removed due to Mendel errors
+0 markers removed due to Mendel errors, 25 remaining
+Converting data to SNP-major format
+Performing LD-based pruning...
+Writing pruned-in SNPs to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.prune.in ]
+Writing pruned-out SNPs to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.prune.out ]
+Scanning from chromosome 22 to 22
+
+Scan region on chromosome 22 from [ rs2283802 ] to [ rs4822375 ]
+For chromosome 22, 22 SNPs pruned out, 3 remaining
+
+Analysis finished: Thu Mar 25 21:01:24 2010
+
+
+## ldindep now executing plink --noweb --bfile /opt/galaxy/test-data/tinywga --extract /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.prune.in --make-bed --out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.log ]
+Analysis started: Thu Mar 25 21:01:24 2010
+
+Options in effect:
+	--noweb
+	--bfile /opt/galaxy/test-data/tinywga
+	--extract /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.prune.in
+	--make-bed
+	--out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+
+Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ] 
+25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Reading list of SNPs to extract [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.prune.in ] ... 3 read
+Before frequency and genotyping pruning, there are 3 SNPs
+27 founders and 13 non-founders found
+Total genotyping rate in remaining individuals is 0.975
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 3 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+Writing pedigree information to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.fam ] 
+Writing map (extended format) information to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.bim ] 
+Writing genotype bitfile to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.bed ] 
+Using (default) SNP-major mode
+
+Analysis finished: Thu Mar 25 21:01:24 2010
+
+
+## ldindep now executing plink --noweb --bfile /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1 --recode --out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.log ]
+Analysis started: Thu Mar 25 21:01:24 2010
+
+Options in effect:
+	--noweb
+	--bfile /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+	--recode
+	--out /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1
+
+Reading map (extended format) from [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.bim ] 
+3 markers to be included from [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.fam ] 
+40 individuals read from [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Before frequency and genotyping pruning, there are 3 SNPs
+27 founders and 13 non-founders found
+Total genotyping rate in remaining individuals is 0.975
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 3 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+Writing recoded ped file to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.ped ] 
+Writing new map file to [ /opt/galaxy/test-data/rgtestouts/rgLDIndep/rgLDIndeptest1.map ] 
+
+Analysis finished: Thu Mar 25 21:01:24 2010
+
+
+

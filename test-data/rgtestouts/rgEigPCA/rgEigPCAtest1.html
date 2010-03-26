@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Galaxy rgEigPCA.py tool output - see http://g2.trac.bx.psu.edu/" />
+<title></title>
+<link rel="stylesheet" href="/static/style/base.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+<h4>Output from rgEigPCA.py run at 25/03/2010 21:01:25<br/>
+</h4>
+newfilepath=/opt/galaxy/test-data/rgtestouts/rgEigPCA, rexe=R(click on the image below to see a much higher quality PDF version)<table border="0" cellpadding="10" cellspacing="10"><tr><td>
+<a href="rgEigPCAtest1_PCAPlot.pdf"><img src="rgEigPCAtest1_PCAPlot.pdf.png" alt="Samples plotted in first 2 eigenvector space" hspace="10" align="left" /></a></td></tr></table><br/>
+<div class="document">All Files:<ol><li><a href="rgEigPCAtest1_eval.xls">rgEigPCAtest1_eval.xls  (507 B)</a></li>
+<li><a href="rgEigPCAtest1_pca.xls.par">rgEigPCAtest1_pca.xls.par  (311 B)</a></li>
+<li><a href="rgEigPCAtest1_PCAPlot.pdf.png">rgEigPCAtest1_PCAPlot.pdf.png  (27.1 KB)</a></li>
+<li><a href="rgEigPCAtest1_log.txt">rgEigPCAtest1_log.txt  (6.0 KB)</a></li>
+<li><a href="rgEigPCAtest1.html">rgEigPCAtest1.html </a></li>
+<li><a href="rgEigPCAtest1_eigensoftplot.pdf.xtxt">rgEigPCAtest1_eigensoftplot.pdf.xtxt  (257 B)</a></li>
+<li><a href="rgEigPCAtest1_eigensoftplot.pdf.ps">rgEigPCAtest1_eigensoftplot.pdf.ps  (13.6 KB)</a></li>
+<li><a href="rgEigPCAtest1_pca.xls.evec">rgEigPCAtest1_pca.xls.evec  (3.3 KB)</a></li>
+<li><a href="rgEigPCAtest1_pca.xls">rgEigPCAtest1_pca.xls  (1.3 KB)</a></li>
+<li><a href="rgEigPCAtest1_PCAPlot.pdf">rgEigPCAtest1_PCAPlot.pdf  (7.9 KB)</a></li>
+<li><a href="rgEigPCAtest1.txt">rgEigPCAtest1.txt  (3.3 KB)</a></li>
+<li><a href="rgEigPCAtest1_eigensoftplot.pdf.pdf">rgEigPCAtest1_eigensoftplot.pdf.pdf  (2.1 KB)</a></li>
+<li><a href="rgEigPCAtest1.R">rgEigPCAtest1.R  (1.6 KB)</a></li>
+<li><a href="Rplots.pdf">Rplots.pdf  (813 B)</a></li>
+</ol></div><div class="document">Log rgEigPCAtest1_log.txt contents follow below<p/><pre>parameter file: rgEigPCAtest1_pca.xls.par
+### THE INPUT PARAMETERS
+##PARAMETER NAME: VALUE
+genotypename: /opt/galaxy/test-data/tinywga.ped
+snpname: /opt/galaxy/test-data/tinywga.map
+indivname: /opt/galaxy/test-data/tinywga.ped
+evecoutname: rgEigPCAtest1_pca.xls.evec
+evaloutname: rgEigPCAtest1_eval.xls
+altnormstyle: NO
+numoutevec: 4
+numoutlieriter: 2
+numoutlierevec: 2
+outliersigmathresh: 2
+qtmode: 0
+## smartpca version: 8000
+norm used
+
+genetic distance set from physical distance
+genotype file processed
+number of samples used: 40 number of snps used: 25
+REMOVED outlier 1334:2 iter 1 evec 1 sigmage -2.329
+number of samples after outlier removal: 39
+
+## Tracy-Widom statistics: rows: 39  cols: 24
+  #N    eigenvalue  difference    twstat      p-value effect. n
+   1     11.481974          NA    -0.712     0.332198     8.854
+   2      7.739771   -3.742203    -1.302     0.510496     8.388
+   3      7.254586   -0.485185    -0.171     0.201072     7.095
+   4      4.270950   -2.983636    -0.191     0.205302     8.005
+   5      2.538320   -1.732630    -0.341     0.238117     9.118
+   6      1.667964   -0.870356    -0.231      0.21376     9.910
+   7      1.043403   -0.624560    -0.269     0.222042    11.590
+   8      0.653401   -0.390003        NA           NA        NA
+   9      0.391044   -0.262357        NA           NA        NA
+  10      0.338164   -0.052880        NA           NA        NA
+  11      0.263384   -0.074780        NA           NA        NA
+  12      0.150750   -0.112634        NA           NA        NA
+  13      0.085580   -0.065170        NA           NA        NA
+  14      0.065301   -0.020279        NA           NA        NA
+  15      0.048797   -0.016504        NA           NA        NA
+  16      0.006611   -0.042186        NA           NA        NA
+    kurtosis           snps    indivs
+ eigenvector    1     1.926     2.122
+ eigenvector    2     2.599     2.148
+ eigenvector    3     2.593     2.873
+ eigenvector    4     3.165     2.831
+population:   0                 Case    9
+population:   1              Control   30
+
+## Average divergence between populations:
+                 Case    Control     popsize
+      Case      1.028      0.954           9
+   Control      0.954      0.972          30
+
+
+number of blocks for moving block jackknife: 1
+fst *1000:
+          C     C 
+   C      0     0
+   C      0     0
+
+s.dev * 1000000:
+          C     C 
+   C      0     0
+   C      0     0
+
+## Anova statistics for population differences along each eigenvector:
+                                              p-value
+             eigenvector_1_Case_Control_      0.841067 
+             eigenvector_2_Case_Control_      0.758376 
+             eigenvector_3_Case_Control_      0.238793 
+             eigenvector_4_Case_Control_      0.678458 
+
+## Statistical significance of differences beween populations:
+                                pop1                  pop2      chisq          p-value   |pop1|   |pop2|
+popdifference:                  Case               Control         1.810       0.77061       9      30
+
+eigbestsnp    1             rs762601 22     21898858     1.674
+eigbestsnp    1            rs2156921 22     21899063     1.674
+eigbestsnp    1            rs4822375 22     21905642     1.674
+eigbestsnp    1            rs5751611 22     21896019     1.635
+eigbestsnp    1            rs4820537 22     21794810     1.542
+eigbestsnp    1            rs3788347 22     21797804     1.413
+eigbestsnp    1            rs2267000 22     21785366     1.151
+eigbestsnp    1            rs4820539 22     21807970     1.141
+eigbestsnp    1            rs5751592 22     21827674     0.890
+eigbestsnp    1            rs2283804 22     21820335     0.815
+eigbestsnp    1            rs2267006 22     21820990     0.815
+eigbestsnp    2            rs5759608 22     21832708     2.197
+eigbestsnp    2            rs5759612 22     21833170     2.197
+eigbestsnp    2            rs2283804 22     21820335     1.643
+eigbestsnp    2            rs2267006 22     21820990     1.643
+eigbestsnp    2            rs2283802 22     21784722     1.283
+eigbestsnp    2            rs2267009 22     21860168     1.283
+eigbestsnp    2            rs2071436 22     21871488     1.283
+eigbestsnp    2             rs756632 22     21799918     0.942
+eigbestsnp    2           rs16997606 22     21794754     0.715
+eigbestsnp    2            rs6003566 22     21889806     0.645
+eigbestsnp    2             rs762601 22     21898858     0.545
+eigbestsnp    3           rs16997606 22     21794754     1.770
+eigbestsnp    3            rs6003566 22     21889806     1.725
+eigbestsnp    3            rs3788347 22     21797804     1.452
+eigbestsnp    3            rs2267000 22     21785366     1.386
+eigbestsnp    3            rs2283802 22     21784722     1.247
+eigbestsnp    3            rs2267009 22     21860168     1.247
+eigbestsnp    3            rs2071436 22     21871488     1.247
+eigbestsnp    3            rs4820537 22     21794810     1.168
+eigbestsnp    3             rs762601 22     21898858     1.153
+eigbestsnp    3            rs2156921 22     21899063     1.153
+eigbestsnp    3            rs4822375 22     21905642     1.153
+eigbestsnp    4             rs756632 22     21799918     2.146
+eigbestsnp    4            rs4820539 22     21807970     1.938
+eigbestsnp    4            rs2267013 22     21875879     1.917
+eigbestsnp    4            rs2256725 22     21892891     1.917
+eigbestsnp    4            rs2283804 22     21820335     1.336
+eigbestsnp    4            rs2267006 22     21820990     1.336
+eigbestsnp    4            rs6003566 22     21889806     1.000
+eigbestsnp    4           rs16997606 22     21794754     0.875
+eigbestsnp    4            rs5751611 22     21896019     0.823
+eigbestsnp    4            rs5759636 22     21868698     0.799
+eigbestsnp    4            rs2267000 22     21785366     0.584
+packedancestrymap output
+##end of smartpca run
+
+Correlation between eigenvector 1 (of 4) and Case/Control status is 0.033
+Correlation between eigenvector 2 (of 4) and Case/Control status is 0.051
+Correlation between eigenvector 3 (of 4) and Case/Control status is 0.193
+Correlation between eigenvector 4 (of 4) and Case/Control status is -0.069
+</pre></div>If you need to rerun this analysis, the command line used was
+smartpca.perl -i /opt/galaxy/test-data/tinywga.ped -a /opt/galaxy/test-data/tinywga.map -b /opt/galaxy/test-data/tinywga.ped -o rgEigPCAtest1_pca.xls -p rgEigPCAtest1_eigensoftplot.pdf -e rgEigPCAtest1_eval.xls -l rgEigPCAtest1_log.txt -k 4 -m 2 -t 2 -s 2
+<p/></div></body></html>

@@ -1,0 +1,48 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ tinywga.log ]
+Analysis started: Thu Mar 25 21:01:19 2010
+
+Options in effect:
+	--noweb
+	--bfile ldp_tinywga
+	--het
+	--out tinywga
+
+Reading map (extended format) from [ ldp_tinywga.bim ] 
+14 markers to be included from [ ldp_tinywga.bim ]
+Reading pedigree information from [ ldp_tinywga.fam ] 
+40 individuals read from [ ldp_tinywga.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ ldp_tinywga.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Before frequency and genotyping pruning, there are 14 SNPs
+27 founders and 13 non-founders found
+Total genotyping rate in remaining individuals is 0.991071
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 14 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+
+ **Warning** this analysis typically requires whole-genome level data
+             to give accurate results 
+
+Converting data to Individual-major format
+Writing individual heterozygosity information to [ tinywga.het ] 
+
+Analysis finished: Thu Mar 25 21:01:19 2010
+

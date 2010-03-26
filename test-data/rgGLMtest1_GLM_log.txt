@@ -1,0 +1,58 @@
+rgGLM.py called with ['/opt/galaxy/tools/rgenetics/rgGLM.py', '/opt/galaxy/test-data/tinywga', '/opt/galaxy/test-data/tinywga', 'rgGLMtest1', 'c1', '', '/opt/galaxy/test-data/rgGLMtest1_GLM.xls', '/opt/galaxy/test-data/rgGLMtest1_GLM_log.txt', 'tinywga', '', '', '', '1', '1', '0', '0', '/opt/galaxy/test-data/rgGLM_GLM_topTable.gff']
+vcl=['plink', '--noweb', '--bfile', '/opt/galaxy/test-data/tinywga', '--pheno-name', '"c1"', '--pheno', '/opt/galaxy/test-data/tinywga.pphe', '--out', 'tinywga', '--mind 1', '--geno 1', '--maf 0', '--linear']
+xformQassoc got resf=/tmp/tmpCB6CwWrgGLM/tinywga.assoc.linear, outfname=/opt/galaxy/test-data/rgGLMtest1_GLM.xls
+###maxp=1.188425,minp=0.046772,prange=1.641653,scalefact=609.142127
+
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ tinywga.log ]
+Analysis started: Thu Mar 25 21:01:31 2010
+
+Options in effect:
+	--noweb
+	--bfile /opt/galaxy/test-data/tinywga
+	--pheno-name c1
+	--pheno /opt/galaxy/test-data/tinywga.pphe
+	--out tinywga
+	--mind 1
+	--geno 1
+	--maf 0
+	--linear
+
+Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ] 
+25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Reading alternate phenotype from [ /opt/galaxy/test-data/tinywga.pphe ] 
+40 individuals with non-missing alternate phenotype
+Assuming a quantitative trait
+Missing phenotype value is -9
+Before frequency and genotyping pruning, there are 25 SNPs
+27 founders and 13 non-founders found
+Total genotyping rate in remaining individuals is 0.995
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 25 SNPs
+After filtering, 40 individuals with non-missing status
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+Converting data to Individual-major format
+Writing linear model association results to [ tinywga.assoc.linear ] 
+
+Analysis finished: Thu Mar 25 21:01:31 2010
+

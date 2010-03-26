@@ -1,0 +1,66 @@
+rgClean.py started, called as /opt/galaxy/tools/rgenetics/rgClean.py /opt/galaxy/test-data tinywga rgCleantest1 1 1 0 0 1 1 /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1.pbed /opt/galaxy/test-data/rgtestouts/rgClean 0 0 0 0
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ]
+Writing this text to log file [ /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1.log ]
+Analysis started: Thu Mar 25 21:01:24 2010
+
+Options in effect:
+--noweb
+--bfile /opt/galaxy/test-data/tinywga
+--make-bed
+--out /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1
+--set-hh-missing
+--mind 1
+--geno 1
+--maf 0
+--hwe 0
+--me 1 1
+
+Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ]
+25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ]
+40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ]
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ]
+Detected that binary PED file is v1.00 SNP-major mode
+Before frequency and genotyping pruning, there are 25 SNPs
+27 founders and 13 non-founders found
+0 markers to be excluded based on HWE test ( p <= 0 )
+0 markers failed HWE test in cases
+0 markers failed HWE test in controls
+Total genotyping rate in remaining individuals is 0.995
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 25 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+14 nuclear families, 1 founder singletons found
+13 non-founders with 2 parents in 13 nuclear families
+0 non-founders without 2 parents in 0 nuclear families
+10 affected offspring trios
+0 phenotypically discordant parent pairs found
+Converting data to Individual-major format
+Filtering SNPs/families for Mendel Error rates above 1, 1
+0 Mendel errors detected in total
+0 families ( 0 individuals ) removed due to Mendel errors
+0 markers removed due to Mendel errors, 25 remaining
+Writing pedigree information to [ /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1.fam ]
+Writing map (extended format) information to [ /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1.bim ]
+Writing genotype bitfile to [ /opt/galaxy/test-data/rgtestouts/rgClean/rgCleantest1.bed ]
+Using (default) SNP-major mode
+Converting data to SNP-major format
+
+Analysis finished: Thu Mar 25 21:01:24 2010

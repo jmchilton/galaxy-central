@@ -1,0 +1,46 @@
+
+@----------------------------------------------------------@
+|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|----------------------------------------------------------|
+|  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
+|----------------------------------------------------------|
+|  For documentation, citation & bug-report instructions:  |
+|        http://pngu.mgh.harvard.edu/purcell/plink/        |
+@----------------------------------------------------------@
+
+Skipping web check... [ --noweb ] 
+Writing this text to log file [ rgCaCotest1.log ]
+Analysis started: Thu Mar 25 21:01:31 2010
+
+Options in effect:
+	--noweb
+	--bfile /opt/galaxy/test-data/tinywga
+	--out rgCaCotest1
+	--model
+
+Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ] 
+25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ] 
+40 individuals with nonmissing phenotypes
+Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
+Missing phenotype value is also -9
+10 cases, 30 controls and 0 missing
+21 males, 19 females, and 0 of unspecified sex
+Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ] 
+Detected that binary PED file is v1.00 SNP-major mode
+Before frequency and genotyping pruning, there are 25 SNPs
+27 founders and 13 non-founders found
+Total genotyping rate in remaining individuals is 0.995
+0 SNPs failed missingness test ( GENO > 1 )
+0 SNPs failed frequency test ( MAF < 0 )
+After frequency and genotyping pruning, there are 25 SNPs
+After filtering, 10 cases, 30 controls and 0 missing
+After filtering, 21 males, 19 females, and 0 of unspecified sex
+Full-model association tests, minimum genotype count: --cell 5
+Writing full model association results to [ rgCaCotest1.model ] 
+
+Analysis finished: Thu Mar 25 21:01:31 2010
+
+###maxp=0.667360,minp=-0.000000,prange=1.167360,scalefact=856.633772
+Rgenetics V000.1 April 2007 http://rgenetics.org Galaxy Tools, rgCaCo.py started 25/03/2010 21:01:31

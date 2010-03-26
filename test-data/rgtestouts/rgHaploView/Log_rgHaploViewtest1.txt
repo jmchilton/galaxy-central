@@ -1,0 +1,50 @@
+PATH=/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin:/home/rerla/bin
+## rgHaploView.py looking for 10 rs (['rs2283802', 'rs2267000', 'rs16997606', 'rs4820537', 'rs3788347'])## rgHaploView.py: wrote 10 markers, 40 subjects for region 
+
+## executing java -jar /opt/galaxy/tool-data/rg/bin/haploview.jar -n -memory 2048 -pairwiseTagging -pedfile /opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.ped -info /opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.info -tagrsqcounts -tagrsqcutoff 0.8 -ldcolorscheme RSQ -log /opt/galaxy/test-data/tinywga.log -maxDistance 200000 -compressedpng -chromosome 22 returned 0
+## executing mogrify -resize 800x400! *.PNG returned 0
+## executing convert -resize 800x400! rgHaploViewtest1.ped.LD.PNG rgHaploViewtest1.tmp.png returned 0
+## executing convert -pointsize 25 -fill maroon -draw "text 10,300 'rgHaploViewtest1'" rgHaploViewtest1.tmp.png 1_rgHaploViewtest1.png returned 0
+## executing convert -resize 800x400! Chromosome22YRI.LD.PNG rgHaploViewtest1.tmp.png returned 0
+## executing convert -pointsize 25 -fill maroon -draw "text 10,300 'HapMap YRI'" rgHaploViewtest1.tmp.png 2_HapMap_YRI_22.png returned 0
+### nimages=2
+## executing mogrify -format pdf -resize 800x400! *.png returned 0
+## executing pdfjoin "*.pdf" --fitpaper true --outfile alljoin.pdf returned 0
+## executing pdfnup alljoin.pdf --nup 1x2 --outfile allnup.pdf returned 0
+*****************************************************
+Haploview 4.2	Java Version: 1.6.0_03
+*****************************************************
+
+
+Arguments:	-n	-pairwiseTagging	-pedfile	/opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.ped	-info	/opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.info	-tagrsqcounts	-tagrsqcutoff	0.8	-ldcolorscheme	RSQ	-log	/opt/galaxy/test-data/tinywga.log	-maxDistance	200000	-compressedpng	-chromosome	22
+
+
+Max LD comparison distance = 200000kb
+Using data file: /opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.ped
+Using marker information file: /opt/galaxy/test-data/rgtestouts/rgHaploView/rgHaploViewtest1.info
+10 out of 10 markers passed the MAF threshold.
+10 out of 10 markers passed the Mendel threshold.
+10 out of 10 markers passed the genotyping threshold.
+10 out of 10 markers passed the Hardy Weinberg threshold.
+10 out of 10 markers passed all thresholds.
+Writing output to rgHaploViewtest1.ped.LD.PNG
+Starting tagging.
+Writing output to rgHaploViewtest1.ped.TAGS
+Writing output to rgHaploViewtest1.ped.TESTS
+Writing output to rgHaploViewtest1.ped.CHAPS
+*****************************************************
+Haploview 4.2	Java Version: 1.6.0_03
+*****************************************************
+
+
+Arguments:	-n	-chromosome	22	-panel	YRI	-hapmapDownload	-startpos	21784	-endpos	21905	-ldcolorscheme	RSQ	-log	/opt/galaxy/test-data/tinywga.log	-maxDistance	200000	-compressedpng
+
+
+Max LD comparison distance = 200000kb
+Downloading chromosome 22, analysis panel YRI, 21784..21905 from HapMap release 21.
+149 out of 149 markers passed the MAF threshold.
+149 out of 149 markers passed the Mendel threshold.
+149 out of 149 markers passed the genotyping threshold.
+149 out of 149 markers passed the Hardy Weinberg threshold.
+149 out of 149 markers passed all thresholds.
+Writing output to Chromosome22YRI.LD.PNG

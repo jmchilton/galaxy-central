@@ -1,0 +1,11 @@
+genotypename: /opt/galaxy/test-data/tinywga.ped
+snpname: /opt/galaxy/test-data/tinywga.map
+indivname: /opt/galaxy/test-data/tinywga.ped
+evecoutname: rgEigPCAtest1_pca.xls.evec
+evaloutname: rgEigPCAtest1_eval.xls
+altnormstyle: NO
+numoutevec: 4
+numoutlieriter: 2
+numoutlierevec: 2
+outliersigmathresh: 2
+qtmode: 0

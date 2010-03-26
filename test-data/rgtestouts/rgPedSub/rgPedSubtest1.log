@@ -1,0 +1,12 @@
+config file /opt/galaxy/test-data/rgtestouts/rgPedSub/pedsub.script = 
+title~~~~rgPedSubtest1
+output1~~~~/opt/galaxy/test-data/rgtestouts/rgPedSub/rgPedSubtest1.lped
+outformat~~~~lped
+basename~~~~tinywga
+inped~~~~/opt/galaxy/test-data/tinywga
+outdir~~~~/opt/galaxy/test-data/rgtestouts/rgPedSub
+region~~~~
+relfilter~~~~all
+rslist~~~~rs2283802Xrs2267000Xrs16997606Xrs4820537Xrs3788347Xrs756632Xrs4820539Xrs2283804Xrs2267006Xrs4822363X
+## rgPedSub.py looking for 10 rs (['rs2283802', 'rs2267000', 'rs16997606', 'rs4820537', 'rs3788347']....etc)
+

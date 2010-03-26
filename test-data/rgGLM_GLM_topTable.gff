@@ -1,0 +1,26 @@
+track name=rgGLM_TopTable description="rgGLMtest1" visibility=2 useScore=1 color=0,60,120
+chr22	rgGLM	variation	21784622	21784822	455	.	.	rs2283802 logp=0.75
+chr22	rgGLM	variation	21785266	21785466	152	.	.	rs2267000 logp=0.25
+chr22	rgGLM	variation	21794654	21794854	230	.	.	rs16997606 logp=0.38
+chr22	rgGLM	variation	21794710	21794910	107	.	.	rs4820537 logp=0.18
+chr22	rgGLM	variation	21797704	21797904	28	.	.	rs3788347 logp=0.05
+chr22	rgGLM	variation	21799818	21800018	45	.	.	rs756632 logp=0.08
+chr22	rgGLM	variation	21807870	21808070	151	.	.	rs4820539 logp=0.25
+chr22	rgGLM	variation	21820235	21820435	723	.	.	rs2283804 logp=1.19
+chr22	rgGLM	variation	21820890	21821090	723	.	.	rs2267006 logp=1.19
+chr22	rgGLM	variation	21820900	21821100	340	.	.	rs4822363 logp=0.56
+chr22	rgGLM	variation	21827574	21827774	337	.	.	rs5751592 logp=0.55
+chr22	rgGLM	variation	21832608	21832808	563	.	.	rs5759608 logp=0.92
+chr22	rgGLM	variation	21833070	21833270	563	.	.	rs5759612 logp=0.92
+chr22	rgGLM	variation	21860068	21860268	455	.	.	rs2267009 logp=0.75
+chr22	rgGLM	variation	21864266	21864466	391	.	.	rs2267010 logp=0.64
+chr22	rgGLM	variation	21868598	21868798	95	.	.	rs5759636 logp=0.16
+chr22	rgGLM	variation	21871388	21871588	455	.	.	rs2071436 logp=0.75
+chr22	rgGLM	variation	21875779	21875979	32	.	.	rs2267013 logp=0.05
+chr22	rgGLM	variation	21889706	21889906	125	.	.	rs6003566 logp=0.21
+chr22	rgGLM	variation	21892791	21892991	32	.	.	rs2256725 logp=0.05
+chr22	rgGLM	variation	21892825	21893025	127	.	.	rs12160770 logp=0.21
+chr22	rgGLM	variation	21895919	21896119	126	.	.	rs5751611 logp=0.21
+chr22	rgGLM	variation	21898758	21898958	446	.	.	rs762601 logp=0.73
+chr22	rgGLM	variation	21898963	21899163	446	.	.	rs2156921 logp=0.73
+chr22	rgGLM	variation	21905542	21905742	446	.	.	rs4822375 logp=0.73
