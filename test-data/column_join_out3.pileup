@@ -1,0 +1,70 @@
+chr1	1	C	1	^:.
+chr1	2	G	2	.^:.
+chr1	3	A	2	..
+chr1	4	C	2	..
+chr1	5	T	3	..^:.
+chr1	6	G	3	..^:,
+chr1	7	C	4	.N.,
+chr1	8	A	4	...,
+chr1	9	T	5	..C.,
+chr1	10	G	5	N...,
+chr1	11	A	5	.C..,
+chr1	12	C	5	..N.,
+chr1	42				T	1	^:.	C	1	^:.
+chr1	43				G	2	.^:.	C	2	.^:.
+chr1	44				T	2	..	T	2	..
+chr1	45				C	3	..^:.	A	3	..^:.
+chr1	46				G	3	..^:.	G	4	...^:.
+chr1	47				T	4	...^:,	A	5	....^:,
+chr1	48				A	4	.N.,	T	5	...N,
+chr1	49				C	5	....,	G	5	....,
+chr1	50				A	5	..G.,	A	5	.G..,
+chr1	51				A	5	A...,	G	5	....,
+chr1	52				A	5	....,
+chr1	53				G	5	..N.,
+chr2	1	T	6	.C...,
+chr2	2	G	6	..N..,
+chr2	3	C	7	..C...,
+chr2	4	G	7	.G....,
+chr2	5	G	7	...N..,
+chr2	6	A	7	..T...,
+chr2	7	T	8	...C...,
+chr2	8	A	8	..A....,
+chr2	9	C	9	.GA..N..,
+chr2	10	T	9	........,
+chr2	11	C	10	.>>..T...,
+chr2	12	G	10	.N..G....,
+chr2	13	A	11	....A..T..,
+chr2	14	G	11	..N.......
+chr2	15	C	11	A.....NG..
+chr2	16	T	11	...C.....G
+chr2	17	C	12	G......TN..
+chr2	18	A	12	N......G..A
+chr2	19	A	13	.......NN...
+chr2	20	C	13	..GT.......N
+chr2	52							T	5	.N..,
+chr2	53							A	5	....,
+chr2	54							T	5	....,
+chr2	55							T	5	....,
+chr2	56							C	5	....,
+chr2	57							T	5	....,
+chr2	58							T	6	.N...,
+chr2	59							A	6	.....,
+chr2	77				C	6	.G...,
+chr2	78				G	6	..N..,
+chr2	79				T	7	..N...,
+chr2	80				C	7	.G....,
+chr2	81				G	7	...A..,
+chr2	82				A	8	...G...,
+chr2	83				A	8	...T...,
+chr2	84				T	8	..A....,
+chr2	85				G	8	.GA....,
+chr2	86				C	9	........,
+chr2	87				G	9	....T...,
+chr3	60							C	6	...G.,
+chr3	61							T	6	..N..,
+chr3	62							C	6	...A.,
+chr3	63							C	7	.N....,
+chr3	64							A	7	...G..,
+chr3	65							T	7	...AA.,
+chr3	66							A	7	....N.,
