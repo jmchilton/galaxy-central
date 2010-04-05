@@ -10,7 +10,7 @@
 
 Skipping web check... [ --noweb ] 
 Writing this text to log file [ ldp_tinywga.log ]
-Analysis started: Thu Mar 25 21:01:19 2010
+Analysis started: Mon Apr  5 14:05:21 2010
 
 Options in effect:
 	--noweb
@@ -44,5 +44,5 @@ Writing map (extended format) information to [ ldp_tinywga.bim ]
 Writing genotype bitfile to [ ldp_tinywga.bed ] 
 Using (default) SNP-major mode
 
-Analysis finished: Thu Mar 25 21:01:19 2010
+Analysis finished: Mon Apr  5 14:05:21 2010
 

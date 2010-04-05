@@ -10,7 +10,7 @@
 
 Skipping web check... [ --noweb ] 
 Writing this text to log file [ tinywga.log ]
-Analysis started: Thu Mar 25 21:01:19 2010
+Analysis started: Mon Apr  5 14:05:21 2010
 
 Options in effect:
 	--noweb
@@ -44,5 +44,5 @@ After filtering, 21 males, 19 females, and 0 of unspecified sex
 Converting data to Individual-major format
 Writing individual heterozygosity information to [ tinywga.het ] 
 
-Analysis finished: Thu Mar 25 21:01:19 2010
+Analysis finished: Mon Apr  5 14:05:21 2010
 
