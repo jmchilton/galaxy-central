@@ -1,0 +1,2 @@
+gene_id	bundle_id	chr	left	right	FPKM	FPKM_conf_lo	FPKM_conf_hi
+CUFF.1	6	test_chromosome	52	550	3.3557e+06	2.6976e+06	4.01381e+06
