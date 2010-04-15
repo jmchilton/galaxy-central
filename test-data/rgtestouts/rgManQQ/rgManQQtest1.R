@@ -22,7 +22,7 @@ coloursTouse = c('firebrick','darkblue','goldenrod','darkgreen')
 
 
 manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max", 
-   suggestiveline=0, genomewide=T, size.x.labels=9, size.y.labels=10, annotate=F, SNPlist=NULL,grey=F) {
+   suggestiveline=0, genomewide=T, size.x.labels=9, size.y.labels=10, annotate=F, SNPlist=NULL,grey=0) {
 
         if (annotate & is.null(SNPlist)) stop("You requested annotation but provided no SNPlist!")
         genomewideline=NULL # was genomewideline=-log10(5e-8)
@@ -43,10 +43,8 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 lastbase=0
                 chrlist = unique(d$CHR)
                 nchr = length(chrlist) # may be any number?
-                print(paste('## manhattan got chrlist=',chrlist,'nchr',nchr))
                 for (x in c(1:nchr)) {
                         i = chrlist[x] # need the chrom number - may not == index
-                        print(paste('## manhattan got chrlist=',chrlist,'nchr',nchr,'x=',x,'i=',i))
                         if (x == 1) { # first time
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP
                         }       else {
@@ -63,8 +61,9 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                            }
 
                 if (max.y=="max") maxy=ceiling(max(d$logp)) else maxy=max.y
-                if (maxy<8) maxy=8
-
+                maxy = max(maxy,1.1*genomewideline)
+                # if (maxy<8) maxy=8
+                # only makes sense if genome wide is assumed - we could have a fine mapping region?  
                 if (annotate) d.annotate=d[as.numeric(substr(d$SNP,3,100)) %in% SNPlist, ]
 
                 plot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
@@ -76,11 +75,13 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 plot=plot + opts(title=title)
                 plot=plot+opts(
                         panel.background=theme_blank(), 
-                        panel.grid.minor=theme_blank(),
                         axis.text.x=theme_text(size=size.x.labels, colour="grey50"), 
                         axis.text.y=theme_text(size=size.y.labels, colour="grey50"), 
                         axis.ticks=theme_segment(colour=NA)
                 )
+                #plot = plot + opts(panel.grid.y.minor=theme_blank(),panel.grid.y.major=theme_blank())
+                #plot = plot + opts(panel.grid.major=theme_blank())
+                 
                 if (suggestiveline) plot=plot+geom_hline(yintercept=suggestiveline,colour="blue", alpha=I(1/3))
                 if (genomewideline) plot=plot+geom_hline(yintercept=genomewideline,colour="red")
                 plot
@@ -107,44 +108,51 @@ qq = function(pvector, title=NULL, spartan=F) {
         if (spartan) plot=plot+opts(panel.background=theme_rect(col="grey50"), panel.grid.minor=theme_blank())
         plot
 }
-
-
-#rs      Chr     Offset  Genop   log10Genop      Armitagep       log10Armitagep  Allelep log10Allelep    Domp    log10Domp
-#rs3094315       1       792429  1.000   0.000000        0.122   0.912574        0.152   0.817871        1.000   0.000000
-# eg for testing
-# this function needs column numbers so galaxy tool is easy to drive
-
 rgqqMan = function(infile="/opt/galaxy/test-data/smallwgaP.xls",chromcolumn=2, offsetcolumn=3, pvalscolumns=c(6,8), 
-     title="rgManQQtest1",outprefix="rgManQQtest1") {
-  d = read.table(infile,head=T,sep='	')
-  print(paste('###',length(d[,1]),'values read from',infile,'read - now running plots',sep=' '))
+title="rgManQQtest1",grey=0) {
+rawd = read.table(infile,head=T,sep='	')
+dn = names(rawd)
+cc = dn[chromcolumn]
+oc = dn[offsetcolumn] 
+nams = c(cc,oc)
+plen = length(rawd[,1])
+doreorder=1
+print(paste('###',plen,'values read from',infile,'read - now running plots',sep=' '))
+if (plen > 0) {
   for (pvalscolumn in pvalscolumns) {
   if (pvalscolumn > 0) 
      {
-     cname = names(d)[pvalscolumn]
+     cname = names(rawd)[pvalscolumn]
      mytitle = paste('p=',cname,', ',title,sep='')
      myfname = chartr(' ','_',cname)
-     myqqplot = qq(d[,pvalscolumn],title=mytitle)
+     myqqplot = qq(rawd[,pvalscolumn],title=mytitle)
      print(paste('## qqplot on',cname,'done'))
      if ((chromcolumn > 0) & (offsetcolumn > 0)) {
+         if (doreorder) {
+             rawd = rawd[do.call(order,rawd[nams]),]
+             # mmmf - suggested by http://onertipaday.blogspot.com/2007/08/sortingordering-dataframe-according.html
+             # in case not yet ordered
+             doreorder = 0
+             }
          print(paste('## manhattan on',cname,'starting',chromcolumn,offsetcolumn,pvalscolumn))
-         mymanplot= manhattan(chrom=d[,chromcolumn],offset=d[,offsetcolumn],pvals=d[,pvalscolumn],title=mytitle)
+         mymanplot= manhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
          print(paste('## manhattan plot on',cname,'done'))
          ggsave(file=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8,dpi=100)
          }
          else {
               print(paste('chrom column =',chromcolumn,'offset column = ',offsetcolumn,
-              'Cannot parse - no manhattan plot possible'))
+              'so no Manhattan plot - supply both chromosome and offset as numerics for Manhattan plots if required'))
               } 
-     ggsave(file=paste(myfname,"qqplot.png",sep='_'),myqqplot,w=5,h=5,dpi=100)
+     ggsave(file=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11,dpi=100)
      } 
   else {
         print(paste('pvalue column =',pvalscolumn,'Cannot parse it so no plots possible'))
       }
   } # for pvalscolumn
+ } else { print('## Problem - no values available to plot - was there really a chromosome and offset column?') }
 }
 
 rgqqMan() 
 # execute with defaults as substituted
 
-#R script autogenerated by rgenetics/rgutils.py on 25/03/2010 21:01:09
+#R script autogenerated by rgenetics/rgutils.py on 15/04/2010 09:56:14
