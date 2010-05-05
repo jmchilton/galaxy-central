@@ -1,60 +1,60 @@
-chr1	1					T	T	87	25	G	G	25	25
-chr1	2					A	T	87	25	T	T	25	25
-chr1	3					A	G	87	25	T	T	27	25
-chr1	4					A	T	55	25	A	A	36	25
-chr1	5					C	A	54	25	A	A	36	25
-chr1	6					G	T	87	25	T	T	36	25
-chr1	7					A	C	87	25	G	G	42	25
-chr1	8					G	A	87	25	T	T	45	25
-chr1	9					A	T	87	25	A	A	51	25
-chr1	10					G	A	57	25	G	G	54	25
-chr1	11					C	A	57	25	C	C	57	25
-chr1	12					T	A	99	25	T	T	60	25
-chr1	13					A	C	99	25	T	T	78	25
-chr1	14					G	C	55	25	A	A	56	25
-chr1	15					T	G	68	25	A	A	87	25
-chr4	1									T	T	90	25
-chr4	2									A	A	87	25
-chr4	3									A	A	34	25
-chr4	4									T	T	55	25
-chr4	5									A	A	54	25
-chr4	6									T	T	87	25
-chr4	7									A	A	80	25
-chr4	8									A	A	87	25
-chr4	9									A	A	87	25
-chr4	10									G	G	57	25
-chr4	11									C	C	57	25
-chr4	12									A	A	99	25
-chr4	13									A	A	99	25
-chr4	14									G	G	55	25
-chr4	15									G	G	68	25
-chrM	1	A	G	25	25	T	G	25	25
-chrM	2	C	T	25	25	C	A	25	25
-chrM	3	T	G	27	25	C	A	25	25
-chrM	4	G	C	36	25	G	A	36	25
-chrM	5	T	A	38	25	A	T	36	25
-chrM	6	T	A	39	25	A	G	36	25
-chrM	7	G	C	43	25	C	G	42	25
-chrM	8	A	C	46	25	T	T	45	25
-chrM	9	T	G	53	25	C	A	51	25
-chrM	10	T	G	56	25	G	G	54	25
-chrM	11	C	G	57	25	T	C	57	25
-chrM	12	T	C	61	25	A	T	60	25
-chrM	13	T	G	79	25	A	T	78	25
-chrM	14	A	C	58	25	G	A	56	25
-chrM	15	G	A	87	25	G	A	87	25
-chrM	16	G	C	88	25
-chrM	17	A	C	88	25
-chrM	18	G	A	89	25
-chrM	19	G	T	58	25
-chrM	20	T	C	55	25
-chrM	21	C	T	87	25
-chrM	22	C	A	87	25
-chrM	23	A	G	87	25
-chrM	24	A	T	89	25
-chrM	25	G	A	57	25
-chrM	26	C	G	58	25
-chrM	27	T	A	99	25
-chrM	28	A	C	99	25
-chrM	29	G	C	58	25
-chrM	30	T	T	65	25
+chr1	1	?	?	?	?	T	T	87	25	G	G	25	25
+chr1	2	?	?	?	?	A	T	87	25	T	T	25	25
+chr1	3	?	?	?	?	A	G	87	25	T	T	27	25
+chr1	4	?	?	?	?	A	T	55	25	A	A	36	25
+chr1	5	?	?	?	?	C	A	54	25	A	A	36	25
+chr1	6	?	?	?	?	G	T	87	25	T	T	36	25
+chr1	7	?	?	?	?	A	C	87	25	G	G	42	25
+chr1	8	?	?	?	?	G	A	87	25	T	T	45	25
+chr1	9	?	?	?	?	A	T	87	25	A	A	51	25
+chr1	10	?	?	?	?	G	A	57	25	G	G	54	25
+chr1	11	?	?	?	?	C	A	57	25	C	C	57	25
+chr1	12	?	?	?	?	T	A	99	25	T	T	60	25
+chr1	13	?	?	?	?	A	C	99	25	T	T	78	25
+chr1	14	?	?	?	?	G	C	55	25	A	A	56	25
+chr1	15	?	?	?	?	T	G	68	25	A	A	87	25
+chr4	1	?	?	?	?	?	?	?	?	T	T	90	25
+chr4	2	?	?	?	?	?	?	?	?	A	A	87	25
+chr4	3	?	?	?	?	?	?	?	?	A	A	34	25
+chr4	4	?	?	?	?	?	?	?	?	T	T	55	25
+chr4	5	?	?	?	?	?	?	?	?	A	A	54	25
+chr4	6	?	?	?	?	?	?	?	?	T	T	87	25
+chr4	7	?	?	?	?	?	?	?	?	A	A	80	25
+chr4	8	?	?	?	?	?	?	?	?	A	A	87	25
+chr4	9	?	?	?	?	?	?	?	?	A	A	87	25
+chr4	10	?	?	?	?	?	?	?	?	G	G	57	25
+chr4	11	?	?	?	?	?	?	?	?	C	C	57	25
+chr4	12	?	?	?	?	?	?	?	?	A	A	99	25
+chr4	13	?	?	?	?	?	?	?	?	A	A	99	25
+chr4	14	?	?	?	?	?	?	?	?	G	G	55	25
+chr4	15	?	?	?	?	?	?	?	?	G	G	68	25
+chrM	1	A	G	25	25	T	G	25	25	?	?	?	?
+chrM	2	C	T	25	25	C	A	25	25	?	?	?	?
+chrM	3	T	G	27	25	C	A	25	25	?	?	?	?
+chrM	4	G	C	36	25	G	A	36	25	?	?	?	?
+chrM	5	T	A	38	25	A	T	36	25	?	?	?	?
+chrM	6	T	A	39	25	A	G	36	25	?	?	?	?
+chrM	7	G	C	43	25	C	G	42	25	?	?	?	?
+chrM	8	A	C	46	25	T	T	45	25	?	?	?	?
+chrM	9	T	G	53	25	C	A	51	25	?	?	?	?
+chrM	10	T	G	56	25	G	G	54	25	?	?	?	?
+chrM	11	C	G	57	25	T	C	57	25	?	?	?	?
+chrM	12	T	C	61	25	A	T	60	25	?	?	?	?
+chrM	13	T	G	79	25	A	T	78	25	?	?	?	?
+chrM	14	A	C	58	25	G	A	56	25	?	?	?	?
+chrM	15	G	A	87	25	G	A	87	25	?	?	?	?
+chrM	16	G	C	88	25	?	?	?	?	?	?	?	?
+chrM	17	A	C	88	25	?	?	?	?	?	?	?	?
+chrM	18	G	A	89	25	?	?	?	?	?	?	?	?
+chrM	19	G	T	58	25	?	?	?	?	?	?	?	?
+chrM	20	T	C	55	25	?	?	?	?	?	?	?	?
+chrM	21	C	T	87	25	?	?	?	?	?	?	?	?
+chrM	22	C	A	87	25	?	?	?	?	?	?	?	?
+chrM	23	A	G	87	25	?	?	?	?	?	?	?	?
+chrM	24	A	T	89	25	?	?	?	?	?	?	?	?
+chrM	25	G	A	57	25	?	?	?	?	?	?	?	?
+chrM	26	C	G	58	25	?	?	?	?	?	?	?	?
+chrM	27	T	A	99	25	?	?	?	?	?	?	?	?
+chrM	28	A	C	99	25	?	?	?	?	?	?	?	?
+chrM	29	G	C	58	25	?	?	?	?	?	?	?	?
+chrM	30	T	T	65	25	?	?	?	?	?	?	?	?
