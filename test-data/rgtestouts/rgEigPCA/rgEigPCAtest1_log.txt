@@ -1,9 +1,9 @@
 parameter file: rgEigPCAtest1_pca.xls.par
 ### THE INPUT PARAMETERS
 ##PARAMETER NAME: VALUE
-genotypename: /opt/galaxy/test-data/tinywga.ped
-snpname: /opt/galaxy/test-data/tinywga.map
-indivname: /opt/galaxy/test-data/tinywga.ped
+genotypename: /share/shared/galaxy/test-data/tinywga.ped
+snpname: /share/shared/galaxy/test-data/tinywga.map
+indivname: /share/shared/galaxy/test-data/tinywga.ped
 evecoutname: rgEigPCAtest1_pca.xls.evec
 evaloutname: rgEigPCAtest1_eval.xls
 altnormstyle: NO

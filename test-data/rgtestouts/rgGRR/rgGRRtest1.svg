@@ -252,93 +252,97 @@
 
 <!-- One group/layer of points for each relationship type -->
 <g id="unrelated" style="stroke:gold; fill:gold; fill-opacity:1.0; stroke-width:1;" cursor="pointer">
-<circle cx="0" cy="600" r="2"
-                onmouseover="showBTT(evt, 5, 1.00, 0.00, 0.00, 0.00, 2, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="287" cy="25" r="2"
-                onmouseover="showBTT(evt, 5, 1.25, 0.00, 0.96, 0.00, 14, 2, 0, 2, 2)"
+<circle cx="-287" cy="25" r="2" onmouseover="showOTT(evt, 5, '13,2,0,0', '1344,1,12,13', 0.75, 0.96, 4, 1.55, 0.59)" onmouseout="hideOTT(evt)" />
+<circle cx="575" cy="0" r="2"
+                onmouseover="showBTT(evt, 5, 1.50, 0.00, 1.00, 0.00, 11, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="919" cy="331" r="2"
-                onmouseover="showBTT(evt, 5, 1.80, 0.00, 0.45, 0.00, 188, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="230" cy="98" r="2"
-                onmouseover="showBTT(evt, 5, 1.20, 0.00, 0.84, 0.00, 27, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="575" cy="0" r="2"
-                onmouseover="showBTT(evt, 5, 1.50, 0.00, 1.00, 0.00, 5, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="230" cy="-57" r="2"
-                onmouseover="showBTT(evt, 5, 1.20, 0.00, 1.10, 0.00, 3, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="862" cy="300" r="2"
-                onmouseover="showBTT(evt, 5, 1.75, 0.00, 0.50, 0.00, 32, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="575" cy="253" r="2"
-                onmouseover="showBTT(evt, 5, 1.50, 0.00, 0.58, 0.00, 34, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="0" cy="-92" r="2" onmouseover="showOTT(evt, 5, '105,1,3,2', '1340,9,0,0', 1.00, 1.15, 4, 1.60, 0.54)" onmouseout="hideOTT(evt)" />
-<circle cx="287" cy="300" r="2"
-                onmouseover="showBTT(evt, 5, 1.25, 0.00, 0.50, 0.00, 8, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="459" cy="271" r="2"
-                onmouseover="showBTT(evt, 5, 1.40, 0.00, 0.55, 0.00, 77, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="0" cy="110" r="2"
-                onmouseover="showBTT(evt, 5, 1.00, 0.00, 0.82, 0.00, 5, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="459" cy="63" r="2"
-                onmouseover="showBTT(evt, 5, 1.40, 0.00, 0.89, 0.00, 46, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="1150" cy="600" r="2"
-                onmouseover="showBTT(evt, 5, 2.00, 0.00, 0.00, 0.00, 53, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="0" cy="175" r="2"
-                onmouseover="showBTT(evt, 5, 1.00, 0.00, 0.71, 0.00, 6, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 5, 1.80, 0.00, 0.45, 0.00, 143, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="690" cy="63" r="2"
-                onmouseover="showBTT(evt, 5, 1.60, 0.00, 0.89, 0.00, 25, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 5, 1.60, 0.00, 0.89, 0.00, 20, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="862" cy="300" r="2"
+                onmouseover="showBTT(evt, 5, 1.75, 0.00, 0.50, 0.00, 34, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="575" cy="253" r="2"
+                onmouseover="showBTT(evt, 5, 1.50, 0.00, 0.58, 0.00, 28, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="287" cy="25" r="2"
+                onmouseover="showBTT(evt, 5, 1.25, 0.00, 0.96, 0.00, 21, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="287" cy="300" r="2"
+                onmouseover="showBTT(evt, 5, 1.25, 0.00, 0.50, 0.00, 9, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="459" cy="271" r="2"
+                onmouseover="showBTT(evt, 5, 1.40, 0.00, 0.55, 0.00, 80, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="230" cy="-57" r="2"
+                onmouseover="showBTT(evt, 5, 1.20, 0.00, 1.10, 0.00, 15, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="459" cy="63" r="2"
+                onmouseover="showBTT(evt, 5, 1.40, 0.00, 0.89, 0.00, 61, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="1150" cy="600" r="2"
+                onmouseover="showBTT(evt, 5, 2.00, 0.00, 0.00, 0.00, 41, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="0" cy="175" r="2"
+                onmouseover="showBTT(evt, 5, 1.00, 0.00, 0.71, 0.00, 5, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="230" cy="98" r="2"
+                onmouseover="showBTT(evt, 5, 1.20, 0.00, 0.84, 0.00, 46, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="230" cy="331" r="2"
-                onmouseover="showBTT(evt, 5, 1.20, 0.00, 0.45, 0.00, 16, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 5, 1.20, 0.00, 0.45, 0.00, 7, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="0" cy="0" r="2"
+                onmouseover="showBTT(evt, 5, 1.00, 0.00, 1.00, 0.00, 13, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="690" cy="271" r="2"
-                onmouseover="showBTT(evt, 5, 1.60, 0.00, 0.55, 0.00, 172, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 5, 1.60, 0.00, 0.55, 0.00, 176, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="-229" cy="-57" r="2"
+                onmouseover="showBTT(evt, 5, 0.80, 0.00, 1.10, 0.00, 3, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 </g>
 <g id="parents" style="stroke:lightgreen; fill:lightgreen; fill-opacity:1.0; stroke-width:1;" cursor="pointer">
+<circle cx="287" cy="25" r="2" onmouseover="showOTT(evt, 4, '13,2,0,0', '13,3,0,0', 1.25, 0.96, 4, 1.63, 0.54)" onmouseout="hideOTT(evt)" />
 <circle cx="919" cy="331" r="2"
-                onmouseover="showBTT(evt, 4, 1.80, 0.00, 0.45, 0.00, 3, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 4, 1.80, 0.00, 0.45, 0.00, 12, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="690" cy="63" r="2"
-                onmouseover="showBTT(evt, 4, 1.60, 0.00, 0.89, 0.00, 3, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
-<circle cx="287" cy="300" r="2" onmouseover="showOTT(evt, 4, '13,2,0,0', '13,3,0,0', 1.25, 0.50, 4, 1.62, 0.53)" onmouseout="hideOTT(evt)" />
-<circle cx="459" cy="271" r="2"
-                onmouseover="showBTT(evt, 4, 1.40, 0.00, 0.55, 0.00, 4, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 4, 1.60, 0.00, 0.89, 0.00, 2, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="1150" cy="600" r="2"
-                onmouseover="showBTT(evt, 4, 2.00, 0.00, 0.00, 0.00, 7, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 4, 2.00, 0.00, 0.00, 0.00, 3, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="459" cy="271" r="2"
+                onmouseover="showBTT(evt, 4, 1.40, 0.00, 0.55, 0.00, 6, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="459" cy="63" r="2"
-                onmouseover="showBTT(evt, 4, 1.40, 0.00, 0.89, 0.00, 7, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 4, 1.40, 0.00, 0.89, 0.00, 3, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
+<circle cx="230" cy="98" r="2" onmouseover="showOTT(evt, 4, '1340,2,11,12', '1340,9,0,0', 1.20, 0.84, 5, 1.63, 0.54)" onmouseout="hideOTT(evt)" />
 <circle cx="690" cy="271" r="2"
-                onmouseover="showBTT(evt, 4, 1.60, 0.00, 0.55, 0.00, 15, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 4, 1.60, 0.00, 0.55, 0.00, 12, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 </g>
 <g id="parentchild" style="stroke:dodgerblue; fill:dodgerblue; fill-opacity:1.0; stroke-width:1;" cursor="pointer">
+<circle cx="919" cy="331" r="2"
+                onmouseover="showBTT(evt, 1, 1.80, 0.00, 0.45, 0.00, 4, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
 <circle cx="862" cy="300" r="2"
                 onmouseover="showBTT(evt, 1, 1.75, 0.00, 0.50, 0.00, 3, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
-<circle cx="575" cy="253" r="2" onmouseover="showOTT(evt, 1, '105,1,3,2', '105,3,0,0', 1.50, 0.58, 4, 1.82, 0.33)" onmouseout="hideOTT(evt)" />
-<circle cx="919" cy="331" r="2"
-                onmouseover="showBTT(evt, 1, 1.80, 0.00, 0.45, 0.00, 11, 2, 0, 2, 2)"
-                onmouseout="hideBTT(evt)" />
+<circle cx="575" cy="253" r="2" onmouseover="showOTT(evt, 1, '13,1,3,2', '13,2,0,0', 1.50, 0.58, 4, 1.73, 0.38)" onmouseout="hideOTT(evt)" />
 <circle cx="1150" cy="600" r="2"
-                onmouseover="showBTT(evt, 1, 2.00, 0.00, 0.00, 0.00, 8, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 1, 2.00, 0.00, 0.00, 0.00, 7, 2, 0, 2, 2)"
+                onmouseout="hideBTT(evt)" />
+<circle cx="459" cy="271" r="2"
+                onmouseover="showBTT(evt, 1, 1.40, 0.00, 0.55, 0.00, 3, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 <circle cx="690" cy="271" r="2"
-                onmouseover="showBTT(evt, 1, 1.60, 0.00, 0.55, 0.00, 3, 2, 0, 2, 2)"
+                onmouseover="showBTT(evt, 1, 1.60, 0.00, 0.55, 0.00, 8, 2, 0, 2, 2)"
                 onmouseout="hideBTT(evt)" />
 </g>
 <g id="unknown" style="stroke:gray; fill:gray; fill-opacity:1.0; stroke-width:1;" cursor="pointer">

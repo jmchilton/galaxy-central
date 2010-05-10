@@ -1,6 +1,6 @@
 
 @----------------------------------------------------------@
-|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
 |----------------------------------------------------------|
 |  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
 |----------------------------------------------------------|
@@ -10,25 +10,25 @@
 
 Skipping web check... [ --noweb ] 
 Writing this text to log file [ ldp_tinywga.log ]
-Analysis started: Mon Apr  5 14:05:21 2010
+Analysis started: Sun May  9 21:23:34 2010
 
 Options in effect:
 	--noweb
-	--bfile /opt/galaxy/test-data/tinywga
+	--bfile /share/shared/galaxy/test-data/tinywga
 	--extract tinywga.prune.in
 	--make-bed
 	--out ldp_tinywga
 
-Reading map (extended format) from [ /opt/galaxy/test-data/tinywga.bim ] 
-25 markers to be included from [ /opt/galaxy/test-data/tinywga.bim ]
-Reading pedigree information from [ /opt/galaxy/test-data/tinywga.fam ] 
-40 individuals read from [ /opt/galaxy/test-data/tinywga.fam ] 
+Reading map (extended format) from [ /share/shared/galaxy/test-data/tinywga.bim ] 
+25 markers to be included from [ /share/shared/galaxy/test-data/tinywga.bim ]
+Reading pedigree information from [ /share/shared/galaxy/test-data/tinywga.fam ] 
+40 individuals read from [ /share/shared/galaxy/test-data/tinywga.fam ] 
 40 individuals with nonmissing phenotypes
 Assuming a disease phenotype (1=unaff, 2=aff, 0=miss)
 Missing phenotype value is also -9
 10 cases, 30 controls and 0 missing
 21 males, 19 females, and 0 of unspecified sex
-Reading genotype bitfile from [ /opt/galaxy/test-data/tinywga.bed ] 
+Reading genotype bitfile from [ /share/shared/galaxy/test-data/tinywga.bed ] 
 Detected that binary PED file is v1.00 SNP-major mode
 Reading list of SNPs to extract [ tinywga.prune.in ] ... 14 read
 Before frequency and genotyping pruning, there are 14 SNPs
@@ -44,5 +44,5 @@ Writing map (extended format) information to [ ldp_tinywga.bim ]
 Writing genotype bitfile to [ ldp_tinywga.bed ] 
 Using (default) SNP-major mode
 
-Analysis finished: Mon Apr  5 14:05:21 2010
+Analysis finished: Sun May  9 21:23:34 2010
 

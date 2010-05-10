@@ -1,6 +1,6 @@
 
 @----------------------------------------------------------@
-|        PLINK!       |     v1.06      |   24/Apr/2009     |
+|        PLINK!       |     v1.07      |   10/Aug/2009     |
 |----------------------------------------------------------|
 |  (C) 2009 Shaun Purcell, GNU General Public License, v2  |
 |----------------------------------------------------------|
@@ -10,7 +10,7 @@
 
 Skipping web check... [ --noweb ] 
 Writing this text to log file [ tinywga.log ]
-Analysis started: Mon Apr  5 14:05:21 2010
+Analysis started: Sun May  9 21:23:34 2010
 
 Options in effect:
 	--noweb
@@ -44,5 +44,5 @@ After filtering, 21 males, 19 females, and 0 of unspecified sex
 Converting data to Individual-major format
 Writing individual heterozygosity information to [ tinywga.het ] 
 
-Analysis finished: Mon Apr  5 14:05:21 2010
+Analysis finished: Sun May  9 21:23:34 2010
 
