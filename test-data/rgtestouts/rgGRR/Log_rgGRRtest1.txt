@@ -1,14 +1,14 @@
-Reading genotypes for 40 subjects and 5 markers
+Reading genotypes for 40 subjects and 25 markers
 Calculating 780 pairs...
 Estimated time is 0.00 to 0.00 seconds ...
-T1:  0.00482821464539	T2:  0.0623338222504	T3:  0.000771522521973	TOT: 0.0691449642181	0 pairs with no (or not enough) comparable genotypes (0.0%)
-Relstate dupe: mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
-Relstate parentchild: mean(mean)=1.73 sdev(mean)=0.20, mean(sdev)=0.38 sdev(sdev)=0.23
-Relstate sibpairs: mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
-Relstate halfsibs: mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
-Relstate parents: mean(mean)=1.63 sdev(mean)=0.20, mean(sdev)=0.54 sdev(sdev)=0.22
-Relstate unrelated: mean(mean)=1.55 sdev(mean)=0.24, mean(sdev)=0.59 sdev(sdev)=0.24
-Relstate unknown: mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
+T1:  0.00254368782043	T2:  0.018296957016	T3:  0.000444173812866	TOT: 0.022047996521	0 pairs with no (or not enough) comparable genotypes (0.0%)
+Relstate dupe (n=0): mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
+Relstate parentchild (n=26): mean(mean)=1.68 sdev(mean)=0.19, mean(sdev)=0.39 sdev(sdev)=0.19
+Relstate sibpairs (n=0): mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
+Relstate halfsibs (n=0): mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
+Relstate parents (n=40): mean(mean)=1.46 sdev(mean)=0.25, mean(sdev)=0.55 sdev(sdev)=0.17
+Relstate unrelated (n=714): mean(mean)=1.44 sdev(mean)=0.21, mean(sdev)=0.58 sdev(sdev)=0.15
+Relstate unknown (n=0): mean(mean)=nan sdev(mean)=0.00, mean(sdev)=nan sdev(sdev)=0.00
 780 pairs are available of 780
 Outliers: 0
 Plotting ...
