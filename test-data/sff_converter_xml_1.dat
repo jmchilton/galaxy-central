@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<trace_volume>
+    <trace>
+        <trace_name>GGOQ6K301BJT46</trace_name>
+        <clip_vector_left>5</clip_vector_left>
+        <clip_vector_right>260</clip_vector_right>
+    </trace>
+    <trace>
+        <trace_name>GGOQ6K301AWPXS</trace_name>
+        <clip_vector_left>5</clip_vector_left>
+        <clip_vector_right>470</clip_vector_right>
+    </trace>
+    <trace>
+        <trace_name>GGOQ6K301A8J46</trace_name>
+        <clip_vector_left>5</clip_vector_left>
+        <clip_vector_right>408</clip_vector_right>
+    </trace>
+</trace_volume>
