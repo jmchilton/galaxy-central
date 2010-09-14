@@ -1,0 +1,87 @@
+Data set has 452 vectors with 279 features
+
+ Sampled 452 points out of 452
+ calculateLambdaMax: n=279, m=452, m+=245, m-=207
+ computed value of lambda_max: 1.8231e+02
+
+ **** Initial point: nz=0, f=   0.69314718056, lambda= 1.641e+02
+iter    1, gpnorm=4.2035e-02, nonzero=   1 (  0.4%), function=6.931471805599e-01, alpha=1.0000e+00
+iter    2, gpnorm=1.9781e-02, nonzero=   1 (  0.4%), function=6.903943411116e-01, alpha=8.0000e-01
+iter    3, gpnorm=6.0325e-03, nonzero=   1 (  0.4%), function=6.896822613633e-01, alpha=6.4000e-01
+iter    4, gpnorm=7.2193e-04, nonzero=   1 (  0.4%), function=6.896101060279e-01, alpha=5.1200e-01
+iter    5, gpnorm=1.0530e-05, nonzero=   1 (  0.4%), function=6.896090566277e-01, alpha=4.0960e-01
+iter    6, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 12,  Gradient evals =        6.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 1.168e+02
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 8.310e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 5.914e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 4.209e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 2.996e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 2.132e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 1.517e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 1.080e+01
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 7.685e+00
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+
+ **** Initial point: nz=1, f=  0.689609056404, lambda= 5.469e+00
+iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
+ Function evals = 2,  Gradient evals =        1.0
+lambda=1.64e+02 solution has      1 nonzeros.
+It required     6 iterations
+
+lambda=1.17e+02 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=8.31e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=5.91e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=4.21e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=3.00e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=2.13e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=1.52e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=1.08e+01 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=7.68e+00 solution has      1 nonzeros.
+It required     1 iterations
+
+lambda=5.47e+00 solution has      1 nonzeros.
+It required     1 iterations
+

@@ -1,0 +1,8 @@
+1 1 0 0 1   1   A A    A A    A A    A A    A A   T G   G G   C G   A A  T T   G A
+2 1 0 0 1   1   A C    A C    A C    A C    A C   T T   G A   C G   A A  T C   A A
+3 1 0 0 2   1   A A    A A    A A    A A    A A   T T   G A   C C   C C  T C   G A
+4 1 0 0 2   1   A C    A C    A C    A C    A C   G G   A A   C C   C C  T C   G A
+5 2 0 0 1   2   A C    C C    A A    A C    A C   T G   G A   C G   A A  T C   G A
+6 2 0 0 1   2   A C    A C    A C    A C    A C   T T   G A   G G   A A  T C   A A
+7 2 0 0 2   2   C C    A C    C C    A C    A A   G G   G G   C C   C A  T C   G G
+8 2 0 0 2   2   A C    A A    A C    A A    A C   G G   A A   C C   C C  T C   A A
