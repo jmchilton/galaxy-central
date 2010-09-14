@@ -83,18 +83,31 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 lastbase=0
                 chrlist = unique(d$CHR)
                 nchr = length(chrlist) # may be any number?
+                if (nchr >= 2) {
                 for (x in c(1:nchr)) {
                         i = chrlist[x] # need the chrom number - may not == index
                         if (x == 1) { # first time
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP
+                                tks = d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1]
                         }       else {
                                 lastchr = chrlist[x-1] # previous whatever the list
                                 lastbase=lastbase+tail(subset(d,CHR==lastchr)$BP, 1)
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP+lastbase
+                                tks=c(tks, d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1])
                         }
-                        ticks=c(ticks, d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1])
-                }
-                ticklim=c(min(d$pos),max(d$pos))
+                    ticklim=c(min(d$pos),max(d$pos))
+                    xlabs = chrlist
+                    }
+                } else { # nchr is 1
+                   nticks = 10
+                   last = max(offset)
+                   first = min(offset)
+                   tks = c()
+                   t = (last-first)/nticks # units per tick
+                   for (x in c(1:nticks)) tks = c(tks,round(x*t))
+                   xlabs = tks
+                   ticklim = c(first,last)
+                } # else
                 if (grey) {mycols=rep(c("gray10","gray60"),max(d$CHR))
                            } else {
                            mycols=rep(coloursTouse,max(d$CHR))
@@ -105,9 +118,12 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 # if (maxy<8) maxy=8
                 # only makes sense if genome wide is assumed - we could have a fine mapping region?  
                 if (annotate) d.annotate=d[as.numeric(substr(d$SNP,3,100)) %in% SNPlist, ]
-
-                manplot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
-                manplot=manplot+scale_x_continuous(name="Chromosome", breaks=ticks, labels=(unique(d$CHR)))
+                if (nchr >= 2) {
+                        manplot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
+                        manplot=manplot+scale_x_continuous(name="Chromosome", breaks=tks, labels=xlabs) }
+                else {
+                        manplot=qplot(BP,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
+                        manplot=manplot+scale_x_continuous("BP") }                 
                 manplot=manplot+scale_y_continuous(limits=c(0,maxy), breaks=1:maxy, labels=1:maxy)
                 manplot=manplot+scale_colour_manual(value=mycols)
                 if (annotate) {  manplot=manplot + geom_point(data=d.annotate, colour=I("green3")) } 
@@ -166,6 +182,7 @@ if (plen > 0) {
      mytitle = paste('p=',cname,', ',title,sep='')
      myfname = chartr(' ','_',cname)
      myqqplot = qq(rawd[,pvalscolumn],title=mytitle)
+     ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11)
      print(paste('## qqplot on',cname,'done'))
      if ((chromcolumn > 0) & (offsetcolumn > 0)) {
          if (doreorder) {
@@ -177,13 +194,12 @@ if (plen > 0) {
          print(paste('## manhattan on',cname,'starting',chromcolumn,offsetcolumn,pvalscolumn))
          mymanplot= manhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
          print(paste('## manhattan plot on',cname,'done'))
-         ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8,dpi=100)
+         ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8)
          }
          else {
               print(paste('chrom column =',chromcolumn,'offset column = ',offsetcolumn,
               'so no Manhattan plot - supply both chromosome and offset as numerics for Manhattan plots if required'))
               } 
-     ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11,dpi=100)
      } 
   else {
         print(paste('pvalue column =',pvalscolumn,'Cannot parse it so no plots possible'))
@@ -197,6 +213,6 @@ rgqqMan()
 
 </pre>
 
-<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgManQQ.py run at 30/08/2010 20:46:51</h3>
+<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgManQQ.py run at 14/09/2010 12:53:07</h3>
 </div></body></html>
 

@@ -43,18 +43,31 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 lastbase=0
                 chrlist = unique(d$CHR)
                 nchr = length(chrlist) # may be any number?
+                if (nchr >= 2) {
                 for (x in c(1:nchr)) {
                         i = chrlist[x] # need the chrom number - may not == index
                         if (x == 1) { # first time
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP
+                                tks = d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1]
                         }       else {
                                 lastchr = chrlist[x-1] # previous whatever the list
                                 lastbase=lastbase+tail(subset(d,CHR==lastchr)$BP, 1)
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP+lastbase
+                                tks=c(tks, d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1])
                         }
-                        ticks=c(ticks, d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1])
-                }
-                ticklim=c(min(d$pos),max(d$pos))
+                    ticklim=c(min(d$pos),max(d$pos))
+                    xlabs = chrlist
+                    }
+                } else { # nchr is 1
+                   nticks = 10
+                   last = max(offset)
+                   first = min(offset)
+                   tks = c()
+                   t = (last-first)/nticks # units per tick
+                   for (x in c(1:nticks)) tks = c(tks,round(x*t))
+                   xlabs = tks
+                   ticklim = c(first,last)
+                } # else
                 if (grey) {mycols=rep(c("gray10","gray60"),max(d$CHR))
                            } else {
                            mycols=rep(coloursTouse,max(d$CHR))
@@ -65,26 +78,29 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                 # if (maxy<8) maxy=8
                 # only makes sense if genome wide is assumed - we could have a fine mapping region?  
                 if (annotate) d.annotate=d[as.numeric(substr(d$SNP,3,100)) %in% SNPlist, ]
-
-                plot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
-                plot=plot+scale_x_continuous(name="Chromosome", breaks=ticks, labels=(unique(d$CHR)))
-                plot=plot+scale_y_continuous(limits=c(0,maxy), breaks=1:maxy, labels=1:maxy)
-                plot=plot+scale_colour_manual(value=mycols)
-                if (annotate)   plot=plot + geom_point(data=d.annotate, colour=I("green3")) 
-                plot=plot + opts(legend.position = "none") 
-                plot=plot + opts(title=title)
-                plot=plot+opts(
+                if (nchr >= 2) {
+                        manplot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
+                        manplot=manplot+scale_x_continuous(name="Chromosome", breaks=tks, labels=xlabs) }
+                else {
+                        manplot=qplot(BP,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
+                        manplot=manplot+scale_x_continuous("BP") }                 
+                manplot=manplot+scale_y_continuous(limits=c(0,maxy), breaks=1:maxy, labels=1:maxy)
+                manplot=manplot+scale_colour_manual(value=mycols)
+                if (annotate) {  manplot=manplot + geom_point(data=d.annotate, colour=I("green3")) } 
+                manplot=manplot + opts(legend.position = "none") 
+                manplot=manplot + opts(title=title)
+                manplot=manplot+opts(
                         panel.background=theme_blank(), 
                         axis.text.x=theme_text(size=size.x.labels, colour="grey50"), 
                         axis.text.y=theme_text(size=size.y.labels, colour="grey50"), 
                         axis.ticks=theme_segment(colour=NA)
                 )
-                #plot = plot + opts(panel.grid.y.minor=theme_blank(),panel.grid.y.major=theme_blank())
-                #plot = plot + opts(panel.grid.major=theme_blank())
+                #manplot = manplot + opts(panel.grid.y.minor=theme_blank(),panel.grid.y.major=theme_blank())
+                #manplot = manplot + opts(panel.grid.major=theme_blank())
                  
-                if (suggestiveline) plot=plot+geom_hline(yintercept=suggestiveline,colour="blue", alpha=I(1/3))
-                if (genomewideline) plot=plot+geom_hline(yintercept=genomewideline,colour="red")
-                plot
+                if (suggestiveline) manplot=manplot+geom_hline(yintercept=suggestiveline,colour="blue", alpha=I(1/3))
+                if (genomewideline) manplot=manplot+geom_hline(yintercept=genomewideline,colour="red")
+                manplot
         }       else {
                 stop("Make sure your data frame contains columns CHR, BP, and P")
         }
@@ -101,12 +117,12 @@ qq = function(pvector, title=NULL, spartan=F) {
         # ylab=expression(Observed~~-log[10](italic(p))), xlim=c(0,max(e)), ylim=c(0,max(e)))
         # lines(e,e,col="red")
         #You'll need ggplot2 installed to do the rest
-        plot=qplot(e,o, xlim=c(0,max(e)), ylim=c(0,max(o))) + stat_abline(intercept=0,slope=1, col="red")
-        plot=plot+opts(title=title)
-        plot=plot+scale_x_continuous(name=expression(Expected~~-log[10](italic(p))))
-        plot=plot+scale_y_continuous(name=expression(Observed~~-log[10](italic(p))))
+        qq=qplot(e,o, xlim=c(0,max(e)), ylim=c(0,max(o))) + stat_abline(intercept=0,slope=1, col="red")
+        qq=qq+opts(title=title)
+        qq=qq+scale_x_continuous(name=expression(Expected~~-log[10](italic(p))))
+        qq=qq+scale_y_continuous(name=expression(Observed~~-log[10](italic(p))))
         if (spartan) plot=plot+opts(panel.background=theme_rect(col="grey50"), panel.grid.minor=theme_blank())
-        plot
+        qq
 }
 rgqqMan = function(infile="/opt/galaxy/test-data/smallwgaP.xls",chromcolumn=2, offsetcolumn=3, pvalscolumns=c(8), 
 title="rgManQQtest1",grey=0) {
@@ -126,6 +142,7 @@ if (plen > 0) {
      mytitle = paste('p=',cname,', ',title,sep='')
      myfname = chartr(' ','_',cname)
      myqqplot = qq(rawd[,pvalscolumn],title=mytitle)
+     ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11)
      print(paste('## qqplot on',cname,'done'))
      if ((chromcolumn > 0) & (offsetcolumn > 0)) {
          if (doreorder) {
@@ -137,13 +154,12 @@ if (plen > 0) {
          print(paste('## manhattan on',cname,'starting',chromcolumn,offsetcolumn,pvalscolumn))
          mymanplot= manhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
          print(paste('## manhattan plot on',cname,'done'))
-         ggsave(file=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8,dpi=100)
+         ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8)
          }
          else {
               print(paste('chrom column =',chromcolumn,'offset column = ',offsetcolumn,
               'so no Manhattan plot - supply both chromosome and offset as numerics for Manhattan plots if required'))
               } 
-     ggsave(file=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11,dpi=100)
      } 
   else {
         print(paste('pvalue column =',pvalscolumn,'Cannot parse it so no plots possible'))
@@ -155,4 +171,4 @@ if (plen > 0) {
 rgqqMan() 
 # execute with defaults as substituted
 
-#R script autogenerated by rgenetics/rgutils.py on 30/08/2010 04:09:48
+#R script autogenerated by rgenetics/rgutils.py on 14/09/2010 12:52:52
