@@ -25,15 +25,29 @@ Loading required package: reshape
 
 Loading required package: plyr
 
+
+
+Attaching package: 'reshape'
+
+
+
+The following object(s) are masked from 'package:plyr':
+
+
+
+    round_any
+
+
+
 Loading required package: grid
 
 Loading required package: proto
 
-[1] "### 101 values read from /opt/galaxy/test-data/smallwgaP.xls read - now running plots"
+[1] "### 101 values read from /tmp/rgManQQtempcWfFkc read - now running plots"
 
 [1] "## qqplot on Allelep done"
 
-[1] "## manhattan on Allelep starting 2 3 8"
+[1] "## manhattan on Allelep starting 1 2 3"
 
 [1] "## manhattan plot on Allelep done"
 
@@ -164,9 +178,9 @@ qq = function(pvector, title=NULL, spartan=F) {
         if (spartan) plot=plot+opts(panel.background=theme_rect(col="grey50"), panel.grid.minor=theme_blank())
         qq
 }
-rgqqMan = function(infile="/opt/galaxy/test-data/smallwgaP.xls",chromcolumn=2, offsetcolumn=3, pvalscolumns=c(8), 
+rgqqMan = function(infile="/tmp/rgManQQtempcWfFkc",chromcolumn=1, offsetcolumn=2, pvalscolumns=c(3), 
 title="rgManQQtest1",grey=0) {
-rawd = read.table(infile,head=T,sep='	')
+rawd = read.table(infile,head=T,sep='\t')
 dn = names(rawd)
 cc = dn[chromcolumn]
 oc = dn[offsetcolumn] 
@@ -182,7 +196,7 @@ if (plen > 0) {
      mytitle = paste('p=',cname,', ',title,sep='')
      myfname = chartr(' ','_',cname)
      myqqplot = qq(rawd[,pvalscolumn],title=mytitle)
-     ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=8,height=11)
+     ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=11,height=8,dpi=100)
      print(paste('## qqplot on',cname,'done'))
      if ((chromcolumn > 0) & (offsetcolumn > 0)) {
          if (doreorder) {
@@ -194,7 +208,7 @@ if (plen > 0) {
          print(paste('## manhattan on',cname,'starting',chromcolumn,offsetcolumn,pvalscolumn))
          mymanplot= manhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
          print(paste('## manhattan plot on',cname,'done'))
-         ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8)
+         ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=11,height=8,dpi=100)
          }
          else {
               print(paste('chrom column =',chromcolumn,'offset column = ',offsetcolumn,
@@ -213,6 +227,6 @@ rgqqMan()
 
 </pre>
 
-<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgManQQ.py run at 14/09/2010 12:53:07</h3>
+<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgManQQ.py run at 18/09/2010 20:48:26</h3>
 </div></body></html>
 
