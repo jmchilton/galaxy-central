@@ -1,7 +1,7 @@
 #:lav
 s {
-  "/depot/data2/galaxy/hg16/seq/chr19.nib" 1 63811651 0 1
-  "/depot/data2/galaxy/mm5/seq/chr11.nib" 1 121648857 0 1
+  "/galaxy/data/hg16/seq/chr19.nib" 1 63811651 0 1
+  "/galaxy/data/mm5/seq/chr11.nib" 1 121648857 0 1
 }
 h {
   "> hg16.chr19"
