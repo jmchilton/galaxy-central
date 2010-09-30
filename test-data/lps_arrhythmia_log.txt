@@ -1,5 +1,4 @@
-Data set has 452 vectors with 279 features
-
+Data set has 452 vectors with 279 features.
  Sampled 452 points out of 452
  calculateLambdaMax: n=279, m=452, m+=245, m-=207
  computed value of lambda_max: 1.8231e+02
@@ -52,36 +51,147 @@ iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01
  **** Initial point: nz=1, f=  0.689609056404, lambda= 5.469e+00
 iter    1, gpnorm=1.7618e-09, nonzero=   1 (  0.4%), function=6.896090564044e-01, alpha=3.2768e-01
  Function evals = 2,  Gradient evals =        1.0
-lambda=1.64e+02 solution has      1 nonzeros.
-It required     6 iterations
 
-lambda=1.17e+02 solution has      1 nonzeros.
-It required     1 iterations
+lambda=1.64e+02 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      6
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=8.31e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=1.17e+02 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=5.91e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=8.31e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=4.21e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=5.91e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=3.00e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=4.21e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=2.13e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=3.00e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=1.52e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=2.13e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=1.08e+01 solution has      1 nonzeros.
-It required     1 iterations
+lambda=1.52e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=7.68e+00 solution has      1 nonzeros.
-It required     1 iterations
+lambda=1.08e+01 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
-lambda=5.47e+00 solution has      1 nonzeros.
-It required     1 iterations
+lambda=7.68e+00 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
+
+lambda=5.47e+00 solution:
+  optimal log-likelihood function value: 6.90e-01
+  optimal *regularized* log-likelihood function value: 6.90e-01
+  number of non-zeros at the optimum:      1
+  number of iterations required:      1
+  prediction using this solution:
+    54.20% of vectors were correctly predicted.
+    245 correctly predicted.
+    207 in +1 predicted to be in -1.
+    0 in -1 predicted to be in +1.
+    0 in +1 with 50/50 chance.
+    0 in -1 with 50/50 chance.
 
