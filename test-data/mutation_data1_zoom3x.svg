@@ -1,0 +1,639 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+
+<svg style="stroke-linejoin:round; stroke:black; stroke-width:0.5pt; text-anchor:middle; fill:none" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica, Arial, FreeSans, Sans, sans, sans-serif" height="1980px" width="208px" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 116 496">
+
+<g id="viewport">
+
+<text y="4" x="12" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">A</tspan></text>
+
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="14" fill="blue" />
+
+<text y="4" x="22" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">C</tspan></text>
+
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="24" fill="green" />
+
+<text y="4" x="32" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">G</tspan></text>
+
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="34" fill="orange" />
+
+<text y="4" x="42" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">T</tspan></text>
+
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="44" fill="red" />
+
+<text y="25" x="23" stroke="none" transform="rotate(-90 23,25)" fill="black"><tspan style="font-family:Verdana;font-size:25%">s1</tspan></text>
+
+<text y="42" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">72</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="38" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="38" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="38" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="39.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="41.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="42.5" x="16" fill="red" />
+
+<text y="50" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">149</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="46" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="46" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="46" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="47.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="49.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="50.5" x="16" fill="red" />
+
+<text y="58" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">194</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="54" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="54" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="54" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="55.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="57.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="58.5" x="16" fill="red" />
+
+<text y="66" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">299</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="62" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="62" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="62" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="63.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="65.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="66.5" x="16" fill="red" />
+
+<text y="74" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">309</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="70" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="70" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="70" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="11" stroke="none" y="71.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="73.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="2" stroke="none" y="74.5" x="16" fill="red" />
+
+<text y="82" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">310</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="78" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="78" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="78" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="4" stroke="none" y="79.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="81.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="9" stroke="none" y="82.5" x="16" fill="red" />
+
+<text y="90" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">409</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="86" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="86" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="86" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="87.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="89.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="90.5" x="16" fill="red" />
+
+<text y="98" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">2353</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="94" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="94" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="94" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="95.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="97.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="98.5" x="16" fill="red" />
+
+<text y="106" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">2484</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="102" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="102" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="102" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="103.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="105.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="106.5" x="16" fill="red" />
+
+<text y="114" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">2707</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="110" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="110" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="110" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="111.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="113.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="114.5" x="16" fill="red" />
+
+<text y="122" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">3011</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="118" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="118" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="118" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="119.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="121.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="122.5" x="16" fill="red" />
+
+<text y="130" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">3434</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="126" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="126" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="126" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="127.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="129.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="130.5" x="16" fill="red" />
+
+<text y="138" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">3480</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="134" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="134" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="134" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="135.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="137.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="138.5" x="16" fill="red" />
+
+<text y="146" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">5063</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="142" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="142" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="142" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="143.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="145.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="146.5" x="16" fill="red" />
+
+<text y="154" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">5580</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="150" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="150" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="150" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="151.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="153.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="154.5" x="16" fill="red" />
+
+<text y="162" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">7028</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="158" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="158" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="158" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="159.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="161.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="162.5" x="16" fill="red" />
+
+<text y="170" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">8701</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="166" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="166" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="166" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="167.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="169.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="170.5" x="16" fill="red" />
+
+<text y="178" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">8992</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="174" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="174" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="174" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="8" stroke="none" y="175.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="177.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="5" stroke="none" y="178.5" x="16" fill="red" />
+
+<text y="186" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">9377</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="182" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="182" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="182" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="183.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="185.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="186.5" x="16" fill="red" />
+
+<text y="194" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">9540</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="190" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="190" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="190" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="191.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="193.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="194.5" x="16" fill="red" />
+
+<text y="202" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">10398</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="198" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="198" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="198" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="199.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="201.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="202.5" x="16" fill="red" />
+
+<text y="210" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">10550</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="206" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="206" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="206" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="207.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="209.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="210.5" x="16" fill="red" />
+
+<text y="218" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">10819</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="214" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="214" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="214" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="215.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="217.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="218.5" x="16" fill="red" />
+
+<text y="226" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">10873</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="222" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="222" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="222" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="223.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="225.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="226.5" x="16" fill="red" />
+
+<text y="234" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">11017</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="230" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="230" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="230" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="231.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="233.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="234.5" x="16" fill="red" />
+
+<text y="242" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">11299</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="238" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="238" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="238" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="239.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="241.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="242.5" x="16" fill="red" />
+
+<text y="250" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">11719</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="246" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="246" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="246" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="247.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="249.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="250.5" x="16" fill="red" />
+
+<text y="258" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">11722</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="254" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="254" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="254" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="255.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="257.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="258.5" x="16" fill="red" />
+
+<text y="266" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">12705</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="262" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="262" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="262" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="263.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="265.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="266.5" x="16" fill="red" />
+
+<text y="274" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">12850</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="270" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="270" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="270" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="271.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="273.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="274.5" x="16" fill="red" />
+
+<text y="282" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">14053</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="278" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="278" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="278" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="279.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="281.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="282.5" x="16" fill="red" />
+
+<text y="290" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">14212</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="286" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="286" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="286" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="287.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="289.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="290.5" x="16" fill="red" />
+
+<text y="298" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">14580</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="294" x="0" fill="orange" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="294" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="294" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="295.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="297.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="298.5" x="16" fill="red" />
+
+<text y="306" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">14766</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="302" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="302" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="302" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="303.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="305.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="306.5" x="16" fill="red" />
+
+<text y="314" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">14905</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="310" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="310" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="310" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="311.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="313.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="314.5" x="16" fill="red" />
+
+<text y="322" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">15301</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="318" x="0" fill="blue" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="318" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="318" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="319.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="321.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="322.5" x="16" fill="red" />
+
+<text y="330" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">15932</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="326" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="326" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="326" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="327.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="329.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="330.5" x="16" fill="red" />
+
+<text y="338" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16172</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="334" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="334" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="334" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="335.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="337.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="338.5" x="16" fill="red" />
+
+<text y="346" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16183</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="342" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="342" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="342" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="343.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="345.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="346.5" x="16" fill="red" />
+
+<text y="354" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16184</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="350" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="350" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="350" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="351.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="353.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="354.5" x="16" fill="red" />
+
+<text y="362" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16189</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="358" x="0" fill="green" />
+
+<text y="370" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16190</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="366" x="0" fill="green" />
+
+<text y="378" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16224</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="374" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="374" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="374" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="375.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="0" stroke="none" y="377.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="378.5" x="16" fill="red" />
+
+<text y="386" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16240</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="382" x="0" fill="green" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="382" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="382" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="383.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="385.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="386.5" x="16" fill="red" />
+
+<text y="394" x="7" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:25%">16321</tspan></text>
+
+<rect fill-opacity="0.2" height="6" width="14" stroke="none" y="390" x="0" fill="red" />
+
+<rect fill-opacity="0.25" height="6" width="12" stroke="none" y="390" x="16" fill="grey" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="390" x="16" fill="blue" />
+
+<rect fill-opacity="0.6" height="1.5" width="12" stroke="none" y="391.5" x="16" fill="green" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="393.0" x="16" fill="orange" />
+
+<rect fill-opacity="0.6" height="1.5" width="1" stroke="none" y="394.5" x="16" fill="red" />
+
+</g>
+
+</svg>
+
