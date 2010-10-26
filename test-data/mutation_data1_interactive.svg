@@ -234,21 +234,21 @@ function handleMouseUp(evt) {
 
 <g id="viewport">
 
-<text y="4" x="12" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">A</tspan></text>
+<text y="3" x="12" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">A</tspan></text>
 
-<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="14" fill="blue" />
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="0" x="14" fill="blue" />
 
-<text y="4" x="22" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">C</tspan></text>
+<text y="3" x="22" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">C</tspan></text>
 
-<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="24" fill="green" />
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="0" x="24" fill="green" />
 
-<text y="4" x="32" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">G</tspan></text>
+<text y="3" x="32" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">G</tspan></text>
 
-<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="34" fill="orange" />
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="0" x="34" fill="orange" />
 
-<text y="4" x="42" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">T</tspan></text>
+<text y="3" x="42" stroke="none" fill="black"><tspan style="font-family:Verdana;font-size:20%">T</tspan></text>
 
-<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="1" x="44" fill="red" />
+<rect fill-opacity="0.5" height="3" width="4" stroke="none" y="0" x="44" fill="red" />
 
 <text y="35" x="23" stroke="none" transform="rotate(-90 23,35)" fill="black"><tspan style="font-family:Verdana;font-size:25%">s1</tspan></text>
 
