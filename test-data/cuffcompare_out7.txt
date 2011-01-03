@@ -1,4 +1,4 @@
-# Cuffcompare v0.9.1 | Command line was:
+# Cuffcompare v0.9.3 | Command line was:
 #cuffcompare -r cuffcompare_in3.gtf -R cuffcompare_in1.gtf cuffcompare_in2.gtf
 #
 #> Genomic sequence: chr1 
@@ -9,8 +9,8 @@
 #--------------------|   Sn   |  Sp   |  fSn |  fSp  
         Base level: 	  2.2	  2.3	  - 	  - 
         Exon level: 	  0.0	  0.0	  0.0	  0.0
-      Intron level: 	  0.0	  nan	  0.0	100.0
-Intron chain level: 	  0.0	100.0	  0.0	100.0
+      Intron level: 	  0.0	  nan	  0.0	  nan
+Intron chain level: 	  0.0	  nan	  0.0	  nan
   Transcript level: 	  0.0	  0.0	  0.0	  0.0
        Locus level: 	  0.0	  0.0	  0.0	  0.0
    Missed exons:	2/3 ( 66.7%)
@@ -27,8 +27,8 @@ Intron chain level: 	  0.0	100.0	  0.0	100.0
 #--------------------|   Sn   |  Sp   |  fSn |  fSp  
         Base level: 	  2.2	  2.3	  - 	  - 
         Exon level: 	  0.0	  0.0	  0.0	  0.0
-      Intron level: 	  0.0	  nan	  0.0	100.0
-Intron chain level: 	  0.0	100.0	  0.0	100.0
+      Intron level: 	  0.0	  nan	  0.0	  nan
+Intron chain level: 	  0.0	  nan	  0.0	  nan
   Transcript level: 	  0.0	  0.0	  0.0	  0.0
        Locus level: 	  0.0	  0.0	  0.0	  0.0
    Missed exons:	2/3 ( 66.7%)
