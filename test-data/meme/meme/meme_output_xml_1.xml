@@ -157,8 +157,8 @@
 
 ]>
 <!-- Begin document body -->
-<MEME version="4.5.0" release="Thu Oct 14 08:44:28 EST 2010">
-<training_set datafile="/dan_110.dat" length="30">
+<MEME version="4.6.0" release="Thu Jan 20 14:06:48 PST 2011">
+<training_set datafile="dataset_3.dat" length="30">
 <alphabet id="amino-acid" length="20">
 <letter id="letter_A" symbol="A"/>
 <letter id="letter_C" symbol="C"/>
@@ -183,6 +183,8 @@
 </alphabet>
 <ambigs>
 <letter id="letter_B" symbol="B"/>
+<letter id="letter_J" symbol="J"/>
+<letter id="letter_O" symbol="O"/>
 <letter id="letter_U" symbol="U"/>
 <letter id="letter_X" symbol="X"/>
 <letter id="letter_Z" symbol="Z"/>
@@ -245,8 +247,8 @@
 </letter_frequencies>
 </training_set>
 <model>
-<command_line>meme /dan.dat -o /dataset_dan_files -nostatus </command_line>
-<host>dan</host>
+<command_line>meme dataset_3.dat -o dataset_4_files -nostatus </command_line>
+<host>scofield</host>
 <type>zoops</type>
 <nmotifs>1</nmotifs>
 <evalue_threshold>inf</evalue_threshold>
@@ -300,7 +302,7 @@
 </background_frequencies>
 </model>
 <motifs>
-<motif id="motif_1" name="1" width="11" sites="25" ic="40.0" re="13.8" llr="239" e_value="2.4e-011" bayes_threshold="5.33554" elapsed_time="1.563760">
+<motif id="motif_1" name="1" width="11" sites="25" ic="40.0" re="13.8" llr="239" e_value="2.4e-011" bayes_threshold="5.33554" elapsed_time="2.128133">
 <scores>
 <alphabet_matrix>
 <alphabet_array>

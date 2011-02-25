@@ -4,6 +4,8 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>MEME</title>
 <style type="text/css">
+    
+    /* START INCLUDED FILE "meme.css" */
         /* The following is the content of meme.css */
         body { background-color:white; font-size: 12px; font-family: Verdana, Arial, Helvetica, sans-serif;}
 
@@ -13,6 +15,7 @@
           padding: 0px;
           width: 12px;
           height: 13px;
+          cursor: pointer;
           background-image: url("help.gif");
           background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAANAQMAAACn5x0BAAAAAXNSR0IArs4c6QAAAAZQTFRFAAAAnp6eqp814gAAAAF0Uk5TAEDm2GYAAAABYktHRACIBR1IAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH2gMJBQgGYqhNZQAAACZJREFUCNdj+P+BoUGAoV+AYeYEEGoWYGgTYGgRAAm2gRGQ8f8DAOnhC2lYnqs6AAAAAElFTkSuQmCC");
         }
@@ -123,8 +126,12 @@
           padding:0px 10px;
         }
 
+    /* END INCLUDED FILE "meme.css" */
+    
   </style>
 <script type="text/javascript">
+    
+    /* START INCLUDED FILE "motif_logo.js" */
     //======================================================================
     // start Alphabet object
     //======================================================================
@@ -337,7 +344,9 @@
     //======================================================================
     // start Pspm object
     //======================================================================
-    function Pspm(pssm, name) {
+    function Pspm(pssm, name, ltrim, rtrim) {
+      if (ltrim === undefined) ltrim = 0;
+      if (rtrim === undefined) rtrim = 0;
       //variable prototype
       this.alph_length = 0;
       this.motif_length = 0;
@@ -345,6 +354,8 @@
       this.name = (typeof name == "string" ? name : "");
       this.nsites = 0;
       this.evalue = 0;
+      this.ltrim = ltrim;
+      this.rtrim = rtrim;
       //function prototype
       this.copy = Pspm_copy;
       this.reverse_complement = Pspm_reverse_complement;
@@ -352,10 +363,11 @@
       this.get_stack_ic = Pspm_get_stack_ic;
       this.get_motif_length = Pspm_get_motif_length;
       this.get_alph_length = Pspm_get_alph_length;
+      this.get_left_trim = Pspm_get_left_trim;
+      this.get_right_trim = Pspm_get_right_trim;
       this.toString = Pspm_to_string;
       //construct
       var pspm_header = /letter-probability matrix:\s+alength=\s+(\d+)\s+w=\s+(\d+)(\s+nsites=\s+(\S+))?(\s+E=\s+(\S+))?\s*/;
-      var is_prob = /^((1(\.0+)?)|(0(\.\d+)?))$/;
       var is_empty = /^\s*$/;
       var lines = pssm.split(/\s*\n\s*/);
       var read_pssm = false;
@@ -392,11 +404,14 @@
           if (!parts.hasOwnProperty(part_index) || parts[part_index] === undefined) continue;
           
           var prob = parts[part_index];
-          if (!is_prob.test(prob)) continue;
           if (col_num >= this.alph_length) {
             throw "TOO_MANY_COLS";
           }
           this.pspm[line_num][col_num] = (+prob);
+          //check the probability is within bounds
+          if (this.pspm[line_num][col_num] > 1 || this.pspm[line_num][col_num] < 0) {
+            throw "NUM_NOT_PROB";
+          }
           col_num++;
         }
         if (col_num != this.alph_length) {
@@ -417,6 +432,11 @@
       //so far only a shallow copy, need to copy everything
       clone.alph_length = (0+this.alph_length);
       clone.motif_length = (0+this.motif_length);
+      clone.name = (""+this.name);
+      clone.nsites = (0+this.nsites);
+      clone.evalue = (0+this.evalue);
+      clone.ltrim = (0+this.ltrim);
+      clone.rtrim = (0+this.rtrim);
       clone.pspm = new Array(this.motif_length);
       for (row = 0; row < this.motif_length; row++) {
         clone.pspm[row] = new Array(this.alph_length);
@@ -460,6 +480,10 @@
         row[c_index] = row[g_index];
         row[g_index] = temp;
       }
+      //swap triming
+      var temp_trim = this.ltrim;
+      this.ltrim = this.rtrim;
+      this.rtrim = temp_trim;
       //note that ambigs are ignored because they don't effect motifs
       return this; //allow function chaining...
     }
@@ -513,6 +537,14 @@
 
     function Pspm_get_alph_length() {
       return this.alph_length;
+    }
+
+    function Pspm_get_left_trim() {
+      return this.ltrim;
+    }
+
+    function Pspm_get_right_trim() {
+      return this.rtrim;
     }
 
     function Pspm_to_string() {
@@ -1036,6 +1068,62 @@
         pos = pos - sym_height;
       }
     }
+    
+    function draw_dashed_line(ctx, pattern, start, x1, y1, x2, y2) {
+        var x, y, len, i;
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+        var tlen = Math.pow(dx*dx + dy*dy, 0.5);
+        var theta = Math.atan2(dy,dx);
+        var mulx = Math.cos(theta);
+        var muly = Math.sin(theta);
+        var lx = [];
+        var ly = [];
+        for (i = 0; i < pattern; ++i) {
+          lx.push(pattern[i] * mulx);
+          ly.push(pattern[i] * muly);
+        }
+        i = start;
+        x = x1;
+        y = y1;
+        len = 0;
+        ctx.beginPath();
+        while (len + pattern[i] < tlen) {
+          ctx.moveTo(x, y);
+          x += lx[i];
+          y += ly[i];
+          ctx.lineTo(x, y);
+          len += pattern[i];
+          i = (i + 1) % pattern.length;
+          x += lx[i];
+          y += ly[i];
+          len += pattern[i];
+          i = (i + 1) % pattern.length;
+        }
+        if (len < tlen) {
+          ctx.moveTo(x, y);
+          x += mulx * (tlen - len);
+          y += muly * (tlen - len);
+          ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+    }
+
+    function draw_trim_background(ctx, metrics, pspm, offset) {
+      var lwidth = metrics.stack_width * pspm.get_left_trim();
+      var rwidth = metrics.stack_width * pspm.get_right_trim();
+      var mwidth = metrics.stack_width * pspm.get_motif_length();
+      var rstart = mwidth - rwidth;
+      ctx.save();//s8
+      ctx.translate(offset * metrics.stack_width, 0);
+      ctx.fillStyle = "rgb(240, 240, 240)";
+      if (pspm.get_left_trim() > 0) ctx.fillRect(0, 0, lwidth, metrics.stack_height);
+      if (pspm.get_right_trim() > 0) ctx.fillRect(rstart, 0, rwidth, metrics.stack_height);
+      ctx.fillStyle = "rgb(51, 51, 51)";
+      if (pspm.get_left_trim() > 0) draw_dashed_line(ctx, [3], 0, lwidth-0.5, 0, lwidth-0.5,  metrics.stack_height);
+      if (pspm.get_right_trim() > 0) draw_dashed_line(ctx, [3], 0, rstart+0.5, 0, rstart+0.5,  metrics.stack_height);
+      ctx.restore();//s8
+    }
 
     function draw_logo_on_canvas(logo, canvas, show_names, scale) {
       var draw_name = (typeof show_names == "boolean" ? show_names : (logo.get_rows() > 1));
@@ -1089,6 +1177,10 @@
         //translate across past the scale
         ctx.translate(metrics.y_label_height + metrics.y_label_spacer + 
             metrics.y_num_width + metrics.y_tic_width, 0);
+        //draw the trimming background
+        if (pspm.get_left_trim() > 0 || pspm.get_right_trim() > 0) {
+          draw_trim_background(ctx, metrics, pspm, offset);
+        }
         //draw letters
         ctx.translate(0, metrics.y_num_height / 2);
         for (var col_index = 0; col_index < logo.get_columns(); col_index++) {
@@ -1211,15 +1303,8 @@
       element.parentNode.replaceChild(canvas, element);
     }
 
-    //example code for creating a logo
-    //function do_load() {
-    //  var alphabet = new Alphabet(document.getElementById("alphabet").value, document.getElementById("bgfreq").value);
-    //  var pspm = new Pspm(document.getElementById("pspm1").value);
-    //  var pspm_rc = pspm.copy().reverse_complement(alphabet);
-    //  draw_logo(pspm, alphabet, "Motif 1", "logo1");
-    //  draw_logo(pspm_rc, alphabet, "Motif 1 Reverse Complement", "logo_rc1");
-    //}
-
+    /* END INCLUDED FILE "motif_logo.js" */
+    
   
         function setup() {
           var motif_count = 1;
@@ -1377,15 +1462,15 @@
         }
       </script>
 </head>
-<body onload="javascript:setup()"><form enctype="application/x-www-form-urlencoded" method="post" target="_new" action="http://dan/meme_request.cgi">
+<body onload="javascript:setup()"><form enctype="application/x-www-form-urlencoded" method="post" target="_new" action="http://straub/meme/cgi-bin/meme_request.cgi">
 <!--+++++++++++++++++++++++START DATA+++++++++++++++++++++++++++++++++++++-->
-<input type="hidden" name="version" value="MEME version 4.5.0">
+<input type="hidden" name="version" value="MEME version 4.6.0">
 <input type="hidden" name="alphabet" id="alphabet" value="ACDEFGHIKLMNPQRSTVWY">
 <input type="hidden" name="strands" value="none">
 <input type="hidden" name="bgfreq" id="bgfreq" value="A 0.291 C 0.229 D 0.001 E 0.001 F 0.001 G 0.255 H 0.001 I 0.001 K 0.001 
 L 0.001 M 0.001 N 0.001 P 0.001 Q 0.001 R 0.001 S 0.001 T 0.215 V 0.001 
 W 0.001 Y 0.001">
-<input type="hidden" name="name" value="dan.dat">
+<input type="hidden" name="name" value="dataset_3.dat">
 <input type="hidden" name="combinedblock" value="
 chr21_19617074_19617124_+ 1.22e-03 1 50 1 39 3.06e-05 
 chr21_26934381_26934431_+ 2.21e-03 1 50 1 27 5.52e-05 
@@ -2179,12 +2264,12 @@ chr21_31962741_31962791_-  ( 13) GTTGGATAAAA 1
 </tbody>
 </table>
 </div>
-<p>Time 1.6 secs.</p>
+<p>Time 2.1 secs.</p>
 </div>
 <div class="bar">
 <div style="text-align:right;"><a href="#top_buttons">Top</a></div>
 <div class="subsection">
-<a name="version"></a><h5>MEME version</h5>4.5.0 (Release date: Thu Oct 14 08:44:28 EST 2010)
+<a name="version"></a><h5>MEME version</h5>4.6.0 (Release date: Thu Jan 20 14:06:48 PST 2011)
       </div>
 <div class="subsection">
 <a name="reference"></a><h5>Reference</h5>
@@ -2196,7 +2281,7 @@ chr21_31962741_31962791_-  ( 13) GTTGGATAAAA 1
       </div>
 <a name="sequences"></a><a href="javascript:showHidden('trainingseq')" id="trainingseq_activator">show training set...</a><div class="subsection" id="trainingseq_data" style="display:none;">
 <h5>Training set:</h5>
-        Datafile = dan.dat<br>
+        Datafile = dataset_3.dat<br>
         Alphabet = ACDEFGHIKLMNPQRSTVWY<br><table>
 <col>
 <col>
@@ -2387,19 +2472,19 @@ chr21_31962741_31962791_-  ( 13) GTTGGATAAAA 1
 </div>
 <a href="javascript:hideShown('trainingseq')" style="display:none;" id="trainingseq_deactivator">hide training set...</a><div class="subsection">
 <a name="command"></a><h5>Command line summary</h5>
-<textarea rows="1" style="width:100%;" readonly>meme dan.dat -o /dataset_dan_files -nostatus </textarea><br>
+<textarea rows="1" style="width:100%;" readonly>meme dataset_3.dat -o dataset_4_files -nostatus </textarea><br>
         Letter frequencies in dataset<br><div style="margin-left:25px;">A: 0.294   C: 0.231   D: 0.000   E: 0.000   F: 0.000   G: 0.257   H: 0.000   I: 0.000   K: 0.000   L: 0.000   M: 0.000   N: 0.000   P: 0.000   Q: 0.000   R: 0.000   S: 0.000   T: 0.217   V: 0.000   W: 0.000   Y: 0.000</div>
 <br>
         Background letter frequencies (from dataset with add-one prior applied):<br><div style="margin-left:25px;">A: 0.291   C: 0.229   D: 0.001   E: 0.001   F: 0.001   G: 0.255   H: 0.001   I: 0.001   K: 0.001   L: 0.001   M: 0.001   N: 0.001   P: 0.001   Q: 0.001   R: 0.001   S: 0.001   T: 0.215   V: 0.001   W: 0.001   Y: 0.001</div>
 <br>
 </div>
 <div class="subsection">
-<a name="stopped"></a><h5>Stopping Reason</h5>Stopped because nmotifs = 1 reached. Program ran on <i>dan</i>.
+<a name="stopped"></a><h5>Stopping Reason</h5>Stopped because nmotifs = 1 reached. Program ran on <i>scofield</i>.
       </div>
 <a href="javascript:showHidden('model')" id="model_activator">show model parameters...</a><div class="subsection" id="model_data" style="display:none;">
 <h5>Model parameters</h5>
 <textarea style="width:100%;" rows="28" readonly>
-host                  = dan
+host                  = scofield
 type                  = zoops
 nmotifs               = 1
 evalue_threshold      = inf
