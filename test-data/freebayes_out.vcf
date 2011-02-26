@@ -1,0 +1,40 @@
+##fileformat=VCFv4.0
+##fileDate=20110225
+##source=freeBayes version 0.4.2
+##reference=localref.fa
+##phasing=none
+##commandline="freebayes --fasta-reference localref.fa localbam.bam --vcf /galaxy/home/dannon/galaxy-central/database/files/000/dataset_11.dat"
+##INFO=<ID=NS,Number=1,Type=Integer,Description="Number of samples with data">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Total read depth at the locus">
+##INFO=<ID=AC,Number=1,Type=Integer,Description="Total number of alternate alleles in called genotypes">
+##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
+##INFO=<ID=AF,Number=1,Type=Float,Description="Estimated allele frequency in the range (0,1]">
+##INFO=<ID=SR,Number=1,Type=Integer,Description="Number of reference observations by strand, delimited by |: [forward]|[reverse]">
+##INFO=<ID=SA,Number=1,Type=Integer,Description="Number of alternate observations by strand, delimited by |: [forward]|[reverse]">
+##INFO=<ID=RA,Number=1,Type=Integer,Description="Reference allele observations">
+##INFO=<ID=AA,Number=1,Type=Integer,Description="Alternate allele observations">
+##INFO=<ID=SB,Number=1,Type=Float,Description="Strand bias for the alternate allele: a number between 0 and 1 representing the ratio of forward strand sequence reads showing the alternate allele to all reads, considering only reads from individuals called as heterozygous">
+##INFO=<ID=AB,Number=1,Type=Float,Description="Allele balance at heterozygous sites: a number between 0 and 1 representing the ratio of reads showing the reference allele to all reads, considering only reads from individuals called as heterozygous">
+##INFO=<ID=ABR,Number=1,Type=Integer,Description="Reference allele balance count: the number of sequence reads from apparent heterozygotes supporting the reference allele">
+##INFO=<ID=ABA,Number=1,Type=Integer,Description="Alternate allele balance count: the number of sequence reads from apparent heterozygotes supporting the alternate allele">
+##INFO=<ID=RUN,Number=1,Type=Integer,Description="Homopolymer run length: the number of consecutive nucleotides in the reference genome matching the alternate allele prior to the current position">
+##INFO=<ID=BVAR,Number=0,Type=Flag,Description="The best genotype combination in the posterior is variant (non homozygous).">
+##INFO=<ID=SNP,Number=0,Type=Flag,Description="SNP allele">
+##INFO=<ID=TS,Number=0,Type=Flag,Description="transition SNP">
+##INFO=<ID=TV,Number=0,Type=Flag,Description="transversion SNP">
+##INFO=<ID=CpG,Number=0,Type=Flag,Description="CpG site (either CpG, TpG or CpA)">
+##INFO=<ID=MNP,Number=0,Type=Integer,Description="Length of MNP allele, if present">
+##INFO=<ID=INS,Number=1,Type=Integer,Description="Length of insertion allele, if present">
+##INFO=<ID=DEL,Number=1,Type=Integer,Description="Length of deletion allele, if present">
+##INFO=<ID=REPEAT,Number=1,Type=String,Description="Description of the local repeat structures flanking the current position">
+##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
+##FORMAT=<ID=GQ,Number=1,Type=Integer,Description="Genotype Quality">
+##FORMAT=<ID=GL,Number=1,Type=Float,Description="Genotype Likelihood">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth">
+##FORMAT=<ID=RA,Number=1,Type=Integer,Description="Reference allele observations">
+##FORMAT=<ID=AA,Number=1,Type=Integer,Description="Alternate allele observations">
+##FORMAT=<ID=SR,Number=1,Type=Integer,Description="Number of reference observations by strand, delimited by |: [forward]|[reverse]">
+##FORMAT=<ID=SA,Number=1,Type=Integer,Description="Number of alternate observations by strand, delimited by |: [forward]|[reverse]">
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	unknown
+178508	900	.	A	C	94	.	NS=1;DP=8;AC=1;AN=2;AF=0.5;RA=3;AA=4;SR=3|0;SA=4|0;SB=1;AB=0.42857;ABR=3;ABA=4;RUN=1;BVAR;SNP;TV	GT:GQ:GL:DP:RA:AA:SR:SA	1/0:88.541:-1.2967:7:3:4:3|0:4|0
+178508	1800	.	A	C	93.6	.	NS=1;DP=10;AC=1;AN=2;AF=0.5;RA=5;AA=4;SR=5|0;SA=4|0;SB=1;AB=0.55556;ABR=5;ABA=4;RUN=1;BVAR;SNP;TV	GT:GQ:GL:DP:RA:AA:SR:SA	1/0:93.56:-1.402:9:5:4:5|0:4|0
