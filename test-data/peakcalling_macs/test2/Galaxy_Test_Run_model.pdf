@@ -28,7 +28,7 @@ endobj
 \/Length\ 7\ 0\ R
 \>\>
 stream
-q
+[1Jj ]*q
 Q\ q\ 59\.04\ 73\.44\ 342\.72\ 299\.52\ re\ W\ n
 1\.000\ 0\.000\ 0\.000\ RG
 0\.75\ w
@@ -3759,7 +3759,7 @@ Q
 endstream
 endobj
 7\ 0\ obj
-59450
+5945[0-9]
 endobj
 3\ 0\ obj
 \<\<
