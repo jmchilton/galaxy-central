@@ -87,7 +87,7 @@ Sequences (9:12) Aligned. Score:  78
 Sequences (10:11) Aligned. Score:  64
 Sequences (10:12) Aligned. Score:  76
 Sequences (11:12) Aligned. Score:  46
-Guide tree file created:   [/share/shared/galaxy/database/files/002/dataset_2705.dnd]
+Guide tree file created:   [infile_copy.dnd]
 
 There are 11 groups
 Start of Multiple Alignment
@@ -105,8 +105,40 @@ Group 9: Sequences:   2      Score:1054
 Group 10: Sequences:   4      Score:945
 Group 11: Sequences:  12      Score:380
 Alignment Score 6283
-firstres = 1 lastres = 63
-FASTA file created!
 
-Fasta-Alignment file created    [/share/shared/galaxy/database/files/002/dataset_2726.dat]
+CLUSTAL-Alignment file created  [/share/shared/galaxy/database/files/002/dataset_2801.dat]
+
+
+Clustal created the following dnd file for your information:
+(
+(
+c_briggsae-chrII_+_/43862-46313:0.07349,
+c_brenneri-Cbre_Contig60_+_/627772-630087:0.04317)
+:0.02387,
+(
+c_remanei-Crem_Contig172_-_/123228-124941:0.06114,
+c_elegans-II_+_/9706834-9708803:0.07219)
+:0.01779,
+(
+(
+(
+c_briggsae-chrIfooI_+_/43862-46313:0.10368,
+c_brenneri-Cbre_Contig60gak_+_/627772-630087:0.06298)
+:0.01654,
+(
+c_remanei-Crem_Contig172foo_-_/123228-124941:0.05765,
+c_elegans-II_+_more/9706834-9708803:0.05902)
+:0.06262)
+:0.31533,
+(
+(
+c_briggsae-chrII_+_bar/43862-46313:0.02327,
+c_brenneri-Cbre_Contig60fee_+_/627772-630087:0.13463)
+:0.05016,
+(
+c_remanei-Crem_Contig172zot_-_/123228-124941:0.11667,
+c_elegans-II_+_meh/9706834-9708803:0.11737)
+:0.12013)
+:0.20951)
+:0.30133);
 
