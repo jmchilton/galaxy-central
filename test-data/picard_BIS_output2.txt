@@ -1,0 +1,6 @@
+chr1 length=	101	Aligned= 0	Unaligned= 0
+chr7 length=	404	Aligned= 7	Unaligned= 0
+chr8 length=	202	Aligned= 0	Unaligned= 0
+chr10 length=	303	Aligned= 0	Unaligned= 0
+chr14 length=	505	Aligned= 0	Unaligned= 0
+NoCoordinateCount= 1
