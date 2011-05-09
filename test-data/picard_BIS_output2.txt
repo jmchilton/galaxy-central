@@ -6,16 +6,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Galaxy picard_wrapper tool output - see http://getgalaxy.org/" />
+<meta name="generator" content="Galaxy BamIndexStats tool output - see http://getgalaxy.org/" />
 <title></title>
 <link rel="stylesheet" href="/static/style/base.css" type="text/css" />
 </head>
 <body>
 <div class="document">
-<b><a href="http://rgenetics.org">Galaxy Rgenetics</a> tool output picard_wrapper run at 26/04/2011 14:13:02</b><br/><b>The following output files were created (click the filename to view/download a copy):</b><hr/><table>
+Galaxy tool wrapper picard_wrapper at 09/05/2011 13:04:21</b><br/><b>The following output files were created (click the filename to view/download a copy):</b><hr/><table>
 <tr><td><a href="BamIndexStats.metrics.txt">BamIndexStats.metrics.txt</a></td></tr>
+<tr><td><a href="BamIndexStats.log">BamIndexStats.log</a></td></tr>
 </table><p/>
-<b>Picard on line resources</b><ul>
+<b>Picard on line resources:</b><ul>
 <li><a href="http://picard.sourceforge.net/index.shtml">Click here for Picard Documentation</a></li>
 <li><a href="http://picard.sourceforge.net/picard-metric-definitions.shtml">Click here for Picard Metrics definitions</a></li></ul><hr/>
 <b>Picard output</b><hr/>
@@ -28,9 +29,9 @@
 <tr class="d1"><td>NoCoordinateCount= 1</td></tr>
 </table>
 <b>Picard log</b><hr/>
-<pre>## executing java -Xmx2g -jar /udd/rerla/rgalaxy/tool-data/shared/jars/BamIndexStats.jar VALIDATION_STRINGENCY=LENIENT INPUT=/udd/rerla/rgalaxy/database/job_working_directory/96/dataset_98_files/tmp3cpQkW.bam returned status 0 and stderr: 
-[Tue Apr 26 14:13:02 EDT 2011] net.sf.picard.sam.BamIndexStats INPUT=/udd/rerla/rgalaxy/database/job_working_directory/96/dataset_98_files/tmp3cpQkW.bam VALIDATION_STRINGENCY=LENIENT    TMP_DIR=/tmp/rerla VERBOSITY=INFO QUIET=false COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false
-[Tue Apr 26 14:13:02 EDT 2011] net.sf.picard.sam.BamIndexStats done.
+<pre>## executing java -Xmx2g -jar /udd/rerla/galaxy-central/tool-data/shared/jars/BamIndexStats.jar VALIDATION_STRINGENCY=LENIENT INPUT=/udd/rerla/galaxy-central/database/job_working_directory/4/dataset_4_files/tmpB_J8W5.bam returned status 0 and stderr: 
+[Mon May 09 13:04:21 EDT 2011] net.sf.picard.sam.BamIndexStats INPUT=/udd/rerla/galaxy-central/database/job_working_directory/4/dataset_4_files/tmpB_J8W5.bam VALIDATION_STRINGENCY=LENIENT    TMP_DIR=/tmp/rerla VERBOSITY=INFO QUIET=false COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false
+[Mon May 09 13:04:21 EDT 2011] net.sf.picard.sam.BamIndexStats done.
 Runtime.totalMemory()=9109504
 
 
