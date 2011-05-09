@@ -1,41 +1,15 @@
-# Cuffcompare v0.9.3 | Command line was:
+# Cuffcompare v1.0.1 | Command line was:
 #cuffcompare -r cuffcompare_in3.gtf -R cuffcompare_in1.gtf cuffcompare_in2.gtf
 #
 #> Genomic sequence: chr1 
 #     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
 #            (0 multi-transcript loci, ~1.0 transcripts per locus)
-# Reference mRNAs :       1 in       1 loci  (1 multi-exon)
-# Corresponding super-loci:              1
-#--------------------|   Sn   |  Sp   |  fSn |  fSp  
-        Base level: 	  2.2	  2.3	  - 	  - 
-        Exon level: 	  0.0	  0.0	  0.0	  0.0
-      Intron level: 	  0.0	  nan	  0.0	  nan
-Intron chain level: 	  0.0	  nan	  0.0	  nan
-  Transcript level: 	  0.0	  0.0	  0.0	  0.0
-       Locus level: 	  0.0	  0.0	  0.0	  0.0
-   Missed exons:	2/3 ( 66.7%)
-    Wrong exons:	49/50 ( 98.0%)
- Missed introns:	2/2 (100.0%)
- Missed loci:	0/1 (  0.0%)
-  Wrong loci:	49/50 ( 98.0%)
+# Reference mRNAs :       0 in       0 loci  (0 multi-exon)
 
 #= Summary for dataset: cuffcompare_in1.gtf :
 #     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
 #            (0 multi-transcript loci, ~1.0 transcripts per locus)
-# Reference mRNAs :       1 in       1 loci  (1 multi-exon)
-# Corresponding super-loci:              1
-#--------------------|   Sn   |  Sp   |  fSn |  fSp  
-        Base level: 	  2.2	  2.3	  - 	  - 
-        Exon level: 	  0.0	  0.0	  0.0	  0.0
-      Intron level: 	  0.0	  nan	  0.0	  nan
-Intron chain level: 	  0.0	  nan	  0.0	  nan
-  Transcript level: 	  0.0	  0.0	  0.0	  0.0
-       Locus level: 	  0.0	  0.0	  0.0	  0.0
-   Missed exons:	2/3 ( 66.7%)
-    Wrong exons:	49/50 ( 98.0%)
- Missed introns:	2/2 (100.0%)
- Missed loci:	0/1 (  0.0%)
-  Wrong loci:	49/50 ( 98.0%)
+# Reference mRNAs :       0 in       0 loci  (0 multi-exon)
 #> Genomic sequence: chr1 
 #     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
 #            (0 multi-transcript loci, ~1.0 transcripts per locus)
