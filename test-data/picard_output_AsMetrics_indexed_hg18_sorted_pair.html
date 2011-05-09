@@ -1,35 +1,34 @@
 <style type="text/css">
-    tr.d0 td {background-color: oldlace; color: black;}
-    tr.d1 td {background-color: aliceblue; color: black;}
-    </style><?xml version="1.0" encoding="utf-8" ?>
+        tr.d0 td {background-color: oldlace; color: black;}
+        tr.d1 td {background-color: aliceblue; color: black;}
+        </style><?xml version="1.0" encoding="utf-8" ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="Galaxy rgPicardASMetrics.py tool output - see http://g2.trac.bx.psu.edu/" />
+<meta name="generator" content="Galaxy CollectAlignmentSummaryMetrics tool output - see http://getgalaxy.org/" />
 <title></title>
 <link rel="stylesheet" href="/static/style/base.css" type="text/css" />
 </head>
 <body>
 <div class="document">
-<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgPicardASMetrics.py run at 09/05/2011 10:53:44</h3><b>Your job produced the following output files.</b><hr/>
-<table>
-<tr><td><a href="AsMetricsIndexed.log">AsMetricsIndexed.log</a></td></tr>
+Galaxy tool wrapper picard_wrapper at 09/05/2011 11:03:57</b><br/><b>The following output files were created (click the filename to view/download a copy):</b><hr/><table>
+<tr><td><a href="CollectAlignmentSummaryMetrics.log">CollectAlignmentSummaryMetrics.log</a></td></tr>
 </table><p/>
-<b>No Picard output found - please consult the Picard log above for an explanation</b><b>Picard log</b><hr/>
-<pre>[Mon May 09 10:53:44 EDT 2011] net.sf.picard.analysis.CollectAlignmentSummaryMetrics MAX_INSERT_SIZE=100000 ADAPTER_SEQUENCE=[AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCGATCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNNNATCTCGTATGCCGTCTTCTGCTTG, IS_BISULFITE_SEQUENCED=false] INPUT=/export/tmp/tmpp-lP_s/database/files/000/dataset_4.dat OUTPUT=/share/shared/galaxy/database/job_working_directory/5/dataset_5_files/rgPicardASMetrics.out REFERENCE_SEQUENCE=/share/shared/data/genomes/hg18/hg18.fasta ASSUME_SORTED=true TMP_DIR=/tmp VALIDATION_STRINGENCY=LENIENT    IS_BISULFITE_SEQUENCED=false STOP_AFTER=0 VERBOSITY=INFO QUIET=false COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false
-[Mon May 09 10:53:44 EDT 2011] net.sf.picard.analysis.CollectAlignmentSummaryMetrics done.
-Runtime.totalMemory()=9109504
-Exception in thread "main" net.sf.samtools.util.SequenceUtil$SequenceListsDifferException: Sequence dictionaries are not the same size (3, 45)
-	at net.sf.samtools.util.SequenceUtil.assertSequenceListsEqual(SequenceUtil.java:93)
-	at net.sf.samtools.util.SequenceUtil.assertSequenceDictionariesEqual(SequenceUtil.java:135)
-	at net.sf.picard.analysis.SinglePassSamProgram.makeItSo(SinglePassSamProgram.java:78)
+<b>Picard log</b><hr/>
+<pre>## executing java -Xmx2g -jar /udd/rerla/galaxy-central/tool-data/shared/jars/CollectAlignmentSummaryMetrics.jar VALIDATION_STRINGENCY=LENIENT ASSUME_SORTED=true  ADAPTER_SEQUENCE= IS_BISULFITE_SEQUENCED=false MAX_INSERT_SIZE=100000 OUTPUT=/udd/rerla/galaxy-central/database/job_working_directory/5/dataset_5_files/CollectAlignmentSummaryMetrics.metrics.txt R=/udd/rerla/galaxy-central/database/job_working_directory/5/dataset_5_files/hg19.fasta_fake.fasta TMP_DIR=/tmp INPUT=/export/tmp/tmpBrCiH5/database/files/000/dataset_4.dat returned status 1 and stderr: 
+[Mon May 09 11:03:51 EDT 2011] net.sf.picard.analysis.CollectAlignmentSummaryMetrics MAX_INSERT_SIZE=100000 ADAPTER_SEQUENCE=[AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCGGTTCAGCAGGAATGCCGAGACCGATCTCGTATGCCGTCTTCTGCTTG, AATGATACGGCGACCACCGAGATCTACACTCTTTCCCTACACGACGCTCTTCCGATCT, AGATCGGAAGAGCACACGTCTGAACTCCAGTCACNNNNNNNNATCTCGTATGCCGTCTTCTGCTTG, IS_BISULFITE_SEQUENCED=false] INPUT=/export/tmp/tmpBrCiH5/database/files/000/dataset_4.dat OUTPUT=/udd/rerla/galaxy-central/database/job_working_directory/5/dataset_5_files/CollectAlignmentSummaryMetrics.metrics.txt REFERENCE_SEQUENCE=/udd/rerla/galaxy-central/database/job_working_directory/5/dataset_5_files/hg19.fasta_fake.fasta ASSUME_SORTED=true TMP_DIR=/tmp VALIDATION_STRINGENCY=LENIENT    IS_BISULFITE_SEQUENCED=false STOP_AFTER=0 VERBOSITY=INFO QUIET=false COMPRESSION_LEVEL=5 MAX_RECORDS_IN_RAM=500000 CREATE_INDEX=false CREATE_MD5_FILE=false
+[Mon May 09 11:03:57 EDT 2011] net.sf.picard.analysis.CollectAlignmentSummaryMetrics done.
+Runtime.totalMemory()=912588800
+Exception in thread "main" net.sf.picard.PicardException: Requesting earlier reference sequence: 0 < 1
+	at net.sf.picard.reference.ReferenceSequenceFileWalker.get(ReferenceSequenceFileWalker.java:78)
+	at net.sf.picard.analysis.SinglePassSamProgram.makeItSo(SinglePassSamProgram.java:115)
 	at net.sf.picard.analysis.SinglePassSamProgram.doWork(SinglePassSamProgram.java:54)
 	at net.sf.picard.cmdline.CommandLineProgram.instanceMain(CommandLineProgram.java:157)
 	at net.sf.picard.cmdline.CommandLineProgram.instanceMainWithExit(CommandLineProgram.java:117)
 	at net.sf.picard.analysis.CollectAlignmentSummaryMetrics.main(CollectAlignmentSummaryMetrics.java:106)
+
+
 </pre><hr/>The freely available <a href="http://picard.sourceforge.net/command-line-overview.shtml">Picard software</a> 
-generated all outputs reported here, using this command line:<br/>
-<pre>java -Xmx2g -jar /share/shared/galaxy/tool-data/shared/jars/CollectAlignmentSummaryMetrics.jar REFERENCE_SEQUENCE=/share/shared/data/genomes/hg18/hg18.fasta ASSUME_SORTED=true ADAPTER_SEQUENCE= IS_BISULFITE_SEQUENCED=false MAX_INSERT_SIZE=100000 INPUT=/export/tmp/tmpp-lP_s/database/files/000/dataset_4.dat OUTPUT=/share/shared/galaxy/database/job_working_directory/5/dataset_5_files/rgPicardASMetrics.out VALIDATION_STRINGENCY=LENIENT TMP_DIR=/tmp</pre>
-</div></body></html>
+generated all outputs reported here running as a <a href="http://getgalaxy.org">Galaxy</a> tool</div></body></html>
 
