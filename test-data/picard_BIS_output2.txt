@@ -13,8 +13,8 @@
 <body>
 <div class="document">
 Galaxy tool BamIndexStats run at 12/05/2011 14:18:22</b><br/><b>The following output files were created (click the filename to view/download a copy):</b><hr/><table>
-<tr><td><a href="BamIndexStats.metrics.txt">BamIndexStats.metrics.txt</a></td></tr>
 <tr><td><a href="BamIndexStats.log">BamIndexStats.log</a></td></tr>
+<tr><td><a href="BamIndexStats.metrics.txt">BamIndexStats.metrics.txt</a></td></tr>
 </table><p/>
 <b>Picard on line resources</b><ul>
 <li><a href="http://picard.sourceforge.net/index.shtml">Click here for Picard Documentation</a></li>
