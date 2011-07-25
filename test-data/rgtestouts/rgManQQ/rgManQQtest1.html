@@ -13,8 +13,8 @@
 <h1>rgManQQtest1</h1>
 <table>
 
-<tr><td><a href="Allelep_manhattan.png"><img src="Allelep_manhattan.png" alt="Allelep_manhattan.png hspace="10" width="400"><br>(Click to download image Allelep_manhattan.png)</a></td></tr>
-<tr><td><a href="Allelep_qqplot.png"><img src="Allelep_qqplot.png" alt="Allelep_qqplot.png hspace="10" width="400"><br>(Click to download image Allelep_qqplot.png)</a></td></tr>
+<tr><td><a href="Allelep_manhattan.png"><img src="Allelep_manhattan.png" title="Allelep_manhattan.png hspace="10" width="400"><br>(Click to download image Allelep_manhattan.png)</a></td></tr>
+<tr><td><a href="Allelep_qqplot.png"><img src="Allelep_qqplot.png" title="Allelep_qqplot.png hspace="10" width="400"><br>(Click to download image Allelep_qqplot.png)</a></td></tr>
 <tr><td><a href="rgManQQtest1.R">rgManQQtest1.R</a></td></tr>
 <tr><td><a href="rgManQQtest1.R.log">rgManQQtest1.R.log</a></td></tr>
 </table>
@@ -35,7 +35,7 @@ The following object(s) are masked from 'package:plyr':
 
 
 
-    round_any
+    rename, round_any
 
 
 
@@ -43,11 +43,11 @@ Loading required package: grid
 
 Loading required package: proto
 
-[1] "### 101 values read from /tmp/rgManQQtemplYC5wa read - now running plots"
+[1] "### 101 values read from /data/tmp/tmpM8NZ50/database/files/000/dataset_1.dat read - now running plots"
 
 [1] "## qqplot on Allelep done"
 
-[1] "## manhattan on Allelep starting 1 2 3"
+[1] "## manhattan on Allelep starting 2 3 8"
 
 [1] "## manhattan plot on Allelep done"
 
@@ -62,7 +62,7 @@ Loading required package: proto
 # http://StephenTurner.us/
 # http://GettingGeneticsDone.blogspot.com/
 
-# Last updated: Tuesday, December 22, 2009
+# Last updated: 19 July 2011 by Ross Lazarus
 # R code for making manhattan plots and QQ plots from plink output files. 
 # With GWAS data this can take a lot of memory. Recommended for use on 
 # 64bit machines only, for now. 
@@ -72,30 +72,30 @@ Loading required package: proto
 library(ggplot2)
 
 coloursTouse = c('firebrick','darkblue','goldenrod','darkgreen')
-# not too fugly but need a colour expert please...
+# not too ugly but need a colour expert please...
 
 
-manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max", 
-   suggestiveline=0, genomewide=T, size.x.labels=9, size.y.labels=10, annotate=F, SNPlist=NULL,grey=0) {
-
+DrawManhattan = function(pvals=Null,chrom=Null,offset=Null,title=NULL, max.y="max",suggestiveline=0, genomewide=T, size.x.labels=9, 
+              size.y.labels=10, annotate=F, SNPlist=NULL,grey=0) {
         if (annotate & is.null(SNPlist)) stop("You requested annotation but provided no SNPlist!")
         genomewideline=NULL # was genomewideline=-log10(5e-8)
         if (genomewide) { # use bonferroni since might be only a small region?
             genomewideline = -log10(0.05/length(pvals)) }
-        d=data.frame(CHR=chrom,BP=offset,P=pvals)
-
-        #limit to only chrs 1-23?
-        d=d[d$CHR %in% 1:23, ]
-
+        offset = as.integer(offset)
+        pvals = as.double(pvals)
+        chro = as.integer(chrom) # already dealt with X and friends?
+        d=data.frame(CHR=chro,BP=offset,P=pvals)
+        #limit to only chrs 1-22, x=23,y=24,Mt=25?
+        d=d[d$CHR %in% 1:25, ]
         if ("CHR" %in% names(d) & "BP" %in% names(d) & "P" %in% names(d) ) {
-                d=na.omit(d)
+                #d=na.omit(d)
                 d=d[d$P>0 & d$P<=1, ]
-                d$logp = -log10(d$P)
-
+                d$logp = as.double(-log10(d$P))
                 d$pos=NA
                 ticks=NULL
                 lastbase=0
                 chrlist = unique(d$CHR)
+                chrlist = sort(chrlist) # returns lexical ordering 
                 nchr = length(chrlist) # may be any number?
                 if (nchr >= 2) {
                 for (x in c(1:nchr)) {
@@ -107,7 +107,11 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                                 lastchr = chrlist[x-1] # previous whatever the list
                                 lastbase=lastbase+tail(subset(d,CHR==lastchr)$BP, 1)
                                 d[d$CHR==i, ]$pos=d[d$CHR==i, ]$BP+lastbase
+                                if (sum(is.na(lastchr),is.na(lastbase),is.na(d[d$CHR==i, ]$pos))) { 
+                                   cat(paste('manhattan: For',title,'chrlistx=',i,'lastchr=',lastchr,'lastbase=',lastbase,'pos=',d[d$CHR==i,]$pos))
+                                }   
                                 tks=c(tks, d[d$CHR==i, ]$pos[floor(length(d[d$CHR==i, ]$pos)/2)+1])
+
                         }
                     ticklim=c(min(d$pos),max(d$pos))
                     xlabs = chrlist
@@ -129,8 +133,6 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
 
                 if (max.y=="max") maxy=ceiling(max(d$logp)) else maxy=max.y
                 maxy = max(maxy,1.1*genomewideline)
-                # if (maxy<8) maxy=8
-                # only makes sense if genome wide is assumed - we could have a fine mapping region?  
                 if (annotate) d.annotate=d[as.numeric(substr(d$SNP,3,100)) %in% SNPlist, ]
                 if (nchr >= 2) {
                         manplot=qplot(pos,logp,data=d, ylab=expression(-log[10](italic(p))) , colour=factor(CHR))
@@ -149,9 +151,6 @@ manhattan = function(chrom=NULL,offset=NULL,pvals=NULL, title=NULL, max.y="max",
                         axis.text.y=theme_text(size=size.y.labels, colour="grey50"), 
                         axis.ticks=theme_segment(colour=NA)
                 )
-                #manplot = manplot + opts(panel.grid.y.minor=theme_blank(),panel.grid.y.major=theme_blank())
-                #manplot = manplot + opts(panel.grid.major=theme_blank())
-                 
                 if (suggestiveline) manplot=manplot+geom_hline(yintercept=suggestiveline,colour="blue", alpha=I(1/3))
                 if (genomewideline) manplot=manplot+geom_hline(yintercept=genomewideline,colour="red")
                 manplot
@@ -178,16 +177,24 @@ qq = function(pvector, title=NULL, spartan=F) {
         if (spartan) plot=plot+opts(panel.background=theme_rect(col="grey50"), panel.grid.minor=theme_blank())
         qq
 }
-rgqqMan = function(infile="/tmp/rgManQQtemplYC5wa",chromcolumn=1, offsetcolumn=2, pvalscolumns=c(3), 
+
+rgqqMan = function(infile="/data/tmp/tmpM8NZ50/database/files/000/dataset_1.dat",chromcolumn=2, offsetcolumn=3, pvalscolumns=c(8), 
 title="rgManQQtest1",grey=0) {
 rawd = read.table(infile,head=T,sep='\t')
 dn = names(rawd)
 cc = dn[chromcolumn]
 oc = dn[offsetcolumn] 
-nams = c(cc,oc)
+rawd[,cc] = sub('chr','',rawd[,cc],ignore.case = T) # just in case
+rawd[,cc] = sub(':','',rawd[,cc],ignore.case = T) # ugh
+rawd[,cc] = sub('X',23,rawd[,cc],ignore.case = T)
+rawd[,cc] = sub('Y',24,rawd[,cc],ignore.case = T)
+rawd[,cc] = sub('Mt',25,rawd[,cc], ignore.case = T)
+nams = c(cc,oc) # for sorting
 plen = length(rawd[,1])
-doreorder=1
 print(paste('###',plen,'values read from',infile,'read - now running plots',sep=' '))
+rawd = rawd[do.call(order,rawd[nams]),]
+# mmmf - suggested by http://onertipaday.blogspot.com/2007/08/sortingordering-dataframe-according.html
+# in case not yet ordered
 if (plen > 0) {
   for (pvalscolumn in pvalscolumns) {
   if (pvalscolumn > 0) 
@@ -199,14 +206,8 @@ if (plen > 0) {
      ggsave(filename=paste(myfname,"qqplot.png",sep='_'),myqqplot,width=6,height=4,dpi=100)
      print(paste('## qqplot on',cname,'done'))
      if ((chromcolumn > 0) & (offsetcolumn > 0)) {
-         if (doreorder) {
-             rawd = rawd[do.call(order,rawd[nams]),]
-             # mmmf - suggested by http://onertipaday.blogspot.com/2007/08/sortingordering-dataframe-according.html
-             # in case not yet ordered
-             doreorder = 0
-             }
          print(paste('## manhattan on',cname,'starting',chromcolumn,offsetcolumn,pvalscolumn))
-         mymanplot= manhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
+         mymanplot= DrawManhattan(chrom=rawd[,chromcolumn],offset=rawd[,offsetcolumn],pvals=rawd[,pvalscolumn],title=mytitle,grey=grey)
          print(paste('## manhattan plot on',cname,'done'))
          ggsave(filename=paste(myfname,"manhattan.png",sep='_'),mymanplot,width=6,height=4,dpi=100)
          }
@@ -227,6 +228,6 @@ rgqqMan()
 
 </pre>
 
-<h3><a href="http://rgenetics.org">Rgenetics</a> tool rgManQQ.py run at 07/11/2010 20:04:20</h3>
+<b><a href="http://rgenetics.org">Galaxy Rgenetics</a> tool output rgManQQ.py run at 20/07/2011 13:29:43</b><br/>
 </div></body></html>
 
