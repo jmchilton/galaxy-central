@@ -1,4 +1,4 @@
-#chrom	start	end	strand
+#chrom	start	end	strand	read_name
 ref	6	22	+	r001	163	ref	7	30	8M2I4M1D3M	=	37	39	TTAGATAAAGGATACTA	*
 ref	8	19	+	r002	0	ref	9	30	3S6M1P1I4M	*	0	0	AAAAGATAAGGATA	*
 ref	8	14	+	r003	0	ref	9	30	5H6M	*	0	0	AGCTAA	*	NM:i:1
