@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?xml-stylesheet type="text/xsl" href="fimo.xsl"?>
+<?xml-stylesheet type="text/xsl" href="fimo-to-html.xsl"?>
 <!-- Begin document body -->
-<fimo version="4.4.0" release="0 EST 20">
+<fimo version="4.6.0" release="8 PST 20">
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation=  xmlns:fimo="http://noble.gs.washington.edu/schema/fimo"
 >
-<command-line>fimo --o /some_path/dataset_?_files --verbosity 1 /some_path/dataset_?.dat /some_path/dataset_?.dat</command-line>
+<command-line>fimo --o /path/to/dataset_?_files --verbosity 1 /path/to/dataset_?.dat /path/to/dataset_?.dat</command-line>
 <settings>
-<setting name="output directory">/some_path/dataset_?_files</setting>
-<setting name="MEME file name">/some_path/dataset_?.dat</setting>
-<setting name="sequence file name">/some_path/dataset_?.dat</setting>
+<setting name="output directory">/path/to/dataset_?_files</setting>
+<setting name="MEME file name">/path/to/dataset_?.dat</setting>
+<setting name="sequence file name">/path/to/dataset_?.dat</setting>
 <setting name="background file name">(null)</setting>
 <setting name="motif name">motif</setting>
 <setting name="allow clobber">false</setting>
@@ -24,7 +24,7 @@
 <setting name="pseudocount">0.1</setting>
 <setting name="verbosity">1</setting>
 </settings>
-<sequence-data num-sequences="1" num-residues="5386"/>
+<sequence-data num-sequences="1" num-residues="5386" />
 <alphabet>protein</alphabet>
 <motif name="1" width="11" best-possible-match="GGGGTATAAAA"/>
 <background source="non-redundant database">
