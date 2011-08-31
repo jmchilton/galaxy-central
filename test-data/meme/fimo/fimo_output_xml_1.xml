@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<?xml-stylesheet type="text/xsl" href="fimo-to-html.xsl"?>
+<!-- Begin document body -->
+<fimo version="4.6.0" release="8 PST 20">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation=  xmlns:fimo="http://noble.gs.washington.edu/schema/fimo"
+>
+<command-line>fimo --o /path/to/dataset_?_files --verbosity 1 /path/to/dataset_?.dat /path/to/dataset_?.dat</command-line>
+<settings>
+<setting name="output directory">/path/to/dataset_?_files</setting>
+<setting name="MEME file name">/path/to/dataset_?.dat</setting>
+<setting name="sequence file name">/path/to/dataset_?.dat</setting>
+<setting name="background file name">(null)</setting>
+<setting name="motif name">motif</setting>
+<setting name="allow clobber">false</setting>
+<setting name="compute q-values">true</setting>
+<setting name="output p-threshold set">false</setting>
+<setting name="output q-threshold set">false</setting>
+<setting name="text only">false</setting>
+<setting name="scan both strands">false</setting>
+<setting name="max sequence length">250000000</setting>
+<setting name="output q-value threshold">  1</setting>
+<setting name="output p-value threshold">0.0001</setting>
+<setting name="pseudocount">0.1</setting>
+<setting name="verbosity">1</setting>
+</settings>
+<sequence-data num-sequences="1" num-residues="5386" />
+<alphabet>protein</alphabet>
+<motif name="1" width="11" best-possible-match="GGGGTATAAAA"/>
+<background source="non-redundant database">
+<value letter="A">0.073</value>
+<value letter="C">0.018</value>
+<value letter="D">0.052</value>
+<value letter="E">0.062</value>
+<value letter="F">0.040</value>
+<value letter="G">0.069</value>
+<value letter="H">0.022</value>
+<value letter="I">0.056</value>
+<value letter="K">0.058</value>
+<value letter="L">0.092</value>
+<value letter="M">0.023</value>
+<value letter="N">0.046</value>
+<value letter="P">0.051</value>
+<value letter="Q">0.041</value>
+<value letter="R">0.052</value>
+<value letter="S">0.074</value>
+<value letter="T">0.059</value>
+<value letter="V">0.064</value>
+<value letter="W">0.013</value>
+<value letter="Y">0.033</value>
+</background>
+<cisml-file>cisml.xml</cisml-file>
+</fimo>
