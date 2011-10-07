@@ -1,3 +1,5 @@
+#species=bighorn
+#scaffold	pos	A	B	aa1	aa2	ref	rPos	rNuc	rAA	#desA	#desB	desQ	#mtA	#mtB	mtQ	pair	sep	Fst	cons	prim	#RFLP
 chr18_57379354_57380496	315	C	T	V	V	chr18	57379669	G	V	11	0	60	9	6	62	Y	726	0.118	0.048	0.014	1
 chr14_80021455_80022064	138	G	A	H	H	chr14	80021593	G	H	14	0	69	9	6	124	Y	377	0.118	0.997	0.195	1
 chr19_39866997_39874915	3117	C	T	P	P	chr19	39870110	C	P	3	7	65	14	2	32	Y	6	0.321	0.911	0.462	4

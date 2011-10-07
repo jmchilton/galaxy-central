@@ -1,16 +1,8 @@
-# Cuffcompare v1.0.1 | Command line was:
-#cuffcompare -r cuffcompare_in3.gtf -R cuffcompare_in1.gtf cuffcompare_in2.gtf
+# Cuffcompare v1.0.3 | Command line was:
+#cuffcompare -o cc_output -r cuffcompare_in3.gtf -R cuffcompare_in1.gtf cuffcompare_in2.gtf
 #
-#> Genomic sequence: chr1 
-#     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
-#            (0 multi-transcript loci, ~1.0 transcripts per locus)
-# Reference mRNAs :       0 in       0 loci  (0 multi-exon)
 
 #= Summary for dataset: cuffcompare_in1.gtf :
-#     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
-#            (0 multi-transcript loci, ~1.0 transcripts per locus)
-# Reference mRNAs :       0 in       0 loci  (0 multi-exon)
-#> Genomic sequence: chr1 
 #     Query mRNAs :      50 in      50 loci  (0 multi-exon transcripts)
 #            (0 multi-transcript loci, ~1.0 transcripts per locus)
 # Reference mRNAs :       0 in       0 loci  (0 multi-exon)

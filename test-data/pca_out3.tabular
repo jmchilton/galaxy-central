@@ -1,6 +1,6 @@
 #Component	1	2	3	4
-#Std. deviation	0.4905	0.1534	0.2793	2.049
-#Proportion of variance explained	0.05302	0.005183	0.01719	0.9246
+#Std. deviation	2.049	0.4905	0.2793	0.1534
+#Proportion of variance explained	0.9246	0.05302	0.01719	0.005183
 #Loadings	1	2	3	4
 c1	0.3616	-0.6565	0.581	0.3173
 c2	-0.08227	-0.7297	-0.5964	-0.3241
