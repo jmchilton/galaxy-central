@@ -11,4 +11,3 @@ TraversalEngine - [INITIALIZATION COMPLETE; TRAVERSAL STARTING]
 CountCovariatesWalker - Writing raw recalibration data...
 CountCovariatesWalker - ...done!
 TraversalEngine - Total runtime
-TraversalEngine - 0 reads were filtered out during traversal out of 20 total (0.00%)
