@@ -10,4 +10,3 @@ UnifiedGenotyper - % confidently called bases of all loci       99.202
 UnifiedGenotyper - % confidently called bases of callable loci  100.000
 UnifiedGenotyper - Actual calls made                            1
 TraversalEngine - Total runtime
-TraversalEngine - 0 reads were filtered out during traversal out of 10 total (0.00%)

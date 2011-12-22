@@ -1,0 +1,46 @@
+hg18.chr22	16153057	16153074	A	1	-C	ins=,imot:0:tt;dels=	,9:t>c	-panTro2	2	hg18:tttttttttttttttttt,ponAbe2:--tttttttttttttttt,panTro2:-----ttttctttttttt	HCO
+hg18.chr22	16484916	16484924	A	1	+C	ins=,imotf:0:A;dels=	NA	+panTro2	2	hg18:-AAAAAAAA,ponAbe2:-AAAAAAAA,panTro2:AAAAAAAAA	HCO
+hg18.chr22	14869543	14869551	ATAG	4	+C	ins=,imotf:0:TATC;dels=	,4:A>T,7:C>T	+panTro2	2	hg18:----AATCTATC,ponAbe2:----AATTTATC,panTro2:TATCTATCTATC,rheMac2:-----ATCTATC	HCOR
+hg18.chr22	15242524	15242530	A	1	+O	ins=,imot:2:tt;dels=	,3:t>c	+ponAbe2	2	hg18:tt--ttttt,ponAbe2:ttttttttt,panTro2:tt-cttttt,rheMac2:at--ttttt	HCOR
+hg18.chr22	15243122	15243131	A	1	+C	ins=;dels=,dmot:3:a,dmotf:0:AAAA	,8:a>t,4:a>t	N:U:L:L	-1	hg18:----taaaaaaa--a,ponAbe2:---aaaaataaa--a,panTro2:aaaaaaaaaaaa--a,rheMac2:----aaaaaaaacta	HCOR
+hg18.chr22	15569056	15569065	AC	2	-H	NA	,3:C>A	-hg18	2	hg18:ACAAACACAC,ponAbe2:ACACACACAC,panTro2:ACACACACAC,rheMac2:ACATACACAC	HCOR
+hg18.chr22	16131711	16131722	ATGC	4	+O	NA	,2:C>T	+ponAbe2	2	hg18:CACGCATGCATG,ponAbe2:CATGCATGCATG,panTro2:CACGCATGCATG,rheMac2:CACGCGTGCATG	HCOR
+hg18.chr22	16139207	16139219	A	1	+H.+O|-C	ins=,imot:8:tt;dels=,dmot:10:ttttt	,6:t>g,0:t>a	-panTro2	2	hg18:tttttttt--ttttt,ponAbe2:ttttttttttttttt,panTro2:atttttgt-------,rheMac2:ttttttgt-------	HCOR
+hg18.chr22	16197071	16197080	A	1	+HC	ins=,imot:0:TT;dels=	NA	+hg18.+panTro2 / +hg18:panTro2	1	hg18:--TTTTTTTTT,ponAbe2:--CTTTTTTTT,panTro2:TTTTTTTTTTT,rheMac2:---ATTTGTTT	HCOR
+hg18.chr22	16198276	16198290	AAC	3	+O	ins=,imotf:0:tgt;dels=,dnon:3:tg	,8:t>C	+ponAbe2	2	hg18:-----CTGCTGTTGTTGTT,ponAbe2:tgttgttgttgttgttgtt,panTro2:---tgctgctgttgttgtt,rheMac2:-----gtgttgtcattgtt	HCOR
+hg18.chr22	16205989	16205998	A	1	-H	NA	,5:a>g	-hg18	2	hg18:aaaaagaaaa,ponAbe2:aaaaaaaaaa,panTro2:aaaaaaaaaa,rheMac2:actaaaa---	HCOR
+hg18.chr22	16211560	16211568	A	1	+O	ins=,imotf:0:T;dels=	NA	+ponAbe2	2	hg18:-TTTTTTTT,ponAbe2:TTTTTTTTT,panTro2:-TTTTTTTT,rheMac2:-TTTTTTTT	HCOR
+hg18.chr22	16226759	16226772	A	1	+HC	ins=,imot:1:a,imot:0:a,imotf:9:a;dels=,dnon:9:t	NA	+hg18:panTro2	2	hg18:-aaaaaaaaaaaaa,ponAbe2:--aaaaaaataaaa,panTro2:aaaaaaaaaaaaaa,rheMac2:--aaaaaaataaaa	HCOR
+hg18.chr22	16252607	16252619	ATAC	4	+C	ins=;dels=,dnon:7:t	NA	+panTro2	2	hg18:tacatactataca,ponAbe2:tacatactataca,panTro2:tacatac-ataca,rheMac2:tacat---ataca	HCOR
+hg18.chr22	16275365	16275374	AT	2	+H	NA	,11:C>T	+hg18	2	hg18:ATATATA--TAT,ponAbe2:ATATATA--TAC,panTro2:ATATATA--TAC,rheMac2:ATATATATCTAC	HCOR
+hg18.chr22	16278949	16278957	A	1	+O	ins=,imotf:0:A;dels=	NA	+ponAbe2	2	hg18:-AAAAAAAA,ponAbe2:AAAAAAAAA,panTro2:-AAAAAAAA,rheMac2:-AAAAAAAA	HCOR
+hg18.chr22	16357265	16357273	A	1	+H	ins=,imot:1:a;dels=	NA	+hg18	2	hg18:aaaaaaaaa,ponAbe2:a-aaaaaaa,panTro2:acaaaaaaa,rheMac2:a-aaaaaaa	HCOR
+hg18.chr22	16511417	16511430	AAAT	4	+O	NA	,5:G>a	+ponAbe2	2	hg18:TAAATGAATAAATA,ponAbe2:taaataaataaata,panTro2:TAAATGAATAAATA,rheMac2:TAAACGAATAAATA	HCOR
+hg18.chr22	16514967	16514975	A	1	+O	ins=;dels=,dmot:0:T	,8:tt>AA	-hg18:panTro2	2	hg18:--TTTttttt,ponAbe2:T-TTTttttt,panTro2:--TTTTTTAA,rheMac2:TGTTTTTTTA	HCOR
+hg18.chr22	16569017	16569025	G	1	+O	ins=;dels=,dnon:2:t	,6:c>t,7:c>g	+ponAbe2	2	hg18:cctccccgc,ponAbe2:ccccccccc,panTro2:cctccctgc,rheMac2:cctccctcc	HCOR
+hg18.chr22	16092969	16092977	A	1	+C	ins=,imotf:0:a;dels=,dmotf:1:A	NA	+panTro2	2	hg18:-AAAAAAAA,ponAbe2:-AAAAAAAA,calJac1:-AAAAGAAA,panTro2:aaaaaaaaa,rheMac2:--AAAAAAA	HCORM
+hg18.chr22	16097890	16097904	ATGG	4	+HCO	ins=,imotf:4:TGGA,imotf:0:TGGA;dels=	NA	+hg18:panTro2:ponAbe2	2	hg18:----TGGATGGATGGATG,ponAbe2:TGGATGGATGGATGGATG,calJac1:--------TGGATGGATG,panTro2:----TGGATGGATGGATG,rheMac2:--------TGGATGGATG	HCORM
+hg18.chr22	16119035	16119047	AGGG	4	+O	NA	,1:G>A	+ponAbe2	2	hg18:GGGGGAGGGAGGG,ponAbe2:GAGGGAGGGAGGG,calJac1:GGGGAAGGGAGGG,panTro2:GGGGGAGGGAGGG,rheMac2:GGGGGAGGGAGGG	HCORM
+hg18.chr22	16124562	16124574	AAAT	4	-HC	NA	,8:T>c	-hg18:panTro2	2	hg18:taaataaacaaaT,ponAbe2:TAAATAAATAAAT,calJac1:TAAATAAATAAAT,panTro2:taaataaacaaaT,rheMac2:TAAATAAATAAAT	HCORM
+hg18.chr22	16175530	16175540	AC	2	+HCO	ins=;dels=,dmotf:0:GT	,2:G>A	N:U:L:L	-1	hg18:GTGTGTGTGTG,ponAbe2:GTGTGTGTGTG,calJac1:--GTGTGTGTG,panTro2:GTGTGTGTGTG,rheMac2:--ATGTGTGTG	HCORM
+hg18.chr22	16197071	16197080	A	1	+HC	ins=,imot:0:TT,imot:2:T;dels=	,7:T>G	+hg18:panTro2	2	hg18:--TTTTTTTTT,ponAbe2:--CTTTTTTTT,calJac1:----ACTTTTT,panTro2:TTTTTTTTTTT,rheMac2:---ATTTGTTT	HCORM
+hg18.chr22	16198276	16198290	AAC	3	+O	ins=,inon:3:tg,imotf:0:tgt;dels=,dnon:3:tg	,8:t>C,12:TG>ca,5:C>t,5:C>g	+hg18:panTro2:ponAbe2,-hg18:panTro2 / +ponAbe2	4	hg18:-----CTGCTGTTGTTGTT,ponAbe2:tgttgttgttgttgttgtt,calJac1:-----CTGTTGCTGTTGTC,panTro2:---tgctgctgttgttgtt,rheMac2:-----gtgttgtcattgtt	HCORM
+hg18.chr22	16199994	16200001	A	1	+O	ins=,imot:0:tt;dels=,dnon:3:G	NA	+ponAbe2	2	hg18:--tgttttt,ponAbe2:ttttttttt,calJac1:--TATTTTT,panTro2:--tgttttt,rheMac2:--TGTTTTT	HCORM
+hg18.chr22	16228275	16228287	A	1	-O	ins=,imotf:2:ttttttt;dels=,dmotf:11:tttttttt	NA	-ponAbe2	2	hg18:AC------ttttttttttt,ponAbe2:AC-------tt--------,calJac1:-------------------,panTro2:AC-------tttttttttt,rheMac2:ACttttttttttttttttt	HCORM
+hg18.chr22	16233338	16233346	A	1	+HC	ins=,imot:0:a,imotf:2:a;dels=,dnon:2:C	,1:A>G	+hg18:panTro2	2	hg18:aaaaaaaaa,ponAbe2:-acaaaaaa,calJac1:-acaaaaaa,panTro2:aaaaaaaaa,rheMac2:-GCAAAAAA	HCORM
+hg18.chr22	16251172	16251183	AACC	4	+HC	NA	,12:T>G	+hg18:panTro2	2	hg18:T--GGTTGGTTGGT,ponAbe2:T--GGTTGGTTGTT,calJac1:TGCGTTCGGTTGTT,panTro2:T--GGTTGGTTGGT,rheMac2:T--GATTGGTTGTT	HCORM
+hg18.chr22	16284864	16284875	ACC	3	+C	NA	,11:g>a,0:t>a,2:g>a,5:ac>gt	+hg18:panTro2,-hg18 / +panTro2	4	hg18:tgatggtggtga,ponAbe2:aggtgacggtgg,calJac1:TGGGGACGGTGG,panTro2:tggtggtggtgg,rheMac2:tggtgacggtgg	HCORM
+hg18.chr22	16297576	16297589	ACCC	4	-HC	NA	,7:ca>tg,12:g>a	-hg18:panTro2	2	hg18:acccacctgcccgc,ponAbe2:acccacccacccac,calJac1:gcccacc-acctgc,panTro2:acccacctgcccgc,rheMac2:acccacccacccgc	HCORM
+hg18.chr22	16300660	16300676	AATG	4	+HCO	ins=,imot:14:AA;dels=	,7:G>A	+hg18:panTro2:ponAbe2	2	hg18:TGAATGAATGAATGAAT,ponAbe2:TGAATGAATGAATGAAT,calJac1:TGAATGAGTGAATG--T,panTro2:TGAATGAATGAATGAAT,rheMac2:TGAATGAGTGAATG--T	HCORM
+hg18.chr22	16352085	16352096	AGG	3	+HC	NA	,11:c>t	+hg18:panTro2	2	hg18:cctcctcctcct,ponAbe2:cctcctcctccc,calJac1:cctctgcctcct,panTro2:cctcctcctcct,rheMac2:cctcctcctccc	HCORM
+hg18.chr22	16354599	16354613	A	1	-O	ins=,imot:0:taaaaaa;dels=,dmot:7:a	,8:a>t,15:a>g	-ponAbe2	2	hg18:-------aaaaaaaaaaaaaa,ponAbe2:--------taaaaaagaaaaa,calJac1:--------aaaaaaaaaaaaa,panTro2:------aaaaaaaaaaaaaaa,rheMac2:taaaaaaaaaaaaaaaaaaaa	HCORM
+hg18.chr22	16358663	16358672	A	1	-O	ins=,imot:0:TTTT;dels=	,8:T>C	-ponAbe2	2	hg18:----TTTTTTTTT,ponAbe2:----TTTTCTTTT,calJac1:----TTTCTTTTT,panTro2:--TTTTTTTTTTT,rheMac2:TTTTTTTTTTTTT	HCORM
+hg18.chr22	16396341	16396352	AC	2	-HC	NA	,9:G>A,2:T>C	-hg18:panTro2	2	hg18:TGTGTGTGTATG,ponAbe2:TGTGTGTGTGTG,calJac1:GGTGTGTGTTTG,panTro2:TGCGTGTGTATG,rheMac2:TGTGTGTGTGTG	HCORM
+hg18.chr22	16396592	16396600	AACT	4	+O	ins=;dels=,dmotf:0:AGTT	,5:G>A	+hg18:panTro2:ponAbe2,-hg18:panTro2 / +ponAbe2	1	hg18:----AATTAGTT,ponAbe2:AGTTAGTTAGTT,calJac1:----AGTTAGGT,panTro2:----AATTAGTT,rheMac2:AATTAGTTAGTT	HCORM
+hg18.chr22	16408653	16408666	AGCC	4	+O	NA	,8:T>C	+ponAbe2	2	hg18:CCAGCCAGTCAGCC,ponAbe2:CCAGCCAGCCAGCC,calJac1:CCCGCCAGTCAGCC,panTro2:CCAGCCAGTCAGCC,rheMac2:CCAGCCAGTCAGCC	HCORM
+hg18.chr22	16412284	16412295	ATG	3	+HC	NA	,6:G>C	+hg18:panTro2	2	hg18:CATCATCATCAT,ponAbe2:CATCATGATCAT,calJac1:CGTCATGAGCAT,panTro2:CATCATCATCAT,rheMac2:CATCATGATCAT	HCORM
+hg18.chr22	16415043	16415060	AGC	3	+HC	ins=;dels=,dmot:5:CAG	,1:G>A,12:A>C	N:U:L:L	-1	hg18:AACATCAGCAGCAGCAGA,ponAbe2:AACAA---CAGCAGCAGA,calJac1:AG------CAGCAGCAGC,panTro2:AACAACAGCAGCAGCAGA,rheMac2:AGCAACAGCAGCCGCAGA	HCORM
+hg18.chr22	16472890	16472900	A	1	-C	ins=,imot:0:taaa;dels=,dmot:35:aa,dnon:27:AAA,dnon:40:T,dmotf:15:aa,dmotf:14:A,dmotf:18:aaaaaaaa,dmot:10:a,dmotf:31:AA	,36:a>t	-panTro2	2	hg18:----aaaaaa---------------------------aaaT,ponAbe2:----aaaaaaa------------------------aaaaaT,calJac1:----aaaaaaataataataaaaaaaaTAAATAATTAAAAAT,panTro2:----aaaaaaa------------------------ataaaT,rheMac2:taaaaaaaaaa------------------------aaaaaa	HCORM
+hg18.chr22	16504297	16504305	A	1	-HC	ins=;dels=,dmotf:0:T	NA	-hg18:panTro2	2	hg18:-TTtttttt,ponAbe2:TTTtttttt,calJac1:--TTGtttt,panTro2:-TTtttttt,rheMac2:TTTtttttt	HCORM
+hg18.chr22	16570421	16570431	AT	2	+HCO	NA	,3:G>T,0:A>G,10:A>G	+hg18:panTro2:ponAbe2	2	hg18:ATATATATATA,ponAbe2:ATATATATATA,calJac1:ATAGGTATAGA,panTro2:ATATATATATA,rheMac2:GTAGATATATG	HCORM
+hg18.chr22	16594984	16594991	AT	2	+O	ins=,imot:0:ATAT;dels=	,6:A>C	+ponAbe2	2	hg18:----ATATATA,ponAbe2:ATATATATATA,calJac1:----ATATATA,panTro2:----ATATATA,rheMac2:----ATCTATA	HCORM
