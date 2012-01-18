@@ -30,4 +30,4 @@
 ##reference=file:///var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-aSMuO5/gatk_input.fasta
 ##reference=file:///var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-bFIpbp/gatk_input.fasta
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	A Fake phiX Sample
-phiX174	1443	.	AC	.	.	PASS	AC=0;AF=0.00;AN=0;DB;DP=10;MQ=37.74;MQ0=0;QD=0.00;set=ReferenceInAll	GT:DP:PL	./.:10:0,0,0
+phiX174	1443	.	AC	.	.	PASS	AC=0;AF=0.00;AN=0;DP=10;MQ=37.74;MQ0=0;QD=0.00;set=ReferenceInAll	GT:DP:PL	./.:10:0,0,0
