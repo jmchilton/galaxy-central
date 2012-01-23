@@ -1,7 +1,7 @@
 ##fileformat=VCFv4.1
 ##CombineVariants="analysis_type=CombineVariants input_file=[] sample_metadata=[] read_buffer_size=null phone_home=NO_ET read_filter=[] intervals=null excludeIntervals=null reference_sequence=/var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-bFIpbp/gatk_input.fasta rodBind=[] rodToIntervalTrackName=null BTI_merge_rule=UNION nonDeterministicRandomSeed=false downsampling_type=null downsample_to_fraction=null downsample_to_coverage=null baq=OFF baqGapOpenPenalty=40.0 performanceLog=null useOriginalQualities=false defaultBaseQualities=-1 validation_strictness=SILENT unsafe=null num_threads=1 interval_merging=ALL read_group_black_list=null processingTracker=null restartProcessingTracker=false processingTrackerStatusFile=null processingTrackerID=-1 allow_intervals_with_unindexed_bam=false disable_experimental_low_memory_sharding=false logging_level=INFO log_to_file=null help=false variant=[(RodBinding name=from_variant_annotator source=/var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-bFIpbp/input_variant_from_variant_annotator.vcf)] out=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub NO_HEADER=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub sites_only=org.broadinstitute.sting.gatk.io.stubs.VCFWriterStub genotypemergeoption=PRIORITIZE filteredrecordsmergetype=KEEP_IF_ANY_UNFILTERED rod_priority_list=from_variant_annotator printComplexMerges=false filteredAreUncalled=false minimalVCF=false setKey=set assumeIdenticalSamples=false minimumN=1 mergeInfoWithMaxAC=false"
 ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
-##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth (only filtered reads used for calling)">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
 ##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
@@ -11,7 +11,7 @@
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
 ##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
 ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP Membership">
-##INFO=<ID=DP,Number=1,Type=Integer,Description="Filtered Depth">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
 ##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
 ##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
 ##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
@@ -30,4 +30,4 @@
 ##reference=file:///var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-aSMuO5/gatk_input.fasta
 ##reference=file:///var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-bFIpbp/gatk_input.fasta
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	A Fake phiX Sample
-phiX174	1443	.	AC	.	.	PASS	AC=0;AF=0.00;AN=0;DP=10;MQ=37.74;MQ0=0;QD=0.00;set=ReferenceInAll	GT:DP:PL	./.:10:0,0,0
+phiX174	1443	.	AC	.	.	PASS	AC=0;AF=0.00;AN=0;DB;DP=10;MQ=37.74;MQ0=0;set=ReferenceInAll	GT	./.

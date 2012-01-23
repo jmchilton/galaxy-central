@@ -1,6 +1,6 @@
 ##fileformat=VCFv4.1
 ##FORMAT=<ID=AD,Number=.,Type=Integer,Description="Allelic depths for the ref and alt alleles in the order listed">
-##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Read Depth (only filtered reads used for calling)">
+##FORMAT=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth (reads with MQ=255 or with bad mates are filtered)">
 ##FORMAT=<ID=GQ,Number=1,Type=Float,Description="Genotype Quality">
 ##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">
 ##FORMAT=<ID=PL,Number=G,Type=Integer,Description="Normalized, Phred-scaled likelihoods for genotypes as defined in the VCF specification">
@@ -9,7 +9,7 @@
 ##INFO=<ID=AN,Number=1,Type=Integer,Description="Total number of alleles in called genotypes">
 ##INFO=<ID=BaseQRankSum,Number=1,Type=Float,Description="Z-score from Wilcoxon rank sum test of Alt Vs. Ref base qualities">
 ##INFO=<ID=DB,Number=0,Type=Flag,Description="dbSNP Membership">
-##INFO=<ID=DP,Number=1,Type=Integer,Description="Filtered Depth">
+##INFO=<ID=DP,Number=1,Type=Integer,Description="Approximate read depth; some reads may have been filtered">
 ##INFO=<ID=DS,Number=0,Type=Flag,Description="Were any of the samples downsampled?">
 ##INFO=<ID=Dels,Number=1,Type=Float,Description="Fraction of Reads Containing Spanning Deletions">
 ##INFO=<ID=FS,Number=1,Type=Float,Description="Phred-scaled p-value using Fisher's exact test to detect strand bias">
@@ -25,4 +25,4 @@
 ##contig=<ID=phiX174,length=5386>
 ##reference=file:///var/folders/78/786YaG3QH58XnzrWynoDBk+++TI/-Tmp-/tmp-gatk-aSMuO5/gatk_input.fasta
 #CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	A Fake phiX Sample
-phiX174	1443	.	AC	.	0	.	DP=10;MQ=37.74;MQ0=0;QD=0.00	GT:DP:PL	./.:10:0,0,0
+phiX174	1443	.	AC	.	0	.	DB;DP=10;MQ=37.74;MQ0=0	GT	./.
