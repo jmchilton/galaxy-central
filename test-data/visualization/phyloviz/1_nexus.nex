@@ -1,0 +1,87 @@
+#NEXUS
+
+[!This data set was downloaded from TreeBASE, a relational database of phylogenetic knowledge. TreeBASE has been supported by the NSF, Harvard University, Yale University, SDSC and UC Davis. Please do not remove this acknowledgment from the Nexus file.
+
+
+Generated on June 12, 2012; 23:00 GMT
+
+TreeBASE (cc) 1994-2008
+
+Study reference:
+Olariaga I., Grebenc T., Salcedo I., & Martín M.P. 2012. Two new species of Hydnum
+with ovoid basidiospores: H. ovoideisporum and H. vesterholtii. Mycologia, .
+
+TreeBASE Study URI:  http://purl.org/phylo/treebase/phylows/study/TB2:S12831]
+
+BEGIN TREES;
+      TITLE Hydnum_ITS_result;
+      LINK TAXA = Taxa1;
+         TRANSLATE
+            1    Hydnum_aff_ellipsosporum_RUFHYD1_AJ535304,
+            2    Hydnum_albidum_ALB_AY817135,
+            3    Hydnum_albidum_ALBHYD1_AJ534974,
+            4    Hydnum_albomagnum_ALM_DQ218305,
+            5    Hydnum_ellipsosporum_ELL_AY817138,
+            6    Hydnum_ellipsosporum_RUFHYD8_AJ547882,
+            7    Hydnum_ovoidisporum_12317BIOFungi,
+            8    Hydnum_ovoidisporum_12683BIOFungi,
+            9    Hydnum_ovoidisporum_12902BIOFungi,
+            10   Hydnum_ovoidisporum_14130BIOFungi,
+            11   Hydnum_repandum_RE1_REP1_AJ889978,
+            12   Hydnum_repandum_RE1_REP2_AJ889949,
+            13   Hydnum_repandum_RE1_REP3_AY817136,
+            14   Hydnum_repandum_RE1_REP6_UDB000025,
+            15   Hydnum_repandum_RE1_REP7_UDB000096,
+            16   Hydnum_repandum_RE1_REP8_UDB001479,
+            17   Hydnum_repandum_RE1_REPHYD10_AJ547888,
+            18   Hydnum_repandum_RE1_REPHYD11_AJ547886,
+            19   Hydnum_repandum_RE1_REPHYD1_AJ547871,
+            20   Hydnum_repandum_RE1_REPHYD3_AJ547874,
+            21   Hydnum_repandum_RE1_REPHYD4_AJ547876,
+            22   Hydnum_repandum_RE1_REPHYD5_AJ547875,
+            23   Hydnum_repandum_RE1_REPHYD6_AJ547877,
+            24   Hydnum_repandum_RE1_REPHYD7_AJ547878,
+            25   Hydnum_repandum_RE1_REPHYD8_AJ547881,
+            26   Hydnum_repandum_RE1_REPHYD9_AJ547883,
+            27   Hydnum_repandum_RE1_RUFHYD10_AJ547866,
+            28   Hydnum_repandum_RE1_RUFHYD11_AJ547889,
+            29   Hydnum_repandum_RE1_RUFHYD9_AJ535305,
+            30   Hydnum_rufescens_RU1_RUFHYD5_AJ547869,
+            31   Hydnum_rufescens_RU1_RUFHYD6_AJ547884,
+            32   Hydnum_rufescens_RU1_RUFHYD7_AJ547870,
+            33   Hydnum_rufescens_RU2_REP5_DQ367902,
+            34   Hydnum_rufescens_RU2_RUFHYD2_AJ535301,
+            35   Hydnum_rufescens_RU3_12901BIOFungi,
+            36   Hydnum_rufescens_RU3_REP4_DQ218306,
+            37   Hydnum_rufescens_RU3_RUFHYD3_AJ535303,
+            38   Hydnum_rufescens_RU3_RUFHYD4_AJ535302,
+            39   Hydnum_rufescens_RU4_RUFHYD12_AJ839969,
+            40   Hydnum_rufescens_RU4_RUFHYD16_AJ547868,
+            41   Hydnum_rufescens_RU4_RUFHYD17_AJ547885,
+            42   Hydnum_rufescens_RU4_UMB1_DQ367903,
+            43   Hydnum_rufescens_RU5_12760BIOFungi,
+            44   Hydnum_rufescens_RU5_ALBHYD2_AJ534975,
+            45   Hydnum_rufescens_RU5_RUF2_DQ658890,
+            46   Hydnum_rufescens_RU5_RUF4_UDB001465,
+            47   Hydnum_rufescens_RU5_RUF5_UDB002423,
+            48   Hydnum_rufescens_RU5_RUFHYD14_AJ547872,
+            49   Hydnum_rufescens_RU6_RUF1_AY817137,
+            50   Hydnum_rufescens_RU6_RUFHYD15_AJ547867,
+            51   Hydnum_rufescens_wrong_taxonomy_RUF3_AM087246,
+            52   Hydnum_umbilicatum_UMBHYD1_AJ534972,
+            53   Hydnum_umbilicatum_UMBHYD2_AJ534973,
+            54   Hydnum_vesterholtii_10429BIOFungi,
+            55   Hydnum_vesterholtii_10452BIOFungi,
+            56   Hydnum_vesterholtii_12330BIOFungi,
+            57   Hydnum_vesterholtii_12904BIOFungi,
+            58   Hydnum_vesterholtii_REPHYD12A_AJ547879,
+            59   Hydnum_vesterholtii_REPHYD12C_AJ783968,
+            60   Hydnum_vesterholtii_REPHYD13_AJ547887,
+            61   Sistotrema_muscicola_AJ606040,
+            62   Sistotrema_alboluteum_AJ606042;
+      TREE Fig._2 = [&R] ((62:100.0,(51:100.0,61:100.0):93.269997):49.66,((4:100.0,(2:100.0,3:100.0):100.0):60.639999,(((56:100.0,58:100.0,59:100.0):84.639999,(54:100.0,55:100.0,57:100.0,60:100.0):98.330002):92.5,(((30:100.0,31:100.0,32:100.0):100.0,(11:100.0,12:100.0,13:100.0,14:100.0,15:100.0,16:100.0,17:100.0,18:100.0,19:100.0,20:100.0,21:100.0,22:100.0,23:100.0,24:100.0,25:100.0,26:100.0):99.93):68.690002,(((33:100.0,34:100.0):49.8050005,(35:100.0,36:100.0,37:100.0,38:100.0):99.989998):49.8050005,((7:100.0,8:100.0,9:100.0,10:100.0):100.0,(42:100.0,(39:100.0,40:100.0,41:100.0):98.449997):86.790001,((52:100.0,53:100.0):99.93,(1:100.0,(5:97.47999949999999,6:100.0):97.47999949999999):100.0):53.310001,(27:100.0,(28:100.0,29:100.0,49:100.0,50:100.0):47.404999):47.404999,(43:100.0,44:100.0,45:100.0,46:100.0,47:100.0,48:100.0):99.459999):29.245001):29.245001):51.580002):61.540001):49.66);
+      TREE PAUP_1 = [&R] ((62:100.0,(51:100.0,61:100.0):93.269997):49.66,((4:100.0,(3:100.0,2:100.0):100.0):60.639999,(((58:100.0,59:100.0,56:100.0):84.639999,(60:100.0,54:100.0,55:100.0,57:100.0):98.330002):92.5,(((30:100.0,31:100.0,32:100.0):100.0,(19:100.0,20:100.0,21:100.0,22:100.0,23:100.0,24:100.0,25:100.0,26:100.0,17:100.0,18:100.0,11:100.0,12:100.0,13:100.0,14:100.0,15:100.0,16:100.0):99.93):68.690002,((34:100.0,33:100.0):99.610001,(37:100.0,38:100.0,35:100.0,36:100.0):99.989998,(42:100.0,(39:100.0,41:100.0,40:100.0):98.449997):86.790001,(8:100.0,7:100.0,9:100.0,10:100.0):100.0,((52:100.0,53:100.0):99.93,(1:100.0,(5:100.0,6:100.0):94.959999):100.0):53.310001,(29:100.0,27:100.0,28:100.0,50:100.0,49:100.0):94.809998,(44:100.0,43:100.0,48:100.0,45:100.0,46:100.0,47:100.0):99.459999):58.490002):51.580002):61.540001):49.66);
+
+
+
+END;

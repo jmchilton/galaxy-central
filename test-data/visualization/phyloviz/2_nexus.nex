@@ -1,0 +1,96 @@
+#NEXUS
+
+[!This data set was downloaded from TreeBASE, a relational database of phylogenetic knowledge. TreeBASE has been supported by the NSF, Harvard University, Yale University, SDSC and UC Davis. Please do not remove this acknowledgment from the Nexus file.
+
+
+Generated on August 18, 2012; 12:14 GMT
+
+TreeBASE (cc) 1994-2008
+
+Study reference:
+Naish D., Dyke G., Cau A., & Escuillié F. 2012. A gigantic bird from the Upper Cretaceous
+of Central Asia. Biology Letters, 8(1): 97-100.
+
+TreeBASE Study URI:  http://purl.org/phylo/treebase/phylows/study/TB2:S13008]
+
+BEGIN TREES;
+      TITLE Imported_trees;
+      LINK TAXA = Taxa1;
+         TRANSLATE
+            1    Herrerasaurus,
+            2    Tawa,
+            3    Allosaurus,
+            4    Alvarezsaurus,
+            5    Anchiornis,
+            6    Archaeopteryx,
+            7    Archaeorhynchus,
+            8    Avimimus,
+            9    Baryonyx,
+            10   Beipiaosaurus,
+            11   Caenagnathus,
+            12   Caudipteryx,
+            13   Ceratosaurus,
+            14   Chirostenotes,
+            15   Citipati,
+            16   Compsognathus,
+            17   Confuciusornis,
+            18   Dilong,
+            19   Dilophosaurus,
+            20   Epidendrosaurus,
+            21   Epidexipteryx,
+            22   Erlicosaurus,
+            23   Eustreptospondylus,
+            24   Gallimimus,
+            25   Garudimimus,
+            26   Gobipteryx,
+            27   Guanlong,
+            28   Haplocheirus,
+            29   Harpymimus,
+            30   Hebeiornis,
+            31   Hongshanornis,
+            32   Huoshanornis,
+            33   Iberomesornis,
+            34   Ichthyornis,
+            35   Incisivosaurus,
+            36   Jeholornis,
+            37   Limusaurus,
+            38   Longicrusavis,
+            39   Longipteryx,
+            40   Longirostravis,
+            41   Majungasaurus,
+            42   Masiakasaurus,
+            43   Monolophosaurus,
+            44   Mononykus,
+            45   Neornithes,
+            46   Ornitholestes,
+            47   Ornithomimus,
+            48   Patagonykus,
+            49   Patagopteryx,
+            50   Pelecanimimus,
+            51   Pengornis,
+            52   Protarchaeopteryx,
+            53   Protopteryx,
+            54   Rinchenia,
+            55   Sapeornis,
+            56   Segnosaurus,
+            57   Shenzhousaurus,
+            58   Shuvuuia,
+            59   Sinornithosaurus,
+            60   Sinosauropteryx,
+            61   Sinovenator,
+            62   Sinraptor,
+            63   Syntarsus_kayentakatae,
+            64   Troodon,
+            65   Tyrannosaurus,
+            66   Velociraptor,
+            67   Yanornis,
+            68   Yixianornis,
+            69   Zhongjianornis,
+            70   Zhongornis,
+            71   Zuolong,
+            72   Samrukia;
+      TREE Figure_1A = [&R] (1,(2,(((((43,(3,62)),(71,((46,((((28,(4,(48,(44,58)))),((((5,(61,(64,(59,66)))),(6,((36,(55,(69,(((7,34,45,49,72,(31,38),(67,68)),(33,((32,((26,30),(39,40))),(51,53)))),(17,70))))),(20,21)))),((11,(12,(8,(14,(15,54))))),(35,52))),(10,(22,56)))),(50,(57,(29,(25,(24,47)))))),(16,60))),(27,(18,65))))),(9,23)),(13,(41,(37,42)))),(19,63))));
+
+
+
+END;
