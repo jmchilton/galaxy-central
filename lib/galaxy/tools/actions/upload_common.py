@@ -3,6 +3,7 @@ from cgi import FieldStorage
 from galaxy import datatypes, util
 from galaxy.util.odict import odict
 from galaxy.datatypes import sniff
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.util.json import to_json_string
 from galaxy.model.orm import eagerload_all
 from galaxy.exceptions import ObjectInvalid
@@ -18,6 +19,14 @@ def persist_uploads( params ):
         new_files = []
         temp_files = []
         for upload_dataset in params['files']:
+            # assure that all elements of both upload/multiupload tools are in the parameters
+            if 'ftp_directories' not in upload_dataset:
+                upload_dataset['ftp_directories'] = []
+                upload_dataset['ftp_mergefiles'] = []
+            else:
+                upload_dataset['ftp_files'] = []
+                upload_dataset['multifile_list'] = []
+
             f = upload_dataset['file_data']
             if isinstance( f, FieldStorage ):
                 assert not isinstance( f.file, StringIO.StringIO )
@@ -26,10 +35,35 @@ def persist_uploads( params ):
                 f.file.close()
                 upload_dataset['file_data'] = dict( filename = f.filename,
                                                     local_filename = local_filename )
+                # disable merging ftp with browser uploads 
+                upload_dataset['ftp_directories'] = []
+                upload_dataset['ftp_mergefiles'] = []
             elif type( f ) == dict and 'filename' and 'local_filename' not in f:
                 raise Exception( 'Uploaded file was encoded in a way not understood by Galaxy.' )
             if upload_dataset['url_paste'] and upload_dataset['url_paste'].strip() != '':
                 upload_dataset['url_paste'], is_multi_byte = datatypes.sniff.stream_to_file( StringIO.StringIO( upload_dataset['url_paste'] ), prefix="strio_url_paste_" )
+            elif isinstance(f, list): 
+                # persisting a multifile upload, creates hard links to all uploaded files and generates a list
+                # of upload_dataset['file_data']
+                upload_dataset['multifile_list'] = []
+                # disable merging ftp with browser uploads 
+                upload_dataset['ftp_directories'] = []
+                upload_dataset['ftp_mergefiles'] = []
+                for upfile in f:
+                    assert not isinstance( upfile.file, StringIO.StringIO )
+                    assert upfile.file.name != '<fdopen>'
+                    local_filename = util.mkstemp_ln( upfile.file.name, 'upload_file_data_%s______' % upfile.filename )
+                    upfile.file.close()
+                    # create list of files that have been uploaded in params dict
+                    upload_dataset['multifile_list'].append(dict( filename = upfile.filename,
+                                                        local_filename = local_filename ) )
+                    # set the first file in the list as file_data.
+                    if upfile.filename == f[0].filename:
+                        upload_dataset['file_data'] = dict( filename = upfile.filename,
+                                                            local_filename = local_filename )
+
+            elif upload_dataset['ftp_directories'] or upload_dataset['ftp_mergefiles']:
+                upload_dataset['multifile_list'] = []
             else:
                 upload_dataset['url_paste'] = None
             new_files.append( upload_dataset )
@@ -304,7 +338,11 @@ def create_paramfile( trans, uploaded_datasets ):
                          link_data_only = link_data_only,
                          space_to_tab = uploaded_dataset.space_to_tab,
                          in_place = trans.app.config.external_chown_script is None,
-                         path = uploaded_dataset.path )
+                         path = uploaded_dataset.path,
+                         multifiles = uploaded_dataset.multifiles,
+                         ftp_directories = uploaded_dataset.ftp_directories,
+                         ftp_mergefiles = uploaded_dataset.ftp_mergefiles,
+                         merge_type = uploaded_dataset.merge_type)
             # TODO: This will have to change when we start bundling inputs.
             # Also, in_place above causes the file to be left behind since the
             # user cannot remove it unless the parent directory is writable.

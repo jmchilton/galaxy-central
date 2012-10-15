@@ -48,7 +48,7 @@ def file_err( msg, dataset, json_file ):
     except:
         pass
 def safe_dict(d):
-    """
+    """ 
     Recursively clone json structure with UTF-8 dictionary keys
     http://mellowmachines.com/blog/2009/06/exploding-dictionary-with-unicode-keys-as-python-arguments/
     """
@@ -77,6 +77,58 @@ def add_file( dataset, registry, json_file, output_path ):
     except AttributeError:
         file_err( 'Unable to process uploaded file, missing file_type parameter.', dataset, json_file )
         return
+    # merge multifile before processing
+    if hasattr(dataset, 'multifiles') and dataset.multifiles not in [None, []]:
+        datatype = registry.get_datatype_by_extension(dataset.merge_type)
+        dataset.file_type = dataset.merge_type
+        multifiles = [fn['local_filename'] for fn in dataset.multifiles]
+        if datatype.composite_type is not None: # merge as composite_data
+            dataset.composite_files = {}
+            extra_files_path = 'dataset_%s_files' % dataset.dataset_id
+            galaxy_datadir = os.path.split( sys.argv[4].split(':')[-1] )[0]
+            dataset.extra_files_path = extra_files_path
+            os.makedirs( os.path.join(galaxy_datadir, extra_files_path) )
+            
+            for i, fn in enumerate(multifiles):
+                oldfn = fn[fn.index('upload_file_data_')+17:fn.index('______')]
+                newname = '%s_%s' % (oldfn, 'task_%d' % i)
+                dataset.composite_files[newname] = util.bunch.Bunch(name=newname)
+                shutil.copy(fn, os.path.join( galaxy_datadir, extra_files_path, newname) )
+            try:
+                fd, outfile = tempfile.mkstemp(prefix='uploaded_multifile', dir=os.path.split(dataset.path)[0])
+                with open(outfile, 'w') as fp:
+                    fp.write('<html><head></head><body>Composite {0} dataset<br></body></html>'.format(dataset.merge_type))
+            except Exception, e:
+                if fd:
+                    os.close(fd)
+                stop_err('Could not create merged composite dataset: %s' % e)
+            else:
+                for fn in multifiles:
+                    os.remove(fn)
+                if fd:
+                    os.close(fd)
+        else:
+            try:
+                fd = None
+                fd, outfile = tempfile.mkstemp(prefix='uploaded_multifile', dir=os.path.split(dataset.path)[0])
+                datatype.merge(multifiles, outfile)
+            except Exception, e:
+                if fd:
+                    os.close(fd)
+                stop_err('Could not merge multiple uploaded files')
+            else:
+                for tmpfile in multifiles:  # remove links to ftp files
+                    try:
+                        os.remove(tmpfile)
+                    except OSError:
+                        # When passing single files to the merge tool, they are moved instead of tarred,
+                        # which causes their disappearance and thus an OSError.
+                        pass
+                if fd:
+                    os.close(fd)
+        # reset the datasets attributes
+        dataset.path = outfile
+        dataset.type = 'file'
 
     if dataset.type == 'url':
         try:

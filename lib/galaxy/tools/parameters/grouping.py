@@ -10,7 +10,9 @@ import StringIO
 import unicodedata
 from basic import ToolParameter
 from galaxy.datatypes import sniff
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.util import inflector
+from galaxy.util import mkstemp_ln
 from galaxy.util import relpath
 from galaxy.util import sanitize_for_filename
 from galaxy.util.bunch import Bunch
@@ -218,7 +220,7 @@ class UploadDataset( Group ):
         def get_url_paste_urls_or_filename( group_incoming, override_name = None, override_info = None ):
             filenames = []
             url_paste_file = group_incoming.get( 'url_paste', None )
-            if url_paste_file is not None:
+            if url_paste_file:
                 url_paste = open( url_paste_file, 'r' ).read( 1024 )
                 if url_paste.lstrip().lower().startswith( 'http://' ) or url_paste.lstrip().lower().startswith( 'ftp://' ) or url_paste.lstrip().lower().startswith( 'https://' ):
                     url_paste = url_paste.replace( '\r', '' ).split( '\n' )
@@ -339,6 +341,114 @@ class UploadDataset( Group ):
                     file_bunch.space_to_tab = space_to_tab
                     rval.append( file_bunch )
             return rval
+
+       
+        def get_merge_ftpfiles( context ):
+            new_files = []
+            for ftp_dataset in context['files']:
+                valid_files = []
+                ftp_files = ftp_dataset['ftp_mergefiles']
+                if ftp_files is not None:
+                    # Normalize input paths to ensure utf-8 encoding is normal form c.
+                    # This allows for comparison when the filesystem uses a different encoding than the browser.
+                    ftp_files = [unicodedata.normalize('NFC', f) for f in ftp_files if isinstance(f, unicode)]
+                    if trans.user is None:
+                        log.warning( 'Anonymous user passed values in ftp_files: %s' % ftp_files )
+                        ftp_files = []
+                        # TODO: warning to the user (could happen if session has become invalid)
+                    else:
+                        user_ftp_dir = os.path.join( trans.app.config.ftp_upload_dir, trans.user.email )
+                        for ( dirpath, dirnames, filenames ) in os.walk( user_ftp_dir ):
+                            for filename in filenames:
+                                path = relpath( os.path.join( dirpath, filename ), user_ftp_dir )
+                                if not os.path.islink( os.path.join( dirpath, filename ) ):
+                                    # Normalize filesystem paths
+                                    if isinstance(path, unicode):
+                                        valid_files.append(unicodedata.normalize('NFC', path ))
+                                    else:
+                                        valid_files.append(path)
+                else:
+                    ftp_files = []
+                    
+                for n,ftp_file in enumerate(ftp_files):
+                    if ftp_file not in valid_files:
+                        log.warning( 'User passed an invalid file path in ftp_files: %s' % ftp_file )
+                        continue
+                    oldfilename = os.path.join(user_ftp_dir, ftp_file)
+                    linkname = os.path.join(trans.app.config.new_file_path, 'upload_file_data_%s______' % os.path.basename(ftp_file) )
+                    if os.path.isfile(oldfilename) and os.path.abspath( oldfilename ) \
+                            not in [x['original_filename'] for x in ftp_dataset['multifile_list'] ]:
+                        ftp_file = mkstemp_ln( oldfilename, os.path.abspath(linkname) )
+                        ftp_dataset['multifile_list'].append(dict( filename = os.path.basename( ftp_file ),
+                                    local_filename = os.path.abspath( ftp_file ), 
+                                    original_filename = os.path.abspath(oldfilename) ))
+                    # TODO: CHOOSE A SENSIBLE FIRST FILE AS FILE_DATA
+                    if n == 0 and not ftp_dataset['file_data']:
+                        ftp_dataset['file_data'] = dict( filename = os.path.basename(oldfilename),
+                                                        local_filename = os.path.abspath( ftp_file ))
+                                                            
+                new_files.append(ftp_dataset)
+            context['files'] = new_files
+
+            return context
+            
+            
+        def get_files_from_ftpdirs( context ):
+            valid_dirs = []
+            new_files = []
+            abs_dirs = []
+            for ftp_dataset in context['files']:
+                ftp_directories = ftp_dataset['ftp_directories']
+                if ftp_directories is not None:
+                    # Normalize input paths to ensure utf-8 encoding is normal form c.
+                    # This allows for comparison when the filesystem uses a different encoding than the browser.
+                    ftp_directories = [unicodedata.normalize('NFC', f) for f in ftp_directories if isinstance(f, unicode)]
+                    if trans.user is None:
+                        log.warning( 'Anonymous user passed values in ftp_files: %s' % ftp_directories )
+                        ftp_directories = []
+                        # TODO: warning to the user (could happen if session has become invalid)
+                    else:
+                        user_ftp_dir = os.path.join( trans.app.config.ftp_upload_dir, trans.user.email )
+                        for ( dirpath, dirnames, filenames ) in os.walk( user_ftp_dir ):
+                            path = relpath( os.path.join( dirpath ), user_ftp_dir )
+                            if not os.path.islink( os.path.join( dirpath ) ):
+                                # Normalize filesystem paths
+                                if isinstance(path, unicode):
+                                    valid_dirs.append(unicodedata.normalize('NFC', path ))
+                                else:
+                                    valid_dirs.append(path)
+                else:
+                    ftp_directories = []
+
+                for ftp_directory in ftp_directories:
+                    abs_dirs.append(os.path.join(user_ftp_dir, ftp_directory))
+                    if ftp_directory not in valid_dirs:
+                        log.warning( 'User passed an invalid directory path in ftp_directories: %s' % ftp_directory )
+                        continue
+                        # TODO: warning to the user (could happen if file is already imported)
+                    for n,filename in enumerate(os.listdir( os.path.join(user_ftp_dir, ftp_directory )) ):
+                        oldfilename = os.path.join(user_ftp_dir, ftp_directory, filename)
+                        linkname = os.path.join(trans.app.config.new_file_path, 'upload_file_data_%s______' % os.path.basename(filename) )
+                        filename = mkstemp_ln( oldfilename, os.path.abspath(linkname) )
+                        if os.path.isfile(oldfilename):
+                            ftp_dataset['multifile_list'].append(dict( filename = os.path.basename( filename ),
+                                        local_filename = os.path.abspath( filename ),
+                                        original_filename = os.path.abspath(oldfilename) ))
+                        # TODO: CHOOSE A SENSIBLE FIRST FILE AS FILE_DATA
+                        if n == 0:
+                            ftp_dataset['file_data'] = dict( filename = os.path.basename(oldfilename),
+                                                            local_filename = os.path.abspath(filename ))
+                ftp_dataset['ftp_directories'] = abs_dirs
+                new_files.append(ftp_dataset)
+            context['files'] = new_files
+            return context
+
+        if context['files'][0]['ftp_directories']:
+            context = get_files_from_ftpdirs(context)
+        if context['files'][0]['ftp_mergefiles']:
+            context = get_merge_ftpfiles(context)
+        
+
         file_type = self.get_file_type( context )
         d_type = self.get_datatype( trans, context )
         dbkey = context.get( 'dbkey', None )
@@ -407,6 +517,18 @@ class UploadDataset( Group ):
                 dataset.datatype = d_type
                 dataset.ext = self.get_datatype_ext( trans, context )
                 dataset.dbkey = dbkey
+                # multifiles are assigned or set to None
+                if 'multifile_list' in context[self.name][0]:
+                    dataset.multifiles = context[self.name][0]['multifile_list']
+                    dataset.merge_type = CompositeMultifile.build_multifile_extension(context['raw_merge_type'])
+                    dataset.ftp_directories = context[self.name][0]['ftp_directories']
+                    dataset.ftp_mergefiles = context[self.name][0]['ftp_mergefiles']
+                    
+                else:
+                    dataset.multifiles = None
+                    dataset.merge_type = None
+                    dataset.ftp_directories = None
+                    dataset.ftp_mergefiles = None                
                 rval.append( dataset )
             return rval
 

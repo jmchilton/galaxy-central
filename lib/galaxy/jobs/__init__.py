@@ -369,6 +369,10 @@ class JobWrapper( object ):
                 dataset.blurb = 'done'
                 dataset.peek  = 'no peek'
                 dataset.info = ( dataset.info  or '' ) + context['stdout'] + context['stderr']
+                # Hack to add multifiles-composites. Both hacks are for adapt.
+                # Should be ironed out later
+                if hasattr(dataset, 'multifiles') and dataset.multifiles not in [None, []] and dataset.datatype.composite_type is not None:
+                    dataset.datatype.add_composite_files(dataset.extra_files_dir)
                 dataset.tool_version = self.version_string
                 dataset.set_size()
                 # Update (non-library) job output datasets through the object store
