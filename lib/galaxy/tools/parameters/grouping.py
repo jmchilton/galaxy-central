@@ -348,7 +348,7 @@ class UploadDataset( Group ):
             for ftp_dataset in context['files']:
                 valid_files = []
                 ftp_files = ftp_dataset['ftp_mergefiles']
-                if ftp_files is not None:
+                if ftp_files:
                     # Normalize input paths to ensure utf-8 encoding is normal form c.
                     # This allows for comparison when the filesystem uses a different encoding than the browser.
                     ftp_files = [unicodedata.normalize('NFC', f) for f in ftp_files if isinstance(f, unicode)]
