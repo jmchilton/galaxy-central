@@ -89,7 +89,7 @@ def add_file( dataset, registry, json_file, output_path ):
             dataset.extra_files_path = extra_files_path
             os.makedirs( os.path.join(galaxy_datadir, extra_files_path) )
             
-            for i, fn in enumerate(multifiles):
+            for i, fn in enumerate( sorted(multifiles) ):
                 oldfn = fn[fn.index('upload_file_data_')+17:fn.index('______')]
                 newname = '%s_%s' % (oldfn, 'task_%d' % i)
                 dataset.composite_files[newname] = util.bunch.Bunch(name=newname)
