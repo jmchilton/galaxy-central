@@ -833,8 +833,7 @@ class CompositeMultifile( Data ):
                     members = os.listdir( in_data.extra_files_path )
                     member = members[int([i for i,fn in enumerate(members) if 'task_%s' % filenum in fn][-1])]
                     part_path = os.path.join(part_dir, os.path.basename( in_data.file_name ) )
-                    shutil.copy(os.path.join(in_data.extra_files_path, member), part_path)
-                    log.debug(part_path)
+                    os.symlink(os.path.join(in_data.extra_files_path, member), part_path)
         except Exception:
             raise
     split = classmethod(split)    
@@ -859,7 +858,7 @@ class CompositeMultifile( Data ):
                             raise Exception('Files named incorrectly and no new names supplied, cannot merge.')
                     else:
                         newname = newnames[i]
-                    shutil.copy(in_file, os.path.join(output_dataset.extra_files_path, newname) )
+                    os.rename(in_file, os.path.join(output_dataset.extra_files_path, newname) )
             except Exception:
                 raise
 
