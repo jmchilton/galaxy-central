@@ -2,7 +2,6 @@
 <toolbox>
   <section name="Get Data" id="getext">
     <tool file="data_source/upload.xml"/>
-    <tool file="data_source/multi_upload.xml" />
     <tool file="data_source/ucsc_tablebrowser.xml" />
     <tool file="data_source/ucsc_tablebrowser_test.xml" />
     <tool file="data_source/ucsc_tablebrowser_archaea.xml" />
@@ -36,6 +35,10 @@
     <tool file="data_destination/epigraph.xml" />
     <tool file="data_destination/epigraph_test.xml" />
     <tool file="genomespace/genomespace_exporter.xml" />
+  </section>
+  <section name="Multiple File Datasets (beta)" id="multiple_file_datasets">
+    <tool file="data_source/multi_upload.xml" />
+    <tool file="multiple_file_datasets/split_multi_file.xml" />
   </section>
   <section name="ENCODE Tools" id="EncodeTools">
     <tool file="encode/gencode_partition.xml" />

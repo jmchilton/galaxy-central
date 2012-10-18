@@ -20,6 +20,7 @@ class CompositeMultifileDatatypeLoader( object ):
 
     def _add(self, multitype_extension, multi_datatype):
         self.registry.datatypes_by_extension[multitype_extension] = multi_datatype
-        #self.registry.upload_file_formats.append( multitype_extension )
+        self.registry.mimetypes_by_extension[multitype_extension] = multi_datatype.get_mime()
+
                                                             
 

@@ -290,7 +290,9 @@ class ToolRunner( BaseUIController ):
             else:
                 params = Bunch( ** tool_state.inputs[dataset_upload_input.name][0] )
                 if params.file_data not in [ None, "" ]:
-                    name = params.file_data
+                    name = params["NAME"]
+                    if not name:
+                        name = params.file_data
                     if name.count('/'):
                         name = name.rsplit('/',1)[1]
                     if name.count('\\'):

@@ -307,7 +307,7 @@ class UploadDataset( Group ):
                     rval.append( file_bunch )
             # look for files uploaded via FTP
             valid_files = []
-            if ftp_files is not None:
+            if ftp_files:
                 # Normalize input paths to ensure utf-8 encoding is normal form c.
                 # This allows for comparison when the filesystem uses a different encoding than the browser.
                 ftp_files = [unicodedata.normalize('NFC', f) for f in ftp_files if isinstance(f, unicode)]

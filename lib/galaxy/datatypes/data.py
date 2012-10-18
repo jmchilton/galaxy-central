@@ -757,15 +757,10 @@ class CompositeMultifile( Data ):
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disk'
 
-
-    def generate_primary_file( self, dataset = None ):
-        return "<p>Composite Multifile</p>"
-
-    def regenerate_primary_file(self,dataset):
-        """                                                                                                                 
-        cannot do this until we are setting metadata                                                                        
+    def regenerate_primary_file(self, dataset):
         """
-        bn = dataset.metadata.base_name
+        cannot do this until we are setting metadata
+        """
         efp = dataset.extra_files_path
         flist = os.listdir(efp)
         rval = ['<html><head><title>Files for Composite Dataset %s</title></head><body><p/>Composite %s contains:<p/><ul>' \
@@ -780,6 +775,11 @@ class CompositeMultifile( Data ):
         f.write('\n')
         f.close()
 
+    def set_meta( self, dataset, **kwd ):
+        Data.set_meta( self, dataset, **kwd )
+        self.regenerate_primary_file(dataset)
+        return True
+
     def add_composite_files(self, extra_files_dir):
         for fn in os.listdir(extra_files_dir):
             self.add_composite_file(fn)
@@ -787,9 +787,6 @@ class CompositeMultifile( Data ):
     def get_mime(self):
         """Returns the mime type of the datatype"""
         return 'text/html'
-
-    #def get_composite_files(self):
-    #    pass
 
     @staticmethod
     def build_multifile_extension(simple_extension):
