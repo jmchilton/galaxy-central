@@ -259,7 +259,7 @@ def can_generate_tool_dependency_metadata( root, metadata_dict ):
             can_generate_dependency_metadata = False
             tool_dependency_name = elem.get( 'name', None )
             if tool_dependency_name and tool_dependency_version:
-                for tool_dict in metadata_dict[ 'tools' ]:
+                for tool_dict in metadata_dict.get( 'tools', [] ):
                     requirements = tool_dict.get( 'requirements', [] )
                     for requirement_dict in requirements:
                         req_name = requirement_dict.get( 'name', None )
@@ -281,7 +281,7 @@ def can_generate_tool_dependency_metadata( root, metadata_dict ):
                 # <environment_variable name="R_SCRIPT_PATH" action="set_to">$REPOSITORY_INSTALL_DIR</environment_variable>
                 env_var_name = env_var_elem.get( 'name', None )
                 if env_var_name:
-                    for tool_dict in metadata_dict[ 'tools' ]:
+                    for tool_dict in metadata_dict.get( 'tools', [] ):
                         requirements = tool_dict.get( 'requirements', [] )
                         for requirement_dict in requirements:
                             # {"name": "R_SCRIPT_PATH", "type": "set_environment", "version": null}
@@ -695,7 +695,7 @@ def generate_metadata_for_changeset_revision( app, repository, repository_clone_
                                 element_tree_root = element_tree.getroot()
                                 is_tool = element_tree_root.tag == 'tool'
                             except Exception, e:
-                                print "Error parsing %s", full_path, ", exception: ", str( e )
+                                log.debug( "Error parsing %s, exception: %s" % ( full_path, str( e ) ) )
                                 is_tool = False
                             if is_tool:
                                 tool, valid, error_message = load_tool_from_config( app, full_path )
@@ -793,6 +793,8 @@ def generate_tool_dependency_metadata( app, repository, tool_dependencies_config
             # Handle tool dependency installation via other means here (future).
         if tool_dependencies_dict:
             metadata_dict[ 'tool_dependencies' ] = tool_dependencies_dict
+    else:
+        log.debug( "Name, version and type from the <requirement> tag does not match the information in the tool_dependencies.xml file. Tool dependencies will be ignored." )
     if tool_dependencies_dict:
         if original_tool_dependencies_dict:
             # We're generating metadata on an update pulled to a tool shed repository installed into a Galaxy instance, so handle changes to

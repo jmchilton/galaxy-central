@@ -1,8 +1,5 @@
 define(["libs/underscore", "libs/d3", "viz/visualization"], function(_, d3, visualization) {
 
-// General backbone style inheritence
-var Base = function() { this.initialize && this.initialize.apply(this, arguments); }; Base.extend = Backbone.Model.extend;
-
 var SVGUtils = Backbone.Model.extend({
 
     /**
@@ -51,6 +48,32 @@ var CircsterView = Backbone.View.extend({
         this.track_gap = 5;
         this.label_arc_height = 20;
         this.scale = 1;
+        this.track_views = null;
+
+        // When track added to the model, add to view as well.
+        this.model.get('tracks').on('add', this.add_track, this);
+    },
+
+    /**
+     * Returns a list of tracks' radius bounds.
+     */
+    get_tracks_bounds: function() {
+        var dataset_arc_height = this.dataset_arc_height,
+            min_dimension = Math.min(this.$el.width(), this.$el.height()),
+            // Compute radius start based on model, will be centered 
+            // and fit entirely inside element by default.
+            radius_start = min_dimension / 2 - 
+                            this.model.get('tracks').length * (this.dataset_arc_height + this.track_gap) -
+                            (this.label_arc_height + this.track_gap),
+
+            // Compute range of track starting radii.
+            tracks_start_radii = d3.range(radius_start, min_dimension / 2, this.dataset_arc_height + this.track_gap);
+
+        // Map from track start to bounds; for label track
+        var self = this;
+        return _.map(tracks_start_radii, function(radius) {
+            return [radius, radius + self.dataset_arc_height];
+        });
     },
     
     render: function() {
@@ -58,31 +81,11 @@ var CircsterView = Backbone.View.extend({
             dataset_arc_height = this.dataset_arc_height,
             width = self.$el.width(),
             height = self.$el.height(),
-            // Compute radius start based on model, will be centered 
-            // and fit entirely inside element by default.
-            init_radius_start = Math.min(width, height) / 2 - 
-                                this.model.get('tracks').length * (this.dataset_arc_height + this.track_gap) -
-                                (this.label_arc_height + this.track_gap),
             tracks = this.model.get('tracks'),
+            tracks_bounds = this.get_tracks_bounds(),
 
-            // Create a renderer for each track in the visualiation.
-            track_renderers = tracks.map(function(track, index) {
-                var radius_start = init_radius_start + index * (dataset_arc_height + self.track_gap),
-                track_renderer_class = (track.get('track_type') === 'LineTrack' ? 
-                                        CircsterBigWigTrackRenderer : 
-                                        CircsterSummaryTreeTrackRenderer );
-
-                return new track_renderer_class({
-                    track: track,
-                    track_index: index,
-                    radius_bounds: [radius_start, radius_start + dataset_arc_height],
-                    genome: self.genome,
-                    total_gap: self.total_gap
-                });
-            });
-
-        // Set up SVG element.
-        var svg = d3.select(self.$el[0])
+            // Set up SVG element.
+            svg = d3.select(self.$el[0])
               .append("svg")
                 .attr("width", width)
                 .attr("height", height)
@@ -96,7 +99,7 @@ var CircsterView = Backbone.View.extend({
                       "translate(" + d3.event.translate + ")" + 
                       " scale(" + scale + ")");
 
-                    // Propagate scale changes to renderers.
+                    // Propagate scale changes to views.
                     if (self.scale !== scale) {
                         // Use timeout to wait for zooming/dragging to stop before rendering more detail.
                         if (self.zoom_drag_timeout) {
@@ -104,39 +107,93 @@ var CircsterView = Backbone.View.extend({
                         }
                         self.zoom_drag_timeout = setTimeout(function() {
                             // Render more detail in tracks' visible elements.
-                            _.each(track_renderers, function(renderer) {
-                                renderer.update_scale(scale);
+                            _.each(self.track_views, function(view) {
+                                view.update_scale(scale);
                             });
                         }, 400);
                     }
                 }))
                 .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")")
-              .append('svg:g');
+              .append('svg:g').attr('class', 'tracks');
                 
 
         // -- Render each dataset in the visualization. --
-        _.each(track_renderers, function(renderer) {
-            renderer.render(svg);
+
+        // Create a view for each track in the visualiation and render.
+        this.track_views = tracks.map(function(track, index) {
+            track_view_class = (track.get('track_type') === 'LineTrack' ? 
+                                    CircsterBigWigTrackView : 
+                                    CircsterSummaryTreeTrackView );
+            
+            return new track_view_class({
+                el: svg.append('g')[0],
+                track: track,
+                radius_bounds: tracks_bounds[index],
+                genome: self.genome,
+                total_gap: self.total_gap
+            });
+        });
+
+        _.each(this.track_views, function(view) {
+            view.render();
         });
 
         // -- Render chromosome labels. --
-        var radius_start = init_radius_start + tracks.length * (dataset_arc_height + self.track_gap) + self.track_gap;
-        var chrom_labels_track = new CircsterLabelTrackRenderer({
+        
+        // Set radius start = end for track bounds.
+        var track_bounds = tracks_bounds[tracks.length];
+        track_bounds[1] = track_bounds[0];
+        this.label_track_view = new CircsterLabelTrackView({
+            el: svg.append('g')[0],
             track: new CircsterLabelTrack(),
-            track_index: tracks.length,
-            radius_bounds: [radius_start, radius_start],
+            radius_bounds: track_bounds,
             genome: self.genome,
             total_gap: self.total_gap
         });
+        
+        this.label_track_view.render();
+    },
 
-        chrom_labels_track.render(svg);
+    /**
+     * Render a single track on the outside of the current visualization.
+     */
+    add_track: function(new_track) {
+        // TODO: Reset scale and zoom.
+
+        // Recompute and update track bounds.
+        var new_track_bounds = this.get_tracks_bounds();
+        _.each(this.track_views, function(track_view, i) {
+            //console.log(self.get_tracks_bounds(), i);
+            track_view.update_radius_bounds(new_track_bounds[i]);
+        });
+
+        // Render new track.
+        var track_index = this.track_views.length
+            track_view_class = (new_track.get('track_type') === 'LineTrack' ? 
+                                    CircsterBigWigTrackView : 
+                                    CircsterSummaryTreeTrackView ),
+            track_view = new track_view_class({
+                el: d3.select('g.tracks').append('g')[0],
+                track: new_track,
+                radius_bounds: new_track_bounds[track_index],
+                genome: this.genome,
+                total_gap: this.total_gap
+            });
+        track_view.render();
+        this.track_views.push(track_view);
+
+        // Update label track.
+        var track_bounds = new_track_bounds[ new_track_bounds.length-1 ];
+        track_bounds[1] = track_bounds[0];
+        this.label_track_view.update_radius_bounds(track_bounds);
     }
 });
 
 /**
  * Renders a track in a Circster visualization.
  */
-var CircsterTrackRenderer = Base.extend({
+var CircsterTrackView = Backbone.View.extend({
+    tagName: 'g',
 
     /* ----------------------- Public Methods ------------------------- */
 
@@ -150,16 +207,19 @@ var CircsterTrackRenderer = Base.extend({
         this.options.chroms_layout = this._chroms_layout();
         this.options.data_bounds = [];
         this.options.scale = 1;
-        this.options.parent_elt = null;
+        this.options.parent_elt = d3.select(this.$el[0]);
     },
 
     /**
      * Render track's data by adding SVG elements to parent.
      */
-    render: function(parent) {
+    render: function() {
         // -- Create track group element. --
-        this.options.parent_elt = parent.append("g").attr("id", "parent-" + this.options.track_index);
         var track_parent_elt = this.options.parent_elt;
+
+        if (!track_parent_elt) {
+            console.log('no parent elt');
+        }
 
         // -- Render background arcs. --
         var genome_arcs = this.options.chroms_layout,
@@ -172,8 +232,9 @@ var CircsterTrackRenderer = Base.extend({
                 .data(genome_arcs).enter().append('svg:g'),
 
             // Draw chrom arcs/paths.
-            chroms_paths = chroms_elts.append("path")
+            chroms_paths = chroms_elts.append('path')
                 .attr("d", arc_gen)
+                .attr('class', 'chrom-background')
                 .style("stroke", this.options.bg_stroke)
                 .style("fill",  this.options.loading_bg_fill);
 
@@ -203,7 +264,49 @@ var CircsterTrackRenderer = Base.extend({
     },
 
     /**
-     * Update renderer scale. This fetches more data if scale is increased.
+     * Update radius bounds.
+     */
+    update_radius_bounds: function(radius_bounds) {
+        // Update bounds.
+        this.options.radius_bounds = radius_bounds;
+
+        // -- Update background arcs. --
+        var new_d = d3.svg.arc()
+                        .innerRadius(this.options.radius_bounds[0])
+                        .outerRadius(this.options.radius_bounds[1]);
+        
+        this.options.parent_elt.selectAll('g>path.chrom-background').transition().duration(1000).attr('d', new_d);
+
+        // -- Update chrom data. --
+        var track = this.options.track,
+            chrom_arcs = this.options.chroms_layout,
+            chrom_data_paths = this.options.parent_elt.selectAll('g>path.chrom-data'),
+            num_paths = chrom_data_paths[0].length;
+
+        if (num_paths > 0) {
+            var self = this;
+            $.when(track.get('data_manager').get_genome_wide_data(this.options.genome)).then(function(genome_wide_data) {
+                // Map chrom data to path data, filtering out null values.
+                var path_data = _.reject( _.map(genome_wide_data, function(chrom_data, i) {
+                    var rval = null,
+                        path_fn = self._compute_path_data(chrom_arcs[i], chrom_data);
+                    if (path_fn) {
+                        rval = path_fn(chrom_data.data);
+                    }
+                    return rval;
+                }), function(p_data) { return p_data === null; } );
+
+                // Transition each path.
+                chrom_data_paths.each(function(path, index) {
+                    d3.select(this).transition().duration(1000).attr('d', path_data[index]);
+                });
+                
+            });
+        }
+    },
+
+    /**
+     * Update view scale. This fetches more data if scale is increased.
      */
     update_scale: function(new_scale) {
         // -- Update scale and return if new scale is less than old scale. --
@@ -304,7 +407,7 @@ var CircsterTrackRenderer = Base.extend({
     /**
      * Returns data for creating a path for the given data using chrom_arc and data bounds.
      */
-    _compute_path_data: function(chrom_arc, data) {},
+    _compute_path_data: function(chrom_arc, chrom_data) {},
 
     /**
      * Returns arc layouts for genome's chromosomes/contigs. Arcs are arranged in a circle 
@@ -329,13 +432,12 @@ var CircsterTrackRenderer = Base.extend({
 /**
  * Render chromosome labels.
  */
-var CircsterLabelTrackRenderer = CircsterTrackRenderer.extend({
+var CircsterLabelTrackView = CircsterTrackView.extend({
 
     initialize: function(options) {
-        this.options = options;
+        CircsterTrackView.prototype.initialize.call(this, options);
         this.options.bg_stroke = 'fff';
         this.options.bg_fill = 'fff';
-        this.options.chroms_layout = this._chroms_layout();
     },
 
     /**
@@ -364,23 +466,20 @@ var CircsterLabelTrackRenderer = CircsterTrackRenderer.extend({
 });
 
 /**
- * Rendered for quantitative data.
+ * View for quantitative track in Circster.
  */
-var CircsterQuantitativeTrackRenderer = CircsterTrackRenderer.extend({
+var CircsterQuantitativeTrackView = CircsterTrackView.extend({
 
     /**
      * Renders quantitative data with the form [x, value] and assumes data is equally spaced across
      * chromosome. Attachs a dict with track and chrom name information to DOM element.
      */
     _render_chrom_data: function(svg, chrom_arc, chrom_data) {
-        // If no chrom data, return null.
-        if (typeof chrom_data === "string" || !chrom_data.data || chrom_data.data.length === 0) {
-            return null;
-        }
+        var path_data = this._compute_path_data(chrom_arc, chrom_data);
 
-        var path_data = this._compute_path_data(chrom_arc, chrom_data.data);
+        if (!path_data) { return null; }
 
-        // Render data.
+        // There is path data, so render as path.
         var parent = svg.datum(chrom_data.data),
             path = parent.append('path')
                          .attr('class', 'chrom-data')
@@ -393,7 +492,12 @@ var CircsterQuantitativeTrackRenderer = CircsterTrackRenderer.extend({
     /**
      * Returns data for creating a path for the given data using chrom_arc, radius bounds, and data bounds.
      */
-    _compute_path_data: function(chrom_arc, data) {
+    _compute_path_data: function(chrom_arc, chrom_data) {
+        // If no chrom data, return null.
+        if (typeof chrom_data === "string" || !chrom_data.data || chrom_data.data.length === 0) {
+            return null;
+        }
+
         // Radius scaler.
         var radius = d3.scale.linear()
                        .domain(this.options.data_bounds)
@@ -401,7 +505,7 @@ var CircsterQuantitativeTrackRenderer = CircsterTrackRenderer.extend({
 
         // Scaler for placing data points across arc.
         var angle = d3.scale.linear()
-            .domain([0, data.length])
+            .domain([0, chrom_data.data.length])
             .range([chrom_arc.startAngle, chrom_arc.endAngle]);
 
         // Use line generator to create area.
@@ -428,7 +532,7 @@ var CircsterQuantitativeTrackRenderer = CircsterTrackRenderer.extend({
 /**
  * Layout for summary tree data in a circster visualization.
  */
-var CircsterSummaryTreeTrackRenderer = CircsterQuantitativeTrackRenderer.extend({
+var CircsterSummaryTreeTrackView = CircsterQuantitativeTrackView.extend({
 
     get_data_bounds: function(data) {
         // Get max across data.
@@ -441,9 +545,9 @@ var CircsterSummaryTreeTrackRenderer = CircsterQuantitativeTrackRenderer.extend(
 });
 
 /**
- * Layout for BigWig data in a circster visualization.
+ * Bigwig track view in Circster
  */
-var CircsterBigWigTrackRenderer = CircsterQuantitativeTrackRenderer.extend({
+var CircsterBigWigTrackView = CircsterQuantitativeTrackView.extend({
 
     get_data_bounds: function(data) {
         // Set max across dataset by extracting all values, flattening them into a 

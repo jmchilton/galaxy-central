@@ -314,11 +314,15 @@ class AdminToolshed( AdminGalaxy ):
         repository_clone_url = self.__generate_clone_url( trans, repository )
         repository.deleted = False
         repository.status = trans.model.ToolShedRepository.installation_status.INSTALLED
-        trans.sa_session.add( repository )
-        trans.sa_session.flush()
         if repository.includes_tools:
             metadata = repository.metadata
-            repository_tools_tups = get_repository_tools_tups( trans.app, metadata )
+            try:
+                repository_tools_tups = get_repository_tools_tups( trans.app, metadata )
+            except Exception, e:
+                error = "Error activating repository %s: %s" % ( repository.name, str( e ) )
+                log.debug( error )
+                return trans.show_error_message( '%s.<br/>You may be able to resolve this by uninstalling and then reinstalling the repository.  Click <a href="%s">here</a> to uninstall the repository.' 
+                                                 % ( error, web.url_for( controller='admin_toolshed', action='deactivate_or_uninstall_repository', id=trans.security.encode_id( repository.id ) ) ) )
             # Reload tools into the appropriate tool panel section.
             tool_panel_dict = repository.metadata[ 'tool_panel_section' ]
             add_to_tool_panel( trans.app,
@@ -330,6 +334,8 @@ class AdminToolshed( AdminGalaxy ):
                                shed_tool_conf,
                                tool_panel_dict,
                                new_install=False )
+        trans.sa_session.add( repository )
+        trans.sa_session.flush()
         if repository.includes_datatypes:
             repository_install_dir = os.path.abspath ( relative_install_dir )
             # Deactivate proprietary datatypes.
@@ -451,6 +457,8 @@ class AdminToolshed( AdminGalaxy ):
         tool_shed_repository = get_repository( trans, kwd[ 'id' ] )
         shed_tool_conf, tool_path, relative_install_dir = get_tool_panel_config_tool_path_install_dir( trans.app, tool_shed_repository )
         if relative_install_dir:
+            if tool_path:
+                relative_install_dir = os.path.join( tool_path, relative_install_dir )
             repository_install_dir = os.path.abspath( relative_install_dir )
         else:
             repository_install_dir = None
@@ -474,7 +482,11 @@ class AdminToolshed( AdminGalaxy ):
                     removed = True
                 except Exception, e:
                     log.debug( "Error removing repository installation directory %s: %s" % ( str( repository_install_dir ), str( e ) ) )
-                    removed = False
+                    if isinstance( e, OSError ) and not os.path.exists( repository_install_dir ):
+                        removed = True
+                        log.debug( "Repository directory does not exist on disk, marking as uninstalled." )
+                    else:
+                        removed = False
                 if removed:
                     tool_shed_repository.uninstalled = True
                     # Remove all installed tool dependencies.
@@ -1101,6 +1113,7 @@ class AdminToolshed( AdminGalaxy ):
                         if installed_changeset_revision != changeset_revision:
                             message += "You can get the latest updates for the repository using the <b>Get updates</b> option from the repository's "
                             message += "<b>Repository Actions</b> pop-up menu.  "
+                        message+= 'Click <a href="%s">here</a> to manage the repository.  ' % ( web.url_for( controller='admin_toolshed', action='manage_repository', id=trans.security.encode_id( installed_tool_shed_repository.id ) ) )
                         status = 'error'
                         if len( repo_info_dicts ) == 1:
                             new_kwd = dict( message=message, status=status )
