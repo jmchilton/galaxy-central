@@ -1,6 +1,6 @@
 import os, logging,  shutil
 from galaxy import model, util
-
+from galaxy.datatypes.data import CompositeMultifile
 
 log = logging.getLogger( __name__ )
 
@@ -130,7 +130,10 @@ def do_merge( job_wrapper,  task_wrappers):
                 # file f exists; some files may not exist if a task fails.
                 output_files = [ f for f in output_files if os.path.exists(f) ]
                 log.debug('files %s ' % output_files)
-                output_type.merge(output_files, output_file_name)
+                if isinstance(output_type, CompositeMultifile):
+                    output_type.merge(output_files, outputs[output][0], output_file_name )
+                else:
+                    output_type.merge(output_files, output_file_name)
                 log.debug('merge finished: %s' % output_file_name)
                 pass # TODO: merge all the files
             elif output in pickone_outputs:

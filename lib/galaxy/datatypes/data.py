@@ -649,7 +649,7 @@ class Text( Data ):
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disk'
 
-    def split( cls, input_datasets, subdir_generator_function, split_params):
+    def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input files by line.
         """
@@ -739,10 +739,11 @@ class CompositeMultifile( Data ):
     composite_type = 'auto_primary_file'
     allow_datatype_change = False
 
-    def __init__(self, singleton_type=None):
+    def __init__(self, **kwargs):
         Data.__init__(self)
-        self.singleton_type = singleton_type
-
+        self.singleton_type = kwargs.get('singleton_type', None)
+        self.check_file_types = kwargs.get('check_file_type', False)
+        
     def set_peek(self, dataset, is_multi_byte=True):
         """Set the peek and blurb text"""
         if not dataset.dataset.purged:
@@ -792,7 +793,7 @@ class CompositeMultifile( Data ):
     def build_multifile_extension(simple_extension):
         return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
 
-    def split( cls, input_datasets, subdir_generator_function, split_params):
+    def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input composite dataset into individual files in task
         directories.
@@ -811,6 +812,8 @@ class CompositeMultifile( Data ):
         for in_data in input_datasets:
             in_files = os.listdir(in_data.extra_files_path)
             amount[ len(in_files) ] = 1
+            if not self.check_file_types:
+                continue
             filetypes[in_data.file_name] = {}
             for in_file in in_files:
                 if '.' not in in_file:
@@ -833,9 +836,9 @@ class CompositeMultifile( Data ):
                     os.symlink(os.path.join(in_data.extra_files_path, member), part_path)
         except Exception:
             raise
-    split = classmethod(split)    
+     #split = classmethod(split)    
 
-    def merge(split_files, output_dataset, output_filename, newnames=None):
+    def merge(self, split_files, output_dataset, output_filename, newnames=None):
         """
         Merges result files from task directories back into a composite dataset's
         extra_files_path directory.
@@ -858,8 +861,9 @@ class CompositeMultifile( Data ):
                     os.rename(in_file, os.path.join(output_dataset.extra_files_path, newname) )
             except Exception:
                 raise
+        self.regenerate_primary_file(output_dataset)
 
-    merge = staticmethod(merge)
+    #merge = staticmethod(merge)
 
 
 class Newick( Text ):
