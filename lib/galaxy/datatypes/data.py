@@ -838,7 +838,7 @@ class CompositeMultifile( Data ):
             raise
      #split = classmethod(split)    
 
-    def merge(self, split_files, output_dataset, output_filename, newnames=None):
+    def merge(self, split_files, output_filename, output_dataset, newnames=None):
         """
         Merges result files from task directories back into a composite dataset's
         extra_files_path directory.
