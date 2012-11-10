@@ -20,7 +20,7 @@ var TracksterUI = base.Base.extend({
         var self = this,
             menu = create_icon_buttons_menu([
             { icon_class: 'plus-button', title: 'Add tracks', on_click: function() { 
-                visualization.select_datasets(select_datasets_url, add_track_async_url, view.dbkey, function(tracks) {
+                visualization.select_datasets(select_datasets_url, add_track_async_url, { 'f-dbkey': view.dbkey }, function(tracks) {
                     _.each(tracks, function(track) {
                         view.add_drawable( object_from_template(track, view,  view) );  
                     });
@@ -56,11 +56,7 @@ var TracksterUI = base.Base.extend({
                 // FIXME: give unique IDs to Drawables and save overview as ID.
                 var overview_track_name = (view.overview_drawable ? view.overview_drawable.name : null),
                     viz_config = {
-                        'id': view.vis_id,
-                        'title': view.name,
-                        'dbkey': view.dbkey,
-                        'type': 'trackster',
-                        'datasets': view.to_dict(),
+                        'view': view.to_dict(),
                         'viewport': { 'chrom': view.chrom, 'start': view.low , 'end': view.high, 'overview': overview_track_name },
                         'bookmarks': bookmarks
                     };
@@ -70,6 +66,10 @@ var TracksterUI = base.Base.extend({
                     type: "POST",
                     dataType: "json",
                     data: { 
+                        'id': view.vis_id,
+                        'title': view.name,
+                        'dbkey': view.dbkey,
+                        'type': 'trackster',
                         vis_json: JSON.stringify(viz_config)
                     }
                 }).success(function(vis_info) {
@@ -186,7 +186,7 @@ var TracksterUI = base.Base.extend({
         
         // Create view.
         var self = this,
-            view = new tracks.View(view_config);
+            view = new tracks.TracksterView(view_config);
         view.editor = true;
         $.when( view.load_chroms_deferred ).then(function() {
             // Viewport config.

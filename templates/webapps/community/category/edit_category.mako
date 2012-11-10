@@ -8,18 +8,18 @@
 <div class="toolForm">
     <div class="toolFormTitle">Change category name and description</div>
     <div class="toolFormBody">
-        <form name="library" action="${h.url_for( controller='admin', action='edit_category' )}" method="post" >
+        <form name="edit_category" action="${h.url_for( controller='admin', action='edit_category' )}" method="post" >
             <div class="form-row">
                 <label>Name:</label>
                 <div style="float: left; width: 250px; margin-right: 10px;">
-                    <input type="text" name="name" value="${category.name}" size="40"/>
+                    <input type="text" name="name" value="${category.name | h}" size="40"/>
                 </div>
                 <div style="clear: both"></div>
             </div>
             <div class="form-row">
                 <label>Description:</label>
                 <div style="float: left; width: 250px; margin-right: 10px;">
-                    <input  name="description" type="textfield" value="${category.description}" size=40"/>
+                    <input  name="description" type="textfield" value="${category.description | h}" size=40"/>
                 </div>
                 <div style="clear: both"></div>
             </div>

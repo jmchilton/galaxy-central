@@ -1,3 +1,46 @@
+<%def name="common_misc_javascripts()">
+    <script type="text/javascript">
+        function checkAllFields( name )
+        {
+            var chkAll = document.getElementById( 'checkAll' );
+            var checks = document.getElementsByTagName( 'input' );
+            var boxLength = checks.length;
+            var allChecked = false;
+            var totalChecked = 0;
+            if ( chkAll.checked == true )
+            {
+                for ( i=0; i < boxLength; i++ )
+                {
+                    if ( checks[i].name.indexOf( name ) != -1 )
+                    {
+                       checks[i].checked = true;
+                    }
+                }
+            }
+            else
+            {
+                for ( i=0; i < boxLength; i++ )
+                {
+                    if ( checks[i].name.indexOf( name ) != -1 )
+                    {
+                       checks[i].checked = false
+                    }
+                }
+            }
+        }
+    </script>
+</%def>
+
+<%def name="escape_html_add_breaks( value )">
+    <%
+        from galaxy import eggs
+        eggs.require('markupsafe')
+        import markupsafe
+        value = str( markupsafe.escape( value ) ).replace( '\n', '<br/>' )
+    %>
+    ${value}
+</%def>
+
 <%def name="render_star_rating( name, rating, disabled=False )">
     <%
         if disabled:
@@ -30,7 +73,7 @@
         <div class="toolFormBody">
             <div class="form-row">
                 <table id="readme_table">
-                    <tr><td>${readme_text}</td></tr>
+                    <tr><td>${ escape_html_add_breaks( readme_text ) }</td></tr>
                 </table>
             </div>
         </div>
@@ -51,7 +94,7 @@
     <div class="form-row">
         <label>Detailed description:</label>
         <table id="description_table">
-            <tr><td><pre>${description_text}</pre></td></tr>
+            <tr><td>${ escape_html_add_breaks( description_text ) }</td></tr>
         </table>
         <div style="clear: both"></div>
     </div>

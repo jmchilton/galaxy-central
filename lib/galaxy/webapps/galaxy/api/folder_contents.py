@@ -59,7 +59,7 @@ class FolderContentsController( BaseAPIController, UsesLibraryMixin, UsesLibrary
         # TODO: Find the API's path to this folder if necessary.
         # This was needed in recursive descent, but it's not needed
         # for "ls"-style content checking:
-        if not folder or not ( trans.user_is_admin() or trans.app.security_agent.can_access_library_item( current_user_roles, folder ) ):
+        if not folder or not ( trans.user_is_admin() or trans.app.security_agent.can_access_library_item( current_user_roles, folder, trans.user ) ):
             trans.response.status = 400
             return "Invalid folder id ( %s ) specified." % str( folder_id )
 
@@ -70,9 +70,7 @@ class FolderContentsController( BaseAPIController, UsesLibraryMixin, UsesLibrary
             rval.append( dict( id = encoded_id,
                                type = content.api_type,
                                name = content.name,
-                               # TODO: calculate the folder's library id
-                               # (if necessary) and add library_id=X below: 
-                               url = url_for( controller='folder_content', id=encoded_id ) ) )
+                               url = url_for( 'folder_contents', folder_id=encoded_id ) ) )
         return rval
 
     @web.expose_api

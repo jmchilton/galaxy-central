@@ -73,6 +73,7 @@ class ToolBox( object ):
         self.workflows_by_id = {}
         # In-memory dictionary that defines the layout of the tool panel.
         self.tool_panel = odict()
+        self.index = 0
         # File that contains the XML section and tool tags from all tool panel config files integrated into a
         # single file that defines the tool panel layout.  This file can be changed by the Galaxy administrator
         # (in a way similar to the single tool_conf.xml file in the past) to alter the layout of the tool panel.
@@ -87,7 +88,14 @@ class ToolBox( object ):
         self.tool_root_dir = tool_root_dir
         self.app = app
         self.init_dependency_manager()
-        for config_filename in listify( config_filenames ):
+        config_filenames = listify( config_filenames )
+        for config_filename in config_filenames:
+            if os.path.isdir( config_filename ):
+                directory_contents = sorted( os.listdir( config_filename ) )
+                directory_config_files = [ config_file for config_file in directory_contents if config_file.endswith( ".xml" ) ]
+                config_filenames.remove( config_filename )
+                config_filenames.extend( directory_config_files )
+        for config_filename in config_filenames:
             try:
                 self.init_tools( config_filename )
             except:
@@ -104,16 +112,20 @@ class ToolBox( object ):
     def init_tools( self, config_filename ):
         """
         Read the configuration file and load each tool.  The following tags are currently supported:
-        <toolbox>
-            <tool file="data_source/upload.xml"/>            # tools outside sections
-            <label text="Basic Tools" id="basic_tools" />    # labels outside sections
-            <workflow id="529fd61ab1c6cc36" />               # workflows outside sections
-            <section name="Get Data" id="getext">            # sections
-                <tool file="data_source/biomart.xml" />      # tools inside sections
-                <label text="In Section" id="in_section" />  # labels inside sections
-                <workflow id="adb5f5c93f827949" />           # workflows inside sections
-            </section>
-        </toolbox>
+
+        .. raw:: xml
+
+            <toolbox>
+                <tool file="data_source/upload.xml"/>            # tools outside sections
+                <label text="Basic Tools" id="basic_tools" />    # labels outside sections
+                <workflow id="529fd61ab1c6cc36" />               # workflows outside sections
+                <section name="Get Data" id="getext">            # sections
+                    <tool file="data_source/biomart.xml" />      # tools inside sections
+                    <label text="In Section" id="in_section" />  # labels inside sections
+                    <workflow id="adb5f5c93f827949" />           # workflows inside sections
+                </section>
+            </toolbox>
+
         """
         if self.app.config.get_bool( 'enable_tool_tags', False ):
             log.info("removing all tool tag associations (" + str( self.sa_session.query( self.app.model.ToolTagAssociation ).count() ) + ")" )
@@ -134,7 +146,9 @@ class ToolBox( object ):
             tool_path = self.tool_root_dir
         # Only load the panel_dict under certain conditions.
         load_panel_dict = not self.integrated_tool_panel_config_has_contents
-        for index, elem in enumerate( root ):
+        for _, elem in enumerate( root ):
+            index = self.index
+            self.index += 1
             if parsing_shed_tool_conf:
                 config_elems.append( elem )
             if elem.tag == 'tool':
@@ -730,7 +744,8 @@ class DefaultToolState( object ):
 class ToolOutput( object ):
     """
     Represents an output datasets produced by a tool. For backward
-    compatibility this behaves as if it were the tuple:
+    compatibility this behaves as if it were the tuple::
+
       (format, metadata_source, parent)  
     """
 
@@ -1069,7 +1084,7 @@ class Tool:
         else:
             self.trackster_conf = None
     def parse_inputs( self, root ):
-        """
+        r"""
         Parse the "<inputs>" element and create appropriate `ToolParameter`s.
         This implementation supports multiple pages and grouping constructs.
         """
@@ -1721,7 +1736,7 @@ class Tool:
                 callback( "", input, value[input.name] )
             else:
                 input.visit_inputs( "", value[input.name], callback )
-    def handle_input( self, trans, incoming, history=None ):
+    def handle_input( self, trans, incoming, history=None, old_errors=None ):
         """
         Process incoming parameters for this tool from the dict `incoming`,
         update the tool state (or create if none existed), and either return
@@ -1756,7 +1771,7 @@ class Tool:
         else:
             # Update state for all inputs on the current page taking new
             # values from `incoming`.
-            errors = self.update_state( trans, self.inputs_by_page[state.page], state.inputs, incoming )
+            errors = self.update_state( trans, self.inputs_by_page[state.page], state.inputs, incoming, old_errors=old_errors or {} )
             # If the tool provides a `validate_input` hook, call it. 
             validate_input = self.get_hook( 'validate_input' )
             if validate_input:
@@ -1885,7 +1900,10 @@ class Tool:
                             any_group_errors = True
                             # Only need to find one that can't be removed due to size, since only 
                             # one removal is processed at # a time anyway
-                            break 
+                            break
+                    elif group_old_errors and group_old_errors[i]:
+                        group_errors[i] = group_old_errors[i]
+                        any_group_errors = True
                 # Update state
                 max_index = -1
                 for i, rep_state in enumerate( group_state ):
@@ -1968,6 +1986,8 @@ class Tool:
                                                       update_only=update_only,
                                                       old_errors=group_old_errors,
                                                       item_callback=item_callback )
+                    if input.test_param.name in group_old_errors and not test_param_error:
+                        test_param_error = group_old_errors[ input.test_param.name ]
                 if test_param_error:
                     group_errors[ input.test_param.name ] = test_param_error
                 if group_errors:
@@ -2235,6 +2255,13 @@ class Tool:
                     values = input_values[ input.name ]
                     current = values["__current_case__"]
                     wrap_values( input.cases[current].inputs, values )
+                elif isinstance( input, DataToolParameter ) and input.multiple:
+                    values = input_values[ input.name ]
+                    input_values[ input.name ] = \
+                        [DatasetFilenameWrapper( value,
+                                                 datatypes_registry = self.app.datatypes_registry,
+                                                 tool = self,
+                                                 name = input.name ) for value in values]
                 elif isinstance( input, DataToolParameter ):
                     ## FIXME: We're populating param_dict with conversions when 
                     ##        wrapping values, this should happen as a separate 
@@ -2606,10 +2633,19 @@ class Tool:
         Find any additional datasets generated by a tool and attach (for 
         cases where number of outputs is not known in advance).
         """
-        primary_datasets = {}
+        new_primary_datasets = {}
+        try:
+            json_file = open( os.path.join( job_working_directory, jobs.TOOL_PROVIDED_JOB_METADATA_FILE ), 'r' )
+            for line in json_file:
+                line = simplejson.loads( line )
+                if line.get( 'type' ) == 'new_primary_dataset':
+                    new_primary_datasets[ os.path.split( line.get( 'filename' ) )[-1] ] = line
+        except Exception, e:
+            log.debug( "Error opening galaxy.json file: %s" % e )
         # Loop through output file names, looking for generated primary 
         # datasets in form of:
         #     'primary_associatedWithDatasetID_designation_visibility_extension(_DBKEY)'
+        primary_datasets = {}
         for name, outdata in output.items():
             filenames = []
             if 'new_file_path' in self.app.config.collect_outputs_from:
@@ -2647,8 +2683,6 @@ class Tool:
                 primary_data.info = outdata.info
                 primary_data.init_meta( copy_from=outdata )
                 primary_data.dbkey = dbkey
-                primary_data.set_meta()
-                primary_data.set_peek()
                 # Associate new dataset with job
                 job = None
                 for assoc in outdata.creating_job_associations:
@@ -2660,6 +2694,15 @@ class Tool:
                     self.sa_session.add( assoc )
                     self.sa_session.flush()
                 primary_data.state = outdata.state
+                #add tool/metadata provided information
+                new_primary_datasets_attributes = new_primary_datasets.get( os.path.split( filename )[-1] )
+                if new_primary_datasets_attributes:
+                    dataset_att_by_name = dict( ext='extension' )
+                    for att_set in [ 'name', 'info', 'ext', 'dbkey' ]:
+                        dataset_att_name = dataset_att_by_name.get( att_set, att_set )
+                        setattr( primary_data, dataset_att_name, new_primary_datasets_attributes.get( att_set, getattr( primary_data, dataset_att_name ) ) )           
+                primary_data.set_meta()
+                primary_data.set_peek()
                 self.sa_session.add( primary_data )
                 self.sa_session.flush()
                 outdata.history.add_dataset( primary_data )

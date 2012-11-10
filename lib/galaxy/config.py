@@ -5,6 +5,7 @@ Universe configuration builder.
 import sys, os, tempfile
 import logging, logging.config
 import ConfigParser
+from datetime import timedelta
 from galaxy.util import string_as_bool, listify, parse_xml
 
 from galaxy import eggs
@@ -65,6 +66,7 @@ class Configuration( object ):
             tcf = 'tool_conf.xml'
         self.tool_configs = [ resolve_path( p, self.root ) for p in listify( tcf ) ]
         self.tool_data_table_config_path = resolve_path( kwargs.get( 'tool_data_table_config_path', 'tool_data_table_conf.xml' ), self.root )
+        self.shed_tool_data_table_config = resolve_path( kwargs.get( 'shed_tool_data_table_config', 'shed_tool_data_table_conf.xml' ), self.root )
         self.enable_tool_shed_check = string_as_bool( kwargs.get( 'enable_tool_shed_check', False ) )
         try:
             self.hours_between_check = int( kwargs.get( 'hours_between_check', 12 ) )
@@ -99,6 +101,10 @@ class Configuration( object ):
         self.output_size_limit = int( kwargs.get( 'output_size_limit', 0 ) )
         self.retry_job_output_collection = int( kwargs.get( 'retry_job_output_collection', 0 ) )
         self.job_walltime = kwargs.get( 'job_walltime', None )
+        self.job_walltime_delta = None
+        if self.job_walltime is not None:
+            h, m, s = [ int( v ) for v in self.job_walltime.split( ':' ) ]
+            self.job_walltime_delta = timedelta( 0, s, 0, 0, m, h )
         self.admin_users = kwargs.get( "admin_users", "" )
         self.mailing_join_addr = kwargs.get('mailing_join_addr',"galaxy-announce-join@bx.psu.edu")
         self.error_email_to = kwargs.get( 'error_email_to', None )
@@ -313,7 +319,7 @@ class Configuration( object ):
         if self.migrated_tools_config not in tool_configs:
             tool_configs.append( self.migrated_tools_config )
         for path in tool_configs:
-            if not os.path.isfile( path ):
+            if not os.path.exists( path ):
                 raise ConfigurationError("File not found: %s" % path )
         if not os.path.isfile( self.datatypes_config ):
             raise ConfigurationError("File not found: %s" % self.datatypes_config )
@@ -335,7 +341,7 @@ class Configuration( object ):
 def get_database_engine_options( kwargs ):
     """
     Allow options for the SQLAlchemy database engine to be passed by using
-    the prefix "database_engine_option_".
+    the prefix "database_engine_option".
     """
     conversions =  {
         'convert_unicode': string_as_bool,

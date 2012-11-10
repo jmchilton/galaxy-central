@@ -19,6 +19,7 @@ from galaxy.security.validate_user_input import validate_publicname
 from paste.httpexceptions import *
 from galaxy.exceptions import *
 from galaxy.model import NoConverterException, ConverterDependencyException
+from galaxy.datatypes.interval import ChromatinInteractions
 
 from Cheetah.Template import Template
 
@@ -243,20 +244,22 @@ class SharableItemSecurityMixin:
 class UsesHistoryDatasetAssociationMixin:
     """ Mixin for controllers that use HistoryDatasetAssociation objects. """
     
-    def get_dataset( self, trans, dataset_id, check_ownership=True, check_accessible=False ):
+    def get_dataset( self, trans, dataset_id, check_ownership=True, check_accessible=False, check_state=True ):
         """ Get an HDA object by id. """
         # DEPRECATION: We still support unencoded ids for backward compatibility
         try:
-            data = trans.sa_session.query( trans.app.model.HistoryDatasetAssociation ).get( trans.security.decode_id( dataset_id ) )
-            if data is None:
-                raise ValueError( 'Invalid reference dataset id: %s.' % dataset_id )
+            # encoded id?
+            dataset_id = trans.security.decode_id( dataset_id )
+
+        except ( AttributeError, TypeError ), err:
+            # unencoded id
+            dataset_id = int( dataset_id )
+
+        try:
+            data = trans.sa_session.query( trans.app.model.HistoryDatasetAssociation ).get( int( dataset_id ) )
         except:
-            try:
-                data = trans.sa_session.query( trans.app.model.HistoryDatasetAssociation ).get( int( dataset_id ) )
-            except:
-                data = None
-        if not data:
             raise HTTPRequestRangeNotSatisfiable( "Invalid dataset id: %s." % str( dataset_id ) )
+
         if check_ownership:
             # Verify ownership.
             user = trans.get_user()
@@ -264,26 +267,30 @@ class UsesHistoryDatasetAssociationMixin:
                 error( "Must be logged in to manage Galaxy items" )
             if data.history.user != user:
                 error( "%s is not owned by current user" % data.__class__.__name__ )
+
         if check_accessible:
             current_user_roles = trans.get_current_user_roles()
-            if trans.app.security_agent.can_access_dataset( current_user_roles, data.dataset ):
-                if data.state == trans.model.Dataset.states.UPLOAD:
-                    return trans.show_error_message( "Please wait until this dataset finishes uploading before attempting to view it." )
-            else:
+
+            if not trans.app.security_agent.can_access_dataset( current_user_roles, data.dataset ):
                 error( "You are not allowed to access this dataset" )
+
+            if check_state and data.state == trans.model.Dataset.states.UPLOAD:
+                    return trans.show_error_message( "Please wait until this dataset finishes uploading "
+                                                   + "before attempting to view it." )
         return data
         
-    def get_history_dataset_association( self, trans, history, dataset_id, check_ownership=True, check_accessible=False ):
+    def get_history_dataset_association( self, trans, history, dataset_id,
+                                         check_ownership=True, check_accessible=False, check_state=False ):
         """Get a HistoryDatasetAssociation from the database by id, verifying ownership."""
         self.security_check( trans, history, check_ownership=check_ownership, check_accessible=check_accessible )
         hda = self.get_object( trans, dataset_id, 'HistoryDatasetAssociation', check_ownership=False, check_accessible=False, deleted=False )
         
         if check_accessible:
-            if trans.app.security_agent.can_access_dataset( trans.get_current_user_roles(), hda.dataset ):
-                if hda.state == trans.model.Dataset.states.UPLOAD:
-                    error( "Please wait until this dataset finishes uploading before attempting to view it." )
-            else:
+            if not trans.app.security_agent.can_access_dataset( trans.get_current_user_roles(), hda.dataset ):
                 error( "You are not allowed to access this dataset" )
+
+                if check_state and hda.state == trans.model.Dataset.states.UPLOAD:
+                    error( "Please wait until this dataset finishes uploading before attempting to view it." )
         return hda
         
     def get_data( self, dataset, preview=True ):
@@ -615,17 +622,27 @@ class UsesVisualizationMixin( UsesHistoryDatasetAssociationMixin,
             query_dbkey = dbkey
         chroms_info = self.app.genomes.chroms( trans, dbkey=query_dbkey )
 
-        # If there are no messages (messages indicate data is not ready/available), preload data.
+        # If there are no messages (messages indicate data is not ready/available), get data.
         messages_list = [ data_source_dict[ 'message' ] for data_source_dict in data_sources.values() ]
         message = get_highest_priority_msg( messages_list )
         if message:
             rval = message
         else:
+            # HACK: chromatin interactions tracks use data as source.
+            source = 'index'
+            if isinstance( dataset.datatype, ChromatinInteractions ):
+                source = 'data'
+
             data_provider = trans.app.data_provider_registry.get_data_provider( trans, 
                                                                                 original_dataset=dataset, 
-                                                                                source='index' )
-            # HACK: pass in additional params, which are only used for summary tree data, not BBI data.
-            rval = data_provider.get_genome_data( chroms_info, level=4, detail_cutoff=0, draw_cutoff=0 )
+                                                                                source=source )
+            # HACK: pass in additional params which are used for only some 
+            # types of data providers; level, cutoffs used for summary tree, 
+            # num_samples for BBI, and interchromosomal used for chromatin interactions.
+            rval = data_provider.get_genome_data( chroms_info, 
+                                                  level=4, detail_cutoff=0, draw_cutoff=0,
+                                                  num_samples=150,
+                                                  interchromosomal=True )
 
         return rval
 

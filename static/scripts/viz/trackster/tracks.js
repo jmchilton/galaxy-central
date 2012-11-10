@@ -148,9 +148,6 @@ var moveable = function(element, handle_class, container_selector, element_js_ob
     });
 };
 
-// TODO: do we need to export?
-exports.moveable = moveable;
-
 /**
  * Init constants & functions used throughout trackster.
  */
@@ -173,7 +170,7 @@ var
     DEFAULT_DATA_QUERY_WAIT = 5000,
     // Maximum number of chromosomes that are selectable at any one time.
     MAX_CHROMS_SELECTABLE = 100,
-    DATA_ERROR = "There was an error in indexing this dataset. ",
+    DATA_ERROR = "Cannot display dataset due to an error. ",
     DATA_NOCONVERTER = "A converter for this dataset is not installed. Please check your datatypes_conf.xml file.",
     DATA_NONE = "No data for this chrom/contig.",
     DATA_PENDING = "Preparing data. This can take a while for a large dataset. " + 
@@ -857,34 +854,35 @@ extend(DrawableGroup.prototype, Drawable.prototype, DrawableCollection.prototype
 });
 
 /**
- * View object manages complete viz view, including tracks and user interactions.
+ * View object manages a trackster visualization, including tracks and user interactions.
  * Events triggered:
  *      navigate: when browser view changes to a new locations
  */
-var View = function(obj_dict) {
-    extend(obj_dict, {
-        obj_type: "View" 
-    });
-    DrawableCollection.call(this, "View", obj_dict.container, obj_dict);
-    this.chrom = null;
-    this.vis_id = obj_dict.vis_id;
-    this.dbkey = obj_dict.dbkey;
-    this.label_tracks = [];
-    this.tracks_to_be_redrawn = [];
-    this.max_low = 0;
-    this.max_high = 0;
-    this.zoom_factor = 3;
-    this.min_separation = 30;
-    this.has_changes = false;
-    // Deferred object that indicates when view's chrom data has been loaded.
-    this.load_chroms_deferred = null;
-    this.init();
-    this.canvas_manager = new visualization.CanvasManager( this.container.get(0).ownerDocument );
-    this.reset();
-};
-_.extend( View.prototype, Backbone.Events);
-extend( View.prototype, DrawableCollection.prototype, {
-    init: function() {
+var TracksterView = Backbone.View.extend({
+
+    initialize: function(obj_dict) {
+        extend(obj_dict, {
+            obj_type: "View" 
+        });
+        DrawableCollection.call(this, "View", obj_dict.container, obj_dict);
+        this.chrom = null;
+        this.vis_id = obj_dict.vis_id;
+        this.dbkey = obj_dict.dbkey;
+        this.label_tracks = [];
+        this.tracks_to_be_redrawn = [];
+        this.max_low = 0;
+        this.max_high = 0;
+        this.zoom_factor = 3;
+        this.min_separation = 30;
+        this.has_changes = false;
+        // Deferred object that indicates when view's chrom data has been loaded.
+        this.load_chroms_deferred = null;
+        this.render();
+        this.canvas_manager = new visualization.CanvasManager( this.container.get(0).ownerDocument );
+        this.reset();
+    },
+
+    render: function() {
         // Attribute init.
         this.requested_redraw = false;
         
@@ -907,7 +905,7 @@ extend( View.prototype, DrawableCollection.prototype, {
         // Introduction div shown when there are no tracks.
         this.intro_div = $("<div/>").addClass("intro").appendTo(this.viewport_container).hide();
         var add_tracks_button = $("<div/>").text("Add Datasets to Visualization").addClass("action-button").appendTo(this.intro_div).click(function () {
-            visualization.select_datasets(select_datasets_url, add_track_async_url, view.dbkey, function(tracks) {
+            visualization.select_datasets(select_datasets_url, add_track_async_url, { 'f-dbkey': view.dbkey }, function(tracks) {
                 _.each(tracks, function(track) {
                     view.add_drawable( object_from_template(track, view, view) );  
                 });
@@ -1104,7 +1102,11 @@ extend( View.prototype, DrawableCollection.prototype, {
         
         this.reset();
         $(window).trigger("resize");
-    },
+    }
+});
+
+// FIXME: need to use this approach to enable inheritance of DrawableCollection functions.
+extend( TracksterView.prototype, DrawableCollection.prototype, {
     changed: function() {
         this.has_changes = true;  
     },
@@ -1693,22 +1695,24 @@ extend(Tool.prototype, {
         //
         // Create track for tool's output immediately to provide user feedback.
         //
-        var 
+        var region = new visualization.GenomeRegion({
+                chrom: this.track.view.chrom,
+                start: this.track.view.low,
+                end: this.track.view.high
+            }),
             url_params = 
             { 
                 target_dataset_id: this.track.original_dataset_id,
                 action: 'rerun',
                 tool_id: this.name,
-                regions: [{
-                    chrom: this.track.view.chrom,
-                    start: this.track.view.low,
-                    end: this.track.view.high
-                }]
+                regions: [
+                    region.toJSON()
+                ]
             },
             current_track = this.track,
             // Set name of track to include tool name, parameters, and region used.
             track_name = url_params.tool_id +
-                         current_track.tool_region_and_parameters_str(url_params.chrom, url_params.low, url_params.high),
+                         current_track.tool_region_and_parameters_str(region),
             container;
             
         // If track not in a group, create a group for it and add new track to group. If track 
@@ -2511,7 +2515,7 @@ extend(Track.prototype, Drawable.prototype, {
     /**
      * Initialize and draw the track.
      */
-    init: function() {
+    init: function(retry) {
         var track = this;
         track.enabled = false;
         track.tile_cache.clear();    
@@ -2523,7 +2527,7 @@ extend(Track.prototype, Drawable.prototype, {
         }
         */
         // Remove old track content (e.g. tiles, messages).
-        track.tiles_div.children().remove();
+        track.tiles_div.text('').children().remove();
         track.container_div.removeClass("nodata error pending");
         
         //
@@ -2540,16 +2544,27 @@ extend(Track.prototype, Drawable.prototype, {
             params = { 
                 hda_ldda: track.hda_ldda, 
                 data_type: this.dataset_check_type,
-                chrom: track.view.chrom };
+                chrom: track.view.chrom,
+                retry: retry
+            };
         $.getJSON(this.dataset.url(), params, function (result) {
             if (!result || result === "error" || result.kind === "error") {
+                // Dataset is in error state.
                 track.container_div.addClass("error");
                 track.tiles_div.text(DATA_ERROR);
                 if (result.message) {
-                    var error_link = $(" <a href='javascript:void(0);'></a>").text("View error").click(function() {
-                        show_modal( "Trackster Error", "<pre>" + result.message + "</pre>", { "Close" : hide_modal } );
-                    });
-                    track.tiles_div.append(error_link);
+                    // Add links to (a) show error and (b) try again.
+                    track.tiles_div.append(
+                        $("<a href='javascript:void(0);'></a>").text("View error").click(function() {
+                            show_modal( "Trackster Error", "<pre>" + result.message + "</pre>", { "Close" : hide_modal } );
+                        })
+                    );
+                    track.tiles_div.append( $('<span/>').text(' ') );
+                    track.tiles_div.append(
+                        $("<a href='javascript:void(0);'></a>").text("Try again").click(function() {
+                            track.init(true);
+                        })
+                    );
                 }
             } else if (result === "no converter") {
                 track.container_div.addClass("error");
@@ -3027,13 +3042,10 @@ extend(TiledTrack.prototype, Drawable.prototype, Track.prototype, {
     /**
      * Utility function that creates a label string describing the region and parameters of a track's tool.
      */
-    tool_region_and_parameters_str: function(chrom, low, high) {
-        // Region is chrom:low-high or 'all.'
-        var 
-            track = this,
-            region = (chrom !== undefined && low !== undefined && high !== undefined ?
-                      chrom + ":" + low + "-" + high : "all");
-        return " - region=[" + region + "], parameters=[" + track.tool.get_param_values().join(", ") + "]";
+    tool_region_and_parameters_str: function(region) {
+        var track = this,
+            region_str = (region !== undefined ? region.toString() : "all");
+        return " - region=[" + region_str + "], parameters=[" + track.tool.get_param_values().join(", ") + "]";
     },
     /**
      * Returns true if data is compatible with a given mode. Defaults to true because, for many tracks,
@@ -3637,9 +3649,9 @@ var DiagonalHeatmapTrack = function (view, container, obj_dict) {
         track: this,
         params: [
             { key: 'name', label: 'Name', type: 'text', default_value: this.name },
-            { key: 'pos_color', label: 'Positive Color', type: 'color', default_value: "4169E1" },
-            { key: 'negative_color', label: 'Negative Color', type: 'color', default_value: "FF8C00" },
-            { key: 'min_value', label: 'Min Value', type: 'float', default_value: 0 },
+            { key: 'pos_color', label: 'Positive Color', type: 'color', default_value: "#FF8C00" },
+            { key: 'neg_color', label: 'Negative Color', type: 'color', default_value: "#4169E1" },
+            { key: 'min_value', label: 'Min Value', type: 'float', default_value: -1 },
             { key: 'max_value', label: 'Max Value', type: 'float', default_value: 1 },
             { key: 'mode', type: 'string', default_value: this.mode, hidden: true },
             { key: 'height', type: 'int', default_value: 500, hidden: true }
@@ -3684,17 +3696,14 @@ extend(DiagonalHeatmapTrack.prototype, Drawable.prototype, TiledTrack.prototype,
     /**
      * Draw LineTrack tile.
      */
-    draw_tile: function(result, ctx, mode, resolution, tile_index, w_scale) {
+    draw_tile: function(result, ctx, mode, resolution, region, w_scale) {
         // Paint onto canvas.
         var 
             canvas = ctx.canvas,
-            tile_bounds = this._get_tile_bounds(tile_index, resolution),
-            tile_low = tile_bounds[0],
-            tile_high = tile_bounds[1],
-            painter = new painters.DiagonalHeatmapPainter(result.data, tile_low, tile_high, this.prefs, mode);
+            painter = new painters.DiagonalHeatmapPainter(result.data, region.get('start'), region.get('end'), this.prefs, mode);
         painter.draw(ctx, canvas.width, canvas.height, w_scale);
         
-        return new Tile(this, tile_index, resolution, canvas, result.data);
+        return new Tile(this, region, resolution, canvas, result.data);
     }
 });
 
@@ -3717,7 +3726,7 @@ var FeatureTrack = function(view, container, obj_dict) {
     // Define and restore track configuration.
     var 
         block_color = util.get_random_color(),
-        reverse_strand_color = util.get_random_color( [ block_color, "#ffffff" ] );
+        reverse_strand_color = util.get_random_color( [ block_color, "#FFFFFF" ] );
     this.config = new DrawableConfig( {
         track: this,
         params: [
@@ -4154,7 +4163,7 @@ var addable_objects = {
     "FeatureTrack": FeatureTrack,
     "VcfTrack": VcfTrack,
     "ReadTrack": ReadTrack,
-    // "DiagonalHeatmapTrack": DiagonalHeatmapTrack,
+    "DiagonalHeatmapTrack": DiagonalHeatmapTrack,
     "CompositeTrack": CompositeTrack,
     "DrawableGroup": DrawableGroup 
 };
@@ -4181,7 +4190,7 @@ var object_from_template = function(template, view, container) {
 };
 
 return {
-    View: View,
+    TracksterView: TracksterView,
     DrawableGroup: DrawableGroup,
     LineTrack: LineTrack,
     FeatureTrack: FeatureTrack,

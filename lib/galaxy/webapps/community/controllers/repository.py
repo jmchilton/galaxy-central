@@ -9,23 +9,28 @@ from galaxy.webapps.community.model import directory_hash_id
 from galaxy.web.framework.helpers import time_ago, iff, grids
 from galaxy.util.json import from_json_string, to_json_string
 from galaxy.model.orm import *
-from galaxy.util.shed_util import create_repo_info_dict, get_changectx_for_changeset, get_configured_ui, get_file_from_changeset_revision
-from galaxy.util.shed_util import get_repository_file_contents, get_repository_metadata_by_changeset_revision, handle_sample_files_and_load_tool_from_disk
+# TODO: re-factor shed_util to eliminate the following restricted imports
+from galaxy.util.shed_util import create_repo_info_dict, generate_clone_url_for_repository_in_tool_shed, generate_message_for_invalid_tools
+from galaxy.util.shed_util import get_changectx_for_changeset, get_configured_ui, get_file_from_changeset_revision, get_repository_file_contents
+from galaxy.util.shed_util import get_repository_in_tool_shed, get_repository_metadata_by_changeset_revision, handle_sample_files_and_load_tool_from_disk
 from galaxy.util.shed_util import handle_sample_files_and_load_tool_from_tmp_config, INITIAL_CHANGELOG_HASH, load_tool_from_config, NOT_TOOL_CONFIGS
-from galaxy.util.shed_util import open_repository_files_folder, reversed_lower_upper_bounded_changelog, reversed_upper_bounded_changelog, strip_path
-from galaxy.util.shed_util import to_html_escaped, translate_string, update_repository, url_join
+from galaxy.util.shed_util import open_repository_files_folder, remove_dir, reset_all_metadata_on_repository_in_tool_shed
+from galaxy.util.shed_util import reversed_lower_upper_bounded_changelog, reversed_upper_bounded_changelog, strip_path, to_html_escaped
+from galaxy.util.shed_util import update_repository, url_join
 from galaxy.tool_shed.encoding_util import *
 from common import *
 
 from galaxy import eggs
 eggs.require('mercurial')
 from mercurial import hg, ui, patch, commands
+eggs.require('markupsafe')
+from markupsafe import escape as escape_html
 
 log = logging.getLogger( __name__ )
 
 VALID_REPOSITORYNAME_RE = re.compile( "^[a-z0-9\_]+$" )
     
-class CategoryListGrid( grids.Grid ):
+class CategoryGrid( grids.Grid ):
     class NameColumn( grids.TextColumn ):
         def get_value( self, trans, grid, category ):
             return category.name
@@ -37,7 +42,8 @@ class CategoryListGrid( grids.Grid ):
             if category.repositories:
                 viewable_repositories = 0
                 for rca in category.repositories:
-                    viewable_repositories += 1
+                    if not rca.repository.deleted and not rca.repository.deprecated:
+                        viewable_repositories += 1
                 return viewable_repositories
             return 0
     title = "Categories"
@@ -65,14 +71,14 @@ class CategoryListGrid( grids.Grid ):
     preserve_state = False
     use_paging = True
 
-class ValidCategoryListGrid( CategoryListGrid ):
+class ValidCategoryGrid( CategoryGrid ):
     class RepositoriesColumn( grids.TextColumn ):
         def get_value( self, trans, grid, category ):
             if category.repositories:
                 viewable_repositories = 0
                 for rca in category.repositories:
                     repository = rca.repository
-                    if repository.downloadable_revisions:
+                    if not repository.deprecated and repository.downloadable_revisions:
                         viewable_repositories += 1
                 return viewable_repositories
             return 0
@@ -81,13 +87,13 @@ class ValidCategoryListGrid( CategoryListGrid ):
     template='/webapps/community/category/valid_grid.mako'
     default_sort_key = "name"
     columns = [
-        CategoryListGrid.NameColumn( "Name",
-                                     key="Category.name",
-                                     link=( lambda item: dict( operation="valid_repositories_by_category", id=item.id ) ),
-                                     attach_popup=False ),
-        CategoryListGrid.DescriptionColumn( "Description",
-                                            key="Category.description",
-                                            attach_popup=False ),
+        CategoryGrid.NameColumn( "Name",
+                                 key="Category.name",
+                                 link=( lambda item: dict( operation="valid_repositories_by_category", id=item.id ) ),
+                                 attach_popup=False ),
+        CategoryGrid.DescriptionColumn( "Description",
+                                        key="Category.description",
+                                        attach_popup=False ),
         # Columns that are valid for filtering but are not visible.
         RepositoriesColumn( "Valid repositories",
                             model_class=model.Repository,
@@ -102,17 +108,17 @@ class ValidCategoryListGrid( CategoryListGrid ):
     preserve_state = False
     use_paging = True
 
-class RepositoryListGrid( grids.Grid ):
+class RepositoryGrid( grids.Grid ):
     class NameColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
-            return repository.name
+            return escape_html( repository.name )
     class MetadataRevisionColumn( grids.GridColumn ):
         def __init__( self, col_name ):
             grids.GridColumn.__init__( self, col_name )
         def get_value( self, trans, grid, repository ):
-            """Display a SelectField whose options are the changeset_revision strings of all revisions of this repository."""
+            """Display a SelectField whose options are the changeset_revision strings of all metadata revisions of this repository."""
             # A repository's metadata revisions may not all be installable, as some may contain only invalid tools.
-            select_field = build_changeset_revision_select_field( trans, repository, downloadable_only=False )
+            select_field = build_changeset_revision_select_field( trans, repository, downloadable=False )
             if len( select_field.options ) > 1:
                 return select_field.get_html()
             elif len( select_field.options ) == 1:
@@ -123,10 +129,10 @@ class RepositoryListGrid( grids.Grid ):
             grids.GridColumn.__init__( self, col_name )
         def get_value( self, trans, grid, repository ):
             """Display the repository tip revision label."""
-            return repository.revision
+            return escape_html( repository.revision )
     class DescriptionColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
-            return repository.description
+            return escape_html( repository.description )
     class CategoryColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
             rval = '<ul>'
@@ -147,7 +153,7 @@ class RepositoryListGrid( grids.Grid ):
     class UserColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
             if repository.user:
-                return repository.user.username
+                return escape_html( repository.user.username )
             return 'no user'
     class EmailColumn( grids.TextColumn ):
         def filter( self, trans, user, query, column_filter ):
@@ -158,6 +164,11 @@ class RepositoryListGrid( grids.Grid ):
     class EmailAlertsColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
             if trans.user and repository.email_alerts and trans.user.email in from_json_string( repository.email_alerts ):
+                return 'yes'
+            return ''
+    class DeprecatedColumn( grids.TextColumn ):
+        def get_value( self, trans, grid, repository ):
+            if repository.deprecated:
                 return 'yes'
             return ''
     # Grid definition
@@ -184,8 +195,6 @@ class RepositoryListGrid( grids.Grid ):
                      link=( lambda item: dict( operation="repositories_by_user", id=item.id ) ),
                      attach_popup=False,
                      key="User.username" ),
-        grids.CommunityRatingColumn( "Average Rating", key="rating" ),
-        EmailAlertsColumn( "Alert", attach_popup=False ),
         # Columns that are valid for filtering but are not visible.
         EmailColumn( "Email",
                      model_class=model.User,
@@ -194,11 +203,7 @@ class RepositoryListGrid( grids.Grid ):
         RepositoryCategoryColumn( "Category",
                                   model_class=model.Category,
                                   key="Category.name",
-                                  visible=False ),
-        grids.DeletedColumn( "Deleted",
-                             key="deleted",
-                             visible=False,
-                             filterable="advanced" )
+                                  visible=False )
     ]
     columns.append( grids.MulticolFilterColumn( "Search repository name, description", 
                                                 cols_to_filter=[ columns[0], columns[1] ],
@@ -215,27 +220,92 @@ class RepositoryListGrid( grids.Grid ):
     preserve_state = False
     use_paging = True
     def build_initial_query( self, trans, **kwd ):
-        return trans.sa_session.query( self.model_class ) \
+        return trans.sa_session.query( model.Repository ) \
+                               .filter( and_( model.Repository.table.c.deleted == False,
+                                              model.Repository.table.c.deprecated == False ) ) \
                                .join( model.User.table ) \
                                .outerjoin( model.RepositoryCategoryAssociation.table ) \
                                .outerjoin( model.Category.table )
 
-class EmailAlertsRepositoryListGrid( RepositoryListGrid ):
+class RepositoriesIOwnGrid( RepositoryGrid ):
+    title = "Repositories I own"
     columns = [
-        RepositoryListGrid.NameColumn( "Name",
-                                       key="name",
-                                       link=( lambda item: dict( operation="view_or_manage_repository",
-                                                                 id=item.id ) ),
+        RepositoryGrid.NameColumn( "Name",
+                                   key="name",
+                                   link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
+                                   attach_popup=True ),
+        RepositoryGrid.MetadataRevisionColumn( "Metadata Revisions" ),
+        RepositoryGrid.TipRevisionColumn( "Tip Revision" ),
+        RepositoryGrid.CategoryColumn( "Category",
+                                       model_class=model.Category,
+                                       key="Category.name",
                                        attach_popup=False ),
-        RepositoryListGrid.DescriptionColumn( "Synopsis",
-                                              key="description",
-                                              attach_popup=False ),
-        RepositoryListGrid.UserColumn( "Owner",
-                                       model_class=model.User,
-                                       link=( lambda item: dict( operation="repositories_by_user", id=item.id ) ),
-                                       attach_popup=False,
-                                       key="User.username" ),
-        RepositoryListGrid.EmailAlertsColumn( "Alert", attach_popup=False ),
+        RepositoryGrid.DeprecatedColumn( "Deprecated" )
+    ]
+    columns.append( grids.MulticolFilterColumn( "Search repository name", 
+                                                cols_to_filter=[ columns[0] ],
+                                                key="free-text-search",
+                                                visible=False,
+                                                filterable="standard" ) )
+    operations = [ grids.GridOperation( "Mark as deprecated",
+                                        allow_multiple=False,
+                                        condition=( lambda item: not item.deleted and not item.deprecated ),
+                                        async_compatible=False ),
+                   grids.GridOperation( "Mark as not deprecated",
+                                        allow_multiple=False,
+                                        condition=( lambda item: not item.deleted and item.deprecated ),
+                                        async_compatible=False ) ]
+    def build_initial_query( self, trans, **kwd ):
+        return trans.sa_session.query( model.Repository ) \
+                               .filter( and_( model.Repository.table.c.deleted == False,
+                                              model.Repository.table.c.user_id == trans.user.id ) ) \
+                               .join( model.User.table ) \
+                               .outerjoin( model.RepositoryCategoryAssociation.table ) \
+                               .outerjoin( model.Category.table )
+
+class DeprecatedRepositoriesIOwnGrid( RepositoriesIOwnGrid ):
+    title = "Deprecated repositories I own"
+    columns = [
+        RepositoriesIOwnGrid.NameColumn( "Name",
+                                         key="name",
+                                         link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
+                                         attach_popup=True ),
+        RepositoriesIOwnGrid.MetadataRevisionColumn( "Metadata Revisions" ),
+        RepositoriesIOwnGrid.TipRevisionColumn( "Tip Revision" ),
+        RepositoriesIOwnGrid.CategoryColumn( "Category",
+                                             model_class=model.Category,
+                                             key="Category.name",
+                                             attach_popup=False ),
+    ]
+    columns.append( grids.MulticolFilterColumn( "Search repository name", 
+                                                cols_to_filter=[ columns[0] ],
+                                                key="free-text-search",
+                                                visible=False,
+                                                filterable="standard" ) )
+    def build_initial_query( self, trans, **kwd ):
+        return trans.sa_session.query( model.Repository ) \
+                               .filter( and_( model.Repository.table.c.deleted == False,
+                                              model.Repository.table.c.user_id == trans.user.id,
+                                              model.Repository.table.c.deprecated == True ) ) \
+                               .join( model.User.table ) \
+                               .outerjoin( model.RepositoryCategoryAssociation.table ) \
+                               .outerjoin( model.Category.table )
+
+class EmailAlertsRepositoryGrid( RepositoryGrid ):
+    columns = [
+        RepositoryGrid.NameColumn( "Name",
+                                   key="name",
+                                   link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
+                                   attach_popup=False ),
+        RepositoryGrid.DescriptionColumn( "Synopsis",
+                                          key="description",
+                                          attach_popup=False ),
+        RepositoryGrid.UserColumn( "Owner",
+                                   model_class=model.User,
+                                   link=( lambda item: dict( operation="repositories_by_user", id=item.id ) ),
+                                   attach_popup=False,
+                                   key="User.username" ),
+        RepositoryGrid.EmailAlertsColumn( "Alert", attach_popup=False ),
         # Columns that are valid for filtering but are not visible.
         grids.DeletedColumn( "Deleted",
                              key="deleted",
@@ -250,29 +320,64 @@ class EmailAlertsRepositoryListGrid( RepositoryListGrid ):
             grids.GridAction( "User preferences", dict( controller='user', action='index', cntrller='repository' ) )
         ]
 
-class WritableRepositoryListGrid( RepositoryListGrid ):
+class MyWritableRepositoriesGrid( RepositoryGrid ):
+    # This grid filters out repositories that have been marked as deprecated.
+    columns = [
+        RepositoryGrid.NameColumn( "Name",
+                                   key="name",
+                                   link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
+                                   attach_popup=True ),
+        RepositoryGrid.MetadataRevisionColumn( "Metadata Revisions" ),
+        RepositoryGrid.TipRevisionColumn( "Tip Revision" ),
+        RepositoryGrid.UserColumn( "Owner",
+                                   model_class=model.User,
+                                   link=( lambda item: dict( operation="repositories_by_user", id=item.id ) ),
+                                   attach_popup=False,
+                                   key="User.username" ),
+        RepositoryGrid.EmailAlertsColumn( "Alert", attach_popup=False ),
+        # Columns that are valid for filtering but are not visible.
+        RepositoryGrid.EmailColumn( "Email",
+                                    model_class=model.User,
+                                    key="email",
+                                    visible=False ),
+        RepositoryGrid.RepositoryCategoryColumn( "Category",
+                                                 model_class=model.Category,
+                                                 key="Category.name",
+                                                 visible=False )
+    ]
+    columns.append( grids.MulticolFilterColumn( "Search repository name", 
+                                                cols_to_filter=[ columns[0] ],
+                                                key="free-text-search",
+                                                visible=False,
+                                                filterable="standard" ) )
+    operations = [ grids.GridOperation( "Receive email alerts",
+                                        allow_multiple=False,
+                                        condition=( lambda item: not item.deleted ),
+                                        async_compatible=False ) ]
     def build_initial_query( self, trans, **kwd ):
         # TODO: improve performance by adding a db table associating users with repositories for which they have write access.
-        username = kwd[ 'username' ]
+        username = trans.user.username
         clause_list = []
-        for repository in trans.sa_session.query( self.model_class ) \
-                                          .filter( self.model_class.table.c.deleted == False ):
+        for repository in trans.sa_session.query( model.Repository ) \
+                                          .filter( and_( model.Repository.table.c.deprecated == False,
+                                                         model.Repository.table.c.deleted == False ) ):
             allow_push = repository.allow_push
             if allow_push:
                 allow_push_usernames = allow_push.split( ',' )
                 if username in allow_push_usernames:
-                    clause_list.append( self.model_class.table.c.id == repository.id )
+                    clause_list.append( model.Repository.table.c.id == repository.id )
         if clause_list:
-            return trans.sa_session.query( self.model_class ) \
+            return trans.sa_session.query( model.Repository ) \
                                    .filter( or_( *clause_list ) ) \
                                    .join( model.User.table ) \
                                    .outerjoin( model.RepositoryCategoryAssociation.table ) \
                                    .outerjoin( model.Category.table )
         # Return an empty query.
-        return trans.sa_session.query( self.model_class ) \
-                               .filter( self.model_class.table.c.id < 0 )
+        return trans.sa_session.query( model.Repository ) \
+                               .filter( model.Repository.table.c.id < 0 )
 
-class ValidRepositoryListGrid( RepositoryListGrid ):
+class ValidRepositoryGrid( RepositoryGrid ):
+    # This grid filters out repositories that have been marked as deprecated.
     class CategoryColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository ):
             rval = '<ul>'
@@ -295,7 +400,7 @@ class ValidRepositoryListGrid( RepositoryListGrid ):
             grids.GridColumn.__init__( self, col_name )
         def get_value( self, trans, grid, repository ):
             """Display a SelectField whose options are the changeset_revision strings of all download-able revisions of this repository."""
-            select_field = build_changeset_revision_select_field( trans, repository, downloadable_only=True )
+            select_field = build_changeset_revision_select_field( trans, repository, downloadable=True )
             if len( select_field.options ) > 1:
                 return select_field.get_html()
             elif len( select_field.options ) == 1:
@@ -303,16 +408,16 @@ class ValidRepositoryListGrid( RepositoryListGrid ):
             return ''
     title = "Valid repositories"
     columns = [
-        RepositoryListGrid.NameColumn( "Name",
-                                       key="name",
-                                       attach_popup=True ),
-        RepositoryListGrid.DescriptionColumn( "Synopsis",
-                                              key="description",
-                                              attach_popup=False ),
+        RepositoryGrid.NameColumn( "Name",
+                                   key="name",
+                                   attach_popup=True ),
+        RepositoryGrid.DescriptionColumn( "Synopsis",
+                                          key="description",
+                                          attach_popup=False ),
         RevisionColumn( "Installable Revisions" ),
-        RepositoryListGrid.UserColumn( "Owner",
-                                       model_class=model.User,
-                                       attach_popup=False ),
+        RepositoryGrid.UserColumn( "Owner",
+                                   model_class=model.User,
+                                   attach_popup=False ),
         # Columns that are valid for filtering but are not visible.
         RepositoryCategoryColumn( "Category",
                                   model_class=model.Category,
@@ -328,22 +433,27 @@ class ValidRepositoryListGrid( RepositoryListGrid ):
     def build_initial_query( self, trans, **kwd ):
         if 'id' in kwd:
             # The user is browsing categories of valid repositories, so filter the request by the received id, which is a category id.
-            return trans.sa_session.query( self.model_class ) \
+            return trans.sa_session.query( model.Repository ) \
+                                   .filter( and_( model.Repository.table.c.deleted == False,
+                                                  model.Repository.table.c.deprecated == False ) ) \
                                    .join( model.RepositoryMetadata.table ) \
                                    .join( model.User.table ) \
                                    .join( model.RepositoryCategoryAssociation.table ) \
                                    .join( model.Category.table ) \
                                    .filter( and_( model.Category.table.c.id == trans.security.decode_id( kwd[ 'id' ] ),
                                                   model.RepositoryMetadata.table.c.downloadable == True ) )
-        # The user performed a free text search on the ValidCategoryListGrid.
-        return trans.sa_session.query( self.model_class ) \
+        # The user performed a free text search on the ValidCategoryGrid.
+        return trans.sa_session.query( model.Repository ) \
+                               .filter( and_( model.Repository.table.c.deleted == False,
+                                              model.Repository.table.c.deprecated == False ) ) \
                                .join( model.RepositoryMetadata.table ) \
                                .join( model.User.table ) \
                                .outerjoin( model.RepositoryCategoryAssociation.table ) \
                                .outerjoin( model.Category.table ) \
                                .filter( model.RepositoryMetadata.table.c.downloadable == True )
 
-class MatchedRepositoryListGrid( grids.Grid ):
+class MatchedRepositoryGrid( grids.Grid ):
+    # This grid filters out repositories that have been marked as deprecated.
     class NameColumn( grids.TextColumn ):
         def get_value( self, trans, grid, repository_metadata ):
             return repository_metadata.repository.name
@@ -386,38 +496,39 @@ class MatchedRepositoryListGrid( grids.Grid ):
         if match_tuples:
             for match_tuple in match_tuples:
                 repository_id, changeset_revision = match_tuple
-                clause_list.append( "%s=%d and %s='%s'" % ( self.model_class.table.c.repository_id,
+                clause_list.append( "%s=%d and %s='%s'" % ( model.RepositoryMetadata.table.c.repository_id,
                                                             int( repository_id ),
-                                                            self.model_class.table.c.changeset_revision,
+                                                            model.RepositoryMetadata.table.c.changeset_revision,
                                                             changeset_revision ) )
-            return trans.sa_session.query( self.model_class ) \
+            return trans.sa_session.query( model.RepositoryMetadata ) \
                                    .join( model.Repository ) \
+                                   .filter( and_( model.Repository.table.c.deleted == False,
+                                                  model.Repository.table.c.deprecated == False ) ) \
                                    .join( model.User.table ) \
                                    .filter( or_( *clause_list ) ) \
                                    .order_by( model.Repository.name )
         # Return an empty query
-        return trans.sa_session.query( self.model_class ) \
-                               .join( model.Repository ) \
-                               .join( model.User.table ) \
-                               .filter( self.model_class.table.c.repository_id == 0 )
+        return []
 
-class InstallMatchedRepositoryListGrid( MatchedRepositoryListGrid ):
-    columns = [ col for col in MatchedRepositoryListGrid.columns ]
+class InstallMatchedRepositoryGrid( MatchedRepositoryGrid ):
+    columns = [ col for col in MatchedRepositoryGrid.columns ]
     # Override the NameColumn
-    columns[ 0 ] = MatchedRepositoryListGrid.NameColumn( "Name",
-                                                         link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
-                                                         attach_popup=False )
+    columns[ 0 ] = MatchedRepositoryGrid.NameColumn( "Name",
+                                                     link=( lambda item: dict( operation="view_or_manage_repository", id=item.id ) ),
+                                                     attach_popup=False )
 
 class RepositoryController( BaseUIController, ItemRatings ):
 
-    install_matched_repository_list_grid = InstallMatchedRepositoryListGrid()
-    matched_repository_list_grid = MatchedRepositoryListGrid()
-    valid_repository_list_grid = ValidRepositoryListGrid()
-    repository_list_grid = RepositoryListGrid()
-    email_alerts_repository_list_grid = EmailAlertsRepositoryListGrid()
-    category_list_grid = CategoryListGrid()
-    valid_category_list_grid = ValidCategoryListGrid()
-    writable_repository_list_grid = WritableRepositoryListGrid()
+    install_matched_repository_grid = InstallMatchedRepositoryGrid()
+    matched_repository_grid = MatchedRepositoryGrid()
+    valid_repository_grid = ValidRepositoryGrid()
+    repository_grid = RepositoryGrid()
+    email_alerts_repository_grid = EmailAlertsRepositoryGrid()
+    category_grid = CategoryGrid()
+    valid_category_grid = ValidCategoryGrid()
+    my_writable_repositories_grid = MyWritableRepositoriesGrid()
+    repositories_i_own_grid = RepositoriesIOwnGrid()
+    deprecated_repositories_i_own_grid = DeprecatedRepositoriesIOwnGrid()
 
     def __add_hgweb_config_entry( self, trans, repository, repository_path ):
         # Add an entry in the hgweb.config file for a new repository.  An entry looks something like:
@@ -443,11 +554,12 @@ class RepositoryController( BaseUIController, ItemRatings ):
     def browse_categories( self, trans, **kwd ):
         # The request came from the tool shed.
         if 'f-free-text-search' in kwd:
-            # Trick to enable searching repository name, description from the CategoryListGrid.  What we've done is rendered the search box for the
-            # RepositoryListGrid on the grid.mako template for the CategoryListGrid.  See ~/templates/webapps/community/category/grid.mako.  Since we
+            # Trick to enable searching repository name, description from the CategoryGrid.  What we've done is rendered the search box for the
+            # RepositoryGrid on the grid.mako template for the CategoryGrid.  See ~/templates/webapps/community/category/grid.mako.  Since we
             # are searching repositories and not categories, redirect to browse_repositories().
             if 'id' in kwd and 'f-free-text-search' in kwd and kwd[ 'id' ] == kwd[ 'f-free-text-search' ]:
-                # The value of 'id' has been set to the search string, which is a repository name.  We'll try to get the desired encoded repository id to pass on.
+                # The value of 'id' has been set to the search string, which is a repository name.  We'll try to get the desired encoded repository
+                # id to pass on.
                 try:
                     repository = get_repository_by_name( trans, kwd[ 'id' ] )
                     kwd[ 'id' ] = trans.security.encode_id( repository.id )
@@ -464,7 +576,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 return trans.response.send_redirect( web.url_for( controller='repository',
                                                                   action='browse_repositories',
                                                                   **kwd ) )
-        return self.category_list_grid( trans, **kwd )
+        return self.category_grid( trans, **kwd )
     @web.expose
     def browse_invalid_tools( self, trans, **kwd ):
         params = util.Params( kwd )
@@ -511,17 +623,9 @@ class RepositoryController( BaseUIController, ItemRatings ):
         if 'operation' in kwd:
             operation = kwd['operation'].lower()
             if operation == "view_or_manage_repository":
-                repository_id = kwd[ 'id' ]
-                repository = get_repository( trans, repository_id )
-                is_admin = trans.user_is_admin()
-                if is_admin or repository.user == trans.user:
-                    return trans.response.send_redirect( web.url_for( controller='repository',
-                                                                      action='manage_repository',
-                                                                      **kwd ) )
-                else:
-                    return trans.response.send_redirect( web.url_for( controller='repository',
-                                                                      action='view_repository',
-                                                                      **kwd ) )
+                return trans.response.send_redirect( web.url_for( controller='repository',
+                                                                  action='view_or_manage_repository',
+                                                                  **kwd ) )
             elif operation == "edit_repository":
                 return trans.response.send_redirect( web.url_for( controller='repository',
                                                                   action='edit_repository',
@@ -538,17 +642,34 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 else:
                     # The received id is the repository id, so we need to get the id of the user that uploaded the repository.
                     repository_id = kwd.get( 'id', None )
-                    repository = get_repository( trans, repository_id )
+                    repository = get_repository_in_tool_shed( trans, repository_id )
                     kwd[ 'f-email' ] = repository.user.email
             elif operation == "repositories_i_own":
                 # Eliminate the current filters if any exist.
                 for k, v in kwd.items():
                     if k.startswith( 'f-' ):
                         del kwd[ k ]
-                kwd[ 'f-email' ] = trans.user.email
-            elif operation == "writable_repositories":
-                kwd[ 'username' ] = trans.user.username
-                return self.writable_repository_list_grid( trans, **kwd )
+                return self.repositories_i_own_grid( trans, **kwd )
+            elif operation == "deprecated_repositories_i_own":
+                # Eliminate the current filters if any exist.
+                for k, v in kwd.items():
+                    if k.startswith( 'f-' ):
+                        del kwd[ k ]
+                return self.deprecated_repositories_i_own_grid( trans, **kwd )
+            elif operation in [ 'mark as deprecated', 'mark as not deprecated' ]:
+                # Eliminate the current filters if any exist.
+                for k, v in kwd.items():
+                    if k.startswith( 'f-' ):
+                        del kwd[ k ]
+                kwd[ 'mark_deprecated' ] = operation == 'mark as deprecated'
+                return trans.response.send_redirect( web.url_for( controller='repository',
+                                                                  action='deprecate',
+                                                                  **kwd ) )
+            elif operation == "reviewed_repositories_i_own":
+                return trans.response.send_redirect( web.url_for( controller='repository_review',
+                                                                  action='reviewed_repositories_i_own' ) )
+            elif operation == "my_writable_repositories":
+                return self.my_writable_repositories_grid( trans, **kwd )
             elif operation == "repositories_by_category":
                 # Eliminate the current filters if any exist.
                 for k, v in kwd.items():
@@ -568,7 +689,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                     kwd[ 'message' ] = 'You must be logged in to set email alerts.'
                     kwd[ 'status' ] = 'error'
                     del kwd[ 'operation' ]
-        # The changeset_revision_select_field in the RepositoryListGrid performs a refresh_on_change
+        # The changeset_revision_select_field in the RepositoryGrid performs a refresh_on_change
         # which sends in request parameters like changeset_revison_1, changeset_revision_2, etc.  One
         # of the many select fields on the grid performed the refresh_on_change, so we loop through 
         # all of the received values to see which value is not the repository tip.  If we find it, we
@@ -578,21 +699,21 @@ class RepositoryController( BaseUIController, ItemRatings ):
             changset_revision_str = 'changeset_revision_'
             if k.startswith( changset_revision_str ):
                 repository_id = trans.security.encode_id( int( k.lstrip( changset_revision_str ) ) )
-                repository = get_repository( trans, repository_id )
+                repository = get_repository_in_tool_shed( trans, repository_id )
                 if repository.tip != v:
                     return trans.response.send_redirect( web.url_for( controller='repository',
                                                                       action='browse_repositories',
                                                                       operation='view_or_manage_repository',
                                                                       id=trans.security.encode_id( repository.id ),
                                                                       changeset_revision=v ) )
-        return self.repository_list_grid( trans, **kwd )
+        return self.repository_grid( trans, **kwd )
     @web.expose
     def browse_repository( self, trans, id, **kwd ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
         commit_message = util.restore_text( params.get( 'commit_message', 'Deleted selected files' ) )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repo = hg.repository( get_configured_ui(), repository.repo_path )
         # Update repository files for browsing.
         update_repository( repo )
@@ -615,7 +736,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
             if kwd[ 'f-free-text-search' ] == 'All':
                 # The user performed a search, then clicked the "x" to eliminate the search criteria.
                 new_kwd = {}
-                return self.valid_category_list_grid( trans, **new_kwd )
+                return self.valid_category_grid( trans, **new_kwd )
             # Since we are searching valid repositories and not categories, redirect to browse_valid_repositories().
             if 'id' in kwd and 'f-free-text-search' in kwd and kwd[ 'id' ] == kwd[ 'f-free-text-search' ]:
                 # The value of 'id' has been set to the search string, which is a repository name.
@@ -636,7 +757,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 return trans.response.send_redirect( web.url_for( controller='repository',
                                                                   action='browse_valid_repositories',
                                                                   **kwd ) )
-        return self.valid_category_list_grid( trans, **kwd )
+        return self.valid_category_grid( trans, **kwd )
     @web.expose
     def browse_valid_repositories( self, trans, **kwd ):
         galaxy_url = kwd.get( 'galaxy_url', None )
@@ -645,7 +766,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 # The user browsed to a category and then entered a search string, so get the category associated with it's value.
                 category_name = kwd[ 'f-Category.name' ]
                 category = get_category_by_name( trans, category_name )
-                # Set the id value in kwd since it is required by the ValidRepositoryListGrid.build_initial_query method.
+                # Set the id value in kwd since it is required by the ValidRepositoryGrid.build_initial_query method.
                 kwd[ 'id' ] = trans.security.encode_id( category.id )
         if galaxy_url:
             trans.set_cookie( galaxy_url, name='toolshedgalaxyurl' )
@@ -653,7 +774,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
             operation = kwd[ 'operation' ].lower()
             if operation == "preview_tools_in_changeset":
                 repository_id = kwd.get( 'id', None )
-                repository = get_repository( trans, repository_id )
+                repository = get_repository_in_tool_shed( trans, repository_id )
                 repository_metadata = get_latest_repository_metadata( trans, repository.id )
                 latest_installable_changeset_revision = repository_metadata.changeset_revision
                 return trans.response.send_redirect( web.url_for( controller='repository',
@@ -668,7 +789,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 category_id = kwd.get( 'id', None )
                 category = get_category( trans, category_id )
                 kwd[ 'f-Category.name' ] = category.name
-        # The changeset_revision_select_field in the ValidRepositoryListGrid performs a refresh_on_change which sends in request parameters like
+        # The changeset_revision_select_field in the ValidRepositoryGrid performs a refresh_on_change which sends in request parameters like
         # changeset_revison_1, changeset_revision_2, etc.  One of the many select fields on the grid performed the refresh_on_change, so we loop
         # through all of the received values to see which value is not the repository tip.  If we find it, we know the refresh_on_change occurred
         # and we have the necessary repository id and change set revision to pass on.
@@ -677,7 +798,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
             changset_revision_str = 'changeset_revision_'
             if k.startswith( changset_revision_str ):
                 repository_id = trans.security.encode_id( int( k.lstrip( changset_revision_str ) ) )
-                repository = get_repository( trans, repository_id )
+                repository = get_repository_in_tool_shed( trans, repository_id )
                 if repository.tip != v:
                     return trans.response.send_redirect( web.url_for( controller='repository',
                                                                       action='preview_tools_in_changeset',
@@ -686,11 +807,11 @@ class RepositoryController( BaseUIController, ItemRatings ):
         url_args = dict( action='browse_valid_repositories',
                          operation='preview_tools_in_changeset',
                          repository_id=repository_id )
-        self.valid_repository_list_grid.operations = [ grids.GridOperation( "Preview and install",
+        self.valid_repository_grid.operations = [ grids.GridOperation( "Preview and install",
                                                                             url_args=url_args,
                                                                             allow_multiple=False,
                                                                             async_compatible=False ) ]
-        return self.valid_repository_list_grid( trans, **kwd )
+        return self.valid_repository_grid( trans, **kwd )
     def __build_allow_push_select_field( self, trans, current_push_list, selected_value='none' ):
         options = []
         for user in trans.sa_session.query( trans.model.User ):
@@ -804,7 +925,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         metadata = self.get_metadata( trans, id, repository.tip )
         if trans.user and trans.user.email:
             return trans.fill_template( "/webapps/community/repository/contact_owner.mako",
@@ -909,6 +1030,27 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     message=message,
                                     status=status )
     @web.expose
+    @web.require_login( "deprecate repository" )
+    def deprecate( self, trans, **kwd ):
+        params = util.Params( kwd )
+        message = util.restore_text( params.get( 'message', ''  ) )
+        status = params.get( 'status', 'done' )
+        repository_id = params.get( 'id', None )
+        repository = get_repository_in_tool_shed( trans, repository_id )
+        mark_deprecated = util.string_as_bool( params.get( 'mark_deprecated', False ) )
+        repository.deprecated = mark_deprecated
+        trans.sa_session.add( repository )
+        trans.sa_session.flush()
+        if mark_deprecated:
+            message = 'The repository <b>%s</b> has been marked as deprecated.' % repository.name
+        else:
+            message = 'The repository <b>%s</b> has been marked as not deprecated.' % repository.name        
+        trans.response.send_redirect( web.url_for( controller='repository',
+                                                   action='browse_repositories',
+                                                   operation='repositories_i_own',
+                                                   message=message,
+                                                   status=status ) )
+    @web.expose
     def display_tool( self, trans, repository_id, tool_config, changeset_revision, **kwd ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
@@ -947,7 +1089,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
     def download( self, trans, repository_id, changeset_revision, file_type, **kwd ):
         # Download an archive of the repository files compressed as zip, gz or bz2.
         params = util.Params( kwd )
-        repository = get_repository( trans, repository_id )
+        repository = get_repository_in_tool_shed( trans, repository_id )
         # Allow hgweb to handle the download.  This requires the tool shed
         # server account's .hgrc file to include the following setting:
         # [web]
@@ -980,7 +1122,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                     # The received id is a RepositoryMetadata id, so we have to get the repository id.
                     repository_metadata = get_repository_metadata_by_id( trans, item_id )
                     repository_id = trans.security.encode_id( repository_metadata.repository.id )
-                    repository = get_repository( trans, repository_id )
+                    repository = get_repository_in_tool_shed( trans, repository_id )
                     kwd[ 'id' ] = repository_id
                     kwd[ 'changeset_revision' ] = repository_metadata.changeset_revision
                     if trans.webapp.name == 'community' and ( is_admin or repository.user == trans.user ):
@@ -1027,16 +1169,16 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                          dict( controller='repository', action='find_tools' ) ),
                                        grids.GridAction( "Search for workflows",
                                                          dict( controller='repository', action='find_workflows' ) ) ]
-                    self.install_matched_repository_list_grid.global_actions = global_actions
+                    self.install_matched_repository_grid.global_actions = global_actions
                     install_url_args = dict( controller='repository', action='find_tools' )
                     operations = [ grids.GridOperation( "Install", url_args=install_url_args, allow_multiple=True, async_compatible=False ) ]
-                    self.install_matched_repository_list_grid.operations = operations
-                    return self.install_matched_repository_list_grid( trans, **kwd )
+                    self.install_matched_repository_grid.operations = operations
+                    return self.install_matched_repository_grid( trans, **kwd )
                 else:
                     kwd[ 'message' ] = "tool id: <b>%s</b><br/>tool name: <b>%s</b><br/>tool version: <b>%s</b><br/>exact matches only: <b>%s</b>" % \
                         ( self.__stringify( tool_ids ), self.__stringify( tool_names ), self.__stringify( tool_versions ), str( exact_matches_checked ) )
-                    self.matched_repository_list_grid.title = "Repositories with matching tools"
-                    return self.matched_repository_list_grid( trans, **kwd )
+                    self.matched_repository_grid.title = "Repositories with matching tools"
+                    return self.matched_repository_grid( trans, **kwd )
             else:
                 message = "No search performed - each field must contain the same number of comma-separated items."
                 status = "error"
@@ -1065,7 +1207,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                     # The received id is a RepositoryMetadata id, so we have to get the repository id.
                     repository_metadata = get_repository_metadata_by_id( trans, item_id )
                     repository_id = trans.security.encode_id( repository_metadata.repository.id )
-                    repository = get_repository( trans, repository_id )
+                    repository = get_repository_in_tool_shed( trans, repository_id )
                     kwd[ 'id' ] = repository_id
                     kwd[ 'changeset_revision' ] = repository_metadata.changeset_revision
                     if trans.webapp.name == 'community' and ( is_admin or repository.user == trans.user ):
@@ -1113,16 +1255,16 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                          dict( controller='repository', action='find_tools' ) ),
                                        grids.GridAction( "Search for workflows",
                                                          dict( controller='repository', action='find_workflows' ) ) ]
-                    self.install_matched_repository_list_grid.global_actions = global_actions
+                    self.install_matched_repository_grid.global_actions = global_actions
                     install_url_args = dict( controller='repository', action='find_workflows' )
                     operations = [ grids.GridOperation( "Install", url_args=install_url_args, allow_multiple=True, async_compatible=False ) ]
-                    self.install_matched_repository_list_grid.operations = operations
-                    return self.install_matched_repository_list_grid( trans, **kwd )
+                    self.install_matched_repository_grid.operations = operations
+                    return self.install_matched_repository_grid( trans, **kwd )
                 else:
                     kwd[ 'message' ] = "workflow name: <b>%s</b><br/>exact matches only: <b>%s</b>" % \
                         ( self.__stringify( workflow_names ), str( exact_matches_checked ) )
-                    self.matched_repository_list_grid.title = "Repositories with matching workflows"
-                    return self.matched_repository_list_grid( trans, **kwd )
+                    self.matched_repository_grid.title = "Repositories with matching workflows"
+                    return self.matched_repository_grid( trans, **kwd )
             else:
                 message = "No search performed - each field must contain the same number of comma-separated items."
                 status = "error"
@@ -1170,8 +1312,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
         repo_info_dicts = []
         for tup in zip( util.listify( repository_ids ), util.listify( changeset_revisions ) ):
             repository_id, changeset_revision = tup
-            repository_clone_url = generate_clone_url( trans, repository_id )
-            repository = get_repository( trans, repository_id )
+            repository = get_repository_in_tool_shed( trans, repository_id )
+            repository_clone_url = generate_clone_url_for_repository_in_tool_shed( trans, repository )
             repository_metadata = get_repository_metadata_by_changeset_revision( trans, repository_id, changeset_revision )
             metadata = repository_metadata.metadata
             if not includes_tools and 'tools' in metadata:
@@ -1194,10 +1336,14 @@ class RepositoryController( BaseUIController, ItemRatings ):
         repository_metadata = get_repository_metadata_by_changeset_revision( trans, trans.security.encode_id( repository.id ), changeset_revision )
         metadata = repository_metadata.metadata
         if metadata and 'readme' in metadata:
-             f = open( metadata[ 'readme' ], 'r' )
-             text = f.read()
-             f.close()
-             return str( text )
+            try:
+                f = open( metadata[ 'readme' ], 'r' )
+                text = f.read()
+                f.close()
+                return str( text )
+            except Exception, e:
+                log.debug( "Error attempting to read README file '%s' defined in metadata for repository '%s', revision '%s': %s" % \
+                           ( str( metadata[ 'readme' ] ), str( repository_name ), str( changeset_revision ), str( e ) ) )
         return ''
     @web.expose
     def get_tool_dependencies( self, trans, **kwd ):
@@ -1385,8 +1531,24 @@ class RepositoryController( BaseUIController, ItemRatings ):
         status = params.get( 'status', 'done' )
         # See if there are any RepositoryMetadata records since menu items require them.
         repository_metadata = trans.sa_session.query( model.RepositoryMetadata ).first()
+        current_user = trans.user
+        has_reviewed_repositories = False
+        has_deprecated_repositories = False
+        if current_user:
+            # See if the current user owns any repositories that have been reviewed.
+            for repository in current_user.active_repositories:
+                if repository.reviews:
+                    has_reviewed_repositories = True
+                    break
+            # See if the current user has any repositories that have been marked as deprecated.
+            for repository in current_user.active_repositories:
+                if repository.deprecated:
+                    has_deprecated_repositories = True
+                    break
         return trans.fill_template( '/webapps/community/index.mako',
                                     repository_metadata=repository_metadata,
+                                    has_reviewed_repositories=has_reviewed_repositories,
+                                    has_deprecated_repositories=has_deprecated_repositories,
                                     message=message,
                                     status=status )
     @web.expose
@@ -1508,7 +1670,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, id )
+        cntrller = params.get( 'cntrller', 'repository' )
+        repository = get_repository_in_tool_shed( trans, id )
         repo_dir = repository.repo_path
         repo = hg.repository( get_configured_ui(), repo_dir )
         repo_name = util.restore_text( params.get( 'repo_name', repository.name ) )
@@ -1614,7 +1777,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                                                  repository,
                                                                                  selected_value=changeset_revision,
                                                                                  add_id_to_name=False,
-                                                                                 downloadable_only=False )
+                                                                                 downloadable=False )
         revision_label = get_revision_label( trans, repository, repository.tip )
         repository_metadata_id = None
         metadata = None
@@ -1645,7 +1808,18 @@ class RepositoryController( BaseUIController, ItemRatings ):
         malicious_check_box = CheckboxField( 'malicious', checked=is_malicious )
         categories = get_categories( trans )
         selected_categories = [ rca.category_id for rca in repository.categories ]
+        # Determine if the current changeset revision has been reviewed by the current user.
+        reviewed_by_user = changeset_revision_reviewed_by_user( trans, trans.user, repository, changeset_revision )
+        if reviewed_by_user:
+            review = get_review_by_repository_id_changeset_revision_user_id( trans,
+                                                                             id,
+                                                                             changeset_revision,
+                                                                             trans.security.encode_id( trans.user.id ) )
+            review_id = trans.security.encode_id( review.id )
+        else:
+            review_id = None
         return trans.fill_template( '/webapps/community/repository/manage_repository.mako',
+                                    cntrller=cntrller,
                                     repo_name=repo_name,
                                     description=description,
                                     long_description=long_description,
@@ -1655,6 +1829,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     repository=repository,
                                     repository_metadata_id=repository_metadata_id,
                                     changeset_revision=changeset_revision,
+                                    reviewed_by_user=reviewed_by_user,
+                                    review_id=review_id,
                                     changeset_revision_select_field=changeset_revision_select_field,
                                     revision_label=revision_label,
                                     selected_categories=selected_categories,
@@ -1668,6 +1844,12 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     is_malicious=is_malicious,
                                     message=message,
                                     status=status )
+    @web.expose
+    @web.require_login( "review repository revision" )
+    def manage_repository_reviews_of_revision( self, trans, mine=False, **kwd ):
+        return trans.response.send_redirect( web.url_for( controller='repository_review',
+                                                          action='manage_repository_reviews_of_revision',
+                                                          **kwd ) )
     @web.expose
     @web.require_login( "multi select email alerts" )
     def multi_select_email_alerts( self, trans, **kwd ):
@@ -1687,7 +1869,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
                     kwd[ 'message' ] = 'You must be logged in to set email alerts.'
                     kwd[ 'status' ] = 'error'
                     del kwd[ 'operation' ]
-        return self.email_alerts_repository_list_grid( trans, **kwd )
+        self.email_alerts_repository_grid.title = "Set email alerts for repository changes"
+        return self.email_alerts_repository_grid( trans, **kwd )
     def __new_state( self, trans, all_pages=False ):
         """
         Create a new `DefaultToolState` for this tool. It will not be initialized
@@ -1712,7 +1895,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', '' ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, repository_id )
+        repository = get_repository_in_tool_shed( trans, repository_id )
         changeset_revision = util.restore_text( params.get( 'changeset_revision', repository.tip ) )
         repository_metadata = get_repository_metadata_by_changeset_revision( trans, repository_id, changeset_revision )
         if repository_metadata:
@@ -1726,7 +1909,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                                                  repository,
                                                                                  selected_value=changeset_revision,
                                                                                  add_id_to_name=False,
-                                                                                 downloadable_only=False )
+                                                                                 downloadable=False )
         return trans.fill_template( '/webapps/community/repository/preview_tools_in_changeset.mako',
                                     repository=repository,
                                     repository_metadata_id=repository_metadata_id,
@@ -1777,7 +1960,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                               action='browse_repositories',
                                                               message='Select a repository to rate',
                                                               status='error' ) )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repo = hg.repository( get_configured_ui(), repository.repo_path )
         if repository.user == trans.user:
             return trans.response.send_redirect( web.url_for( controller='repository',
@@ -1805,9 +1988,11 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     status=status )
     @web.expose
     def reset_all_metadata( self, trans, id, **kwd ):
-        invalid_file_tups, metadata_dict = reset_all_metadata_on_repository( trans, id, **kwd )
+        # This method is called only from the ~/templates/webapps/community/repository/manage_repository.mako template.
+        # It resets all metadata on the complete changelog for a single repository in the tool shed.
+        invalid_file_tups, metadata_dict = reset_all_metadata_on_repository_in_tool_shed( trans, id, **kwd )
         if invalid_file_tups:
-            repository = get_repository( trans, id )
+            repository = get_repository_in_tool_shed( trans, id )
             message = generate_message_for_invalid_tools( invalid_file_tups, repository, metadata_dict )
             status = 'error'
         else:
@@ -1913,7 +2098,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         message = util.restore_text( params.get( 'message', '' ) )
         status = params.get( 'status', 'done' )
         commit_message = util.restore_text( params.get( 'commit_message', 'Deleted selected files' ) )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repo_dir = repository.repo_path
         repo = hg.repository( get_configured_ui(), repo_dir )
         selected_files_to_delete = util.restore_text( params.get( 'selected_files_to_delete', '' ) )
@@ -1975,7 +2160,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     status=status )
     @web.expose
     def send_to_owner( self, trans, id, message='' ):
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         if not message:
             message = 'Enter a message'
             status = 'error'
@@ -2025,7 +2210,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
             total_alerts_removed = 0
             flush_needed = False
             for repository_id in repository_ids:
-                repository = get_repository( trans, repository_id )
+                repository = get_repository_in_tool_shed( trans, repository_id )
                 if repository.email_alerts:
                     email_alerts = from_json_string( repository.email_alerts )
                 else:
@@ -2097,7 +2282,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repo = hg.repository( get_configured_ui(), repository.repo_path )
         changesets = []
         for changeset in repo.changelog:
@@ -2134,7 +2319,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repo = hg.repository( get_configured_ui(), repository.repo_path )
         ctx = get_changectx_for_changeset( repo, ctx_str )
         if ctx is None:
@@ -2170,12 +2355,23 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     message=message,
                                     status=status )
     @web.expose
+    def view_or_manage_repository( self, trans, **kwd ):
+        repository = get_repository_in_tool_shed( trans, kwd[ 'id' ] )
+        if trans.user_is_admin() or repository.user == trans.user:
+            return trans.response.send_redirect( web.url_for( controller='repository',
+                                                              action='manage_repository',
+                                                              **kwd ) )
+        else:
+            return trans.response.send_redirect( web.url_for( controller='repository',
+                                                              action='view_repository',
+                                                              **kwd ) )
+    @web.expose
     def view_readme( self, trans, id, changeset_revision, **kwd ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
         cntrller = params.get( 'cntrller', 'repository' )
-        repository = get_repository( trans, id )
+        repository = get_repository_in_tool_shed( trans, id )
         repository_metadata = get_repository_metadata_by_changeset_revision( trans, trans.security.encode_id( repository.id ), changeset_revision )
         if repository_metadata:
             metadata = repository_metadata.metadata
@@ -2208,7 +2404,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
             except Exception, e:
                 raw_text = "Error locating and reading this repository's README file '%s': %s" % ( readme_file, str( e ) )
                 log.debug( raw_text )
-            readme_text = translate_string( raw_text, to_html=True )
+            readme_text = raw_text
         else:
             readme_text = ''
         is_malicious = changeset_is_malicious( trans, id, changeset_revision )
@@ -2225,7 +2421,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, id )
+        cntrller = params.get( 'cntrller', 'repository' )
+        repository = get_repository_in_tool_shed( trans, id )
         repo = hg.repository( get_configured_ui(), repository.repo_path )
         avg_rating, num_ratings = self.get_ave_item_rating_data( trans.sa_session, repository, webapp_model=trans.model )
         changeset_revision = util.restore_text( params.get( 'changeset_revision', repository.tip ) )
@@ -2258,7 +2455,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                                                  repository,
                                                                                  selected_value=changeset_revision,
                                                                                  add_id_to_name=False,
-                                                                                 downloadable_only=False )
+                                                                                 downloadable=False )
         revision_label = get_revision_label( trans, repository, changeset_revision )
         repository_metadata = get_repository_metadata_by_changeset_revision( trans, id, changeset_revision )
         if repository_metadata:
@@ -2274,7 +2471,18 @@ class RepositoryController( BaseUIController, ItemRatings ):
             else:
                 message += malicious_error
             status = 'error'
+        # Determine if the current changeset revision has been reviewed by the current user.
+        reviewed_by_user = changeset_revision_reviewed_by_user( trans, trans.user, repository, changeset_revision )
+        if reviewed_by_user:
+            review = get_review_by_repository_id_changeset_revision_user_id( trans,
+                                                                             id,
+                                                                             changeset_revision,
+                                                                             trans.security.encode_id( trans.user.id ) )
+            review_id = trans.security.encode_id( review.id )
+        else:
+            review_id = None
         return trans.fill_template( '/webapps/community/repository/view_repository.mako',
+                                    cntrller=cntrller,
                                     repo=repo,
                                     repository=repository,
                                     repository_metadata_id=repository_metadata_id,
@@ -2284,6 +2492,8 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     num_ratings=num_ratings,
                                     alerts_check_box=alerts_check_box,
                                     changeset_revision=changeset_revision,
+                                    reviewed_by_user=reviewed_by_user,
+                                    review_id=review_id,
                                     changeset_revision_select_field=changeset_revision_select_field,
                                     revision_label=revision_label,
                                     is_malicious=is_malicious,
@@ -2294,7 +2504,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         params = util.Params( kwd )
         message = util.restore_text( params.get( 'message', ''  ) )
         status = params.get( 'status', 'done' )
-        repository = get_repository( trans, repository_id )
+        repository = get_repository_in_tool_shed( trans, repository_id )
         repo_files_dir = repository.repo_path
         repo = hg.repository( get_configured_ui(), repo_files_dir )
         tool_metadata_dict = {}
@@ -2342,8 +2552,17 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                                                                  repository,
                                                                                  selected_value=changeset_revision,
                                                                                  add_id_to_name=False,
-                                                                                 downloadable_only=False )
+                                                                                 downloadable=False )
         trans.app.config.tool_data_path = original_tool_data_path
+        reviewed_by_user = changeset_revision_reviewed_by_user( trans, trans.user, repository, changeset_revision )
+        if reviewed_by_user:
+            review = get_review_by_repository_id_changeset_revision_user_id( trans,
+                                                                             id,
+                                                                             changeset_revision,
+                                                                             trans.security.encode_id( trans.user.id ) )
+            review_id = trans.security.encode_id( review.id )
+        else:
+            review_id = None
         return trans.fill_template( "/webapps/community/repository/view_tool_metadata.mako",
                                     repository=repository,
                                     metadata=metadata,
@@ -2354,29 +2573,45 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     revision_label=revision_label,
                                     changeset_revision_select_field=changeset_revision_select_field,
                                     is_malicious=is_malicious,
+                                    reviewed_by_user=reviewed_by_user,
+                                    review_id=review_id,
                                     message=message,
                                     status=status )
 
 # ----- Utility methods -----
-def build_changeset_revision_select_field( trans, repository, selected_value=None, add_id_to_name=True, downloadable_only=False ):
-    """Build a SelectField whose options are the changeset_rev strings of all downloadable revisions of the received repository."""
-    repo = hg.repository( get_configured_ui(), repository.repo_path )
+
+def build_changeset_revision_select_field( trans, repository, selected_value=None, add_id_to_name=True,
+                                           downloadable=False, reviewed=False, not_reviewed=False ):
+    """Build a SelectField whose options are the changeset_rev strings of certain revisions of the received repository."""
     options = []
     changeset_tups = []
     refresh_on_change_values = []
-    if downloadable_only:
+    if downloadable:
+        # Restrict the options to downloadable revisions.
         repository_metadata_revisions = repository.downloadable_revisions
+    elif reviewed:
+        # Restrict the options to revisions that have been reviewed.
+        repository_metadata_revisions = []
+        metadata_changeset_revision_hashes = []
+        for metadata_revision in repository.metadata_revisions:
+            metadata_changeset_revision_hashes.append( metadata_revision.changeset_revision )
+        for review in repository.reviews:
+            if review.changeset_revision in metadata_changeset_revision_hashes:
+                repository_metadata_revisions.append( review.repository_metadata )
+    elif not_reviewed:
+        # Restrict the options to revisions that have not yet been reviewed.
+        repository_metadata_revisions = []
+        reviewed_metadata_changeset_revision_hashes = []
+        for review in repository.reviews:
+            reviewed_metadata_changeset_revision_hashes.append( review.changeset_revision )
+        for metadata_revision in repository.metadata_revisions:
+            if metadata_revision.changeset_revision not in reviewed_metadata_changeset_revision_hashes:
+                repository_metadata_revisions.append( metadata_revision )
     else:
+        # Restrict the options to all revisions that have associated metadata.
         repository_metadata_revisions = repository.metadata_revisions
     for repository_metadata in repository_metadata_revisions:
-        changeset_revision = repository_metadata.changeset_revision
-        ctx = get_changectx_for_changeset( repo, changeset_revision )
-        if ctx:
-            rev = '%04d' % ctx.rev()
-            label = "%s:%s" % ( str( ctx.rev() ), changeset_revision )
-        else:
-            rev = '-1'
-            label = "-1:%s" % changeset_revision
+        rev, label, changeset_revision = get_rev_label_changeset_revision_from_repository_metadata( repository_metadata, repository=repository )
         changeset_tups.append( ( rev, label, changeset_revision ) )
         refresh_on_change_values.append( changeset_revision )
     # Sort options by the revision label.  Even though the downloadable_revisions query sorts by update_time,

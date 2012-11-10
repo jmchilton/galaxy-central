@@ -65,7 +65,8 @@
                 <div class="toolSectionTitle">Server</div>
                 <div class="toolSectionBody">
                     <div class="toolSectionBg">
-                        <div class="toolTitle"><a href="${h.url_for( controller='admin', action='view_datatypes_registry' )}" target="galaxy_main">View datatypes registry</a></div>
+                        <div class="toolTitle"><a href="${h.url_for( controller='admin', action='view_datatypes_registry' )}" target="galaxy_main">View data types registry</a></div>
+                        <div class="toolTitle"><a href="${h.url_for( controller='admin', action='view_tool_data_tables' )}" target="galaxy_main">View data tables registry</a></div>
                         <div class="toolTitle"><a href="${h.url_for( controller='admin', action='tool_versions' )}" target="galaxy_main">View tool lineage</a></div>
                         <div class="toolTitle"><a href="${h.url_for( controller='admin', action='reload_tool' )}" target="galaxy_main">Reload a tool's configuration</a></div>
                         <div class="toolTitle"><a href="${h.url_for( controller='admin', action='memdump' )}" target="galaxy_main">Profile memory usage</a></div>
@@ -75,7 +76,7 @@
                             <div class="toolTitle"><a href="${h.url_for( controller='admin_toolshed', action='monitor_repository_installation', tool_shed_repository_ids=installing_repository_ids )}" target="galaxy_main">Monitor installing tool shed repositories</a></div>
                         %endif
                         %if installed_repositories:
-                            <div class="toolTitle"><a href="${h.url_for( controller='admin_toolshed', action='reset_metadata_on_selected_repositories' )}" target="galaxy_main">Reset metadata for tool shed repositories</a></div>
+                            <div class="toolTitle"><a href="${h.url_for( controller='admin_toolshed', action='reset_metadata_on_selected_installed_repositories' )}" target="galaxy_main">Reset metadata for tool shed repositories</a></div>
                             <div class="toolTitle"><a href="${h.url_for( controller='admin_toolshed', action='browse_repositories' )}" target="galaxy_main">Manage installed tool shed repositories</a></div>
                         %endif
                     </div>

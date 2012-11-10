@@ -21,6 +21,7 @@
     else:
         browse_label = 'Browse repository tip files'
     has_readme = metadata and 'readme' in metadata
+    can_review_repository = trans.app.security_agent.user_can_review_repositories( trans.user )
 %>
 
 <%!
@@ -52,6 +53,13 @@
         %else:
             <li><a class="action-button" id="repository-${repository.id}-popup" class="menubutton">Repository Actions</a></li>
             <div popupmenu="repository-${repository.id}-popup">
+                %if can_review_repository:
+                    %if reviewed_by_user:
+                        <a class="action-button" href="${h.url_for( controller='repository_review', action='edit_review', id=review_id )}">Manage my review of this revision</a>
+                    %else:
+                        <a class="action-button" href="${h.url_for( controller='repository_review', action='create_review', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">Add a review to this revision</a>
+                    %endif
+                %endif
                 %if can_manage:
                     <a class="action-button" href="${h.url_for( controller='repository', action='manage_repository', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">Manage repository</a>
                 %else:
@@ -102,7 +110,7 @@
 <p/>
 %if can_download:
     <div class="toolForm">
-        <div class="toolFormTitle">${repository.name}</div>
+        <div class="toolFormTitle">Repository '${repository.name}'</div>
         <div class="toolFormBody">
             <div class="form-row">
                 <label>Clone this repository:</label>
@@ -132,35 +140,35 @@
             %if 'description' in tool_metadata_dict:
                 <div class="form-row">
                     <label>Description:</label>
-                    ${tool_metadata_dict[ 'description' ]}
+                    ${tool_metadata_dict[ 'description' ] | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
             %if 'id' in tool_metadata_dict:
                 <div class="form-row">
                     <label>Id:</label>
-                    ${tool_metadata_dict[ 'id' ]}
+                    ${tool_metadata_dict[ 'id' ] | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
             %if 'guid' in tool_metadata_dict:
                 <div class="form-row">
                     <label>Guid:</label>
-                    ${tool_metadata_dict[ 'guid' ]}
+                    ${tool_metadata_dict[ 'guid' ] | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
             %if 'version' in tool_metadata_dict:
                 <div class="form-row">
                     <label>Version:</label>
-                    ${tool_metadata_dict[ 'version' ]}
+                    ${tool_metadata_dict[ 'version' ] | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
             %if 'version_string_cmd' in tool_metadata_dict:
                 <div class="form-row">
                     <label>Version command string:</label>
-                    ${tool_metadata_dict[ 'version_string_cmd' ]}
+                    ${tool_metadata_dict[ 'version_string_cmd' ] | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
@@ -176,9 +184,9 @@
                             <tr>
                                 <td>
                                     %if guid == tool_metadata_dict[ 'guid' ]:
-                                        ${guid} <b>(this tool)</b>
+                                        ${guid | h} <b>(this tool)</b>
                                     %else:
-                                        ${guid}
+                                        ${guid | h}
                                     %endif
                                 </td>
                             </tr>
@@ -216,9 +224,9 @@
                                 requirement_type = requirement_dict[ 'type' ] or 'not provided'
                             %>
                             <tr>
-                                <td>${requirement_name}</td>
-                                <td>${requirement_version}</td>
-                                <td>${requirement_type}</td>
+                                <td>${requirement_name | h}</td>
+                                <td>${requirement_version | h}</td>
+                                <td>${requirement_type | h}</td>
                             </tr>
                         %endfor
                     </table>
@@ -237,27 +245,27 @@
                 </div>
                 <div class="form-row">
                     <label>Command:</label>
-                    <pre>${tool.command}</pre>
+                    <pre>${tool.command | h}</pre>
                     <div style="clear: both"></div>
                 </div>
                 <div class="form-row">
                     <label>Interpreter:</label>
-                    ${tool.interpreter}
+                    ${tool.interpreter | h}
                     <div style="clear: both"></div>
                 </div>
                 <div class="form-row">
                     <label>Is multi-byte:</label>
-                    ${tool.is_multi_byte}
+                    ${tool.is_multi_byte | h}
                     <div style="clear: both"></div>
                 </div>
                 <div class="form-row">
                     <label>Forces a history refresh:</label>
-                    ${tool.force_history_refresh}
+                    ${tool.force_history_refresh | h}
                     <div style="clear: both"></div>
                 </div>
                 <div class="form-row">
                     <label>Parallelism:</label>
-                    ${tool.parallelism}
+                    ${tool.parallelism | h}
                     <div style="clear: both"></div>
                 </div>
             %endif
@@ -274,7 +282,6 @@
             %>
             %if tests:
                 <div class="form-row">
-                    <label>Functional tests:</label></td>
                     <table class="grid">
                         <tr>
                             <td><b>name</b></td>
@@ -292,17 +299,17 @@
                                 <td>${test_dict[ 'name' ]}</td>
                                 <td>
                                     %for input in inputs:
-                                        <b>${input[0]}:</b> ${input[1]}<br/>
+                                        <b>${input[0]}:</b> ${input[1] | h}<br/>
                                     %endfor
                                 </td>
                                 <td>
                                     %for output in outputs:
-                                        <b>${output[0]}:</b> ${output[1]}<br/>
+                                        <b>${output[0]}:</b> ${output[1] | h}<br/>
                                     %endfor
                                 </td>
                                 <td>
                                     %for required_file in required_files:
-                                        ${required_file}<br/>
+                                        ${required_file | h}<br/>
                                     %endfor
                                 </td>
                             </tr>

@@ -23,8 +23,6 @@ ${parent.javascripts()}
 <![endif]-->
 
 ${render_trackster_js_files()}
-${h.js( "libs/jquery/jquery.autocomplete" )}
-
 
 <script type="text/javascript">
 
@@ -38,13 +36,6 @@ ${h.js( "libs/jquery/jquery.autocomplete" )}
     });
     require( ["base", "viz/visualization", "viz/trackster_ui", "viz/trackster/tracks"], 
              function( base, visualization, trackster_ui, tracks ) {
-
-    //
-    // Place URLs here so that url_for can be used to generate them.
-    //
-    galaxy_paths.set({
-        visualization_url: "${h.url_for( action='save_trackster' )}"
-    });
 
     ${render_trackster_js_vars()}
 
@@ -114,7 +105,12 @@ ${h.js( "libs/jquery/jquery.autocomplete" )}
                         "Create": function() { $(document).trigger("convert_to_values"); continue_fn(); }
                     });
                     $("#new-title").focus();
-                    replace_big_select_inputs();
+                    $("select[name='dbkey']").combobox({
+                        appendTo: $("#overlay"),
+                        size: 40
+                    });
+                    // To support the large number of options for dbkey, enable scrolling in overlay.
+                    $("#overlay").css("overflow", "auto");
                 }
             });
         %endif

@@ -28,7 +28,7 @@
 
 <%def name="javascripts()">
     ${parent.javascripts()}
-    ${h.js( "libs/jquery/jquery-ui-1.8.23.custom.min", "libs/jquery/jquery.cookie", "libs/jquery/jquery.dynatree" )}
+    ${h.js( "libs/jquery/jquery-ui", "libs/jquery/jquery.cookie", "libs/jquery/jquery.dynatree" )}
     ${common_javascripts(repository)}
     <script type="text/javascript">
     $( function() {
@@ -82,10 +82,13 @@
             <div class="form-row">
                 <label>Url:</label>
                 <div class="form-row-input">
-                    <input name="url" type="textfield" value="${url}" size="40"/>
+                    <input name="url" type="textfield" value="${url | h}" size="40"/>
                 </div>
                 <div class="toolParamHelp" style="clear: both;">
-                     Enter a URL to upload your files via http.
+                     Enter a url to upload your files.  In addition to http and ftp urls, urls that point to mercurial repositories (urls that start
+                     with hg:// or hgs://) are allowed.  This mechanism results in the tip revision of an external mercurial repository being added
+                     to the tool shed repository as a single new changeset.  The revision history of the originating external mercurial repository is
+                     not uploaded to the tool shed repository.
                 </div>
                 <div style="clear: both"></div>
             </div>
@@ -141,7 +144,7 @@
                 <label>Change set commit message:</label>
                 <div class="form-row-input">
                     %if commit_message:
-                        <pre><textarea name="commit_message" rows="3" cols="35">${commit_message}</textarea></pre>
+                        <pre><textarea name="commit_message" rows="3" cols="35">${commit_message | h}</textarea></pre>
                     %else:
                         <textarea name="commit_message" rows="3" cols="35"></textarea>
                     %endif

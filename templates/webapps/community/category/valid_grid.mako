@@ -13,13 +13,13 @@
             <ul class="manage-table-actions">
                 %if len( grid.global_actions ) < 4:
                     %for action in grid.global_actions:
-                        <li><a class="action-button" href="${h.url_for( **action.url_args )}">${action.label}</a></li>
+                        <li><a class="action-button" href="${h.url_for( **action.url_args )}">${action.label | h}</a></li>
                     %endfor
                 %else:
                     <li><a class="action-button" id="action-8675309-popup" class="menubutton">Actions</a></li>
                     <div popupmenu="action-8675309-popup">
                         %for action in grid.global_actions:
-                            <a class="action-button" href="${h.url_for( **action.url_args )}">${action.label}</a>
+                            <a class="action-button" href="${h.url_for( **action.url_args )}">${action.label | h}</a>
                         %endfor
                     </div>
                 %endif
@@ -48,8 +48,8 @@
 
 <%def name="grid_body( grid )">
     <%
-        from galaxy.webapps.community.controllers.repository import ValidRepositoryListGrid
-        repo_grid = ValidRepositoryListGrid()
+        from galaxy.webapps.community.controllers.repository import ValidRepositoryGrid
+        repo_grid = ValidRepositoryGrid()
     %>
     ${self.make_grid( grid, repo_grid )}
 </%def>

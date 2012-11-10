@@ -9,7 +9,7 @@
 
 <%def name="javascripts()">
     ${parent.javascripts()}
-    ${h.js( "libs/jquery/jquery-ui-1.8.23.custom.min", "libs/jquery/jquery.dynatree" )}
+    ${h.js( "libs/jquery/jquery-ui", "libs/jquery/jquery.dynatree" )}
     ${browse_files(tool_dependency.name, tool_dependency.installation_directory( trans.app ))}
 </%def>
 
@@ -58,7 +58,7 @@
             ${tool_dependency.status}
             <div style="clear: both"></div>
         </div>
-        %if repository.in_error_state:
+        %if tool_dependency.in_error_state:
             <div class="form-row" >
                 <label>Tool dependency installation error:</label>
                 ${tool_dependency.error_message}

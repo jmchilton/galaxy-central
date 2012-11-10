@@ -243,6 +243,7 @@ class JobWrapper( object ):
                 dataset.info = message
                 dataset.set_size()
                 dataset.dataset.set_total_size()
+                dataset.mark_unhidden()
                 if dataset.ext == 'auto':
                     dataset.extension = 'data'
                 # Update (non-library) job output datasets through the object store
@@ -387,6 +388,7 @@ class JobWrapper( object ):
                 # job's state:
                 if job.states.ERROR == job.state:
                     dataset.blurb = "error"
+                    dataset.mark_unhidden()
                 elif dataset.has_data():
                     # If the tool was expected to set the extension, attempt to retrieve it
                     if dataset.ext == 'auto':
@@ -406,7 +408,6 @@ class JobWrapper( object ):
                     # the state or whether the tool used exit codes and regular
                     # expressions to do so. So we use 
                     # job.state == job.states.ERROR to replace this same test.
-                    #elif not self.external_output_metadata.external_metadata_set_successfully( dataset, self.sa_session ) and not context['stderr']:
                     elif not self.external_output_metadata.external_metadata_set_successfully( dataset, self.sa_session ) and job.states.ERROR != job.state: 
                         dataset._state = model.Dataset.states.FAILED_METADATA
                     else:

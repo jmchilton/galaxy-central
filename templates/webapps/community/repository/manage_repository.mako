@@ -7,21 +7,30 @@
     from galaxy.web.framework.helpers import time_ago
     is_admin = trans.user_is_admin()
     is_new = repository.is_new
+    is_deprecated = repository.deprecated
     can_contact_owner = trans.user and trans.user != repository.user
-    can_push = trans.app.security_agent.can_push( trans.user, repository )
+    can_push = not is_deprecated and trans.app.security_agent.can_push( trans.user, repository )
     can_upload = can_push
-    can_download = not is_new and ( not is_malicious or can_push )
+    can_download = not is_deprecated and not is_new and ( not is_malicious or can_push )
     can_browse_contents = not is_new
-    can_set_metadata = not is_new
-    can_rate = not is_new and trans.user and repository.user != trans.user
+    can_set_metadata = not is_new and not is_deprecated
+    can_rate = not is_new and not is_deprecated and trans.user and repository.user != trans.user
     can_view_change_log = not is_new
     if can_push:
         browse_label = 'Browse or delete repository tip files'
     else:
         browse_label = 'Browse repository tip files'
     can_set_malicious = metadata and can_set_metadata and is_admin and changeset_revision == repository.tip
-    can_reset_all_metadata = is_admin and len( repo ) > 0
+    can_deprecate = not is_new and trans.user and ( is_admin or repository.user == trans.user ) and not is_deprecated
+    can_undeprecate = trans.user and ( is_admin or repository.user == trans.user ) and is_deprecated
+    can_reset_all_metadata = not is_deprecated and is_admin and len( repo ) > 0
     has_readme = metadata and 'readme' in metadata
+    can_review_repository = not is_deprecated and trans.app.security_agent.user_can_review_repositories( trans.user )
+    reviewing_repository = cntrller and cntrller == 'repository_review'
+    if changeset_revision == repository.tip:
+        tip_str = 'repository tip'
+    else:
+        tip_str = ''
 %>
 
 <%!
@@ -41,43 +50,70 @@
 
 <br/><br/>
 <ul class="manage-table-actions">
-    %if is_new and can_upload:
-        <a class="action-button" href="${h.url_for( controller='upload', action='upload', repository_id=trans.security.encode_id( repository.id ) )}">Upload files to repository</a>
+    %if reviewing_repository:
+        %if reviewed_by_user:
+            <a class="action-button" href="${h.url_for( controller='repository_review', action='edit_review', id=review_id )}">Manage my review of this revision</a>
+        %else:
+            <a class="action-button" href="${h.url_for( controller='repository_review', action='create_review', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">Add a review to this revision</a>
+        %endif
     %else:
-        <li><a class="action-button" id="repository-${repository.id}-popup" class="menubutton">Repository Actions</a></li>
-        <div popupmenu="repository-${repository.id}-popup">
-            %if can_upload:
-                <a class="action-button" href="${h.url_for( controller='upload', action='upload', repository_id=trans.security.encode_id( repository.id ) )}">Upload files to repository</a>
-            %endif
-            %if has_readme:
-                <a class="action-button" href="${h.url_for( controller='repository', action='view_readme', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">View README</a>
-            %endif
-            %if can_view_change_log:
-                <a class="action-button" href="${h.url_for( controller='repository', action='view_changelog', id=trans.app.security.encode_id( repository.id ) )}">View change log</a>
-            %endif
-            %if can_rate:
-                <a class="action-button" href="${h.url_for( controller='repository', action='rate_repository', id=trans.app.security.encode_id( repository.id ) )}">Rate repository</a>
-            %endif
-            %if can_browse_contents:
-                <a class="action-button" href="${h.url_for( controller='repository', action='browse_repository', id=trans.app.security.encode_id( repository.id ) )}">${browse_label}</a>
-            %endif
-            %if can_contact_owner:
-                <a class="action-button" href="${h.url_for( controller='repository', action='contact_owner', id=trans.security.encode_id( repository.id ) )}">Contact repository owner</a>
-            %endif
-            %if can_reset_all_metadata:
-                <a class="action-button" href="${h.url_for( controller='repository', action='reset_all_metadata', id=trans.security.encode_id( repository.id ) )}">Reset all repository metadata</a>
-            %endif
-            %if can_download:
-                <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='gz' )}">Download as a .tar.gz file</a>
-                <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='bz2' )}">Download as a .tar.bz2 file</a>
-                <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='zip' )}">Download as a zip file</a>
-            %endif
-        </div>
+        %if is_new and can_upload:
+            <a class="action-button" href="${h.url_for( controller='upload', action='upload', repository_id=trans.security.encode_id( repository.id ) )}">Upload files to repository</a>
+        %else:
+            <li><a class="action-button" id="repository-${repository.id}-popup" class="menubutton">Repository Actions</a></li>
+            <div popupmenu="repository-${repository.id}-popup">
+                %if can_review_repository:
+                    %if reviewed_by_user:
+                        <a class="action-button" href="${h.url_for( controller='repository_review', action='edit_review', id=review_id )}">Manage my review of this revision</a>
+                    %else:
+                        <a class="action-button" href="${h.url_for( controller='repository_review', action='create_review', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">Add a review to this revision</a>
+                    %endif
+                %endif
+                %if can_upload:
+                    <a class="action-button" href="${h.url_for( controller='upload', action='upload', repository_id=trans.security.encode_id( repository.id ) )}">Upload files to repository</a>
+                %endif
+                %if has_readme:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='view_readme', id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision )}">View README</a>
+                %endif
+                %if can_view_change_log:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='view_changelog', id=trans.app.security.encode_id( repository.id ) )}">View change log</a>
+                %endif
+                %if can_rate:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='rate_repository', id=trans.app.security.encode_id( repository.id ) )}">Rate repository</a>
+                %endif
+                %if can_browse_contents:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='browse_repository', id=trans.app.security.encode_id( repository.id ) )}">${browse_label | h}</a>
+                %endif
+                %if can_contact_owner:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='contact_owner', id=trans.security.encode_id( repository.id ) )}">Contact repository owner</a>
+                %endif
+                %if can_reset_all_metadata:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='reset_all_metadata', id=trans.security.encode_id( repository.id ) )}">Reset all repository metadata</a>
+                %endif
+                %if can_deprecate:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='deprecate', id=trans.security.encode_id( repository.id ), mark_deprecated=True )}">Mark repository as deprecated</a>
+                %endif
+                %if can_undeprecate:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='deprecate', id=trans.security.encode_id( repository.id ), mark_deprecated=False )}">Mark repository as not deprecated</a>
+                %endif
+                %if can_download:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='gz' )}">Download as a .tar.gz file</a>
+                    <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='bz2' )}">Download as a .tar.bz2 file</a>
+                    <a class="action-button" href="${h.url_for( controller='repository', action='download', repository_id=trans.app.security.encode_id( repository.id ), changeset_revision=changeset_revision, file_type='zip' )}">Download as a zip file</a>
+                %endif
+            </div>
+        %endif
     %endif
 </ul>
 
 %if message:
     ${render_msg( message, status )}
+%endif
+
+%if repository.deprecated:
+    <div class="warningmessage">
+        This repository has been marked as deprecated, so some tool shed features may be restricted.
+    </div>
 %endif
 
 %if len( changeset_revision_select_field.options ) > 1:
@@ -86,15 +122,13 @@
         <div class="toolFormBody">
             <form name="change_revision" id="change_revision" action="${h.url_for( controller='repository', action='manage_repository', id=trans.security.encode_id( repository.id ) )}" method="post" >
                 <div class="form-row">
-                    <%
-                        if changeset_revision == repository.tip:
-                            tip_str = 'repository tip'
-                        else:
-                            tip_str = ''
-                    %>
                     ${changeset_revision_select_field.get_html()} <i>${tip_str}</i>
                     <div class="toolParamHelp" style="clear: both;">
-                        Select a revision to inspect and download versions of tools from this repository.
+                        %if reviewing_repository or can_review_repository:
+                            Select a revision to inspect for adding or managing a review or for download or installation.
+                        %else:
+                            Select a revision to inspect for download or installation.
+                        %endif
                     </div>
                 </div>
             </form>
@@ -103,7 +137,7 @@
     <p/>
 %endif
 <div class="toolForm">
-    <div class="toolFormTitle">${repository.name}</div>
+    <div class="toolFormTitle">Repository '${repository.name | h}'</div>
     <div class="toolFormBody">
         <form name="edit_repository" id="edit_repository" action="${h.url_for( controller='repository', action='manage_repository', id=trans.security.encode_id( repository.id ) )}" method="post" >
             %if can_download:
@@ -117,7 +151,7 @@
                 %if repository.times_downloaded > 0:
                     ${repository.name}
                 %else:
-                    <input name="repo_name" type="textfield" value="${repository.name}" size="40"/>
+                    <input name="repo_name" type="textfield" value="${repository.name | h}" size="40"/>
                 %endif
                 <div class="toolParamHelp" style="clear: both;">
                     Repository names cannot be changed if the repository has been cloned.
@@ -126,13 +160,13 @@
             </div>
             <div class="form-row">
                 <label>Synopsis:</label>
-                <input name="description" type="textfield" value="${description}" size="80"/>
+                <input name="description" type="textfield" value="${description | h}" size="80"/>
                 <div style="clear: both"></div>
             </div>
             <div class="form-row">
                 <label>Detailed description:</label>
                 %if long_description:
-                    <pre><textarea name="long_description" rows="3" cols="80">${long_description}</textarea></pre>
+                    <pre><textarea name="long_description" rows="3" cols="80">${long_description | h}</textarea></pre>
                 %else:
                     <textarea name="long_description" rows="3" cols="80"></textarea>
                 %endif
@@ -141,27 +175,27 @@
             <div class="form-row">
                 <label>Revision:</label>
                 %if can_view_change_log:
-                    <a href="${h.url_for( controller='repository', action='view_changelog', id=trans.app.security.encode_id( repository.id ) )}">${revision_label}</a>
+                    <a href="${h.url_for( controller='repository', action='view_changelog', id=trans.app.security.encode_id( repository.id ) )}">${revision_label | h}</a>
                 %else:
-                    ${revision_label}
+                    ${revision_label | h}
                 %endif
             </div>
             <div class="form-row">
                 <label>Owner:</label>
-                ${repository.user.username}
+                ${repository.user.username | h}
             </div>
             <div class="form-row">
                 <label>Times downloaded:</label>
-                ${repository.times_downloaded}
+                ${repository.times_downloaded | h}
             </div>
             %if is_admin:
                 <div class="form-row">
                     <label>Location:</label>
-                    ${repository.repo_path}
+                    ${repository.repo_path | h}
                 </div>
                 <div class="form-row">
                     <label>Deleted:</label>
-                    ${repository.deleted}
+                    ${repository.deleted | h}
                 </div>
             %endif
             <div class="form-row">
@@ -181,9 +215,9 @@ ${render_repository_items( repository_metadata_id, metadata, can_set_metadata=Tr
                 <select name="category_id" multiple>
                     %for category in categories:
                         %if category.id in selected_categories:
-                            <option value="${trans.security.encode_id( category.id )}" selected>${category.name}</option>
+                            <option value="${trans.security.encode_id( category.id )}" selected>${category.name | h}</option>
                         %else:
-                            <option value="${trans.security.encode_id( category.id )}">${category.name}</option>
+                            <option value="${trans.security.encode_id( category.id )}">${category.name | h}</option>
                         %endif
                     %endfor
                 </select>
@@ -224,14 +258,14 @@ ${render_repository_items( repository_metadata_id, metadata, can_set_metadata=Tr
     <div class="toolFormBody">
         <table class="grid">
             <tr>
-                <td>${repository.user.username}</td>
+                <td>${repository.user.username | h}</td>
                 <td>owner</td>
                 <td>&nbsp;</td>
             </tr>
             %for username in current_allow_push_list:
                 %if username != repository.user.username:
                     <tr>
-                        <td>${username}</td>
+                        <td>${username | h}</td>
                         <td>write</td>
                         <td><a class="action-button" href="${h.url_for( controller='repository', action='manage_repository', id=trans.security.encode_id( repository.id ), user_access_button='Remove', remove_auth=username )}">remove</a>
                     </tr>
@@ -261,7 +295,7 @@ ${render_repository_items( repository_metadata_id, metadata, can_set_metadata=Tr
         <div class="toolFormBody">
             <div class="form-row">
                 <label>Times Rated:</label>
-                ${num_ratings}
+                ${num_ratings | h}
                 <div style="clear: both"></div>
             </div>
             <div class="form-row">
@@ -295,9 +329,9 @@ ${render_repository_items( repository_metadata_id, metadata, can_set_metadata=Tr
                         %>
                         <tr>
                             <td>${render_star_rating( name, review.rating, disabled=True )}</td>
-                            <td><pre>${review.comment}</pre></td>
+                            <td><pre>${review.comment | h}</pre></td>
                             <td>${time_ago( review.update_time )}</td>
-                            <td>${review.user.username}</td>
+                            <td>${review.user.username | h}</td>
                         </tr>
                     %endfor
                 </table>

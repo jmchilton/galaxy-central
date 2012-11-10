@@ -58,7 +58,7 @@
 
 <%def name="javascripts()">
     ${parent.javascripts()}
-    ${h.js( "libs/jquery/jquery.rating", "libs/jquery/jquery-ui-1.8.23.custom.min", "libs/jquery/jquery.cookie", "libs/jquery/jquery.dynatree" )}
+    ${h.js( "libs/jquery/jquery.rating", "libs/jquery/jquery-ui", "libs/jquery/jquery.cookie", "libs/jquery/jquery.dynatree" )}
     ${common_javascripts(repository)}
 </%def>
 
@@ -101,7 +101,7 @@
 
 %if can_browse_contents:
     <div class="toolForm">
-        <div class="toolFormTitle">Browse ${repository.name} revision ${repository.tip} (repository tip)</div>
+        <div class="toolFormTitle">Browse ${repository.name | h} revision ${repository.tip | h} (repository tip)</div>
         %if can_download:
             <div class="form-row">
                 <label>Clone this repository:</label>
@@ -124,7 +124,7 @@
                     <label>Message:</label>
                     <div class="form-row-input">
                         %if commit_message:
-                            <textarea name="commit_message" rows="3" cols="35">${commit_message}</textarea>
+                            <textarea name="commit_message" rows="3" cols="35">${commit_message | h}</textarea>
                         %else:
                             <textarea name="commit_message" rows="3" cols="35"></textarea>
                         %endif

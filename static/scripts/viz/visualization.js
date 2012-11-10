@@ -1,9 +1,8 @@
-define( ["libs/underscore", "mvc/data", "viz/trackster/util" ], function(_, data_mod, util_mod) {
+define( ["libs/underscore", "mvc/data", "viz/trackster/util", "utils/config"], 
+        function(_, data_mod, util_mod, config_mod) {
 
 /**
  * Model, view, and controller objects for Galaxy visualization framework.
- * 
- * Required libraries: Backbone, jQuery
  *
  * Models have no references to views, instead using events to indicate state 
  * changes; this is advantageous because multiple views can use the same object 
@@ -15,11 +14,10 @@ define( ["libs/underscore", "mvc/data", "viz/trackster/util" ], function(_, data
  * track definitions are obtained from the server and the success_fn is called with the list of
  * definitions for selected datasets.
  */
-var select_datasets = function(dataset_url, add_track_async_url, dbkey, success_fn) {
+var select_datasets = function(dataset_url, add_track_async_url, filters, success_fn) {
     $.ajax({
         url: dataset_url,
-        // Filter by dbkey if available.
-        data: ( dbkey ? { 'f-dbkey': dbkey } : {} ),
+        data: filters,
         error: function() { alert( "Grid failed" ); },
         success: function(table_html) {
             show_modal(
@@ -428,6 +426,17 @@ var GenomeDataManager = Cache.extend({
     },
 
     /**
+     * Returns true if more detailed data can be obtained for entry.
+     */
+    can_get_more_detailed_data: function(region) {
+        var cur_data = this.get_elt(region);
+
+        // Can only get more detailed data for bigwig data that has less than 8000 data points.
+        // Summary tree returns *way* too much data, and 8000 data points ~ 500KB.
+        return (cur_data.dataset_type === 'bigwig' && cur_data.data.length < 8000);
+    },
+
+    /**
      * Returns more detailed data for an entry.
      */
     get_more_detailed_data: function(region, mode, resolution, detail_multiplier, extra_params) {
@@ -442,7 +451,8 @@ var GenomeDataManager = Cache.extend({
 
         // Use additional parameters to get more detailed data.
         if (cur_data.dataset_type === 'bigwig') {
-            extra_params.num_samples = cur_data.data.length * detail_multiplier;
+            // FIXME: constant should go somewhere.
+            extra_params.num_samples = 1000 * detail_multiplier;
         }
         else if (cur_data.dataset_type === 'summary_tree') {
             extra_params.level = Math.min(cur_data.level - 1, 2);
@@ -581,14 +591,7 @@ var GenomeRegion = Backbone.RelationalModel.extend({
     defaults: {
         chrom: null,
         start: 0,
-        end: 0,
-        DIF_CHROMS: 1000,
-        BEFORE: 1001, 
-        CONTAINS: 1002, 
-        OVERLAP_START: 1003, 
-        OVERLAP_END: 1004, 
-        CONTAINED_BY: 1005, 
-        AFTER: 1006
+        end: 0
     },
     
     /**
@@ -644,30 +647,30 @@ var GenomeRegion = Backbone.RelationalModel.extend({
             
         // Look at chroms.
         if (first_chrom && second_chrom && first_chrom !== second_chrom) {
-            return this.get('DIF_CHROMS');
+            return GenomeRegion.overlap_results.DIF_CHROMS;
         }
         
         // Look at regions.
         if (first_start < second_start) {
             if (first_end < second_start) {
-                overlap = this.get('BEFORE');
+                overlap = GenomeRegion.overlap_results.BEFORE;
             }
             else if (first_end <= second_end) {
-                overlap = this.get('OVERLAP_START');
+                overlap = GenomeRegion.overlap_results.OVERLAP_START;
             }
             else { // first_end > second_end
-                overlap = this.get('CONTAINS');
+                overlap = GenomeRegion.overlap_results.CONTAINS;
             }
         }
         else { // first_start >= second_start
             if (first_start > second_end) {
-                overlap = this.get('AFTER');
+                overlap = GenomeRegion.overlap_results.AFTER;
             }
             else if (first_end <= second_end) {
-                overlap = this.get('CONTAINED_BY');
+                overlap = GenomeRegion.overlap_results.CONTAINED_BY;
             }
             else {
-                overlap = this.get('OVERLAP_END');
+                overlap = GenomeRegion.overlap_results.OVERLAP_END;
             }
         }
 
@@ -678,7 +681,7 @@ var GenomeRegion = Backbone.RelationalModel.extend({
      * Returns true if this region contains a given region.
      */
     contains: function(a_region) {
-        return this.compute_overlap(a_region) === this.get('CONTAINS');  
+        return this.compute_overlap(a_region) === GenomeRegion.overlap_results.CONTAINS;
     },
 
     /**
@@ -686,7 +689,18 @@ var GenomeRegion = Backbone.RelationalModel.extend({
      */
     overlaps: function(a_region) {
         return _.intersection( [this.compute_overlap(a_region)], 
-                               [this.get('DIF_CHROMS'), this.get('BEFORE'), this.get('AFTER')] ).length === 0;  
+                               [GenomeRegion.overlap_results.DIF_CHROMS, GenomeRegion.overlap_results.BEFORE, GenomeRegion.overlap_results.AFTER] ).length === 0;  
+    }
+},
+{
+    overlap_results: {
+        DIF_CHROMS: 1000,
+        BEFORE: 1001, 
+        CONTAINS: 1002, 
+        OVERLAP_START: 1003, 
+        OVERLAP_END: 1004, 
+        CONTAINED_BY: 1005, 
+        AFTER: 1006
     }
 });
 
@@ -729,7 +743,17 @@ var BackboneTrack = data_mod.Dataset.extend({
         // Dataset id is unique ID for now.
         this.set('id', options.dataset_id);
 
-        // Set up data manager.
+        // -- Set up config settings. -- 
+
+        this.set('config', config_mod.ConfigSettingCollection.from_config_dict(options.prefs));
+
+        // Set up some minimal config.
+        this.get('config').add( [
+            { key: 'name', value: this.get('name') },
+            { key: 'color' }
+        ] );
+
+        // -- Set up data manager. --
         var preloaded_data = this.get('preloaded_data');
         if (preloaded_data) {
             preloaded_data = preloaded_data.data;
@@ -753,12 +777,8 @@ var Visualization = Backbone.RelationalModel.extend({
         type: ''
     },
 
-    // Use function because visualization_url changes depending on viz.
-    // FIXME: all visualizations should save to the same URL (and hence
-    // this function won't be needed).
-    url: function() { 
-        return galaxy_paths.get("visualization_url");
-    },
+    // No API to create/save visualization yet, so use this path:
+    url: galaxy_paths.get("visualization_url"),
     
     /**
      * POSTs visualization's JSON to its URL using the parameter 'vis_json'

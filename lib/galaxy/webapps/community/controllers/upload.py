@@ -3,7 +3,9 @@ from galaxy.web.base.controller import *
 from galaxy.model.orm import *
 from galaxy.datatypes.checkers import *
 from common import *
-from galaxy.util.shed_util import get_configured_ui, reset_tool_data_tables, handle_sample_tool_data_table_conf_file, update_repository
+# TODO: re-factor shed_util to eliminate the following restricted imports
+from galaxy.util.shed_util import get_configured_ui, get_repository_in_tool_shed, reset_tool_data_tables, handle_sample_tool_data_table_conf_file
+from galaxy.util.shed_util import update_repository
 
 from galaxy import eggs
 eggs.require('mercurial')
@@ -28,7 +30,7 @@ class UploadController( BaseUIController ):
         category_ids = util.listify( params.get( 'category_id', '' ) )
         categories = get_categories( trans )
         repository_id = params.get( 'repository_id', '' )
-        repository = get_repository( trans, repository_id )
+        repository = get_repository_in_tool_shed( trans, repository_id )
         repo_dir = repository.repo_path
         repo = hg.repository( get_configured_ui(), repo_dir )
         uncompress_file = util.string_as_bool( params.get( 'uncompress_file', 'true' ) )
@@ -48,13 +50,12 @@ class UploadController( BaseUIController ):
                 message = 'No files were entered on the upload form.'
                 status = 'error'
                 uploaded_file = None
-            elif url and url.startswith("hg"):
-                # Use mercurial clone to fetch repository, contents will then
-                # be copied over.
+            elif url and url.startswith( 'hg' ):
+                # Use mercurial clone to fetch repository, contents will then be copied over.
                 uploaded_directory = tempfile.mkdtemp()
-                repo_url = "http%s" % url[len("hg"):]
-                repo_url = repo_url.encode('ascii', 'replace')
-                commands.clone(get_configured_ui(), repo_url, uploaded_directory)
+                repo_url = 'http%s' % url[ len( 'hg' ): ]
+                repo_url = repo_url.encode( 'ascii', 'replace' )
+                commands.clone( get_configured_ui(), repo_url, uploaded_directory )
             elif url:
                 valid_url = True
                 try:
@@ -85,7 +86,6 @@ class UploadController( BaseUIController ):
                 isgzip = False
                 isbz2 = False
                 if uploaded_file:
-
                     if uncompress_file:
                         isgzip = is_gzip( uploaded_file_name )
                         if not isgzip:
@@ -160,6 +160,7 @@ class UploadController( BaseUIController ):
                     # Get the new repository tip.
                     if tip == repository.tip:
                         message = 'No changes to repository.  '
+                        status = 'warning'
                     else:
                         if ( isgzip or isbz2 ) and uncompress_file:
                             uncompress_str = ' uncompressed and '
@@ -182,6 +183,16 @@ class UploadController( BaseUIController ):
                                 message += "  %d files were removed from the repository root.  " % len( files_to_remove )
                         kwd[ 'message' ] = message
                         set_repository_metadata_due_to_new_tip( trans, repository, content_alert_str=content_alert_str, **kwd )
+                    #provide a warning message if a tool_dependencies.xml file is provided, but tool dependencies weren't loaded due to e.g. a requirement tag mismatch
+                    if get_config_from_disk( 'tool_dependencies.xml', repo_dir ):
+                        if repository.metadata_revisions:
+                            metadata_dict = repository.metadata_revisions[0].metadata
+                        else:
+                            metadata_dict = {}
+                        if 'tool_dependencies' not in metadata_dict:
+                            message += 'Name, version and type from a tool requirement tag does not match the information in the "tool_dependencies.xml".  '
+                            status = 'warning'
+                            log.debug( 'Error in tool dependencies for repository %s: %s.' % ( repository.id, repository.name ) )
                     # Reset the tool_data_tables by loading the empty tool_data_table_conf.xml file.
                     reset_tool_data_tables( trans.app )
                     trans.response.send_redirect( web.url_for( controller='repository',
@@ -208,12 +219,10 @@ class UploadController( BaseUIController ):
         repo = hg.repository( get_configured_ui(), repo_dir )
         undesirable_dirs_removed = 0
         undesirable_files_removed = 0
-
         if upload_point is not None:
             full_path = os.path.abspath( os.path.join( repo_dir, upload_point ) )
         else:
             full_path = os.path.abspath( repo_dir )
-
         filenames_in_archive = []
         for root, dirs, files in os.walk( uploaded_directory ):
             for uploaded_file in files:

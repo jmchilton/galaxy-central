@@ -138,6 +138,12 @@ class Job( object ):
 
     # TODO: Add accessors for members defined in SQL Alchemy for the Job table and
     # for the mapper defined to the Job table. 
+    def get_external_output_metadata( self ):
+        """
+        The external_output_metadata is currently a reference from Job to 
+        JobExternalOutputMetadata. It exists for a job but not a task.
+        """
+        return self.external_output_metadata 
     def get_session_id( self ):
         return self.session_id
     def get_user_id( self ):
@@ -370,6 +376,13 @@ class Task( object ):
     # (e.g., for a session) or never use the member (e.g., external output
     # metdata). These can be filled in as needed.
     def get_external_output_metadata( self ):
+        """
+        The external_output_metadata is currently a backref to 
+        JobExternalOutputMetadata. It exists for a job but not a task,
+        and when a task is cancelled its corresponding parent Job will
+        be cancelled. So None is returned now, but that could be changed
+        to self.get_job().get_external_output_metadata().
+        """
         return None
     def get_job_runner_name( self ):
         """
@@ -681,6 +694,9 @@ class History( object, UsesAnnotations ):
     @property
     def get_disk_size_bytes( self ):
         return self.get_disk_size( nice_size=False )
+    def unhide_datasets( self ):
+        for dataset in self.datasets:
+            dataset.mark_unhidden()
     def get_disk_size( self, nice_size=False ):
         # unique datasets only
         db_session = object_session( self )
@@ -1484,6 +1500,7 @@ class HistoryDatasetAssociation( DatasetInstance ):
                      model_class = self.__class__.__name__,
                      name = hda.name,
                      deleted = hda.deleted,
+                     purged = hda.purged,
                      visible = hda.visible,
                      state = hda.state,
                      file_size = int( hda.get_size() ),
