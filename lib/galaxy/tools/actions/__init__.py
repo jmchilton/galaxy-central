@@ -1,3 +1,4 @@
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.model import LibraryDatasetDatasetAssociation
 from galaxy.util.bunch import Bunch
 from galaxy.util.odict import odict
@@ -32,13 +33,18 @@ class DefaultToolAction( object ):
         of the DataToolParameter type.
         """
         input_datasets = dict()
+        split_inputs = set()
         def visitor( prefix, input, value, parent = None ):
             def process_dataset( data, formats = None ):
                 if not data:
                     return data
                 if formats is None:
                     formats = input.formats
-                if not data.datatype.matches_any( formats ):
+                direct_format_match = data.datatype.matches_any( formats )
+                is_composite_multifile = isinstance( data.datatype, CompositeMultifile )
+                if not direct_format_match and data.datatype.matches_any( input.implicit_formats ):
+                    split_inputs.add(input.name)
+                elif not direct_format_match:
                     # Need to refresh in case this conversion just took place, i.e. input above in tool performed the same conversion
                     trans.sa_session.refresh( data )
                     target_ext, converted_dataset = data.find_conversion_destination( formats )
@@ -105,7 +111,7 @@ class DefaultToolAction( object ):
                         #allow explicit conversion to be stored in job_parameter table
                         target_dict[ conversion_name ] = conversion_data.id #a more robust way to determine JSONable value is desired
         tool.visit_inputs( param_values, visitor )
-        return input_datasets
+        return (input_datasets, split_inputs)
 
     def execute(self, tool, trans, incoming={}, return_job=False, set_output_hid=True, set_output_history=True, history=None, job_params=None ):
         """
@@ -173,9 +179,10 @@ class DefaultToolAction( object ):
             history = trans.history
         
         out_data = odict()
+        merge_outputs = []
         # Collect any input datasets from the incoming parameters
-        inp_data = self.collect_input_datasets( tool, incoming, trans )
-
+        (inp_data, split_inputs) = self.collect_input_datasets( tool, incoming, trans )
+        implicit_multifile = len(split_inputs) > 0
         # Deal with input dataset names, 'dbkey' and types
         input_names = []
         input_ext = 'data'
@@ -303,6 +310,9 @@ class DefaultToolAction( object ):
                                         if check is not None:
                                             if str( getattr( check, when_elem.get( 'attribute' ) ) ) == when_elem.get( 'value', None ):
                                                 ext = when_elem.get( 'format', ext )
+                    if implicit_multifile:
+                        ext = CompositeMultifile.build_multifile_extension(ext)
+                        merge_outputs.append(name)
                     data = trans.app.model.HistoryDatasetAssociation( extension=ext, create_dataset=True, sa_session=trans.sa_session )
                     if output.hidden:
                         data.visible = False
@@ -393,6 +403,17 @@ class DefaultToolAction( object ):
         #        parameters to the command as a special case.
         for name, value in tool.params_to_strings( incoming, trans.app ).iteritems():
             job.add_parameter( name, value )
+        if implicit_multifile:
+            parallelism = { 
+                'method': 'multi',
+                'split_inputs': ",".join(split_inputs),
+                'split_mode': 'from_composite',
+                'merge_outputs': ",".join(merge_outputs)
+            }
+            # Probably not the more ideal way to pass this information around, 
+            # maybe there should be a field in the database for implicit parallelism.
+            job.add_parameter( '__parallelism__', to_json_string(parallelism) )
+
         current_user_roles = trans.get_current_user_roles()
         for name, dataset in inp_data.iteritems():
             if dataset:

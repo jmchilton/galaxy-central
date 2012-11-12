@@ -47,6 +47,7 @@ class Sleeper( object ):
         self.condition.notify()
         self.condition.release()
 
+
 class JobWrapper( object ):
     """
     Wraps a 'model.Job' with convenience methods for running processes and
@@ -91,13 +92,17 @@ class JobWrapper( object ):
 
     def can_split( self ):
         # Should the job handler split this job up?
-        return self.app.config.use_tasked_jobs and self.tool.parallelism
+        return self.app.config.use_tasked_jobs and (self.tool.parallelism or self.get_job().get_param_values(self.app).get('__parallelism__', None))
 
     def get_job_runner_url( self ):
         return self.job_runner_mapper.get_job_runner_url( self.params )
 
     def get_parallelism(self):
-        return self.tool.parallelism
+        return self.__get_job_parallelism() or self.tool.parallelism
+
+    def __get_job_parallelism(self):
+        parallelism_dict = self.get_job().get_param_values(self.app).get('__parallelism__')
+        return ParallelismInfo(parallelism_dict)
 
     # legacy naming
     get_job_runner = get_job_runner_url
