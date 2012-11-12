@@ -5,6 +5,7 @@ Basic tool parameters.
 import logging, string, sys, os, os.path
 from elementtree.ElementTree import XML, Element
 from galaxy import config, datatypes, util
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param
@@ -1405,11 +1406,19 @@ class DataToolParameter( ToolParameter ):
             datatypes_registry = tool.app.datatypes_registry
         # Build tuple of classes for supported data formats
         formats = []
+        implicit_formats = []
         self.extensions = elem.get( 'format', 'data' ).split( "," )
-        for extension in self.extensions:
+        normalized_extensions = [extension.lower() for extension in self.extensions]
+        for extension in normalized_extensions:
             extension = extension.strip()
-            formats.append( datatypes_registry.get_datatype_by_extension( extension.lower() ).__class__ )
+            formats.append( datatypes_registry.get_datatype_by_extension( extension ).__class__ )
+            if not CompositeMultifile.is_multifile_extension(extension):
+                multifile_extension = CompositeMultifile.build_multifile_extension(extension)
+                if multifile_extension not in normalized_extensions:
+                    implicit_formats.append( datatypes_registry.get_datatype_by_extension( multifile_extension ).__class__ )
+        # Place in a tuple so the idiom isinstance( datatype, formats) can be used.
         self.formats = tuple( formats )
+        self.implicit_formats = tuple( implicit_formats )
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
@@ -1471,7 +1480,7 @@ class DataToolParameter( ToolParameter ):
                         continue
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
-                    if isinstance( hda.datatype, self.formats):
+                    if isinstance( hda.datatype, self.formats) or isinstance( hda.datatype, self.implicit_formats ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
@@ -1538,7 +1547,7 @@ class DataToolParameter( ToolParameter ):
             for i, data in enumerate( datasets ):
                 if data.visible and not data.deleted and data.state not in [data.states.ERROR, data.states.DISCARDED]:
                     is_valid = False
-                    if isinstance( data.datatype, self.formats ):
+                    if isinstance( data.datatype, self.formats ) or isinstance( data.datatype, self.implicit_formats ):
                         is_valid = True
                     else:
                         target_ext, converted_dataset = data.find_conversion_destination( self.formats )
