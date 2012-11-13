@@ -1,5 +1,6 @@
 from galaxy.datatypes.data import CompositeMultifile
 from galaxy.model import LibraryDatasetDatasetAssociation
+from galaxy.datatypes.data import is_of_a_type
 from galaxy.util.bunch import Bunch
 from galaxy.util.odict import odict
 from galaxy.util.json import to_json_string
@@ -38,11 +39,12 @@ class DefaultToolAction( object ):
             def process_dataset( data, formats = None ):
                 if not data:
                     return data
+                implicit_formats = None
                 if formats is None:
                     formats = input.formats
-                direct_format_match = isinstance( data.datatype, formats )
-                is_composite_multifile = isinstance( data.datatype, CompositeMultifile )
-                if not direct_format_match and trans.app.config.use_composite_multifiles and isinstance(data.datatype, input.implicit_formats):
+                    implicit_formats = input.implicit_formats
+                direct_format_match = is_of_a_type( data.datatype, formats )
+                if not direct_format_match and trans.app.config.use_composite_multifiles and is_of_a_type(data.datatype, implicit_formats):
                     split_inputs.add(input.name)
                 elif not direct_format_match:
                     # Need to refresh in case this conversion just took place, i.e. input above in tool performed the same conversion
@@ -270,7 +272,11 @@ class DefaultToolAction( object ):
                         ext = input_ext
                     if output.format_source is not None and output.format_source in inp_data:
                         try:
-                            ext = inp_data[output.format_source].ext
+                            input_dataset = inp_data[output.format_source]
+                            input_extension = input_dataset.ext
+                            if output.format_source in split_inputs:
+                                CompositeMultifile.get_singleton_extension(input_extension)
+                            ext = input_extension
                         except Exception, e:
                             pass
                     

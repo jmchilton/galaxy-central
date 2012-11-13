@@ -792,6 +792,17 @@ class CompositeMultifile( Data ):
         return 'text/html'
 
     @staticmethod
+    def get_singleton_extension(extension):
+        """
+        If specified extension is a multifile extension, return the
+        singleton version of that extension, otherwise just return
+        the extension.
+        """
+        if CompositeMultifile.is_multifile_extension(extension):
+            extension = extension[len(MULTIFILE_EXTENSION_PREFIX):]
+        return extension
+
+    @staticmethod
     def build_multifile_extension(simple_extension):
         return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
 
@@ -990,3 +1001,25 @@ def get_file_peek( file_name, is_multi_byte=False, WIDTH=256, LINE_COUNT=5, skip
             text = "binary/unknown file"
     return text
 
+
+def is_of_a_type(query_datatype, datatypes):
+    """
+    Check if a datatype matches a given set of datatypes when one does
+    not want to treat CompositeMultifile types as a particular instance of
+    the base Data class and in such a way as to reflect that the
+    CompositeMultifile variant of a subclass is not an actual subclass of
+    the CompositeMultifile variant of its superclass.
+
+    In short, the idiom `isinstance(datatype, formats)` breaks down with
+    the introduction of CompositeMultifiles, this method is an attempt at
+    replacing it.
+    """
+    if not isinstance(query_datatype, CompositeMultifile):
+        datatype_classes = tuple([datatype.__class__ if isinstance(datatype, Data) else datatype for datatype in datatypes])
+        return isinstance(query_datatype, datatype_classes)
+    else:
+        singleton_query_type = query_datatype.singleton_type
+        singleton_types = tuple([datatype.singleton_type for datatype in datatypes if isinstance(datatype, CompositeMultifile)])
+        composite_match = isinstance(singleton_query_type, tuple([singleton_type.__class__ for singleton_type in singleton_types]))
+        log.info("Checking sqt %s against sts %s datatypes %s matches %s" % (singleton_query_type, singleton_types, datatypes, composite_match))
+        return composite_match

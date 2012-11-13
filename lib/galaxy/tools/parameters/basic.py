@@ -5,7 +5,7 @@ Basic tool parameters.
 import logging, string, sys, os, os.path
 from elementtree.ElementTree import XML, Element
 from galaxy import config, datatypes, util
-from galaxy.datatypes.data import CompositeMultifile
+from galaxy.datatypes.data import CompositeMultifile, is_of_a_type
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param
@@ -805,7 +805,7 @@ class SelectToolParameter( ToolParameter ):
             if isinstance( dep_value, RuntimeValue ):
                 return True
             #dataset not ready yet
-            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not isinstance( dep_value.datatype, self.ref_input.formats ) ):
+            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not is_of_a_type( dep_value.datatype, self.ref_input.formats ) ):
                 return True
         # Dynamic, but all dependenceis are known and have values
         return False 
@@ -1057,7 +1057,7 @@ class ColumnListParameter( SelectToolParameter ):
             if not dataset.metadata.columns:
                 # Only allow late validation if the dataset is not yet ready
                 # (since we have reason to expect the metadata to be ready eventually)
-                if dataset.is_pending or not isinstance( dataset.datatype, self.ref_input.formats ):
+                if dataset.is_pending or not is_of_a_type( dataset.datatype, self.ref_input.formats ):
                     return True
         # No late validation
         return False
@@ -1411,14 +1411,14 @@ class DataToolParameter( ToolParameter ):
         normalized_extensions = [extension.lower() for extension in self.extensions]
         for extension in normalized_extensions:
             extension = extension.strip()
-            formats.append( datatypes_registry.get_datatype_by_extension( extension ).__class__ )
+            formats.append( datatypes_registry.get_datatype_by_extension( extension ) )
             if not CompositeMultifile.is_multifile_extension(extension):
                 multifile_extension = CompositeMultifile.build_multifile_extension(extension)
                 if multifile_extension not in normalized_extensions:
-                    implicit_formats.append( datatypes_registry.get_datatype_by_extension( multifile_extension ).__class__ )
+                    implicit_formats.append( datatypes_registry.get_datatype_by_extension( multifile_extension ) )
         # Convert list to tuple so the idiom isinstance( datatype, formats) can be used.
-        self.formats = tuple( formats )
-        self.implicit_formats = tuple( implicit_formats )
+        self.formats = formats
+        self.implicit_formats = implicit_formats
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
@@ -1442,7 +1442,7 @@ class DataToolParameter( ToolParameter ):
             conv_extensions = conv_elem.get( "type" ) #target datatype extension
             # FIXME: conv_extensions should be able to be an ordered list
             assert None not in [ name, type ], 'A name (%s) and type (%s) are required for explicit conversion' % ( name, type )
-            conv_types = tool.app.datatypes_registry.get_datatype_by_extension( conv_extensions.lower() ).__class__
+            conv_types = tool.app.datatypes_registry.get_datatype_by_extension( conv_extensions.lower() )
             self.conversions.append( ( name, conv_extensions, conv_types ) )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
@@ -1481,7 +1481,7 @@ class DataToolParameter( ToolParameter ):
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
                     use_composite_multifiles = trans.app.config.use_composite_multifiles
-                    if isinstance( hda.datatype, self.formats) or ( use_composite_multifiles and isinstance( hda.datatype, self.implicit_formats ) ):
+                    if is_of_a_type( hda.datatype, self.formats ) or ( use_composite_multifiles and is_of_a_type( hda.datatype, self.implicit_formats ) ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
@@ -1549,7 +1549,7 @@ class DataToolParameter( ToolParameter ):
                 if data.visible and not data.deleted and data.state not in [data.states.ERROR, data.states.DISCARDED]:
                     is_valid = False
                     use_composite_multifiles = trans.app.config.use_composite_multifiles
-                    if isinstance( data.datatype, self.formats ) or ( use_composite_multifiles and isinstance( data.datatype, self.implicit_formats ) ):
+                    if is_of_a_type( data.datatype, self.formats ) or ( use_composite_multifiles and is_of_a_type( data.datatype, self.implicit_formats ) ):
                         is_valid = True
                     else:
                         target_ext, converted_dataset = data.find_conversion_destination( self.formats )
