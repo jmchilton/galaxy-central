@@ -42,7 +42,7 @@ class DefaultToolAction( object ):
                     formats = input.formats
                 direct_format_match = data.datatype.matches_any( formats )
                 is_composite_multifile = isinstance( data.datatype, CompositeMultifile )
-                if not direct_format_match and data.datatype.matches_any( input.implicit_formats ):
+                if not direct_format_match and trans.app.config.use_composite_multifiles and data.datatype.matches_any( input.implicit_formats ):
                     split_inputs.add(input.name)
                 elif not direct_format_match:
                     # Need to refresh in case this conversion just took place, i.e. input above in tool performed the same conversion
