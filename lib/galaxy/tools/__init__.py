@@ -158,6 +158,10 @@ class ToolBox( object ):
             self.index += 1
             if parsing_shed_tool_conf:
                 config_elems.append( elem )
+            load_condition = elem.attrib.get('if', None)
+            load = not load_condition or eval( load_condition, { 'app': self.app } )
+            if not load:
+                continue
             if elem.tag == 'tool':
                 self.load_tool_tag_set( elem, self.tool_panel, self.integrated_tool_panel, tool_path, load_panel_dict, guid=elem.get( 'guid' ), index=index )
             elif elem.tag == 'workflow':
