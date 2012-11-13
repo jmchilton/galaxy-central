@@ -117,8 +117,14 @@ class Configuration( object ):
         # External Service types used in sample tracking
         self.external_service_type_config_file = resolve_path( kwargs.get( 'external_service_type_config_file', 'external_service_types_conf.xml' ), self.root )
         self.external_service_type_path = resolve_path( kwargs.get( 'external_service_type_path', 'external_service_types' ), self.root )
+        use_tasked_jobs_default = False
+        # composite_multifiles enables multifile variants of simple datatypes,
+        # implicit parallelism for such datasets, etc...
+        self.use_composite_multifiles = string_as_bool( kwargs.get( 'use_composite_multifiles', False ) )
+        if self.use_composite_multifiles:
+            use_tasked_jobs_default = True
         # Tasked job runner.
-        self.use_tasked_jobs = string_as_bool( kwargs.get( 'use_tasked_jobs', False ) )
+        self.use_tasked_jobs = string_as_bool( kwargs.get( 'use_tasked_jobs', use_tasked_jobs_default ) )
         self.local_task_queue_workers = int(kwargs.get("local_task_queue_workers", 2))
         # The transfer manager and deferred job queue
         self.enable_beta_job_managers = string_as_bool( kwargs.get( 'enable_beta_job_managers', 'False' ) )
