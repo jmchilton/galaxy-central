@@ -1021,5 +1021,4 @@ def is_of_a_type(query_datatype, datatypes):
         singleton_query_type = query_datatype.singleton_type
         singleton_types = tuple([datatype.singleton_type for datatype in datatypes if isinstance(datatype, CompositeMultifile)])
         composite_match = isinstance(singleton_query_type, tuple([singleton_type.__class__ for singleton_type in singleton_types]))
-        log.info("Checking sqt %s against sts %s datatypes %s matches %s" % (singleton_query_type, singleton_types, datatypes, composite_match))
         return composite_match
