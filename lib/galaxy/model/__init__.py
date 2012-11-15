@@ -112,6 +112,7 @@ class Job( object ):
                     RUNNING = 'running',
                     OK = 'ok',
                     ERROR = 'error',
+                    PAUSED = 'paused',
                     DELETED = 'deleted',
                     DELETED_NEW = 'deleted_new' )
     # Please include an accessor (get/set pair) for any new columns/members.
@@ -697,6 +698,11 @@ class History( object, UsesAnnotations ):
     def unhide_datasets( self ):
         for dataset in self.datasets:
             dataset.mark_unhidden()
+    def resume_paused_jobs( self ):
+        for dataset in self.datasets:
+            job = dataset.creating_job
+            if job.state == Job.states.PAUSED:
+                job.set_state(Job.states.QUEUED)
     def get_disk_size( self, nice_size=False ):
         # unique datasets only
         db_session = object_session( self )
@@ -993,7 +999,7 @@ class DatasetInstance( object ):
     permitted_actions = Dataset.permitted_actions
     def __init__( self, id=None, hid=None, name=None, info=None, blurb=None, peek=None, tool_version=None, extension=None,
                   dbkey=None, metadata=None, history=None, dataset=None, deleted=False, designation=None,
-                  parent_id=None, validation_errors=None, visible=True, create_dataset=False, sa_session=None ):
+                  parent_id=None, validation_errors=None, visible=True, create_dataset=False, sa_session=None, extended_metadata=None ):
         self.name = name or "Unnamed dataset"
         self.id = id
         self.info = info
@@ -1003,6 +1009,7 @@ class DatasetInstance( object ):
         self.extension = extension
         self.designation = designation
         self.metadata = metadata or dict()
+        self.extended_metadata = extended_metadata
         if dbkey: #dbkey is stored in metadata, only set if non-zero, or else we could clobber one supplied by input 'metadata'
             self.dbkey = dbkey
         self.deleted = deleted
@@ -1907,6 +1914,18 @@ class LibraryDatasetDatasetAssociation( DatasetInstance ):
         if isinstance( ldda_name, str ):
             ldda_name = unicode( ldda_name, 'utf-8' )
         return ldda_name
+
+class ExtendedMetadata( object ):
+    def __init__(self, data):
+        self.data = data
+
+
+class ExtendedMetadataIndex( object ):
+    def __init__( self, extended_metadata, path, value):
+        self.extended_metadata = extended_metadata
+        self.path = path
+        self.value = value
+
 
 class LibraryInfoAssociation( object ):
     def __init__( self, library, form_definition, info, inheritable=False ):

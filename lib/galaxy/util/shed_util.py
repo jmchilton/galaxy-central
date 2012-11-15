@@ -1,7 +1,6 @@
 import sys, os, tempfile, shutil, logging, string, urllib2
 import galaxy.tools.data
 from datetime import date, datetime, timedelta
-from time import strftime, gmtime
 from galaxy import util
 from galaxy.web import url_for
 from galaxy.web.form_builder import SelectField
@@ -40,82 +39,6 @@ NOT_TOOL_CONFIGS = [ 'datatypes_conf.xml', 'tool_dependencies.xml' ]
 VALID_CHARS = set( string.letters + string.digits + "'\"-=_.()/+*^,:?!#[]%\\$@;{}" )
 TOOL_SHED_ADMIN_CONTROLLER = 'TOOL_SHED_ADMIN_CONTROLLER'
 
-class ShedCounter( object ):
-    def __init__( self, model ):
-        self.model = model
-        self.generation_time = strftime( "%b %d, %Y", gmtime() )
-        self.repositories = 0
-        self.new_repositories = 0
-        self.deleted_repositories = 0
-        self.invalid_tools = 0
-        self.valid_tools = 0
-        self.workflows = 0
-        self.proprietary_datatypes = 0
-        self.total_clones = 0
-        self.generate_statistics()
-    @property
-    def sa_session( self ):
-        """Returns a SQLAlchemy session"""
-        return self.model.context
-    def generate_statistics( self ):
-        self.repositories = 0
-        self.new_repositories = 0
-        self.deleted_repositories = 0
-        self.invalid_tools = 0
-        self.valid_tools = 0
-        self.workflows = 0
-        self.proprietary_datatypes = 0
-        self.total_clones = 0
-        for repository in self.sa_session.query( self.model.Repository ):
-            self.repositories += 1
-            self.total_clones += repository.times_downloaded
-            is_deleted = repository.deleted
-            is_new = repository.is_new
-            if is_deleted and is_new:
-                self.deleted_repositories += 1
-                self.new_repositories += 1
-            elif is_deleted:
-                self.deleted_repositories += 1
-            elif is_new:
-                self.new_repositories += 1
-            else:
-                processed_guids = []
-                processed_invalid_tool_configs = []
-                processed_relative_workflow_paths = []
-                processed_datatypes = []
-                # A repository's metadata_revisions are those that ignore the value of the repository_metadata.downloadable column.
-                for metadata_revision in repository.metadata_revisions:
-                    metadata = metadata_revision.metadata
-                    if 'tools' in metadata:
-                        tool_dicts = metadata[ 'tools' ]
-                        for tool_dict in tool_dicts:
-                            if 'guid' in tool_dict:
-                                guid = tool_dict[ 'guid' ]
-                                if guid not in processed_guids:
-                                    self.valid_tools += 1
-                                    processed_guids.append( guid )
-                    if 'invalid_tools' in metadata:
-                        invalid_tool_configs = metadata[ 'invalid_tools' ]
-                        for invalid_tool_config in invalid_tool_configs:
-                            if invalid_tool_config not in processed_invalid_tool_configs:
-                                self.invalid_tools += 1
-                                processed_invalid_tool_configs.append( invalid_tool_config )
-                    if 'datatypes' in metadata:
-                        datatypes = metadata[ 'datatypes' ]
-                        for datatypes_dict in datatypes:
-                            if 'extension' in datatypes_dict:
-                                extension = datatypes_dict[ 'extension' ]
-                                if extension not in processed_datatypes:
-                                    self.proprietary_datatypes += 1
-                                    processed_datatypes.append( extension )
-                    if 'workflows' in metadata:
-                        workflows = metadata[ 'workflows' ]
-                        for workflow_tup in workflows:
-                            relative_path, exported_workflow_dict = workflow_tup
-                            if relative_path not in processed_relative_workflow_paths:
-                                self.workflows += 1
-                                processed_relative_workflow_paths.append( relative_path )
-        self.generation_time = strftime( "%b %d, %Y", gmtime() )
 def add_to_shed_tool_config( app, shed_tool_conf_dict, elem_list ):
     # A tool shed repository is being installed so change the shed_tool_conf file.  Parse the config file to generate the entire list
     # of config_elems instead of using the in-memory list since it will be a subset of the entire list if one or more repositories have
@@ -763,8 +686,8 @@ def generate_metadata_for_changeset_revision( app, repository, repository_clone_
     """
     Generate metadata for a repository using it's files on disk.  To generate metadata for changeset revisions older than the repository tip,
     the repository will have been cloned to a temporary location and updated to a specified changeset revision to access that changeset revision's
-    disk files, so the value of repository_files_dir will not always be repository.repo_path (it could be an absolute path to a temporary directory
-    containing a clone).  If it is an absolute path, the value of relative_install_dir must contain repository.repo_path.
+    disk files, so the value of repository_files_dir will not always be repository.repo_path( app ) (it could be an absolute path to a temporary
+    directory containing a clone).  If it is an absolute path, the value of relative_install_dir must contain repository.repo_path( app ).
     
     The value of persist will be True when the installed repository contains a valid tool_data_table_conf.xml.sample file, in which case the entries
     should ultimately be persisted to the file referred to by app.config.shed_tool_data_table_config.
@@ -784,7 +707,7 @@ def generate_metadata_for_changeset_revision( app, repository, repository_clone_
     original_tool_data_table_config_path = app.config.tool_data_table_config_path
     if resetting_all_metadata_on_repository:
         if not relative_install_dir:
-            raise Exception( "The value of repository.repo_path must be sent when resetting all metadata on a repository." )
+            raise Exception( "The value of repository.repo_path( app ) must be sent when resetting all metadata on a repository." )
         # Keep track of the location where the repository is temporarily cloned so that we can strip the path when setting metadata.  The value of
         # repository_files_dir is the full path to the temporary directory to which the repository was cloned.
         work_dir = repository_files_dir
@@ -907,7 +830,7 @@ def generate_metadata_for_changeset_revision( app, repository, repository_clone_
     app.config.tool_data_path = original_tool_data_path
     app.config.tool_data_table_config_path = original_tool_data_table_config_path
     return metadata_dict, invalid_file_tups
-def generate_message_for_invalid_tools( invalid_file_tups, repository, metadata_dict, as_html=True, displaying_invalid_tool=False ):
+def generate_message_for_invalid_tools( trans, invalid_file_tups, repository, metadata_dict, as_html=True, displaying_invalid_tool=False ):
     if as_html:
         new_line = '<br/>'
         bold_start = '<b>'
@@ -919,10 +842,10 @@ def generate_message_for_invalid_tools( invalid_file_tups, repository, metadata_
     message = ''
     if not displaying_invalid_tool:
         if metadata_dict:
-            message += "Metadata was defined for some items in revision '%s'.  " % str( repository.tip )
+            message += "Metadata was defined for some items in revision '%s'.  " % str( repository.tip( trans.app ) )
             message += "Correct the following problems if necessary and reset metadata.%s" % new_line
         else:
-            message += "Metadata cannot be defined for revision '%s' so this revision cannot be automatically " % str( repository.tip )
+            message += "Metadata cannot be defined for revision '%s' so this revision cannot be automatically " % str( repository.tip( trans.app ) )
             message += "installed into a local Galaxy instance.  Correct the following problems and reset metadata.%s" % new_line
     for itc_tup in invalid_file_tups:
         tool_file, exception_msg = itc_tup
@@ -2229,7 +2152,7 @@ def reset_all_metadata_on_repository_in_tool_shed( trans, id ):
                 trans.sa_session.flush()
     repository = get_repository_in_tool_shed( trans, id )
     log.debug( "Resetting all metadata on repository: %s" % repository.name )
-    repo_dir = repository.repo_path
+    repo_dir = repository.repo_path( trans.app )
     repo = hg.repository( get_configured_ui(), repo_dir )
     repository_clone_url = generate_clone_url_for_repository_in_tool_shed( trans, repository )
     # The list of changeset_revisions refers to repository_metadata records that have been created or updated.  When the following loop
@@ -2329,7 +2252,7 @@ def reset_metadata_on_selected_repositories( trans, **kwd ):
                     repository = get_installed_tool_shed_repository( trans, repository_id )
                     invalid_file_tups, metadata_dict = reset_all_metadata_on_installed_repository( trans, repository_id )
                 if invalid_file_tups:
-                    message = generate_message_for_invalid_tools( invalid_file_tups, repository, None, as_html=False )
+                    message = generate_message_for_invalid_tools( trans, invalid_file_tups, repository, None, as_html=False )
                     log.debug( message )
                     unsuccessful_count += 1
                 else:
