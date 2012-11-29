@@ -801,6 +801,17 @@ class CompositeMultifile( Data ):
         return 'text/html'
 
     @staticmethod
+    def get_singleton_extension(extension):
+        """
+        If specified extension is a multifile extension, return the
+        singleton version of that extension, otherwise just return
+        the extension.
+        """
+        if CompositeMultifile.is_multifile_extension(extension):
+            extension = extension[len(MULTIFILE_EXTENSION_PREFIX):]
+        return extension
+
+    @staticmethod
     def build_multifile_extension(simple_extension):
         return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
 
@@ -877,6 +888,13 @@ class CompositeMultifile( Data ):
             except Exception:
                 raise
         self.regenerate_primary_file(output_dataset)
+
+
+    def matches_any( self, target_datatypes ):
+        singleton_query_type = self.singleton_type
+        singleton_types = tuple([datatype.singleton_type for datatype in target_datatypes if isinstance(datatype, CompositeMultifile)])
+        composite_match = isinstance(singleton_query_type, tuple([singleton_type.__class__ for singleton_type in singleton_types]))
+        return composite_match
 
     #merge = staticmethod(merge)
 
