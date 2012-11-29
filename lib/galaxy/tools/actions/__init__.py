@@ -185,6 +185,7 @@ class DefaultToolAction( object ):
         # Deal with input dataset names, 'dbkey' and types
         input_names = []
         input_ext = 'data'
+        default_format_source = None # I think default_format would be better variable name for input_ext. -jmchilton
         input_dbkey = incoming.get( "dbkey", "?" )
         for name, data in inp_data.items():
             if not data:
@@ -200,6 +201,7 @@ class DefaultToolAction( object ):
                 if data.hid:
                     input_names.append( 'data %s' % data.hid )
             input_ext = data.ext
+            default_format_source = name
             
             if data.dbkey not in [None, '?']:
                 input_dbkey = data.dbkey
@@ -277,14 +279,17 @@ class DefaultToolAction( object ):
                     ext = output.format
                     if ext == "input":
                         ext = input_ext
+                    format_source = default_format_source
                     if output.format_source is not None and output.format_source in inp_data:
                         try:
-                            input_dataset = inp_data[output.format_source]
-                            input_extension = input_dataset.ext
-                            ext = input_extension
+                            ext = inp_data[output.format_source].ext
+                            format_source = output.format_source
                         except Exception, e:
                             pass
-                    
+
+                    if format_source in split_inputs:
+                        ext = CompositeMultifile.get_singleton_extension(ext)
+
                     #process change_format tags
                     if output.change_format:
                         if params is None:
