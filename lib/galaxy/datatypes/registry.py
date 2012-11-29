@@ -6,6 +6,7 @@ import data, tabular, interval, images, sequence, qualityscore, genetics, xml, c
 import galaxy.util
 from galaxy.util.odict import odict
 from display_applications.application import DisplayApplication
+from implicit.multifile import CompositeMultifileDatatypeLoader
 
 class ConfigurationError( Exception ):
     pass
@@ -47,6 +48,7 @@ class Registry( object ):
         self.datatype_elems = []
         self.sniffer_elems = []
         self.xml_filename = None
+        self.implicit_type_loaders = [CompositeMultifileDatatypeLoader(self)]
     def load_datatypes( self, root_dir=None, config=None, deactivate=False, override=True ):
         """
         Parse a datatypes XML file located at root_dir/config.  If deactivate is True, an installed tool shed
@@ -209,6 +211,7 @@ class Registry( object ):
                         self.log.warning( "Error deactivating datatype with extension '%s': %s" % ( extension, str( e ) ) )
                     else:
                         self.log.warning( "Error loading datatype with extension '%s': %s" % ( extension, str( e ) ) )
+            self._load_implicit_datatypes()
             # Load datatype sniffers from the config
             sniffers = root.find( 'sniffers' )
             if sniffers:
@@ -586,7 +589,7 @@ class Registry( object ):
     def find_conversion_destination_for_dataset_by_extensions( self, dataset, accepted_formats, converter_safe = True ):
         """Returns ( target_ext, existing converted dataset )"""
         for convert_ext in self.get_converters_by_datatype( dataset.ext ):
-            if isinstance( self.get_datatype_by_extension( convert_ext ), accepted_formats ):
+            if is_of_a_type( self.get_datatype_by_extension( convert_ext ), accepted_formats ):
                 converted_dataset = dataset.get_converted_files_by_type( convert_ext )
                 if converted_dataset:
                     ret_data = converted_dataset
@@ -651,3 +654,7 @@ class Registry( object ):
         os.write( fd, '</datatypes>\n' )
         os.close( fd )
         os.chmod( self.xml_filename, 0644 )
+    def _load_implicit_datatypes(self):
+        for implicit_type_loader in self.implicit_type_loaders:
+            implicit_type_loader.load()
+

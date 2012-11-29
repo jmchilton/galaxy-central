@@ -1,4 +1,5 @@
 import logging, os, sys, time, tempfile
+import shutil
 from galaxy import util
 from galaxy.util.odict import odict
 from galaxy.util.bunch import Bunch
@@ -653,7 +654,7 @@ class Text( Data ):
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disk'
 
-    def split( cls, input_datasets, subdir_generator_function, split_params):
+    def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input files by line.
         """
@@ -734,6 +735,156 @@ class LineCount( Text ):
     line count for a related dataset. Used for custom builds.
     """
     pass
+
+# TODO: Move to top of file
+MULTIFILE_EXTENSION_PREFIX = "m:"
+
+class CompositeMultifile( Data ):
+    # https://bitbucket.org/glormph/adapt/src/ea13ed90e6a3/lib/galaxy/datatypes/proteomics.py?at=composite_data_parallelism
+    composite_type = 'auto_primary_file'
+    allow_datatype_change = False
+
+    def __init__(self, **kwargs):
+        Data.__init__(self)
+        self.singleton_type = kwargs.get('singleton_type', None)
+        self.check_file_types = kwargs.get('check_file_type', False)
+        
+    def set_peek(self, dataset, is_multi_byte=True):
+        """Set the peek and blurb text"""
+        if not dataset.dataset.purged:
+            try:
+                dataset.peek = '\n'.join(os.listdir(dataset.extra_files_path))
+                dataset.blurb = 'Composite %s file data' % (self.singleton_type.file_ext)
+            except Exception, e:
+                raise
+                dataset.peek = 'Error inspecting composite data: %s' % e
+                dataset.blurb = 'file purged from disk'
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def regenerate_primary_file(self, dataset):
+        """
+        cannot do this until we are setting metadata
+        """
+        efp = dataset.extra_files_path
+        flist = os.listdir(efp)
+        rval = ['<html><head><title>Files for Composite Dataset %s</title></head><body><p/>Composite %s contains:<p/><ul>' \
+% (dataset.name,dataset.name)]
+        for i,fname in enumerate(flist):
+            sfname = os.path.split(fname)[-1]
+            f,e = os.path.splitext(fname)
+            rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, sfname) )
+        rval.append( '</ul></body></html>' )
+        f = file(dataset.file_name,'w')
+        f.write("\n".join( rval ))
+        f.write('\n')
+        f.close()
+
+    def set_meta( self, dataset, **kwd ):
+        Data.set_meta( self, dataset, **kwd )
+        self.regenerate_primary_file(dataset)
+        return True
+
+    def add_composite_files(self, extra_files_dir):
+        for fn in os.listdir(extra_files_dir):
+            self.add_composite_file(fn)
+
+    def get_mime(self):
+        """Returns the mime type of the datatype"""
+        return 'text/html'
+
+    @staticmethod
+    def get_singleton_extension(extension):
+        """
+        If specified extension is a multifile extension, return the
+        singleton version of that extension, otherwise just return
+        the extension.
+        """
+        if CompositeMultifile.is_multifile_extension(extension):
+            extension = extension[len(MULTIFILE_EXTENSION_PREFIX):]
+        return extension
+
+    @staticmethod
+    def build_multifile_extension(simple_extension):
+        return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
+
+    @staticmethod
+    def is_multifile_extension(query_extension):
+        return query_extension.startswith(MULTIFILE_EXTENSION_PREFIX)
+
+    def split(self, input_datasets, subdir_generator_function, split_params):
+        """
+        Split the input composite dataset into individual files in task
+        directories.
+        """
+        if split_params is None:
+            return
+            
+        input_files = [ds.file_name for ds in input_datasets]
+        # only one split_mode is accepted
+        if split_params['split_mode'] != 'from_composite':
+            raise Exception('Unsupported split mode %s. Use only from_composite as split mode.' % split_params['split_mode'])
+    
+        # Test if datasets are eligible for multifile splitting (similar number of files in datasets)
+        amount = {}
+        filetypes = {}
+        for in_data in input_datasets:
+            in_files = os.listdir(in_data.extra_files_path)
+            amount[ len(in_files) ] = 1
+            if not self.check_file_types:
+                continue
+            filetypes[in_data.file_name] = {}
+            for in_file in in_files:
+                if '.' not in in_file:
+                    filetypes[in_data.file_name]['']=1
+                else:
+                    ext = in_file.split('.')[-1]
+                    ext = ext[:ext.index('_task')]
+                    filetypes[in_data.file_name][ext] = 1
+            assert len( filetypes[in_data.file_name].keys() ) == 1, Exception('Different filetypes found in composite file list. Cannot split.')
+
+        assert len(amount.keys()) == 1, Exception('Different number of files are contained in the different dataset.')
+        # Split files
+        try:
+            for filenum in range(amount.keys()[0]):
+                part_dir = subdir_generator_function()
+                for in_data in input_datasets:
+                    members = os.listdir( in_data.extra_files_path )
+                    member = members[int([i for i,fn in enumerate(members) if 'task_%s' % filenum in fn][-1])]
+                    part_path = os.path.join(part_dir, os.path.basename( in_data.file_name ) )
+                    os.symlink(os.path.join(in_data.extra_files_path, member), part_path)
+        except Exception:
+            raise
+     #split = classmethod(split)    
+
+    def merge(self, split_files, output_filename, output_dataset, newnames=None):
+        """
+        Merges result files from task directories back into a composite dataset's
+        extra_files_path directory.
+        """
+        if len(split_files) == 1:  # in case of non-multifile analysis.
+            shutil.move(split_files[0], output_dataset.path)
+        else:
+            os.makedirs(output_dataset.extra_files_path)
+            try:
+                for i, in_file in enumerate(split_files):
+                    # name files with 'task_%d' suffix that their tasks subdir had
+                    if not newnames:
+                        oldfn, old_parentdir = os.path.split(in_file)[-1], os.path.split(os.path.split(in_file)[0])[-1]
+                        if 'task_' in old_parentdir and 'task_' not in oldfn:  # files are from a previous tool task
+                            newname = '%s_%s' % (oldfn, old_parentdir)
+                        else:
+                            raise Exception('Files named incorrectly and no new names supplied, cannot merge.')
+                    else:
+                        newname = newnames[i]
+                    os.rename(in_file, os.path.join(output_dataset.extra_files_path, newname) )
+            except Exception:
+                raise
+        self.regenerate_primary_file(output_dataset)
+
+    #merge = staticmethod(merge)
+
 
 class Newick( Text ):
     """New Hampshire/Newick Format"""
@@ -852,3 +1003,26 @@ def get_file_peek( file_name, is_multi_byte=False, WIDTH=256, LINE_COUNT=5, skip
         except UnicodeDecodeError:
             text = "binary/unknown file"
     return text
+
+
+def is_of_a_type(query_datatype, datatypes):
+    """
+    Check if a datatype matches a given set of datatypes when one does
+    not want to treat CompositeMultifile types as a particular instance of
+    the base Data class and in such a way as to reflect that the
+    CompositeMultifile variant of a subclass is not an actual subclass of
+    the CompositeMultifile variant of its superclass.
+
+    In short, the idiom `isinstance(datatype, formats)` breaks down with
+    the introduction of CompositeMultifiles, this method is an attempt at
+    replacing it.
+    """
+    if not isinstance(query_datatype, CompositeMultifile):
+        datatype_classes = tuple([datatype.__class__ if isinstance(datatype, Data) else datatype for datatype in datatypes])
+        return isinstance(query_datatype, datatype_classes)
+    else:
+        singleton_query_type = query_datatype.singleton_type
+        singleton_types = tuple([datatype.singleton_type for datatype in datatypes if isinstance(datatype, CompositeMultifile)])
+        composite_match = isinstance(singleton_query_type, tuple([singleton_type.__class__ for singleton_type in singleton_types]))
+        return composite_match
+

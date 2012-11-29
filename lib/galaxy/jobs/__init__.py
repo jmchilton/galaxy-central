@@ -47,6 +47,7 @@ class Sleeper( object ):
         self.condition.notify()
         self.condition.release()
 
+
 class JobWrapper( object ):
     """
     Wraps a 'model.Job' with convenience methods for running processes and
@@ -89,8 +90,19 @@ class JobWrapper( object ):
         self.__user_system_pwent = None
         self.__galaxy_system_pwent = None
 
+    def can_split( self ):
+        # Should the job handler split this job up?
+        return self.app.config.use_tasked_jobs and (self.tool.parallelism or self.get_job().get_param_values(self.app).get('__parallelism__', None))
+
     def get_job_runner_url( self ):
         return self.job_runner_mapper.get_job_runner_url( self.params )
+
+    def get_parallelism(self):
+        return self.tool.parallelism or self.__get_job_parallelism()
+
+    def __get_job_parallelism(self):
+        parallelism_dict = self.get_job().get_param_values(self.app).get('__parallelism__')
+        return ParallelismInfo(parallelism_dict)
 
     # legacy naming
     get_job_runner = get_job_runner_url
@@ -386,6 +398,10 @@ class JobWrapper( object ):
                 dataset.blurb = 'done'
                 dataset.peek  = 'no peek'
                 dataset.info = ( dataset.info  or '' ) + context['stdout'] + context['stderr']
+                # Hack to add multifiles-composites. Both hacks are for adapt.
+                # Should be ironed out later
+                if hasattr(dataset, 'multifiles') and dataset.multifiles not in [None, []] and dataset.datatype.composite_type is not None:
+                    dataset.datatype.add_composite_files(dataset.extra_files_dir)
                 dataset.tool_version = self.version_string
                 dataset.set_size()
                 # Update (non-library) job output datasets through the object store
@@ -941,6 +957,11 @@ class TaskWrapper(JobWrapper):
             self.prepare_input_files_cmds = None
         self.status = task.states.NEW
 
+    def can_split( self ):
+        # Should the job handler split this job up? TaskWrapper should 
+        # always return False as the job has already been split.
+        return False
+
     def get_job( self ):
         if self.job_id:
             return self.sa_session.query( model.Job ).get( self.job_id )
@@ -1160,3 +1181,20 @@ class NoopQueue( object ):
         return
     def shutdown( self ):
         return
+
+class ParallelismInfo(object):
+    """
+    Stores the information (if any) for running multiple instances of the tool in parallel
+    on the same set of inputs.
+    """
+    def __init__(self, tag):
+        self.method = tag.get('method')
+        if isinstance(tag, dict):
+            items = tag.iteritems()
+        else:
+            items = tag.attrib.items()
+        self.attributes = dict([item for item in items if item[0] != 'method' ])
+        if len(self.attributes) == 0:
+            # legacy basic mode - provide compatible defaults
+            self.attributes['split_size'] = 20
+            self.attributes['split_mode'] = 'number_of_parts'

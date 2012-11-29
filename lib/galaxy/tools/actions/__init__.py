@@ -1,4 +1,6 @@
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.model import LibraryDatasetDatasetAssociation
+from galaxy.datatypes.data import is_of_a_type
 from galaxy.util.bunch import Bunch
 from galaxy.util.odict import odict
 from galaxy.util.json import to_json_string
@@ -32,11 +34,19 @@ class DefaultToolAction( object ):
         of the DataToolParameter type.
         """
         input_datasets = dict()
+        split_inputs = set()
         def visitor( prefix, input, value, parent = None ):
             def process_dataset( data, formats = None ):
+                if not data:
+                    return data
+                implicit_formats = None
                 if formats is None:
                     formats = input.formats
-                if data and not isinstance( data.datatype, formats ):
+                    implicit_formats = input.implicit_formats
+                direct_format_match = is_of_a_type( data.datatype, formats )
+                if not direct_format_match and trans.app.config.use_composite_multifiles and is_of_a_type(data.datatype, implicit_formats):
+                    split_inputs.add(input.name)
+                elif not direct_format_match:
                     # Need to refresh in case this conversion just took place, i.e. input above in tool performed the same conversion
                     trans.sa_session.refresh( data )
                     target_ext, converted_dataset = data.find_conversion_destination( formats )
@@ -54,7 +64,7 @@ class DefaultToolAction( object ):
                             trans.sa_session.flush()
                             data = new_data
                 current_user_roles = trans.get_current_user_roles()
-                if data and not trans.app.security_agent.can_access_dataset( current_user_roles, data.dataset ):
+                if not trans.app.security_agent.can_access_dataset( current_user_roles, data.dataset ):
                     raise "User does not have permission to use a dataset (%s) provided for input." % data.id
                 return data
             if isinstance( input, DataToolParameter ):
@@ -99,7 +109,7 @@ class DefaultToolAction( object ):
                         #allow explicit conversion to be stored in job_parameter table
                         target_dict[ conversion_name ] = conversion_data.id #a more robust way to determine JSONable value is desired
         tool.visit_inputs( param_values, visitor )
-        return input_datasets
+        return (input_datasets, split_inputs)
 
     def execute(self, tool, trans, incoming={}, return_job=False, set_output_hid=True, set_output_history=True, history=None, job_params=None ):
         """
@@ -161,9 +171,10 @@ class DefaultToolAction( object ):
             history = trans.history
         
         out_data = odict()
+        merge_outputs = []
         # Collect any input datasets from the incoming parameters
-        inp_data = self.collect_input_datasets( tool, incoming, trans )
-
+        (inp_data, split_inputs) = self.collect_input_datasets( tool, incoming, trans )
+        implicit_multifile = len(split_inputs) > 0
         # Deal with input dataset names, 'dbkey' and types
         input_names = []
         input_ext = 'data'
@@ -261,7 +272,11 @@ class DefaultToolAction( object ):
                         ext = input_ext
                     if output.format_source is not None and output.format_source in inp_data:
                         try:
-                            ext = inp_data[output.format_source].ext
+                            input_dataset = inp_data[output.format_source]
+                            input_extension = input_dataset.ext
+                            if output.format_source in split_inputs:
+                                CompositeMultifile.get_singleton_extension(input_extension)
+                            ext = input_extension
                         except Exception, e:
                             pass
                     
@@ -289,6 +304,9 @@ class DefaultToolAction( object ):
                                         if check is not None:
                                             if str( getattr( check, when_elem.get( 'attribute' ) ) ) == when_elem.get( 'value', None ):
                                                 ext = when_elem.get( 'format', ext )
+                    if implicit_multifile:
+                        ext = CompositeMultifile.build_multifile_extension(ext)
+                        merge_outputs.append(name)
                     data = trans.app.model.HistoryDatasetAssociation( extension=ext, create_dataset=True, sa_session=trans.sa_session )
                     if output.hidden:
                         data.visible = False
@@ -379,6 +397,17 @@ class DefaultToolAction( object ):
         #        parameters to the command as a special case.
         for name, value in tool.params_to_strings( incoming, trans.app ).iteritems():
             job.add_parameter( name, value )
+        if implicit_multifile:
+            parallelism = { 
+                'method': 'multi',
+                'split_inputs': ",".join(split_inputs),
+                'split_mode': 'from_composite',
+                'merge_outputs': ",".join(merge_outputs)
+            }
+            # Probably not the more ideal way to pass this information around, 
+            # maybe there should be a field in the database for implicit parallelism.
+            job.add_parameter( '__parallelism__', to_json_string(parallelism) )
+
         current_user_roles = trans.get_current_user_roles()
         for name, dataset in inp_data.iteritems():
             if dataset:

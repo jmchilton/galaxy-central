@@ -5,6 +5,7 @@ Basic tool parameters.
 import logging, string, sys, os, os.path
 from elementtree.ElementTree import XML, Element
 from galaxy import config, datatypes, util
+from galaxy.datatypes.data import CompositeMultifile, is_of_a_type
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param
@@ -456,7 +457,16 @@ class FileToolParameter( ToolParameter ):
             raise Exception( "FileToolParameter cannot be persisted" )
     def get_initial_value( self, trans, context ):
         return None
-        
+
+
+class MultiFileToolParameter(FileToolParameter):
+    """
+    Parameter to upload multiple files and merge them immediately.
+    """
+    def get_html_field( self, trans=None, value=None, other_values={}  ):
+        return form_builder.MultiFileField( self.name, ajax = self.ajax, value = value )
+
+
 class FTPFileToolParameter( ToolParameter ):
     """
     Parameter that takes a file uploaded via FTP as a value.
@@ -495,6 +505,16 @@ class FTPFileToolParameter( ToolParameter ):
             return value
     def get_initial_value( self, trans, context ):
         return None
+
+class FTPDirectoryToolParameter( FTPFileToolParameter ):
+    def get_html_field( self, trans=None, value=None, other_values={}  ):
+        if trans is None or trans.user is None:
+            user_ftp_dir = None
+        else:
+            user_ftp_dir = os.path.join( trans.app.config.ftp_upload_dir, trans.user.email )
+        return form_builder.FTPDirectoryField( self.name, user_ftp_dir, trans.app.config.ftp_upload_site, value = value )
+
+
 
 class HiddenToolParameter( ToolParameter ):
     """
@@ -785,7 +805,7 @@ class SelectToolParameter( ToolParameter ):
             if isinstance( dep_value, RuntimeValue ):
                 return True
             #dataset not ready yet
-            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not isinstance( dep_value.datatype, self.ref_input.formats ) ):
+            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not is_of_a_type( dep_value.datatype, self.ref_input.formats ) ):
                 return True
         # Dynamic, but all dependenceis are known and have values
         return False 
@@ -1037,7 +1057,7 @@ class ColumnListParameter( SelectToolParameter ):
             if not dataset.metadata.columns:
                 # Only allow late validation if the dataset is not yet ready
                 # (since we have reason to expect the metadata to be ready eventually)
-                if dataset.is_pending or not isinstance( dataset.datatype, self.ref_input.formats ):
+                if dataset.is_pending or not is_of_a_type( dataset.datatype, self.ref_input.formats ):
                     return True
         # No late validation
         return False
@@ -1371,25 +1391,34 @@ class DataToolParameter( ToolParameter ):
         # Add metadata validator
         if not string_as_bool( elem.get( 'no_validation', False ) ):
             self.validators.append( validation.MetadataValidator() )
+        # Find datatypes_registry
+        if tool is None:
+            if trans:
+                # Must account for "Input Dataset" types, which while not a tool still need access to the real registry.
+                # A handle to the transaction (and thus app) will be given by the module.
+                datatypes_registry = trans.app.datatypes_registry
+            else:
+                #This occurs for things such as unit tests
+                import galaxy.datatypes.registry
+                datatypes_registry = galaxy.datatypes.registry.Registry()
+                datatypes_registry.load_datatypes()
+        else:
+            datatypes_registry = tool.app.datatypes_registry
         # Build tuple of classes for supported data formats
         formats = []
+        implicit_formats = []
         self.extensions = elem.get( 'format', 'data' ).split( "," )
-        for extension in self.extensions:
+        normalized_extensions = [extension.lower() for extension in self.extensions]
+        for extension in normalized_extensions:
             extension = extension.strip()
-            if tool is None:
-                if trans:
-                    # Must account for "Input Dataset" types, which while not a tool still need access to the real registry.
-                    # A handle to the transaction (and thus app) will be given by the module.
-                    formats.append( trans.app.datatypes_registry.get_datatype_by_extension( extension.lower() ).__class__ )
-                else:
-                    #This occurs for things such as unit tests
-                    import galaxy.datatypes.registry
-                    datatypes_registry = galaxy.datatypes.registry.Registry()
-                    datatypes_registry.load_datatypes()
-                    formats.append( datatypes_registry.get_datatype_by_extension( extension.lower() ).__class__ )
-            else:
-                formats.append( tool.app.datatypes_registry.get_datatype_by_extension( extension.lower() ).__class__ )
-        self.formats = tuple( formats )
+            formats.append( datatypes_registry.get_datatype_by_extension( extension ) )
+            if not CompositeMultifile.is_multifile_extension(extension):
+                multifile_extension = CompositeMultifile.build_multifile_extension(extension)
+                if multifile_extension not in normalized_extensions:
+                    implicit_formats.append( datatypes_registry.get_datatype_by_extension( multifile_extension ) )
+        # Convert list to tuple so the idiom isinstance( datatype, formats) can be used.
+        self.formats = formats
+        self.implicit_formats = implicit_formats
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
@@ -1413,7 +1442,7 @@ class DataToolParameter( ToolParameter ):
             conv_extensions = conv_elem.get( "type" ) #target datatype extension
             # FIXME: conv_extensions should be able to be an ordered list
             assert None not in [ name, type ], 'A name (%s) and type (%s) are required for explicit conversion' % ( name, type )
-            conv_types = tool.app.datatypes_registry.get_datatype_by_extension( conv_extensions.lower() ).__class__
+            conv_types = tool.app.datatypes_registry.get_datatype_by_extension( conv_extensions.lower() )
             self.conversions.append( ( name, conv_extensions, conv_types ) )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
@@ -1451,7 +1480,8 @@ class DataToolParameter( ToolParameter ):
                         continue
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
-                    if isinstance( hda.datatype, self.formats):
+                    use_composite_multifiles = trans.app.config.use_composite_multifiles
+                    if is_of_a_type( hda.datatype, self.formats ) or ( use_composite_multifiles and is_of_a_type( hda.datatype, self.implicit_formats ) ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
@@ -1518,7 +1548,8 @@ class DataToolParameter( ToolParameter ):
             for i, data in enumerate( datasets ):
                 if data.visible and not data.deleted and data.state not in [data.states.ERROR, data.states.DISCARDED]:
                     is_valid = False
-                    if isinstance( data.datatype, self.formats ):
+                    use_composite_multifiles = trans.app.config.use_composite_multifiles
+                    if is_of_a_type( data.datatype, self.formats ) or ( use_composite_multifiles and is_of_a_type( data.datatype, self.implicit_formats ) ):
                         is_valid = True
                     else:
                         target_ext, converted_dataset = data.find_conversion_destination( self.formats )
@@ -1765,7 +1796,9 @@ parameter_types = dict( text            = TextToolParameter,
                         hidden_data     = HiddenDataToolParameter,
                         baseurl         = BaseURLToolParameter,
                         file            = FileToolParameter,
+                        multifile       = MultiFileToolParameter,
                         ftpfile         = FTPFileToolParameter,
+                        ftpdirs         = FTPDirectoryToolParameter,
                         data            = DataToolParameter,
                         library_data    = LibraryDatasetToolParameter,
                         drill_down      = DrillDownSelectToolParameter )

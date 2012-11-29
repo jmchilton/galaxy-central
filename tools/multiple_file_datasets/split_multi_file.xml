@@ -1,0 +1,15 @@
+<tool id="split_multi_file" name="Split Multiple File Dataset" description="into standard datasets (one per file)." force_history_refresh="True" version="0.1.0">
+  <command interpreter="python">
+    split_multi_file.py '$input.extra_files_path' '$input.ext' '$input.dbkey' '$report' '$report.id' '$__new_file_path__'
+  </command>
+  <inputs>
+  	<param name="input" type="data" label="Composite Multi File" />
+  </inputs>
+  <outputs>
+  	<!-- Would like to make this hidden or not appear all together, but
+  	     variable outputs require a primary dataset. If hidden refresh 
+  	     doesn't occur. 
+  	-->
+    <data format="txt" name="report" label="${on_string} Split" />
+  </outputs>
+</tool>
