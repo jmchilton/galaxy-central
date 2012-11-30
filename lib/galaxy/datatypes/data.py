@@ -1,5 +1,6 @@
 import logging, os, sys, time, tempfile
 import shutil
+import re
 from galaxy import util
 from galaxy.util.odict import odict
 from galaxy.util.bunch import Bunch
@@ -759,8 +760,8 @@ class CompositeMultifile( Data ):
         """Set the peek and blurb text"""
         if not dataset.dataset.purged:
             try:
-                dataset.peek = '\n'.join(os.listdir(dataset.extra_files_path))
-                dataset.blurb = 'Composite %s file data' % (self.singleton_type.file_ext)
+                dataset.peek = '\n'.join([self._to_display_name(part) for part in self._get_multifile_parts(dataset)])
+                dataset.blurb = 'Multfile dataset %s' % (self.singleton_type.file_ext)
             except Exception, e:
                 raise
                 dataset.peek = 'Error inspecting composite data: %s' % e
@@ -769,23 +770,40 @@ class CompositeMultifile( Data ):
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disk'
 
+    def _get_multifile_parts(self, dataset):
+        extra_files_path = dataset.extra_files_path
+        files_list = [file for file in os.listdir(extra_files_path) if re.search(r'_task_\d+$', file)]
+        return sorted(files_list, key=self._task_num)
+
     def regenerate_primary_file(self, dataset):
         """
         cannot do this until we are setting metadata
         """
-        efp = dataset.extra_files_path
-        flist = os.listdir(efp)
-        rval = ['<html><head><title>Files for Composite Dataset %s</title></head><body><p/>Composite %s contains:<p/><ul>' \
-% (dataset.name,dataset.name)]
-        for i,fname in enumerate(flist):
+        rval = ['<html><body><h1>Multifile Dataset %s</h1><p>Contents:</p><ul>' % (dataset.name)]
+        for fname in self._get_multifile_parts(dataset):
             sfname = os.path.split(fname)[-1]
+            display_name = self._to_display_name(fname)
             f,e = os.path.splitext(fname)
-            rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, sfname) )
+            rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, display_name ) )
         rval.append( '</ul></body></html>' )
         f = file(dataset.file_name,'w')
-        f.write("\n".join( rval ))
+        contents = "\n".join( rval )
+        f.write(contents)
         f.write('\n')
         f.close()
+
+    def _task_num(self, fname):
+        index = fname.rfind("_task_") + len("_task_")
+        task_num = int(fname[index:])
+        return task_num
+
+    def _to_display_name(self, fname):
+        (base, index) = os.path.split(fname)[-1].split("_task_")
+        number = int(index) + 1
+        if base.startswith("dataset"):  # galaxy generate file, ignore base
+            return "File %s" % number
+        else:
+            return "%s (File %d)" % number
 
     def set_meta( self, dataset, **kwd ):
         Data.set_meta( self, dataset, **kwd )
