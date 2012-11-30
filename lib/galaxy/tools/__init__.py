@@ -43,6 +43,7 @@ log = logging.getLogger( __name__ )
 # Tools which contain uploads, hence cannot be used with workflows.
 UPLOAD_TOOLS = [
   "upload1",
+  "multi_upload1",
 ]
 
 # These determine stdio-based error levels from matching on regular expressions
