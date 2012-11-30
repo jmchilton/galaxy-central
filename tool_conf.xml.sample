@@ -38,6 +38,7 @@
   </section>
   <section name="Multiple File Datasets" id="multiple_file_datasets" if="app.config.use_composite_multifiles">
     <tool file="data_source/multi_upload.xml" />
+    <tool file="multiple_file_datasets/split_multi_file.xml" />
   </section>
   <section name="ENCODE Tools" id="EncodeTools">
     <tool file="encode/gencode_partition.xml" />
