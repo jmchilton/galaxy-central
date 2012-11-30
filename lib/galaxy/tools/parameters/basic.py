@@ -457,6 +457,15 @@ class FileToolParameter( ToolParameter ):
     def get_initial_value( self, trans, context ):
         return None
         
+
+class MultiFileToolParameter(FileToolParameter):
+    """
+    Parameter to upload multiple files and merge them immediately.
+    """
+    def get_html_field( self, trans=None, value=None, other_values={}  ):
+        return form_builder.MultiFileField( self.name, ajax = self.ajax, value = value )
+
+
 class FTPFileToolParameter( ToolParameter ):
     """
     Parameter that takes a file uploaded via FTP as a value.
@@ -495,6 +504,16 @@ class FTPFileToolParameter( ToolParameter ):
             return value
     def get_initial_value( self, trans, context ):
         return None
+
+class FTPDirectoryToolParameter( FTPFileToolParameter ):
+    def get_html_field( self, trans=None, value=None, other_values={}  ):
+        if trans is None or trans.user is None:
+            user_ftp_dir = None
+        else:
+            user_ftp_dir = os.path.join( trans.app.config.ftp_upload_dir, trans.user.email )
+        return form_builder.FTPDirectoryField( self.name, user_ftp_dir, trans.app.config.ftp_upload_site, value = value )
+
+
 
 class HiddenToolParameter( ToolParameter ):
     """
@@ -1772,7 +1791,9 @@ parameter_types = dict( text            = TextToolParameter,
                         hidden_data     = HiddenDataToolParameter,
                         baseurl         = BaseURLToolParameter,
                         file            = FileToolParameter,
+                        multifile       = MultiFileToolParameter,
                         ftpfile         = FTPFileToolParameter,
+                        ftpdirs         = FTPDirectoryToolParameter,
                         data            = DataToolParameter,
                         library_data    = LibraryDatasetToolParameter,
                         drill_down      = DrillDownSelectToolParameter )

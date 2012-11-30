@@ -36,6 +36,9 @@
     <tool file="data_destination/epigraph_test.xml" />
     <tool file="genomespace/genomespace_exporter.xml" />
   </section>
+  <section name="Multiple File Datasets (beta)" id="multiple_file_datasets">
+    <tool file="data_source/multi_upload.xml" />
+  </section>
   <section name="ENCODE Tools" id="EncodeTools">
     <tool file="encode/gencode_partition.xml" />
     <tool file="encode/random_intervals.xml" />

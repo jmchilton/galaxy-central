@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+
+<tool name="Upload and merge" id="multi_upload1" version="1.1.3">
+  <description>
+    multiple files to one dataset
+  </description>
+  <action module="galaxy.tools.actions.upload" class="UploadToolAction"/>
+  <requirements>
+      <requirement type="package">samtools</requirement>
+  </requirements>
+  <command interpreter="python">
+      upload.py $GALAXY_ROOT_DIR $GALAXY_DATATYPES_CONF_FILE $paramfile
+    #set $outnum = 0
+    #while $varExists('output%i' % $outnum):
+        #set $output = $getVar('output%i' % $outnum)
+        #set $outnum += 1
+        #set $file_name = $output.file_name
+        ## FIXME: This is not future-proof for other uses of external_filename (other than for use by the library upload's "link data" feature)
+        #if $output.dataset.dataset.external_filename:
+            #set $file_name = "None"
+        #end if
+        ${output.dataset.dataset.id}:${output.files_path}:${file_name}
+    #end while
+  </command>
+  <inputs nginx_upload="true">
+    <param name="raw_merge_type" type="select" label="File Format" help="Which format? See help below">
+      <options from_parameter="tool.app.datatypes_registry.upload_file_formats" transform_lines="[ &quot;%s%s%s&quot; % ( line, self.separator, line ) for line in obj ]">
+        <column name="value" index="1"/>
+        <column name="name" index="0"/>
+        <filter type="sort_by" column="0"/>
+      </options>
+    </param>
+    <param name="file_type" type="hidden" value="auto" />
+    <param name="multifile" type="hidden" value="true" label="Create composite multi-file dataset" />
+    <param name="async_datasets" type="hidden" value="None"/>
+    <upload_dataset name="files" title="Specify Files for Dataset" file_type_name="file_type" metadata_ref="files_metadata">
+        <param name="file_data" type="multifile" size="30" label="File" ajax-upload="true" help="TIP: Due to browser limitations, uploading files larger than 2GB is guaranteed to fail.  To upload large files, use the URL method (below) or FTP (if enabled by the site administrator).">
+        <validator type="expression" message="You will need to reselect the file you specified (%s)." substitute_value_in_message="True">not ( ( isinstance( value, unicode ) or isinstance( value, str ) ) and value != "" )</validator> <!-- use validator to post message to user about needing to reselect the file, since most browsers won't accept the value attribute for file inputs -->
+      </param>
+      <param name="url_paste" type="text" area="true" size="5x35" label="URL/Text" help="Here you may specify a list of URLs (one per line) or paste the contents of a file."/> 
+      <param name="ftp_directories" type="ftpdirs" label="Whole directories containing files uploaded via FTP will be merged"/>
+      <param name="ftp_mergefiles" type="ftpfile" label="Files uploaded via FTP"/>
+      <param name="space_to_tab" type="select" display="checkboxes" multiple="True" label="Convert spaces to tabs" help="Use this option if you are entering intervals by hand."> 
+        <option value="Yes">Yes</option>
+      </param>
+      <param name="NAME" type="hidden" help="Name for dataset in upload"></param>
+    </upload_dataset>
+    <param name="dbkey" type="genomebuild" label="Genome" />
+    <conditional name="files_metadata" title="Specify metadata" value_from="self:app.datatypes_registry.get_upload_metadata_params" value_ref="file_type" value_ref_in_group="False" />
+    <!-- <param name="other_dbkey" type="text" label="Or user-defined Genome" /> -->
+  </inputs>
+  <help>
+
+**What it does?**
+
+This multiple file upload tool can take several files and create a merged dataset from these files. Certain tools may then be able to operate in parallel on such a dataset to create multiple file output datasets or merge such datasets into single outputs. However this is an experimental feature and **much of Galaxy's normal functionality will not work with files wrapped up in a multiple file dataset in this fashion**.
+  </help>
+</tool>
