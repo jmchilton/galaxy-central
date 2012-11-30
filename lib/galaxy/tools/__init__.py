@@ -49,6 +49,7 @@ WORKFLOW_PARAMETER_REGULAR_EXPRESSION =  re.compile( '''\$\{.+?\}''' )
 # Tools which contain uploads, hence cannot be used with workflows.
 UPLOAD_TOOLS = [
   "upload1",
+  "multi_upload1",
 ]
 
 
