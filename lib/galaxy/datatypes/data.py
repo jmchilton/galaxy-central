@@ -1,4 +1,5 @@
 import logging, os, sys, time, tempfile
+import shutil
 from galaxy import util
 from galaxy.util.odict import odict
 from galaxy.util.bunch import Bunch
@@ -740,6 +741,138 @@ class LineCount( Text ):
     line count for a related dataset. Used for custom builds.
     """
     pass
+
+# TODO: Move to top of file
+MULTIFILE_EXTENSION_PREFIX = "m:"
+
+class CompositeMultifile( Data ):
+    # https://bitbucket.org/glormph/adapt/src/ea13ed90e6a3/lib/galaxy/datatypes/proteomics.py?at=composite_data_parallelism
+    composite_type = 'auto_primary_file'
+    allow_datatype_change = False
+
+    def __init__(self, singleton_type=None):
+        Data.__init__(self)
+        self.singleton_type = singleton_type
+
+    def set_peek(self, dataset, is_multi_byte=True):
+        """Set the peek and blurb text"""
+        if not dataset.dataset.purged:
+            try:
+                dataset.peek = '\n'.join(os.listdir(dataset.extra_files_path))
+                dataset.blurb = 'Composite %s file data' % (self.singleton_type.file_ext)
+            except Exception, e:
+                raise
+                dataset.peek = 'Error inspecting composite data: %s' % e
+                dataset.blurb = 'file purged from disk'
+        else:
+            dataset.peek = 'file does not exist'
+            dataset.blurb = 'file purged from disk'
+
+    def regenerate_primary_file(self, dataset):
+        """
+        cannot do this until we are setting metadata
+        """
+        efp = dataset.extra_files_path
+        flist = os.listdir(efp)
+        rval = ['<html><head><title>Files for Composite Dataset %s</title></head><body><p/>Composite %s contains:<p/><ul>' \
+% (dataset.name,dataset.name)]
+        for i,fname in enumerate(flist):
+            sfname = os.path.split(fname)[-1]
+            f,e = os.path.splitext(fname)
+            rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, sfname) )
+        rval.append( '</ul></body></html>' )
+        f = file(dataset.file_name,'w')
+        f.write("\n".join( rval ))
+        f.write('\n')
+        f.close()
+
+    def set_meta( self, dataset, **kwd ):
+        Data.set_meta( self, dataset, **kwd )
+        self.regenerate_primary_file(dataset)
+        return True
+
+    def add_composite_files(self, extra_files_dir):
+        for fn in os.listdir(extra_files_dir):
+            self.add_composite_file(fn)
+
+    def get_mime(self):
+        """Returns the mime type of the datatype"""
+        return 'text/html'
+
+    @staticmethod
+    def build_multifile_extension(simple_extension):
+        return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
+
+    def split( cls, input_datasets, subdir_generator_function, split_params):
+        """
+        Split the input composite dataset into individual files in task
+        directories.
+        """
+        if split_params is None:
+            return
+            
+        input_files = [ds.file_name for ds in input_datasets]
+        # only one split_mode is accepted
+        if split_params['split_mode'] != 'from_composite':
+            raise Exception('Unsupported split mode %s. Use only from_composite as split mode.' % split_params['split_mode'])
+    
+        # Test if datasets are eligible for multifile splitting (similar number of files in datasets)
+        amount = {}
+        filetypes = {}
+        for in_data in input_datasets:
+            in_files = os.listdir(in_data.extra_files_path)
+            amount[ len(in_files) ] = 1
+            filetypes[in_data.file_name] = {}
+            for in_file in in_files:
+                if '.' not in in_file:
+                    filetypes[in_data.file_name]['']=1
+                else:
+                    ext = in_file.split('.')[-1]
+                    ext = ext[:ext.index('_task')]
+                    filetypes[in_data.file_name][ext] = 1
+            assert len( filetypes[in_data.file_name].keys() ) == 1, Exception('Different filetypes found in composite file list. Cannot split.')
+
+        assert len(amount.keys()) == 1, Exception('Different number of files are contained in the different dataset.')
+        # Split files
+        try:
+            for filenum in range(amount.keys()[0]):
+                part_dir = subdir_generator_function()
+                for in_data in input_datasets:
+                    members = os.listdir( in_data.extra_files_path )
+                    member = members[int([i for i,fn in enumerate(members) if 'task_%s' % filenum in fn][-1])]
+                    part_path = os.path.join(part_dir, os.path.basename( in_data.file_name ) )
+                    shutil.copy(os.path.join(in_data.extra_files_path, member), part_path)
+                    log.debug(part_path)
+        except Exception:
+            raise
+    split = classmethod(split)    
+
+    def merge(split_files, output_dataset, output_filename, newnames=None):
+        """
+        Merges result files from task directories back into a composite dataset's
+        extra_files_path directory.
+        """
+        if len(split_files) == 1:  # in case of non-multifile analysis.
+            shutil.move(split_files[0], output_dataset.path)
+        else:
+            os.makedirs(output_dataset.extra_files_path)
+            try:
+                for i, in_file in enumerate(split_files):
+                    # name files with 'task_%d' suffix that their tasks subdir had
+                    if not newnames:
+                        oldfn, old_parentdir = os.path.split(in_file)[-1], os.path.split(os.path.split(in_file)[0])[-1]
+                        if 'task_' in old_parentdir and 'task_' not in oldfn:  # files are from a previous tool task
+                            newname = '%s_%s' % (oldfn, old_parentdir)
+                        else:
+                            raise Exception('Files named incorrectly and no new names supplied, cannot merge.')
+                    else:
+                        newname = newnames[i]
+                    shutil.copy(in_file, os.path.join(output_dataset.extra_files_path, newname) )
+            except Exception:
+                raise
+
+    merge = staticmethod(merge)
+
 
 class Newick( Text ):
     """New Hampshire/Newick Format"""

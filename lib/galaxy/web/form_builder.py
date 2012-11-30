@@ -152,6 +152,19 @@ class FileField(BaseField):
             ajax_text = ' galaxy-ajax-upload="true"'
         return unicodify( '<input type="file" name="%s%s"%s%s>' % ( prefix, self.name, ajax_text, value_text ) )
 
+class MultiFileField(FileField):
+    """
+    A multifile upload field.
+    """
+    def get_html( self, prefix="" ):
+        value_text = ""
+        if self.value:
+            value_text = ' value="%s"' % escape( str( self.value ),  quote=True )
+        ajax_text = ""
+        if self.ajax:
+            ajax_text = ' galaxy-ajax-upload="true"'
+        return '<input type="file" multiple name="%s%s"%s%s>' % ( prefix, self.name, ajax_text, value_text )
+    
 class FTPFileField(BaseField):
     """
     An FTP file upload input.
@@ -212,6 +225,39 @@ class FTPFileField(BaseField):
                 rval += FTPFileField.trow % ( prefix, self.name, upload['path'], upload['path'], upload['size'], upload['ctime'] )
         rval += FTPFileField.tfoot
         rval += '<div class="toolParamHelp">This Galaxy server allows you to upload files via FTP.  To upload some files, log in to the FTP server at <strong>%s</strong> using your Galaxy credentials (email address and password).</div>' % self.ftp_site
+        return rval
+
+class FTPDirectoryField(FTPFileField):
+    """
+    An FTP directory upload input. To upload a directory full of same-datatype files and merge them into one dataset.
+    """
+    def get_html( self, prefix="" ):
+        rval = FTPFileField.thead
+        if self.dir is None:
+            rval += '<tr><td colspan="4"><em>Please <a href="%s">create</a> or <a href="%s">log in to</a> a Galaxy account to view files uploaded via FTP.</em></td></tr>' % ( url_for( controller='user', action='create', cntrller='user', referer=url_for( controller='root' ) ), url_for( controller='user', action='login', cntrller='user', referer=url_for( controller='root' ) ) )
+        elif not os.path.exists( self.dir ):
+            rval += '<tr><td colspan="4"><em>Your FTP upload directory contains no files.</em></td></tr>'
+        else:
+            uploads = []
+            directories = []
+            for ( dirpath, dirnames, filenames ) in os.walk( self.dir ):
+                # add directories to FTP field so we can upload a whole dir as a dataset
+                path = relpath( dirpath, self.dir )
+                if path != '.' and filenames:
+                    statinfo = os.lstat( os.path.join( dirpath ) )
+                    directories.append( dict( path=path,
+                                          size=nice_size( statinfo.st_size ),
+                                          ctime=time.strftime( "%m/%d/%Y %I:%M:%S %p", time.localtime( statinfo.st_ctime ) ), directory=True ) )
+                
+            # show directories first in the ftp field
+            for directory in directories:
+                rval += FTPFileField.trow % ( prefix, self.name, directory['path'], directory['path'], directory['size'], directory['ctime'] )
+            if not uploads:
+                rval += '<tr><td colspan="4"><em>Your FTP upload directory contains no files.</em></td></tr>'
+            for upload in uploads:
+                rval += FTPFileField.trow % ( prefix, self.name, upload['path'], upload['path'], upload['size'], upload['ctime'] )
+        rval += FTPFileField.tfoot
+        rval += '<div class="toolParamHelp">This Galaxy server allows you to upload files via FTP. To upload some files, log in to the FTP server at <strong>%s</strong> using your Galaxy credentials (email address and password).</div>' % self.ftp_site
         return rval
 
 class HiddenField(BaseField):
