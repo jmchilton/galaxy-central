@@ -42,7 +42,15 @@ from galaxy.visualization.genome.visual_analytics import TracksterConfig
 
 log = logging.getLogger( __name__ )
 
+
 WORKFLOW_PARAMETER_REGULAR_EXPRESSION =  re.compile( '''\$\{.+?\}''' )
+
+
+# Tools which contain uploads, hence cannot be used with workflows.
+UPLOAD_TOOLS = [
+  "upload1",
+]
+
 
 # These determine stdio-based error levels from matching on regular expressions
 # and exit codes. They are meant to be used comparatively, such as showing
@@ -1662,7 +1670,7 @@ class Tool( object ):
             return False
         # HACK: upload is (as always) a special case becuase file parameters
         #       can't be persisted.
-        if self.id == "upload1":
+        if self.id in UPLOAD_TOOLS:
             return False
         # TODO: Anyway to capture tools that dynamically change their own
         #       outputs?
