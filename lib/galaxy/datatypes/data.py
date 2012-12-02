@@ -802,7 +802,7 @@ class CompositeMultifile( Data ):
         if base.startswith("dataset"):  # galaxy generate file, ignore base
             return "File %s" % number
         else:
-            return "%s (File %d)" % number
+            return "%s (File %d)" % (base, number)
 
     def set_meta( self, dataset, **kwd ):
         Data.set_meta( self, dataset, **kwd )
@@ -836,6 +836,29 @@ class CompositeMultifile( Data ):
     def is_multifile_extension(query_extension):
         return query_extension.startswith(MULTIFILE_EXTENSION_PREFIX)
 
+    def _get_part_names(self, input_datasets):
+        part_names = self._get_dataset_part_names(input_datasets[0])
+        if not part_names:
+            return None
+        for dataset in input_datasets[1:]:
+            dataset_part_names = self._get_dataset_part_names(input_datasets)
+            if dataset_part_names != part_names:
+                return None
+        return part_names
+
+    def _get_dataset_part_names(self, dataset):
+        part_paths = self._get_multifile_parts(dataset)
+        in_filenames = [os.path.basename(in_file).split("_task_")[0] for in_file in part_paths]
+        in_file_base_names = [in_filename.split(".")[0] for in_filename in in_filenames]
+        # If we have unique base names, lets take them else go with full filename.
+        if len(part_paths) == len(set(in_file_base_names)):
+            in_names = in_file_base_names
+        elif len(part_paths) == len(in_filenames):
+            in_names = in_filenames
+        else:
+            in_names = None
+        return in_names
+
     def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input composite dataset into individual files in task
@@ -853,7 +876,7 @@ class CompositeMultifile( Data ):
         amount = {}
         filetypes = {}
         for in_data in input_datasets:
-            in_files = os.listdir(in_data.extra_files_path)
+            in_files = self._get_multifile_parts(in_data)
             amount[ len(in_files) ] = 1
             if not self.check_file_types:
                 continue
@@ -866,19 +889,25 @@ class CompositeMultifile( Data ):
                     ext = ext[:ext.index('_task')]
                     filetypes[in_data.file_name][ext] = 1
             assert len( filetypes[in_data.file_name].keys() ) == 1, Exception('Different filetypes found in composite file list. Cannot split.')
-
         assert len(amount.keys()) == 1, Exception('Different number of files are contained in the different dataset.')
         # Split files
+        members = {}
+        part_names = self._get_part_names(input_datasets)
+        for input_dataset in input_datasets:
+            members[input_dataset] = self._get_multifile_parts(input_dataset)
         try:
             for filenum in range(amount.keys()[0]):
                 part_dir = subdir_generator_function()
                 for in_data in input_datasets:
-                    members = os.listdir( in_data.extra_files_path )
-                    member = members[int([i for i,fn in enumerate(members) if 'task_%s' % filenum in fn][-1])]
-                    part_path = os.path.join(part_dir, os.path.basename( in_data.file_name ) )
+                    member = members[input_dataset][filenum]
+                    part_path = os.path.join(part_dir, os.path.basename(in_data.file_name))
                     os.symlink(os.path.join(in_data.extra_files_path, member), part_path)
+                if part_names:
+                    part_name = part_names[filenum]
+                    open(os.path.join(part_dir, "__multifile_part_name__"), "w").write(part_name)
         except Exception:
             raise
+
      #split = classmethod(split)    
 
     def merge(self, split_files, output_filename, output_dataset, newnames=None):
@@ -895,8 +924,14 @@ class CompositeMultifile( Data ):
                     # name files with 'task_%d' suffix that their tasks subdir had
                     if not newnames:
                         oldfn, old_parentdir = os.path.split(in_file)[-1], os.path.split(os.path.split(in_file)[0])[-1]
+                        part_name = oldfn
+                        part_name_file = os.path.join(os.path.split(in_file)[0], "__multifile_part_name__")
+                        if os.path.exists(part_name_file):
+                            raw_part_name = open(part_name_file, "r").read()
+                            if raw_part_name:
+                                part_name = raw_part_name
                         if 'task_' in old_parentdir and 'task_' not in oldfn:  # files are from a previous tool task
-                            newname = '%s_%s' % (oldfn, old_parentdir)
+                            newname = '%s_%s' % (part_name, old_parentdir)
                         else:
                             raise Exception('Files named incorrectly and no new names supplied, cannot merge.')
                     else:
