@@ -1,0 +1,17 @@
+<tool id="summarize_multi_file" name="Summarize Multiple Datasets" description="" version="0.1.0">
+  <command interpreter="python">
+    summarize_multi_file.py 
+    --report $report
+    #for $input in $inputs:
+    --input_file '$input'
+    --input_name '$input.display_name'
+    --input_ext '$input.ext'
+    #end for
+  </command>
+  <inputs>
+    <param name="inputs" type="data" multiple="true" label="Inputs" />
+  </inputs>
+  <outputs>
+    <data format="txt" name="report" label="Summary of ${on_string}" />
+  </outputs>
+</tool>
