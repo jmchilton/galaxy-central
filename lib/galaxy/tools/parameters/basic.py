@@ -9,6 +9,7 @@ from galaxy.datatypes.data import CompositeMultifile
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param
+from galaxy.util.odict import odict
 from sanitize import ToolParameterSanitizer
 import validation, dynamic_options
 # For BaseURLToolParameter
@@ -1446,19 +1447,24 @@ class DataToolParameter( ToolParameter ):
             self.conversions.append( ( name, conv_extensions, conv_types ) )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
-        filter_value = None
-        if self.options:
-            try:
-                filter_value = self.options.get_options( trans, other_values )[0][0]
-            except IndexError:
-                pass #no valid options
-        assert trans is not None, "DataToolParameter requires a trans"
-        history = trans.get_history()
-        assert history is not None, "DataToolParameter requires a history"
-        if value is not None:
-            if type( value ) != list:
-                value = [ value ]
-        field = form_builder.SelectField( self.name, self.multiple, None, self.refresh_on_change, refresh_on_change_values = self.refresh_on_change_values )
+        use_composite_multifiles = 'allow' if trans.app.config.use_composite_multifiles else 'no'
+        multiple = self.multiple
+        fields = odict()
+        if (not multiple) or (use_composite_multifiles == 'no'):
+            fields["directly"] = self._get_select_dataset_field( trans, value, other_values, use_composite_multifiles, multiple=multiple)
+        else:
+            # normal datasets
+            normal_select = self._get_select_dataset_field( trans, value, other_values, use_composite_multifiles='no', multiple=True)
+            composite_select = self._get_select_dataset_field( trans, value, other_values, use_composite_multifiles='only', multiple=False)
+            fields["files_directly"] = normal_select
+            fields["by_multifile"] = composite_select
+        if len(fields) == 1:
+            field = fields.values()[0]
+        else:
+            field = form_builder.SwitchField( fields )
+        return field
+
+    def _get_select_dataset_field( self, trans=None, value=None, other_values={}, use_composite_multifiles='no', multiple=False):
         # CRUCIAL: the dataset_collector function needs to be local to DataToolParameter.get_html_field()
         def dataset_collector( hdas, parent_hid ):
             current_user_roles = trans.get_current_user_roles()
@@ -1480,15 +1486,14 @@ class DataToolParameter( ToolParameter ):
                         continue
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
-                    use_composite_multifiles = trans.app.config.use_composite_multifiles
-                    if hda.datatype.matches_any( self.formats ) or ( use_composite_multifiles and hda.datatype.matches_any( self.implicit_formats ) ):
+                    if (use_composite_multifiles != 'only' and hda.datatype.matches_any( self.formats ) ) or ( use_composite_multifiles != 'no' and hda.datatype.matches_any( self.implicit_formats ) ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
                         else:
                             hidden_text = " (hidden)"
                         field.add_option( "%s:%s %s" % ( hid, hidden_text, hda_name ), hda.id, selected )
-                    else:
+                    elif use_composite_multifiles != 'only':
                         target_ext, converted_dataset = hda.find_conversion_destination( self.formats )
                         if target_ext:
                             if converted_dataset:
@@ -1499,6 +1504,20 @@ class DataToolParameter( ToolParameter ):
                             field.add_option( "%s: (as %s) %s" % ( hid, target_ext, hda_name ), hda.id, selected )
                 # Also collect children via association object
                 dataset_collector( hda.children, hid )
+        filter_value = None
+        if self.options:
+            try:
+                filter_value = self.options.get_options( trans, other_values )[0][0]
+            except IndexError:
+                pass #no valid options
+        assert trans is not None, "DataToolParameter requires a trans"
+        history = trans.get_history()
+        assert history is not None, "DataToolParameter requires a history"
+        if value is not None:
+            if type( value ) != list:
+                value = [ value ]
+        field = form_builder.SelectField( self.name, multiple, None, self.refresh_on_change, refresh_on_change_values = self.refresh_on_change_values )
+
         dataset_collector( history.active_datasets, None )
         some_data = bool( field.options )
         if some_data:

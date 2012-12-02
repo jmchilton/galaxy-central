@@ -630,6 +630,19 @@ class AddressField(BaseField):
             self.select_address.add_option( 'Add a new address', 'new' )
         return self.select_address.get_html( disabled=disabled ) + address_html
 
+class SwitchField( BaseField ):
+    def __init__(self, delegate_fields ):
+        self.delegate_fields = delegate_fields
+
+    def get_html( self, disabled=False ):
+        options = []
+        select_by_labels = []
+        for name, delegate_field in self.delegate_fields.items():
+            select_by_labels.append('<a class="switch-link" href="#">%s</a>' % name)
+            options.append('<div class="switch-option"><input name="on" type="hidden" value="%s" />%s</div>' % (name, delegate_field.get_html(disabled=disabled)))
+        return '<div class="switch-field">%s<p style="margin-left: 10px;">select %s</p></div>' % ("\n".join(options), " | ".join(select_by_labels))
+
+
 class WorkflowField( BaseField ):
     def __init__( self, name, user=None, value=None, params=None ):
         self.name = name

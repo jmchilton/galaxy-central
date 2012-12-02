@@ -106,6 +106,56 @@
                 }
             });
         });
+
+        var enableSwitchOption = function(optionElement, onValue) {
+            $(optionElement).children(":input").each(function(i, formElement) {
+                var name = $(formElement).attr('name');
+                if(name.indexOf(onValue) != -1) {
+                    var newName = name.substring(onValue.length + 1);
+                    $(formElement).attr('name', newName);
+                }
+            });
+            $(optionElement).show();
+        };
+
+        var disableSwitchOption = function(optionElement, onValue) {
+            $(optionElement).children(":input").each(function(i, formElement) {
+                var name = $(formElement).attr('name');
+                if(name.indexOf(onValue) == -1) {
+                    var newName = onValue + "_" + name;
+                    $(formElement).attr('name', newName);
+                }
+            });
+            $(optionElement).hide();
+        };
+
+        var enableSelectBy = function(switchField, enableIndex) {
+            $(switchField).children(".switch-option").each( function(index, optionElement) {
+                var onValue = $(optionElement).children("input:hidden").val();
+                if(enableIndex == index) {
+                    enableSwitchOption(optionElement, onValue);
+                } else {
+                    disableSwitchOption(optionElement, onValue);
+                }
+            });
+        };
+
+
+        $(".switch-field").each( function(index, element) {
+            var selectByIndex = 0;
+            $(element).children(".switch-option").children("select").each(function(index, selectElement) {
+                if($(selectElement).val() != null) {
+                    selectByIndex = index;
+                }
+            });
+            $(element).find("a.switch-link").each(function(index, linkElement) {
+                $(linkElement).click(function(event) {
+                    enableSelectBy(element, index);
+                });
+            });
+            enableSelectBy(element, selectByIndex);
+        });
+
     });
 
     %if not add_frame.debug:
@@ -113,6 +163,7 @@
             location.replace( '${h.url_for( controller='root', action='index', tool_id=tool.id )}' );
         }
     %endif
+
 
     </script>
 
