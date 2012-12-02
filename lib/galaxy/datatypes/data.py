@@ -754,13 +754,13 @@ class CompositeMultifile( Data ):
         Data.__init__(self)
         self.singleton_type = kwargs.get('singleton_type', None)
         self.check_file_types = kwargs.get('check_file_type', False)
-        
+
     def set_peek(self, dataset, is_multi_byte=True):
         """Set the peek and blurb text"""
         if not dataset.dataset.purged:
             try:
-                dataset.peek = '\n'.join([self._to_display_name(part) for part in self._get_multifile_parts(dataset)])
-                dataset.blurb = 'Multfile dataset %s' % (self.singleton_type.file_ext)
+                dataset.peek = '\n'.join([self._to_display_name(part) for part in CompositeMultifile.get_multifile_parts(dataset)])
+                dataset.blurb = 'Multifile dataset %s' % (self.singleton_type.file_ext)
             except Exception, e:
                 raise
                 dataset.peek = 'Error inspecting composite data: %s' % e
@@ -769,17 +769,18 @@ class CompositeMultifile( Data ):
             dataset.peek = 'file does not exist'
             dataset.blurb = 'file purged from disk'
 
-    def _get_multifile_parts(self, dataset):
+    @staticmethod
+    def get_multifile_parts(dataset):
         efp = dataset.extra_files_path
         flist = os.listdir(efp)
-        return sorted(flist, key=self._task_num)
+        return sorted(flist, key=CompositeMultifile._task_num)
 
     def regenerate_primary_file(self, dataset):
         """
         cannot do this until we are setting metadata
         """
         rval = ['<html><body><h1>Multifile Dataset %s</h1><p>Contents:</p><ul>' % (dataset.name)]
-        for fname in self._get_multifile_parts(dataset):
+        for fname in CompositeMultifile.get_multifile_parts(dataset):
             sfname = os.path.split(fname)[-1]
             display_name = self._to_display_name(fname)
             f,e = os.path.splitext(fname)
@@ -791,7 +792,8 @@ class CompositeMultifile( Data ):
         f.write('\n')
         f.close()
 
-    def _task_num(self, fname):
+    @staticmethod
+    def _task_num(fname):
         index = fname.rfind("_task_") + len("_task_")
         task_num = int(fname[index:])
         return task_num
@@ -836,18 +838,20 @@ class CompositeMultifile( Data ):
     def is_multifile_extension(query_extension):
         return query_extension.startswith(MULTIFILE_EXTENSION_PREFIX)
 
-    def _get_part_names(self, input_datasets):
-        part_names = self._get_dataset_part_names(input_datasets[0])
+    @staticmethod
+    def get_part_names(input_datasets):
+        part_names = CompositeMultifile._get_dataset_part_names(input_datasets[0])
         if not part_names:
             return None
         for dataset in input_datasets[1:]:
-            dataset_part_names = self._get_dataset_part_names(input_datasets)
+            dataset_part_names = CompositeMultifile._get_dataset_part_names(input_datasets)
             if dataset_part_names != part_names:
                 return None
         return part_names
 
-    def _get_dataset_part_names(self, dataset):
-        part_paths = self._get_multifile_parts(dataset)
+    @staticmethod
+    def _get_dataset_part_names(dataset):
+        part_paths = CompositeMultifile.get_multifile_parts(dataset)
         in_filenames = [os.path.basename(in_file).split("_task_")[0] for in_file in part_paths]
         in_file_base_names = [in_filename.split(".")[0] for in_filename in in_filenames]
         # If we have unique base names, lets take them else go with full filename.
@@ -876,7 +880,7 @@ class CompositeMultifile( Data ):
         amount = {}
         filetypes = {}
         for in_data in input_datasets:
-            in_files = self._get_multifile_parts(in_data)
+            in_files = CompositeMultifile.get_multifile_parts(in_data)
             amount[ len(in_files) ] = 1
             if not self.check_file_types:
                 continue
@@ -892,9 +896,9 @@ class CompositeMultifile( Data ):
         assert len(amount.keys()) == 1, Exception('Different number of files are contained in the different dataset.')
         # Split files
         members = {}
-        part_names = self._get_part_names(input_datasets)
+        part_names = CompositeMultifile.get_part_names(input_datasets)
         for input_dataset in input_datasets:
-            members[input_dataset] = self._get_multifile_parts(input_dataset)
+            members[input_dataset] = CompositeMultifile.get_multifile_parts(input_dataset)
         try:
             for filenum in range(amount.keys()[0]):
                 part_dir = subdir_generator_function()
