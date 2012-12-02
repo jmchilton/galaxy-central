@@ -759,7 +759,7 @@ class CompositeMultifile( Data ):
         """Set the peek and blurb text"""
         if not dataset.dataset.purged:
             try:
-                dataset.peek = '\n'.join([self._to_display_name(part) for part in CompositeMultifile.get_multifile_parts(dataset)])
+                dataset.peek = '\n'.join([CompositeMultifile.to_display_name(part) for part in CompositeMultifile.get_multifile_parts(dataset)])
                 dataset.blurb = 'Multifile dataset %s' % (self.singleton_type.file_ext)
             except Exception, e:
                 raise
@@ -770,10 +770,14 @@ class CompositeMultifile( Data ):
             dataset.blurb = 'file purged from disk'
 
     @staticmethod
-    def get_multifile_parts(dataset):
+    def get_multifile_parts(dataset, full_path=False):
         efp = dataset.extra_files_path
         flist = os.listdir(efp)
-        return sorted(flist, key=CompositeMultifile._task_num)
+        file_names = sorted(flist, key=CompositeMultifile._task_num)
+        if full_path:
+            return [os.path.join(efp, file_name) for file_name in file_names]
+        else:
+            return file_names
 
     def regenerate_primary_file(self, dataset):
         """
@@ -782,7 +786,7 @@ class CompositeMultifile( Data ):
         rval = ['<html><body><h1>Multifile Dataset %s</h1><p>Contents:</p><ul>' % (dataset.name)]
         for fname in CompositeMultifile.get_multifile_parts(dataset):
             sfname = os.path.split(fname)[-1]
-            display_name = self._to_display_name(fname)
+            display_name = CompositeMultifile.to_display_name(fname)
             f,e = os.path.splitext(fname)
             rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, display_name ) )
         rval.append( '</ul></body></html>' )
@@ -798,7 +802,8 @@ class CompositeMultifile( Data ):
         task_num = int(fname[index:])
         return task_num
 
-    def _to_display_name(self, fname):
+    @staticmethod
+    def to_display_name(fname):
         (base, index) = os.path.split(fname)[-1].split("_task_")
         number = int(index) + 1
         if base.startswith("dataset"):  # galaxy generate file, ignore base
