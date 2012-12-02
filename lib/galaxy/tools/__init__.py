@@ -15,6 +15,7 @@ from galaxy.util.odict import odict
 from galaxy.util.bunch import Bunch
 from galaxy.util.template import fill_template
 from galaxy import util, jobs, model
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.jobs import ParallelismInfo
 from elementtree import ElementTree
 from parameters import *
@@ -2286,7 +2287,7 @@ class Tool( object ):
                     values = input_values[ input.name ]
                     current = values["__current_case__"]
                     wrap_values( input.cases[current].inputs, values )
-                elif isinstance( input, DataToolParameter ) and input.multiple:
+                elif isinstance( input, DataToolParameter ) and input.multiple and (isinstance(input_values[ input.name ], list) or not isinstance(input_values[ input.name ].datatype, CompositeMultifile)):
                     input_values[ input.name ] = \
                         DatasetListWrapper( input_values[ input.name ],
                                             datatypes_registry = self.app.datatypes_registry,
@@ -3135,6 +3136,31 @@ class DatasetFilenameWrapper( ToolParameterValueWrapper ):
             return getattr( self.dataset, key )
     def __nonzero__( self ):
         return bool( self.dataset )
+    def __iter__( self ):
+        # TODO: Consider some check here to verify this a multifile dataset.
+        return [MultifilePartWrapper(self, path, CompositeMultifile.to_display_name(path)) for path in CompositeMultifile.get_multifile_parts(self.dataset, full_path=True)].__iter__()
+
+class MultifilePartWrapper:
+    def __init__( self, dataset_wrapper, path, display_name):
+        self.dataset = dataset_wrapper
+        self.metadata = getattr(dataset_wrapper, 'metadata', None)
+        self.display_name = display_name
+        self.path = path
+        self.ext = CompositeMultifile.get_singleton_extension( self.dataset.dataset.ext )
+
+    def __str__( self ):
+        return self.path
+
+    def __getattr__( self, key ):
+        if key == 'file_name':
+            return self.path
+        elif key == 'display_name':
+            return self.display_name
+        elif hasattr( self, key ):
+            return getattr( self, key )
+        else:
+            # Delegate to full dataset wrapper for stuff like dbkey and metadata...
+            return getattr( self.dataset, key )
 
 class DatasetListWrapper( list ):
     """
