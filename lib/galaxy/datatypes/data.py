@@ -750,10 +750,11 @@ class CompositeMultifile( Data ):
     composite_type = 'auto_primary_file'
     allow_datatype_change = False
 
-    def __init__(self, singleton_type=None):
+    def __init__(self, **kwargs):
         Data.__init__(self)
-        self.singleton_type = singleton_type
-
+        self.singleton_type = kwargs.get('singleton_type', None)
+        self.check_file_types = kwargs.get('check_file_type', False)
+        
     def set_peek(self, dataset, is_multi_byte=True):
         """Set the peek and blurb text"""
         if not dataset.dataset.purged:
@@ -822,6 +823,8 @@ class CompositeMultifile( Data ):
         for in_data in input_datasets:
             in_files = os.listdir(in_data.extra_files_path)
             amount[ len(in_files) ] = 1
+            if not self.check_file_types:
+                continue
             filetypes[in_data.file_name] = {}
             for in_file in in_files:
                 if '.' not in in_file:
@@ -869,8 +872,9 @@ class CompositeMultifile( Data ):
                     os.rename(in_file, os.path.join(output_dataset.extra_files_path, newname) )
             except Exception:
                 raise
+        self.regenerate_primary_file(output_dataset)
 
-    merge = staticmethod(merge)
+    #merge = staticmethod(merge)
 
 
 class Newick( Text ):
