@@ -803,7 +803,7 @@ class CompositeMultifile( Data ):
     def build_multifile_extension(simple_extension):
         return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
 
-    def split( cls, input_datasets, subdir_generator_function, split_params):
+    def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input composite dataset into individual files in task
         directories.
@@ -844,9 +844,9 @@ class CompositeMultifile( Data ):
                     os.symlink(os.path.join(in_data.extra_files_path, member), part_path)
         except Exception:
             raise
-    split = classmethod(split)    
+     #split = classmethod(split)    
 
-    def merge(split_files, output_dataset, output_filename, newnames=None):
+    def merge(self, split_files, output_filename, output_dataset, newnames=None):
         """
         Merges result files from task directories back into a composite dataset's
         extra_files_path directory.
