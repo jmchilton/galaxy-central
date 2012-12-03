@@ -332,7 +332,14 @@ def add_file( dataset, registry, json_file, output_path ):
     elif link_data_only == 'copy_files':
         shutil.move( dataset.path, output_path )
     # Write the job info
-    stdout = stdout or 'uploaded %s file' % data_type
+
+    if data_type.startswith("m:"):
+        singleton_type = data_type[len("m:"):]
+        info_message = "uploaded %s file(s)" % singleton_type
+    else:
+        info_message = 'uploaded %s file' % data_type
+
+    stdout = stdout or info_message
     info = dict( type = 'dataset',
                  dataset_id = dataset.dataset_id,
                  ext = ext,
@@ -375,7 +382,7 @@ def add_composite_file( dataset, registry, json_file, output_path, files_path ):
         # Write the job info
         info = dict( type = 'dataset',
                      dataset_id = dataset.dataset_id,
-                     stdout = 'uploaded %s file' % dataset.file_type )
+                     stdout = info_message )
         json_file.write( to_json_string( info ) + "\n" )
 
 def __main__():
