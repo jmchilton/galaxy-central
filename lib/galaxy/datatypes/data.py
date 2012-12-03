@@ -811,9 +811,19 @@ class CompositeMultifile( Data ):
             return "File %s" % number
         else:
             return "%s (File %d)" % (base, number)
-
+    def init_meta( self, dataset, copy_from=None ):
+        singleton_type = self.singleton_type
+        singleton_type.init_meta( DatasetProxy(dataset), copy_from=copy_from )
     def set_meta( self, dataset, **kwd ):
-        Data.set_meta( self, dataset, **kwd )
+        singleton_type = self.singleton_type
+        # Wrap dataset in proxy that allow single example file
+        # to act as meta source for each, works for stuff like
+        # column names and types. May provide misleading metadata
+        # in other cases. If this becomes problematic a subclass
+        # of CompositeMultifile could be created or logic in
+        # individual datatypes could be reworked to account for
+        # possibility of multiple files in dataset.
+        singleton_type.set_meta( DatasetProxy(dataset), **kwd )
         self.regenerate_primary_file(dataset)
         return True
 
@@ -959,6 +969,21 @@ class CompositeMultifile( Data ):
         return composite_match
 
     #merge = staticmethod(merge)
+
+
+class DatasetProxy:
+    """
+    Used by CompositeMultifile to allow single example file to act as dataset
+    file when setting dataset metadata.
+    """
+    def __init__(self, dataset):
+        self.dataset = dataset
+
+    def __getattr__(self, attr):
+        if attr == "file_name":
+            return CompositeMultifile.get_multifile_parts(self.dataset, full_path=True)[0]
+        else:
+            return getattr(self.dataset, attr)
 
 
 class Newick( Text ):
