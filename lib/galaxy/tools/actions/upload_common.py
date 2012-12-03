@@ -339,10 +339,10 @@ def create_paramfile( trans, uploaded_datasets ):
                          space_to_tab = uploaded_dataset.space_to_tab,
                          in_place = trans.app.config.external_chown_script is None,
                          path = uploaded_dataset.path,
-                         multifiles = uploaded_dataset.multifiles,
-                         ftp_directories = uploaded_dataset.ftp_directories,
-                         ftp_mergefiles = uploaded_dataset.ftp_mergefiles,
-                         merge_type = uploaded_dataset.merge_type)
+                         multifiles = getattr(uploaded_dataset, 'multifiles', None),
+                         ftp_directories = getattr(uploaded_dataset, 'ftp_directories', None),
+                         ftp_mergefiles = getattr(uploaded_dataset, 'ftp_mergefiles', None),
+                         merge_type = getattr(uploaded_dataset, 'merge_type', None))
             # TODO: This will have to change when we start bundling inputs.
             # Also, in_place above causes the file to be left behind since the
             # user cannot remove it unless the parent directory is writable.
