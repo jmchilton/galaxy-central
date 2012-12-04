@@ -16,6 +16,7 @@ class CompositeMultifileDatatypeLoader( object ):
 
     def _build_multi_datatype(self, extension, datatype):
         multi_datatype_class = type( "CompositeMultifileForExt%s" % extension, (CompositeMultifile,), {} )
+        multi_datatype_class.copy_metadata_spec(datatype.__class__)
         multi_datatype = multi_datatype_class(singleton_type=datatype)
         return multi_datatype
 
