@@ -300,6 +300,23 @@ class Job( object ):
                 dataset.blurb = 'deleted'
                 dataset.peek = 'Job deleted'
                 dataset.info = 'Job output deleted by user before job completed'
+    def add_runner_parameter(self, name, value):
+        # Abstraction meant to capture parameters related to how
+        # the job runner/parallelism is configured to run. Two use cases
+        # in mind: 1) per-job parallelism info for multiple file datasets
+        # and 2) per institute configured resource request (# cpus, amount
+        # memory, queue, etc...) parameters exposed to user outside of
+        # actual tool forms (not yet implemented).
+        # For now just implementing this on top of params, but creating this
+        # abstraction to hide the details so it can be replaced with separate
+        # database fields, etc... or something more reasonable later on.
+        real_name = "__runner_%s" % name
+        self.add_parameter(real_name, value)
+
+    def get_runner_parameters(self):
+        param_dict = dict( [ ( p.name[len('__runner_'):], p.value ) for p in self.parameters if p.name.startswith("__runner_")] )
+        return param_dict
+
 
 class Task( object ):
     """
