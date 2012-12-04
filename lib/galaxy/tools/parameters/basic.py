@@ -1426,6 +1426,7 @@ class DataToolParameter( ToolParameter ):
         self.formats = formats
         self.implicit_formats = implicit_formats
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
+        self.for_workflow = string_as_bool( elem.get( 'for_workflow', False ) )
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
         #       a valid filter
@@ -1455,7 +1456,7 @@ class DataToolParameter( ToolParameter ):
         use_composite_multifiles = 'allow' if trans.app.config.use_composite_multifiles else 'no'
         multiple = self.multiple
         fields = odict()
-        if (not multiple) or (use_composite_multifiles == 'no'):
+        if (not multiple) or (use_composite_multifiles == 'no') or (self.for_workflow):
             fields["directly"] = self._get_select_dataset_field( trans, value, other_values, use_composite_multifiles, multiple=multiple)
         else:
             # normal datasets
