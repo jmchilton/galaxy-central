@@ -869,6 +869,7 @@ class CompositeMultifile( Data ):
                     os.rename(in_file, os.path.join(output_dataset.extra_files_path, newname) )
             except Exception:
                 raise
+        self.regenerate_primary_file(output_dataset)
 
     merge = staticmethod(merge)
 
