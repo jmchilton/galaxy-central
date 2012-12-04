@@ -566,6 +566,18 @@ class Data( object ):
             return [ 'trackster', 'circster' ]
         return []
 
+    @classmethod
+    def copy_metadata_spec( cls, from_cls ):
+        """
+        Copy metadata spec from one datatype class to another.
+        """
+        # Method used by multifile implicit datatype creator. If 
+        # cls.metadata_spec is used directly database lock errors,
+        # occur. It would be great if someone with more familiarity 
+        # with metadata system could comment on a better way to 
+        # accomplish this.
+        setattr( cls, "metadata_spec", getattr( from_cls, "metadata_spec" ) )
+
 class Text( Data ):
     file_ext = 'txt'
     line_class = 'line'
