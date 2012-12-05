@@ -5,6 +5,7 @@ Basic tool parameters.
 import logging, string, sys, os, os.path
 from elementtree.ElementTree import XML, Element
 from galaxy import config, datatypes, util
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param
@@ -1407,11 +1408,17 @@ class DataToolParameter( ToolParameter ):
             datatypes_registry = tool.app.datatypes_registry
         # Build tuple of classes for supported data formats
         formats = []
+        implicit_formats = []
         self.extensions = elem.get( 'format', 'data' ).split( "," )
         normalized_extensions = [extension.strip().lower() for extension in self.extensions]
         for extension in normalized_extensions:
             formats.append( datatypes_registry.get_datatype_by_extension( extension ) )
+            if not CompositeMultifile.is_multifile_extension(extension):
+                multifile_extension = CompositeMultifile.build_multifile_extension(extension)
+                if multifile_extension not in normalized_extensions:
+                    implicit_formats.append( datatypes_registry.get_datatype_by_extension( multifile_extension ) )
         self.formats = formats
+        self.implicit_formats = implicit_formats
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
@@ -1473,7 +1480,7 @@ class DataToolParameter( ToolParameter ):
                         continue
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
-                    if hda.datatype.matches_any( self.formats ):
+                    if hda.datatype.matches_any( self.formats ) or hda.datatype.matches_any( self.implicit_formats ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
@@ -1540,7 +1547,7 @@ class DataToolParameter( ToolParameter ):
             for i, data in enumerate( datasets ):
                 if data.visible and not data.deleted and data.state not in [data.states.ERROR, data.states.DISCARDED]:
                     is_valid = False
-                    if data.datatype.matches_any( self.formats ):
+                    if data.datatype.matches_any( self.formats ) or data.datatype.matches_any( self.implicit_formats ):
                         is_valid = True
                     else:
                         target_ext, converted_dataset = data.find_conversion_destination( self.formats )
@@ -1677,7 +1684,17 @@ class DataToolParameter( ToolParameter ):
         if call_attribute:
             ref = ref()
         return ref
-        
+    
+    def should_split_multifile_dataset(self, trans, dataset):
+        """
+        Logic for determining if dataset is a valid multiple file dataset
+        for this input and should be split up into separate tasks implicitly.
+        """
+        should_split = isinstance( dataset.datatype, CompositeMultifile ) \
+            and not self.multiple \
+            and dataset.datatype.matches_any( self.implicit_formats )
+        return should_split
+
 class HiddenDataToolParameter( HiddenToolParameter, DataToolParameter ):
     """
     Hidden parameter that behaves as a DataToolParameter. As with all hidden 
