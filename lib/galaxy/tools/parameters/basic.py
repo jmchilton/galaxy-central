@@ -785,10 +785,12 @@ class SelectToolParameter( ToolParameter ):
             if isinstance( dep_value, RuntimeValue ):
                 return True
             #dataset not ready yet
-            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not dep_value.datatype.matches_any( self.ref_input.formats ) ):
+            if hasattr( self, 'ref_input' ) and isinstance( dep_value, self.tool.app.model.HistoryDatasetAssociation ) and ( dep_value.is_pending or not self._matches_input(dep_value, trans)):
                 return True
         # Dynamic, but all dependenceis are known and have values
         return False 
+    def _matches_input(self, dep_value, trans):
+        return dep_value.datatype.matches_any( self.ref_input.formats ) 
     def get_initial_value( self, trans, context ):
         # More working around dynamic options for workflow
         if self.need_late_validation( trans, context ):
