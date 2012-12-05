@@ -311,6 +311,9 @@ class Data( object ):
                     except:
                         mime = "text/plain"
                 trans.response.set_content_type( mime )
+                if 'display_name' in kwd:
+                    # Allow composite file index to specify "prettier" names for files than what is actually stored on disk.
+                    trans.response.headers["Content-Disposition"] = 'attachment; filename="%s"' % (kwd['display_name'])
                 return open( file_path )
             else:
                 return trans.show_error_message( "Could not find '%s' on the extra files path %s." % ( filename, file_path ) )
