@@ -1480,7 +1480,8 @@ class DataToolParameter( ToolParameter ):
                         continue
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
-                    if hda.datatype.matches_any( self.formats ) or hda.datatype.matches_any( self.implicit_formats ):
+                    use_composite_multifiles = trans.app.config.use_composite_multifiles
+                    if hda.datatype.matches_any( self.formats ) or ( use_composite_multifiles and hda.datatype.matches_any( self.implicit_formats ) ):
                         selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
@@ -1547,7 +1548,8 @@ class DataToolParameter( ToolParameter ):
             for i, data in enumerate( datasets ):
                 if data.visible and not data.deleted and data.state not in [data.states.ERROR, data.states.DISCARDED]:
                     is_valid = False
-                    if data.datatype.matches_any( self.formats ) or data.datatype.matches_any( self.implicit_formats ):
+                    use_composite_multifiles = trans.app.config.use_composite_multifiles
+                    if data.datatype.matches_any( self.formats ) or ( use_composite_multifiles and data.datatype.matches_any( self.implicit_formats ) ):
                         is_valid = True
                     else:
                         target_ext, converted_dataset = data.find_conversion_destination( self.formats )
@@ -1691,6 +1693,7 @@ class DataToolParameter( ToolParameter ):
         for this input and should be split up into separate tasks implicitly.
         """
         should_split = isinstance( dataset.datatype, CompositeMultifile ) \
+            and trans.app.config.use_composite_multifiles \
             and not self.multiple \
             and dataset.datatype.matches_any( self.implicit_formats )
         return should_split
