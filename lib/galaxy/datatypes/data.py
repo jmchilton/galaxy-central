@@ -1,6 +1,7 @@
 import logging, os, sys, time, tempfile
 import shutil
 import re
+from urllib import urlencode
 from galaxy import util
 from galaxy.util.odict import odict
 from galaxy.util.bunch import Bunch
@@ -804,7 +805,7 @@ class CompositeMultifile( Data ):
             sfname = os.path.split(fname)[-1]
             display_name = CompositeMultifile.to_display_name(fname)
             f,e = os.path.splitext(fname)
-            rval.append( '<li><a href="%s">%s</a></li>' % ( sfname, display_name ) )
+            rval.append( '<li><a href="%s?%s">%s</a></li>' % ( sfname, urlencode({"display_name": display_name}), display_name ) )
         rval.append( '</ul></body></html>' )
         f = file(dataset.file_name,'w')
         contents = "\n".join( rval )
