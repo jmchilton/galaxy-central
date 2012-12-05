@@ -811,7 +811,8 @@ class SelectToolParameter( ToolParameter ):
         # Dynamic, but all dependenceis are known and have values
         return False 
     def _matches_input(self, dep_value, trans):
-        return dep_value.datatype.matches_any( self.ref_input.formats ) 
+        direct_match = dep_value.datatype.matches_any( self.ref_input.formats )
+        return direct_match or self.ref_input.should_split_multifile_dataset(trans, dep_value)
     def get_initial_value( self, trans, context ):
         # More working around dynamic options for workflow
         if self.need_late_validation( trans, context ):
