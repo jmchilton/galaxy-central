@@ -804,6 +804,10 @@ class CompositeMultifile( Data ):
     def build_multifile_extension(simple_extension):
         return "%s%s" % (MULTIFILE_EXTENSION_PREFIX, simple_extension)
 
+    @staticmethod
+    def is_multifile_extension(query_extension):
+        return query_extension.startswith(MULTIFILE_EXTENSION_PREFIX)
+
     def split(self, input_datasets, subdir_generator_function, split_params):
         """
         Split the input composite dataset into individual files in task

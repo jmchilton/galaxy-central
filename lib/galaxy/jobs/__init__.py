@@ -18,6 +18,7 @@ from galaxy.datatypes.interval import *
 # tabular/interval imports appear to be unused.  Clean up?
 from galaxy.datatypes import metadata
 from galaxy.util.json import from_json_string
+from galaxy.util.json import json_fix
 from galaxy.util.expressions import ExpressionContext
 from galaxy.jobs.actions.post import ActionBox
 from galaxy.exceptions import ObjectInvalid
@@ -46,6 +47,7 @@ class Sleeper( object ):
         self.condition.acquire()
         self.condition.notify()
         self.condition.release()
+
 
 class JobWrapper( object ):
     """
@@ -91,13 +93,21 @@ class JobWrapper( object ):
 
     def can_split( self ):
         # Should the job handler split this job up?
-        return self.app.config.use_tasked_jobs and self.tool.parallelism
+        return self.app.config.use_tasked_jobs and (self.tool.parallelism or self.get_job().get_runner_parameters().get('*parallelism*', None))
 
     def get_job_runner_url( self ):
         return self.job_runner_mapper.get_job_runner_url( self.params )
 
     def get_parallelism(self):
-        return self.tool.parallelism
+        return self.__get_job_parallelism() or self.tool.parallelism
+
+    def __get_job_parallelism(self):
+        parallelism_dict = self.get_job().get_runner_parameters().get('*parallelism*', None)
+        info = None
+        if parallelism_dict:
+            info = ParallelismInfo(json_fix(from_json_string(parallelism_dict)))
+        return info
+
 
     # legacy naming
     get_job_runner = get_job_runner_url
