@@ -19,6 +19,7 @@ class ConfigurationController( BaseAPIController ):
     'logo_url',
     'terms_url',
     'allow_user_dataset_purge',
+    'use_composite_multifiles',
     ]
     EXPOSED_ADMIN_OPTIONS = [
     'library_import_dir',

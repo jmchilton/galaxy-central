@@ -612,6 +612,11 @@ use_interactive = True
 #use_tasked_jobs = False
 #local_task_queue_workers = 2
 
+# This enables the use of new mulitfile versions of each datatype that
+# reference multiple files instead of a single file. This will enable use_tasked_jobs
+# by default to allow implicit parallelism across files.
+#use_composite_multifiles = False
+
 # Enable job recovery (if Galaxy is restarted while cluster jobs are running,
 # it can "recover" them when it starts).  This is not safe to use if you are
 # running more than one Galaxy server using the same database.
