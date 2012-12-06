@@ -1079,6 +1079,7 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
         return output
     def make_library_uploaded_dataset( self, trans, cntrller, params, name, path, type, library_bunch, in_folder=None ):
         link_data_only = params.get( 'link_data_only', 'copy_files' )
+        file_type = params.file_type
         library_bunch.replace_dataset = None # not valid for these types of upload
         uploaded_dataset = util.bunch.Bunch()
         new_name = name
@@ -1093,7 +1094,7 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
         uploaded_dataset.path = path
         uploaded_dataset.type = type
         uploaded_dataset.ext = None
-        uploaded_dataset.file_type = params.file_type
+        uploaded_dataset.file_type = file_type
         uploaded_dataset.dbkey = params.dbkey
         uploaded_dataset.space_to_tab = params.space_to_tab
         if in_folder:
@@ -1187,6 +1188,39 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             response_code = 400
             return None, response_code, message
         return uploaded_datasets, 200, None
+
+    def _get_path_files_and_folders(self, line, path, preserve_dirs):
+        files_and_folders = []
+        if os.path.isfile( path ):
+            name = os.path.basename( path )
+            files_and_folders.append((path, name, None))
+        for basedir, dirs, files in os.walk( line ):
+            for file in files:
+                file_path = os.path.abspath( os.path.join( basedir, file ) )
+                if preserve_dirs:
+                    in_folder = os.path.dirname( file_path.replace( path, '', 1 ).lstrip( '/' ) )
+                else:
+                    in_folder = None
+                files_and_folders.append((file_path, file, in_folder))
+        return files_and_folders
+    def _paths_list(self, params):
+        return [ (l.strip(), os.path.abspath(l.strip())) for l in params.filesystem_paths.splitlines() if l.strip() ]
+
+    def _check_path_paste_params(self, params):
+        if params.get( 'filesystem_paths', '' ) == '':
+            message = "No paths entered in the upload form"
+            response_code = 400
+            return None, response_code, message
+        bad_paths = []
+        for (_, path) in self._paths_list( params ):
+            if not os.path.exists( path ):
+                bad_paths.append( path )
+        if bad_paths:
+            message = "Invalid paths:<br><ul><li>%s</li></ul>" % "</li><li>".join( bad_paths )
+            response_code = 400
+            return None, response_code, message
+        return None
+
     @web.expose
     def add_history_datasets_to_library( self, trans, cntrller, library_id, folder_id, hda_ids='', **kwd ):
         params = util.Params( kwd )
