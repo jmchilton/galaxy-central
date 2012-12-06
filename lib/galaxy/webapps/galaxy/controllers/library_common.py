@@ -2,6 +2,7 @@ import os, os.path, shutil, urllib, StringIO, re, gzip, tempfile, shutil, zipfil
 from galaxy.web.base.controller import *
 from galaxy import util, jobs
 from galaxy.datatypes import sniff
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.security import RBACAgent
 from galaxy.util.json import to_json_string
 from galaxy.tools.actions import upload_common
@@ -986,7 +987,11 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
                                     status=status )
     def upload_dataset( self, trans, cntrller, library_id, folder_id, replace_dataset=None, **kwd ):
         # Set up the traditional tool state/params
-        tool_id = 'upload1'
+        multifile_dataset = str(kwd.get('upload_option')).find("multifile") > -1
+        if multifile_dataset:
+            tool_id = 'multi_upload1'
+        else:
+            tool_id = 'upload1'
         tool = trans.app.toolbox.get_tool( tool_id )
         state = tool.new_state( trans )
         errors = tool.update_state( trans, tool.inputs_by_page[0], state.inputs, kwd )
@@ -1048,6 +1053,8 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
                 uploaded_datasets, response_code, message = self.get_server_dir_uploaded_datasets( trans, cntrller, params, full_dir, import_dir_desc, library_bunch, response_code, message )
             elif upload_option == 'upload_paths':
                 uploaded_datasets, response_code, message = self.get_path_paste_uploaded_datasets( trans, cntrller, params, library_bunch, response_code, message )
+            elif upload_option == 'upload_paths_multifile':
+                uploaded_datasets, response_code, message = self.get_path_paste_multifile_uploaded_datasets( trans, cntrller, params, library_bunch, response_code, message )
             upload_common.cleanup_unused_precreated_datasets( precreated_datasets )
             if upload_option == 'upload_file' and not uploaded_datasets:
                 response_code = 400
@@ -1088,6 +1095,11 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
                 new_name = new_name.rstrip( '.zip' )
         uploaded_dataset.name = new_name
         uploaded_dataset.path = path
+        if type.endswith('_multifile'):
+            type = type[0:-len('_multifile')]
+            merge_type = CompositeMultifile.build_multifile_extension(file_type)
+            uploaded_dataset.merge_type = merge_type
+            file_type = 'auto'
         uploaded_dataset.type = type
         uploaded_dataset.ext = None
         uploaded_dataset.file_type = file_type
@@ -1160,7 +1172,18 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
         for (path, name, folder) in files_and_folders:
             uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, path, 'path_paste', library_bunch, folder ) )
         return uploaded_datasets, 200, None
-
+    def get_path_paste_multifile_uploaded_datasets( self, trans, cntrller, params, library_bunch, response_code, message ):
+        (files_and_folders, _response_code, _message) = self._get_path_files_and_folders(params, False)
+        if _response_code:
+            return ([], _response_code, _message)
+        uploaded_dataset = None
+        for (path, name, folder) in files_and_folders:
+            if not uploaded_dataset:
+                dataset_name = params.get("NAME", name)
+                uploaded_dataset = self.make_library_uploaded_dataset( trans, cntrller, params, dataset_name, path, 'path_paste_multifile', library_bunch, folder ) 
+                uploaded_dataset["multifiles"] = []
+            uploaded_dataset.multifiles.append(dict(local_filename=path, filename=name))
+        return [uploaded_dataset], 200, None
     def _get_path_files_and_folders( self, params, preserve_dirs ):
         problem_response = self._check_path_paste_params( params )
         if problem_response:

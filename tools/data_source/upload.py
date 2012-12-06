@@ -10,6 +10,7 @@ from galaxy import eggs
 import galaxy.model
 from galaxy.datatypes.checkers import *
 from galaxy.datatypes import sniff
+from galaxy.datatypes.data import CompositeMultifile
 from galaxy.datatypes.binary import *
 from galaxy.datatypes.images import Pdf
 from galaxy.datatypes.registry import Registry
@@ -89,9 +90,13 @@ def add_file( dataset, registry, json_file, output_path ):
         os.makedirs( os.path.join(galaxy_datadir, extra_files_path) )
         
         for i, fn in enumerate( sorted(multifiles) ):
-            oldfn = fn[fn.index('upload_file_data_')+17:fn.index('______')]
+            if fn.find("upload_file_data_") > -1:
+                oldfn = fn[fn.index('upload_file_data_')+17:fn.index('______')]
+            else:
+                oldfn = os.path.basename(fn)
             newname = '%s_%s' % (oldfn, 'task_%d' % i)
             dataset.composite_files[newname] = util.bunch.Bunch(name=newname)
+            # TODO: Handle link data
             shutil.copy(fn, os.path.join( galaxy_datadir, extra_files_path, newname) )
         try:
             fd, outfile = tempfile.mkstemp(prefix='uploaded_multifile', dir=os.path.split(dataset.path)[0])
@@ -102,8 +107,9 @@ def add_file( dataset, registry, json_file, output_path ):
                 os.close(fd)
             stop_err('Could not create merged composite dataset: %s' % e)
         else:
-            for fn in multifiles:
-                os.remove(fn)
+            if dataset.type not in ( 'server_dir', 'path_paste' ) :
+                for fn in multifiles:
+                    os.remove(fn)
             if fd:
                 os.close(fd)
         # reset the datasets attributes
