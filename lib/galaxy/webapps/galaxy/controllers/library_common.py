@@ -1131,6 +1131,19 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             name = os.path.basename( file )
             uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, file, 'server_dir', library_bunch ) )
         return uploaded_datasets, 200, None
+    def get_server_dir_multifile_uploaded_datasets( self, trans, cntrller, params, full_dir, import_dir_desc, library_bunch, response_code, message ):
+        dir_response = self._get_server_dir_files(params, full_dir, import_dir_desc)
+        files = dir_response[0]
+        if not files:
+            return dir_response
+        dataset = None
+        for file in files:
+            name = os.path.basename( file )
+            if not dataset:
+                dataset_name = params.get("NAME", name)
+                dataset = self.make_library_uploaded_dataset( trans, cntrller, params, dataset_name, file, 'server_dir_multifiles', library_bunch )
+
+        return [uploaded_dataset], 200, None
     def _get_server_dir_files( self, params, full_dir, import_dir_desc ):
         files = []
         try:
