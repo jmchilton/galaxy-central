@@ -1051,6 +1051,8 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
                 uploaded_datasets = upload_common.get_uploaded_datasets( trans, cntrller, tool_params, precreated_datasets, dataset_upload_inputs, library_bunch=library_bunch )
             elif upload_option == 'upload_directory':
                 uploaded_datasets, response_code, message = self.get_server_dir_uploaded_datasets( trans, cntrller, params, full_dir, import_dir_desc, library_bunch, response_code, message )
+            elif upload_option == 'upload_directory_multifile':
+                uploaded_datasets, response_code, message = self.get_server_dir_multifile_uploaded_datasets( trans, cntrller, params, full_dir, import_dir_desc, library_bunch, response_code, message )
             elif upload_option == 'upload_paths':
                 uploaded_datasets, response_code, message = self.get_path_paste_uploaded_datasets( trans, cntrller, params, library_bunch, response_code, message )
             elif upload_option == 'upload_paths_multifile':
@@ -1127,6 +1129,20 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             name = os.path.basename( file )
             uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, file, 'server_dir', library_bunch ) )
         return uploaded_datasets, 200, None
+    def get_server_dir_multifile_uploaded_datasets( self, trans, cntrller, params, full_dir, import_dir_desc, library_bunch, response_code, message ):
+        dir_response = self._get_server_dir_files(params, full_dir, import_dir_desc)
+        files = dir_response[0]
+        if not files:
+            return dir_response
+        uploaded_dataset = None
+        for file in files:
+            name = os.path.basename( file )
+            if not uploaded_dataset:
+                dataset_name = params.get("NAME", name)
+                uploaded_dataset = self.make_library_uploaded_dataset( trans, cntrller, params, dataset_name, file, 'server_dir_multifile', library_bunch )
+                uploaded_dataset["multifiles"] = []
+            uploaded_dataset.multifiles.append(dict(local_filename=file, filename=name))
+        return [uploaded_dataset], 200, None
     def _get_server_dir_files( self, params, full_dir, import_dir_desc ):
         files = []
         try:
