@@ -1181,46 +1181,25 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             return None, response_code, message
         return files, None, None
     def get_path_paste_uploaded_datasets( self, trans, cntrller, params, library_bunch, response_code, message ):
-        if params.get( 'filesystem_paths', '' ) == '':
-            message = "No paths entered in the upload form"
-            response_code = 400
-            return None, response_code, message
         preserve_dirs = util.string_as_bool( params.get( 'preserve_dirs', False ) )
-        # locate files
-        bad_paths = []
         uploaded_datasets = []
-        for line in [ l.strip() for l in params.filesystem_paths.splitlines() if l.strip() ]:
-            path = os.path.abspath( line )
-            if not os.path.exists( path ):
-                bad_paths.append( path )
-                continue
-            # don't bother processing if we're just going to return an error
-            if not bad_paths:
-                if os.path.isfile( path ):
-                    name = os.path.basename( path )
-                    uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, path, 'path_paste', library_bunch ) )
-                for basedir, dirs, files in os.walk( line ):
-                    for file in files:
-                        file_path = os.path.abspath( os.path.join( basedir, file ) )
-                        if preserve_dirs:
-                            in_folder = os.path.dirname( file_path.replace( path, '', 1 ).lstrip( '/' ) )
-                        else:
-                            in_folder = None
-                        uploaded_datasets.append( self.make_library_uploaded_dataset( trans,
-                                                                                      cntrller,
-                                                                                      params,
-                                                                                      file,
-                                                                                      file_path,
-                                                                                      'path_paste',
-                                                                                      library_bunch,
-                                                                                      in_folder ) )
-        if bad_paths:
-            message = "Invalid paths:<br><ul><li>%s</li></ul>" % "</li><li>".join( bad_paths )
-            response_code = 400
-            return None, response_code, message
+        (files_and_folders, _response_code, _message) = self._get_path_files_and_folders(params, preserve_dirs)
+        if _response_code:
+            return (uploaded_datasets, _response_code, _message)
+        for (path, name, folder) in files_and_folders:
+            uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, path, 'path_paste', library_bunch, folder ) )
         return uploaded_datasets, 200, None
 
-    def _get_path_files_and_folders(self, line, path, preserve_dirs):
+    def _get_path_files_and_folders( self, params, preserve_dirs ):
+        problem_response = _check_path_paste_params(self, params)
+        if problem_response:
+            return problem_response
+        files_and_folders = []
+        for (line, path) in self._paths_list( params ):
+            files_and_folders.extend( self._get_single_path_files_and_folders( line, path, preserve_dirs ) )
+        return files_and_folders, None, None
+
+    def _get_single_path_files_and_folders(self, line, path, preserve_dirs):
         files_and_folders = []
         if os.path.isfile( path ):
             name = os.path.basename( path )
