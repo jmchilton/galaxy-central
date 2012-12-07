@@ -1142,7 +1142,8 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             if not dataset:
                 dataset_name = params.get("NAME", name)
                 dataset = self.make_library_uploaded_dataset( trans, cntrller, params, dataset_name, file, 'server_dir_multifiles', library_bunch )
-
+                dataset["multifiles"] = []
+            dataset.multifiles.append(file)
         return [uploaded_dataset], 200, None
     def _get_server_dir_files( self, params, full_dir, import_dir_desc ):
         files = []
