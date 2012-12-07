@@ -1190,7 +1190,18 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
         for (path, name, folder) in files_and_folders:
             uploaded_datasets.append( self.make_library_uploaded_dataset( trans, cntrller, params, name, path, 'path_paste', library_bunch, folder ) )
         return uploaded_datasets, 200, None
-
+    def get_path_paste_multifile_uploaded_datasets( self, trans, cntrller, params, library_bunch, response_code, message ):
+        (files_and_folders, _response_code, _message) = self._get_path_files_and_folders(params, False)
+        if _response_code:
+            return ([], _response_code, _message)
+        uploaded_dataset = None
+        for (path, name, folder) in files_and_folders:
+            if not uploaded_dataset:
+                dataset_name = params.get("NAME", name)
+                uploaded_dataset = self.make_library_uploaded_dataset( trans, cntrller, params, dataset_name, path, 'path_paste_multifiles', library_bunch, folder ) )
+                uploaded_dataset["multifiles"] = []
+            uploaded_dataset.multifiles.append(file)
+        return [uploaded_dataset], 200, None
     def _get_path_files_and_folders( self, params, preserve_dirs ):
         problem_response = _check_path_paste_params(self, params)
         if problem_response:
