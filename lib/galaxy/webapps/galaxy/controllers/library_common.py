@@ -1203,12 +1203,13 @@ class LibraryCommon( BaseUIController, UsesFormDefinitionsMixin ):
             uploaded_dataset.multifiles.append(file)
         return [uploaded_dataset], 200, None
     def _get_path_files_and_folders( self, params, preserve_dirs ):
-        problem_response = _check_path_paste_params(self, params)
+        problem_response = self._check_path_paste_params( params )
         if problem_response:
             return problem_response
         files_and_folders = []
         for (line, path) in self._paths_list( params ):
-            files_and_folders.extend( self._get_single_path_files_and_folders( line, path, preserve_dirs ) )
+            line_files_and_folders = self._get_single_path_files_and_folders( line, path, preserve_dirs )
+            files_and_folders.extend( line_files_and_folders )
         return files_and_folders, None, None
 
     def _get_single_path_files_and_folders(self, line, path, preserve_dirs):
