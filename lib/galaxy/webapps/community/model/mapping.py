@@ -113,7 +113,9 @@ Repository.table = Table( "repository", metadata,
     Column( "deleted", Boolean, index=True, default=False ),
     Column( "email_alerts", JSONType, nullable=True ),
     Column( "times_downloaded", Integer ),
-    Column( "deprecated", Boolean, default=False ) )
+    Column( "deprecated", Boolean, default=False ),
+    Column( "bitbucket_url", TrimmedString( 255 ) ) ) 
+
 
 RepositoryMetadata.table = Table( "repository_metadata", metadata,
     Column( "id", Integer, primary_key=True ),

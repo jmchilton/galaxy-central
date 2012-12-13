@@ -38,6 +38,11 @@
                 <div style="clear: both"></div>
             </div>
             <div class="form-row">
+                <label>Bitbucket URL (optional):</label>
+                <input  name="bitbucket_url" type="textfield" value="${bitbucket_url | h}" size="80"/>
+                <div style="clear: both"></div>
+            </div>
+            <div class="form-row">
                 <label>Categories</label>
                 <div class="form-row">
                     <select name="category_id" multiple>

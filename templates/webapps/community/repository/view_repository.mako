@@ -168,6 +168,12 @@
                 ${revision_label | h}
             %endif
         </div>
+        %if repository.bitbucket_url:
+        <div class="form-row">
+            <label>Bitbucket:</label>
+            <a href="${repository.bitbucket_url | h}">View project on Bitbucket</a> |  <a href="${repository.bitbucket_url | h}/src">Source</a> | <a href="${repository.bitbucket_url | h}/commits">Commits</a> | <a href="${repository.bitbucket_url | h}/issues">Issues</a> | <a href="${repository.bitbucket_url | h}/wiki">Wiki</a> | <a href="${repository.bitbucket_url | h}/fork">Fork it!</a>
+        </div>
+        %endif
         <div class="form-row">
             <label>Owner:</label>
             ${repository.user.username | h}

@@ -933,6 +933,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         name = util.restore_text( params.get( 'name', '' ) )
         description = util.restore_text( params.get( 'description', '' ) )
         long_description = util.restore_text( params.get( 'long_description', '' ) )
+        bitbucket_url = util.restore_text( params.get( 'bitbucket_url', '' ) )
         category_ids = util.listify( params.get( 'category_id', '' ) )
         selected_categories = [ trans.security.decode_id( id ) for id in category_ids ]
         if params.get( 'create_repository_button', False ):
@@ -943,11 +944,14 @@ class RepositoryController( BaseUIController, ItemRatings ):
             if not description:
                 message = 'Enter a description.'
                 error = True
+            if not bitbucket_url:
+                bitbucket_url = None
             if not error:
                 # Add the repository record to the db
                 repository = trans.app.model.Repository( name=name,
                                                          description=description,
                                                          long_description=long_description,
+                                                         bitbucket_url=bitbucket_url,
                                                          user_id=trans.user.id )
                 # Flush to get the id
                 trans.sa_session.add( repository )
@@ -980,18 +984,42 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 if flush_needed:
                     trans.sa_session.flush()
                 message = "Repository '%s' has been created." % repository.name
-                trans.response.send_redirect( web.url_for( controller='repository',
-                                                           action='view_repository',
-                                                           message=message,
-                                                           id=trans.security.encode_id( repository.id ) ) )
+                if not bitbucket_url:
+                    trans.response.send_redirect( web.url_for( controller='repository',
+                                                               action='view_repository',
+                                                               message=message,
+                                                               id=trans.security.encode_id( repository.id ) ) )
+                else:
+                    self._bitbucket_sync_contents( trans, repository, message )
         return trans.fill_template( '/webapps/community/repository/create_repository.mako',
                                     name=name,
                                     description=description,
                                     long_description=long_description,
+                                    bitbucket_url=bitbucket_url,
                                     selected_categories=selected_categories,
                                     categories=categories,
                                     message=message,
                                     status=status )
+
+    def _bitbucket_sync_contents( self, trans, repository, message ):
+        bitbucket_url = repository.bitbucket_url
+        trans.response.send_redirect( web.url_for( controller='upload',
+                                                   action='upload',
+                                                   message=message,
+                                                   repository_id=trans.security.encode_id( repository.id ),
+                                                   url="hg%s" % bitbucket_url[len("http"):],
+                                                   commit_message='Pulled down latest contents from %s' % bitbucket_url,
+                                                   upload_button=True) )
+
+    @web.expose
+    @web.require_login( "update repository" )
+    def bitbucket_sync_contents( self, trans, **kwd ):
+        params = util.Params( kwd )
+        message = util.restore_text( params.get( 'message', ''  ) )
+        repository_id = params.get( 'id', None )
+        repository = get_repository_in_tool_shed( trans, repository_id )
+        self._bitbucket_sync_contents( trans, repository, message )
+
     @web.expose
     @web.require_login( "deprecate repository" )
     def deprecate( self, trans, **kwd ):
@@ -1674,6 +1702,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
         changeset_revision = util.restore_text( params.get( 'changeset_revision', repository.tip( trans.app ) ) )
         description = util.restore_text( params.get( 'description', repository.description ) )
         long_description = util.restore_text( params.get( 'long_description', repository.long_description ) )
+        bitbucket_url = util.restore_text( params.get( 'bitbucket_url', repository.bitbucket_url ) )        
         avg_rating, num_ratings = self.get_ave_item_rating_data( trans.sa_session, repository, webapp_model=trans.model )
         display_reviews = util.string_as_bool( params.get( 'display_reviews', False ) )
         alerts = params.get( 'alerts', '' )
@@ -1701,6 +1730,9 @@ class RepositoryController( BaseUIController, ItemRatings ):
                 flush_needed = True
             if long_description != repository.long_description:
                 repository.long_description = long_description
+                flush_needed = True
+            if bitbucket_url != repository.bitbucket_url:
+                repository.bitbucket_url = bitbucket_url
                 flush_needed = True
             if repository.times_downloaded == 0 and repo_name != repository.name:
                 message = self.__validate_repository_name( repo_name, user )
@@ -1838,6 +1870,7 @@ class RepositoryController( BaseUIController, ItemRatings ):
                                     repo_name=repo_name,
                                     description=description,
                                     long_description=long_description,
+                                    bitbucket_url=bitbucket_url,
                                     current_allow_push_list=current_allow_push_list,
                                     allow_push_select_field=allow_push_select_field,
                                     repo=repo,

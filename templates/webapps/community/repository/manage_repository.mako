@@ -99,6 +99,9 @@
                 %if can_deprecate:
                     <a class="action-button" href="${h.url_for( controller='repository', action='deprecate', id=trans.security.encode_id( repository.id ), mark_deprecated=True )}">Mark repository as deprecated</a>
                 %endif
+                %if can_push and repository.bitbucket_url:
+                    <a class="action-button" href="${h.url_for( controller='repository', action='bitbucket_sync_contents', id=trans.security.encode_id( repository.id ) )}">Synchronize contents with Bitbucket</a>
+                %endif
                 %if can_undeprecate:
                     <a class="action-button" href="${h.url_for( controller='repository', action='deprecate', id=trans.security.encode_id( repository.id ), mark_deprecated=False )}">Mark repository as not deprecated</a>
                 %endif
@@ -176,6 +179,11 @@
                 %else:
                     <textarea name="long_description" rows="3" cols="80"></textarea>
                 %endif
+                <div style="clear: both"></div>
+            </div>
+            <div class="form-row">
+                <label>Bitbucket URL:</label>
+                <input name="bitbucket_url" type="textfield" value="${bitbucket_url | h}" size="80"/>
                 <div style="clear: both"></div>
             </div>
             <div class="form-row">
