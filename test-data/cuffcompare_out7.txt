@@ -1,5 +1,5 @@
-# Cuffcompare v1.3.0 | Command line was:
-#cuffcompare -o cc_output -r /Users/jeremy/projects/galaxy-central/database/files/010/dataset_10703.dat -R ./input1 ./input2
+# Cuffcompare v2.0.2 | Command line was:
+#cuffcompare -o cc_output -r /Users/jeremy/projects/galaxy-central/database/files/002/dataset_2770.dat -R ./input1 ./input2
 #
 
 #= Summary for dataset: ./input1 :
