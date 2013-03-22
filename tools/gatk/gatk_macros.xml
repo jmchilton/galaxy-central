@@ -273,6 +273,20 @@
       </when>
     </conditional>    
   </xml>
+  <xml name="analysis_type_conditional">
+    <conditional name="analysis_param_type">
+      <param name="analysis_param_type_selector" type="select" label="Basic or Advanced Analysis options">
+        <option value="basic" selected="True">Basic</option>
+        <option value="advanced">Advanced</option>
+      </param>
+      <when value="basic">
+        <!-- Do nothing here -->
+      </when>
+      <when value="advanced">
+        <yield />
+      </when>
+    </conditional>
+  </xml>
   <token name="@CITATION_SECTION@">------
 
 **Citation**

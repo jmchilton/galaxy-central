@@ -155,15 +155,7 @@
     
     <expand macro="gatk_param_type_conditional" />
     
-    <conditional name="analysis_param_type">
-      <param name="analysis_param_type_selector" type="select" label="Basic or Advanced Analysis options">
-        <option value="basic" selected="True">Basic</option>
-        <option value="advanced">Advanced</option>
-      </param>
-      <when value="basic">
-        <!-- Do nothing here -->
-      </when>
-      <when value="advanced">
+    <expand macro="analysis_type_conditional">
         <conditional name="default_read_group_type">
           <param name="default_read_group_type_selector" type="select" label="Set default Read Group" help="--default_read_group">
             <option value="default" selected="True">Don't Set</option>
@@ -227,8 +219,7 @@
         </conditional>
         <param name="window_size_nqs" type="integer" value="5" label="Window size used by MinimumNQSCovariate" help="window_size_nqs"/>
         <param name="homopolymer_nback" type="integer" value="7" label="number of previous bases to look at in HomopolymerCovariate" help="-nback,--homopolymer_nback &amp;lt;homopolymer_nback&amp;gt;" />
-      </when>
-    </conditional>
+    </expand>
   </inputs>
   <outputs>
     <data format="csv" name="output_recal" label="${tool.name} on ${on_string} (Covariate File)" />
