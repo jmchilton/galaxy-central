@@ -18,6 +18,11 @@ from galaxy.util import asbool
 
 log = logging.getLogger( __name__ )
 
+# Default repository to obtain CBL from using when evaluating
+# cloudbiolinux_install commands.
+DEFAULT_CBL_URL = "https://github.com/chapmanb/cloudbiolinux.git"
+
+
 def create_temporary_tool_dependencies_config( app, tool_shed_url, name, owner, changeset_revision ):
     """Make a call to the tool shed to get the required repository's tool_dependencies.xml file."""
     url = url_join( tool_shed_url,
@@ -484,7 +489,7 @@ def install_via_fabric( app, tool_dependency, actions_elem, install_dir, package
             #    </repository>
             # </action>
             # This action type allows for defining an environment that will properly compile a tool dependency.  Currently, tag set definitions like
-            # that above are supported, but in the future other approaches to setting environment variables or other environment attributes can be 
+            # that above are supported, but in the future other approaches to setting environment variables or other environment attributes can be
             # supported.  The above tag set will result in the installed and compiled numpy version 1.7.1 binary to be used when compiling the current
             # tool dependency package.  See the package_matplotlib_1_2 repository in the test tool shed for a real-world example.
             for env_elem in action_elem:
@@ -543,7 +548,11 @@ def install_via_fabric( app, tool_dependency, actions_elem, install_dir, package
             for gem_source_elem in gem_source_elems:
                 gem_sources.append( gem_source_elem.text.strip() )
             action_dict[ 'gem_sources' ] = gem_sources
-
+        elif action_type == 'cloudbiolinux_install':
+            action_dict[ 'cbl_revision' ] = action_elem.get( 'cbl_revision', None )
+            action_dict[ 'cbl_url' ] = action_elem.get( 'cbl_url', DEFAULT_CBL_URL )
+            action_dict[ 'tool_name' ] = evaluate_template( action_elem.get( 'tool_name', tool_dependency.name ) )
+            action_dict[ 'tool_version' ] = evaluate_template( action_elem.get( 'tool_version', tool_dependency.version ) )
         elif action_type == 'chmod':
             # Change the read, write, and execute bits on a file.
             file_elems = action_elem.findall( 'file' )
