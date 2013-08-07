@@ -505,6 +505,44 @@ def install_via_fabric( app, tool_dependency, actions_elem, install_dir, package
             # lxml==2.3.0</action>
             ## Manually specify contents of requirements.txt file to create dynamically.
             action_dict[ 'requirements' ] = evaluate_template( action_elem.text or 'requirements.txt' )
+        elif action_type == 'setup_rvm':
+            # <action type="setup_rvm" ruby="1.9.3-p448" />
+            ## Uses RVM to configure a custom gemset for this tool using ruby="1.9.3-p448"
+            action_dict[ 'ruby_version' ] = action_elem.get( 'ruby' )
+            sanitized_version = tool_dependency.version.replace("@", "_at_")
+            action_dict[ 'gemset' ] = "__%s__%s__" % (tool_dependency.name, sanitized_version)
+            # We get isolation between packages by using different gemsets, so all tools
+            # can share a single rvm path. Place this in tool_dependency_dir because it must be
+            # shared between nodes (unlike the default home directory).
+            action_dict[ 'rvm_path' ] = "%s/global_tool_rvm" % app.config.tool_dependency_dir
+
+            action_dict[ 'gem_file' ] = action_elem.get( 'gem_file', None )
+
+            gem_elems = action_elem.findall( 'gem' ) or []
+            gems = {}
+            for gem_elem in gem_elems:
+                gem_name = gem_elem.text
+                version_range = []
+                from_version = gem_elem.get( 'from_version', None )
+                if not from_version:
+                    from_version = gem_elem.get( 'version', None )
+                if from_version:
+                    version_range.append( from_version )
+                    to_version = gem_elem.get( 'to_version', None )
+                    if to_version:
+                        version_range.append( to_version )
+                gems[ gem_name ] = version_range
+            action_dict[ 'gems' ] = gems
+
+            default_gem_sources = asbool( action_elem.get( 'default_gem_sources', 'true' ) )
+            DEFAULT_GEM_SOURCES = [ 'https://rubygems.org' ]
+            gem_sources = DEFAULT_GEM_SOURCES if default_gem_sources else []
+
+            gem_source_elems = action_elem.findall('gem_source') or []
+            for gem_source_elem in gem_source_elems:
+                gem_sources.append( gem_source_elem.text.strip() )
+            action_dict[ 'gem_sources' ] = gem_sources
+
         elif action_type == 'chmod':
             # Change the read, write, and execute bits on a file.
             file_elems = action_elem.findall( 'file' )
