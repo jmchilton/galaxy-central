@@ -2,6 +2,7 @@
 from __future__ import with_statement
 
 import common_util
+from getpass import getuser
 import logging
 import os
 import shutil
@@ -317,6 +318,11 @@ def install_and_build_package( app, tool_dependency, actions_dict ):
                             return_code = handle_command( app, tool_dependency, install_dir, modify_env_command )
                             if return_code:
                                 return
+                        elif action_type == 'cloudbiolinux_install':
+                            # Perform installation via CloudBioLinux.
+                            return_code = __install_cloudbiolinux_tool( app, tool_dependency, install_dir, action_dict )
+                            if return_code:
+                                return
                         elif action_type == 'shell_command':
                             with settings( warn_only=True ):
                                 cmd = ''
@@ -380,6 +386,65 @@ def install_and_build_package( app, tool_dependency, actions_dict ):
                             else:
                                 log.error( 'Unable to download binary from %s', url )
                                 
+
+## CloudBioLinux interface helpers
+def __install_cloudbiolinux_tool( app, tool_dependency, install_dir, action_dict ):
+    """Install a Galaxy tool via CloudBioLinux. CloudBioLinux install procedure should
+    perform install of underlying application and CloudBioLinux infrastructure will
+    setup Galaxy's env.sh file.
+
+    More information on CloudBioLinux can be found @ http://cloudbiolinux.org/ and
+    https://github.com/chapmanb/cloudbiolinux.
+    """
+    cbl_config = { 'repository': action_dict[ 'cbl_url' ],
+                   'revision': action_dict[ 'cbl_revision' ] }
+    cbl_dir = __clone_cloudbiolinux( app, tool_dependency, install_dir, cbl_config )
+    if not cbl_dir:
+        return
+    cbl_install_command = [ os.path.join( cbl_dir, "deploy", "deploy.sh" ), "--action", "install_galaxy_tool" ]
+    deployer_args = { "vm_provider": "novm",
+                      "galaxy_tool_name": action_dict[ 'tool_name' ],
+                      "galaxy_tool_version": action_dict[ 'tool_version' ],
+                      "galaxy_tool_dir": install_dir,
+                      "settings": "__none__" }
+
+    for prop, val in deployer_args.iteritems():
+        cbl_install_command.append( "--%s" % prop )
+        cbl_install_command.append( val )
+
+    fabric_properties = { "use_sudo": "False",
+                          "galaxy_user": getuser()
+                        }
+    for prop, val in fabric_properties.iteritems():
+        cbl_install_command.append( "--fabric_property" )
+        cbl_install_command.append( prop )
+        cbl_install_command.append( "--fabric_value" )
+        cbl_install_command.append( val )
+    return_code = handle_command( app, tool_dependency, install_dir, " ".join( cbl_install_command ) )
+    if not return_code:
+        shutil.rmtree( cbl_dir )
+
+
+def __clone_cloudbiolinux( app, tool_dependency, install_dir, cbl_config ):
+    """Clone CloudBioLinux to a temporary directory.
+    """
+    cbl_url = cbl_config.get( "repository" )
+    cbl_dir = tempfile.mkdtemp( suffix="_cbl" )
+    clone_command = " ".join( [ "git", "clone", cbl_url, cbl_dir ] )
+    return_code = handle_command( app, tool_dependency, install_dir, clone_command )
+    if return_code:
+        return
+
+    revision = cbl_config.get( "revision" )
+    if revision:
+        git_dir = os.path.join( cbl_dir, ".git" )
+        checkout_command = " ".join( [ "git", "--work-tree", cbl_dir, "--git-dir", git_dir, "checkout", revision ] )
+        return_code = handle_command( app, tool_dependency, install_dir, checkout_command )
+        if return_code:
+            return
+
+    return cbl_dir
+
 
 def log_results( command, fabric_AttributeString, file_path ):
     """
