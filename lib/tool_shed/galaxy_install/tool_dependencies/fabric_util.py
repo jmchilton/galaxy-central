@@ -175,6 +175,7 @@ class InstallEnvironment( object ):
 
     def __init__( self ):
         self.env_shell_file_paths = []
+        self.configure_commands = []
 
     def build_command( self, command, action_type='shell_command' ):
         """
@@ -182,7 +183,7 @@ class InstallEnvironment( object ):
         configuring environment described by this object.
         """
         env_cmds = self.environment_commands(action_type)
-        return '\n'.join(env_cmds + [command])
+        return '\n'.join(env_cmds + self.configure_commands + [ command ])
 
     def environment_commands(self, action_type):
         """
@@ -209,6 +210,13 @@ class InstallEnvironment( object ):
             else:
                 log.debug( 'Invalid file %s specified, ignoring template_command action.', env_shell_file_path )
         return env_vars
+
+    def add_configure_command( self, command ):
+        """
+        Add a generic shell command to configure the environment prior to execution
+        of actual shell commands via 'shell_command' actions.
+        """
+        self.configure_commands.append( command )
 
     def add_env_shell_file_paths(self, paths):
         self.env_shell_file_paths.append(paths)
@@ -381,6 +389,60 @@ def install_and_build_package( app, tool_dependency, actions_dict ):
                             return_code = handle_command( app, tool_dependency, install_dir, modify_env_command )
                             if return_code:
                                 return
+                        elif action_type == 'setup_rvm':
+                            def build_bash_command(command):
+                                return "bash -c \"%s\"" % command.replace("\"", "\\\"")
+
+                            rvm_path = action_dict[ 'rvm_path' ]
+                            set_rvm_path = "export rvm_path='%s'" % rvm_path
+                            with settings( warn_only=True ):
+                                return_code = handle_command( app, tool_dependency, install_dir, build_bash_command("%s; wget -O - https://get.rvm.io | bash -s stable" % set_rvm_path ) )
+                                if return_code:
+                                    return
+                                source_rvm_cmd = "%s; . '%s/scripts/rvm'" % (set_rvm_path, rvm_path)
+                                ruby_version = action_dict[ 'ruby_version' ]
+                                install_ruby_command = "%s; rvm install %s" % ( source_rvm_cmd, ruby_version )
+                                return_code = handle_command( app, tool_dependency, install_dir, build_bash_command( install_ruby_command ) )
+                                if return_code:
+                                    return
+                                gemset = action_dict[ 'gemset' ]
+                                create_gemset_command = build_bash_command( "%s; rvm gemset create %s" % ( source_rvm_cmd, gemset ) )
+                                return_code = handle_command( app, tool_dependency, install_dir, create_gemset_command )
+                                if return_code:
+                                    return
+                                rvm_target = "%s@%s" % ( ruby_version, gemset )
+                                use_rvm_command = "%s; rvm use %s" % ( source_rvm_cmd, rvm_target )
+                                env_contents = """rvm_temp_file=`mktemp /tmp/rvmkXXX`; export rvm_temp_file; bash -c "%s; export | grep 'declare -x' | sed 's/declare -x/export/g' > $rvm_temp_file"; . $rvm_temp_file; rm $rvm_temp_file""" % use_rvm_command
+                                install_environment.add_configure_command( env_contents )
+                                open(os.path.join(install_dir, "env.sh"), "a").write(env_contents)
+
+                                def bundle( gem_file ):
+                                    install_command = build_bash_command( "%s; bundle install --gemfile='%s'" % ( use_rvm_command, gem_file ) )
+                                    return handle_command( app, tool_dependency, install_dir, install_command )
+
+                                gems = action_dict.get( 'gems', None )
+                                if gems:
+                                    handle, gem_file = tempfile.mkstemp( prefix="Gemfile", dir=install_dir )
+                                    with open( gem_file, 'w' ) as out:
+                                        for gem_source in action_dict.get( 'gem_sources' ):
+                                            out.write( "source '%s'\n" % gem_source )
+
+                                        for gem_name, gem_versions in gems.iteritems():
+                                            ", ".join( [ '"%s"' % gem_version for gem_version in gem_versions ] )
+                                            out.write( 'gem "%s"' % gem_name )
+                                            if gem_versions:
+                                                version_str = ", ".join( [ '"%s"' % gem_version for gem_version in gem_versions ] )
+                                                out.write( ", %s" % version_str )
+                                            out.write( "\n" )
+                                    os.close( handle )
+                                    if bundle( gem_file ):
+                                        return
+
+                                gem_file = action_dict.get( 'gem_file', None)
+                                if gem_file:
+                                    if bundle( gem_file ):
+                                        return
+
                         elif action_type == 'shell_command':
                             with settings( warn_only=True ):
                                 cmd = install_environment.build_command( action_dict[ 'command' ] )
