@@ -518,7 +518,8 @@ def install_via_fabric( app, tool_dependency, actions_elem, install_dir, package
             # We get isolation between packages by using different gemsets, so all tools
             # can share a single rvm path. Place this in tool_dependency_dir because it must be
             # shared between nodes (unlike the default home directory).
-            action_dict[ 'rvm_path' ] = "%s/global_tool_rvm" % app.config.tool_dependency_dir
+            tool_dependency_dir = os.path.abspath( app.config.tool_dependency_dir )
+            action_dict[ 'rvm_path' ] = "%s/global_tool_rvm" % tool_dependency_dir
 
             action_dict[ 'gem_file' ] = action_elem.get( 'gem_file', None )
 
