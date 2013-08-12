@@ -170,7 +170,8 @@ class DisplayApplication( object ):
         assert display_id, "ID tag is required for a Display Application"
         name = elem.get( 'name', display_id )
         version = elem.get( 'version', None )
-        rval = DisplayApplication( display_id, name, datatypes_registry, version )
+        hidden = string_as_bool( elem.get( 'hidden', 'False' ) )
+        rval = DisplayApplication( display_id, name, datatypes_registry, version=version, hidden=hidden )
         for link_elem in elem.findall( 'link' ):
             link = DisplayApplicationLink.from_elem( link_elem, rval )
             if link:
@@ -179,19 +180,20 @@ class DisplayApplication( object ):
             for link in DynamicDisplayApplicationBuilder( dynamic_links, rval ):
                 rval.links[ link.id ] = link
         return rval
-    def __init__( self, display_id, name, datatypes_registry, version = None ):
+    def __init__( self, display_id, name, datatypes_registry, version = None, hidden = False ):
         self.id = display_id
         self.name = name
         self.datatypes_registry = datatypes_registry
         if version is None:
             version = "1.0.0"
         self.version = version
+        self.hidden = hidden
         self.links = odict()
     def get_link( self, link_name, data, dataset_hash, user_hash, trans, app_kwds ):
         #returns a link object with data knowledge to generate links
         return PopulatedDisplayApplicationLink( self.links[ link_name ], data, dataset_hash, user_hash, trans, app_kwds )
     def filter_by_dataset( self, data, trans ):
-        filtered = DisplayApplication( self.id, self.name, self.datatypes_registry, version = self.version )
+        filtered = DisplayApplication( self.id, self.name, self.datatypes_registry, version = self.version, hidden = self.hidden )
         for link_name, link_value in self.links.iteritems():
             if link_value.filter_by_dataset( data, trans ):
                 filtered.links[link_name] = link_value

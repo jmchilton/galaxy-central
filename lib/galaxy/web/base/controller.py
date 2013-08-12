@@ -646,6 +646,8 @@ class UsesHistoryDatasetAssociationMixin:
     def get_display_apps( self, trans, hda ):
         display_apps = []
         for display_app in hda.get_display_applications( trans ).itervalues():
+            if display_app.hidden:
+                continue
 
             app_links = []
             for link_app in display_app.links.itervalues():
