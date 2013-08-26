@@ -20,7 +20,7 @@ log = logging.getLogger( __name__ )
 
 # Default repository to obtain CBL from using when evaluating
 # cloudbiolinux_install commands.
-DEFAULT_CBL_URL = "https://github.com/chapmanb/cloudbiolinux.git"
+DEFAULT_CBL_URL = "https://github.com/chapmanb/cloudbiolinux/archive/%s.zip"
 
 
 def create_temporary_tool_dependencies_config( app, tool_shed_url, name, owner, changeset_revision ):
@@ -549,8 +549,15 @@ def install_via_fabric( app, tool_dependency, actions_elem, install_dir, package
                 gem_sources.append( gem_source_elem.text.strip() )
             action_dict[ 'gem_sources' ] = gem_sources
         elif action_type == 'cloudbiolinux_install':
-            action_dict[ 'cbl_revision' ] = action_elem.get( 'cbl_revision', None )
-            action_dict[ 'cbl_url' ] = action_elem.get( 'cbl_url', DEFAULT_CBL_URL )
+            cbl_url = action_elem.get( 'cbl_url', None )
+            cbl_revision = action_elem.get( 'cbl_revision', None )
+            if not cbl_url:
+                cbl_url = DEFAULT_CBL_URL
+                if not cbl_revision:
+                    cbl_revision = "master"
+            if cbl_revision:
+                cbl_url = cbl_url % cbl_revision
+            action_dict[ 'cbl_url' ] = cbl_url
             action_dict[ 'tool_name' ] = evaluate_template( action_elem.get( 'tool_name', tool_dependency.name ) )
             action_dict[ 'tool_version' ] = evaluate_template( action_elem.get( 'tool_version', tool_dependency.version ) )
         elif action_type == 'chmod':

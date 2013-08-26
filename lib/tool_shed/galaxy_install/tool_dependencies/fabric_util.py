@@ -522,12 +522,11 @@ def __install_cloudbiolinux_tool( app, tool_dependency, install_dir, action_dict
     More information on CloudBioLinux can be found @ http://cloudbiolinux.org/ and
     https://github.com/chapmanb/cloudbiolinux.
     """
-    cbl_config = { 'repository': action_dict[ 'cbl_url' ],
-                   'revision': action_dict[ 'cbl_revision' ] }
+    cbl_config = { 'repository': action_dict[ 'cbl_url' ] }
     cbl_dir = __clone_cloudbiolinux( app, tool_dependency, install_dir, cbl_config )
     if not cbl_dir:
         return
-    cbl_install_command = [ os.path.join( cbl_dir, "deploy", "deploy.sh" ), "--action", "install_galaxy_tool" ]
+    cbl_install_command = [ "sh", os.path.join( cbl_dir, "deploy", "deploy_bourne.sh" ), "--action", "install_galaxy_tool" ]
     deployer_args = { "vm_provider": "novm",
                       "galaxy_tool_name": action_dict[ 'tool_name' ],
                       "galaxy_tool_version": action_dict[ 'tool_version' ],
@@ -556,20 +555,10 @@ def __clone_cloudbiolinux( app, tool_dependency, install_dir, cbl_config ):
     """
     cbl_url = cbl_config.get( "repository" )
     cbl_dir = tempfile.mkdtemp( suffix="_cbl" )
-    clone_command = " ".join( [ "git", "clone", cbl_url, cbl_dir ] )
-    return_code = handle_command( app, tool_dependency, install_dir, clone_command )
-    if return_code:
+    dir = td_common_util.url_download( cbl_dir, "cloudbiolinux.zip", cbl_url )
+    if not dir:
         return
-
-    revision = cbl_config.get( "revision" )
-    if revision:
-        git_dir = os.path.join( cbl_dir, ".git" )
-        checkout_command = " ".join( [ "git", "--work-tree", cbl_dir, "--git-dir", git_dir, "checkout", revision ] )
-        return_code = handle_command( app, tool_dependency, install_dir, checkout_command )
-        if return_code:
-            return
-
-    return cbl_dir
+    return dir
 
 
 def log_results( command, fabric_AttributeString, file_path ):
