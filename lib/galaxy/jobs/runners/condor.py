@@ -4,15 +4,11 @@ Job control via the Condor DRM.
 
 import os
 import re
-import sys
-import time
 import logging
 import subprocess
 
 from galaxy import model
 from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
-
-from galaxy.util import asbool
 
 log = logging.getLogger( __name__ )
 
@@ -38,6 +34,7 @@ default_query_classad = dict(
     notification = 'NEVER',
 )
 
+
 class CondorJobState( AsynchronousJobState ):
     def __init__( self, **kwargs ):
         """
@@ -49,11 +46,13 @@ class CondorJobState( AsynchronousJobState ):
         self.user_log = None
         self.user_log_size = 0
 
+
 class CondorJobRunner( AsynchronousJobRunner ):
     """
     Job runner backed by a finite pool of worker threads. FIFO scheduling
     """
     runner_name = "CondorRunner"
+
     def __init__( self, app, nworkers ):
         """Initialize this job runner and start the monitor thread"""
         super( CondorJobRunner, self ).__init__( app, nworkers )
@@ -199,7 +198,7 @@ class CondorJobRunner( AsynchronousJobRunner ):
                         if '009 (' + log_job_id + '.' in line:
                             job_failed = True
                     cjs.user_log_size = fh.tell()
-            except Exception, e:
+            except Exception:
                 # so we don't kill the monitor thread
                 log.exception( "(%s/%s) Unable to check job status" % ( galaxy_id_tag, job_id ) )
                 log.warning( "(%s/%s) job will now be errored" % ( galaxy_id_tag, job_id ) )
