@@ -3,17 +3,17 @@ Job control via a command line interface (e.g. qsub/qstat), possibly over a remo
 """
 
 import os
-import time
-import glob
 import logging
 
 from galaxy import model
 from galaxy.jobs import JobDestination
 from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
+from galaxy.jobs.runners.util.cli import CliInterface, split_params
 
 log = logging.getLogger( __name__ )
 
 __all__ = [ 'ShellJobRunner' ]
+
 
 class ShellJobRunner( AsynchronousJobRunner ):
     """
@@ -24,37 +24,13 @@ class ShellJobRunner( AsynchronousJobRunner ):
     def __init__( self, app, nworkers ):
         """Start the job runner """
         super( ShellJobRunner, self ).__init__( app, nworkers )
-
-        self.cli_shells = None
-        self.cli_job_interfaces = None
-        self.__load_cli_plugins()
+        self.cli_interface = CliInterface()
 
         self._init_monitor_thread()
         self._init_worker_threads()
 
-    def __load_cli_plugins(self):
-        def __load(module_path, d):
-            for file in glob.glob(os.path.join(os.path.join(os.getcwd(), 'lib', *module_path.split('.')), '*.py')):
-                if os.path.basename(file).startswith('_'):
-                    continue
-                module_name = '%s.%s' % (module_path, os.path.basename(file).rsplit('.py', 1)[0])
-                module = __import__(module_name)
-                for comp in module_name.split( "." )[1:]:
-                    module = getattr(module, comp)
-                for name in module.__all__:
-                    log.debug('Loaded cli plugin %s' % name)
-                    d[name] = getattr(module, name)
-
-        self.cli_shells = {}
-        self.cli_job_interfaces = {}
-        __load('galaxy.jobs.runners.cli_shell', self.cli_shells)
-        __load('galaxy.jobs.runners.cli_job', self.cli_job_interfaces)
-
     def get_cli_plugins( self, shell_params, job_params ):
-        # load shell plugin
-        shell = self.cli_shells[shell_params['plugin']](**shell_params)
-        job_interface = self.cli_job_interfaces[job_params['plugin']](**job_params)
-        return shell, job_interface
+        return self.cli_interface.get_plugins( shell_params, job_params )
 
     def url_to_destination( self, url ):
         params = {}
@@ -69,9 +45,7 @@ class ShellJobRunner( AsynchronousJobRunner ):
         return JobDestination(runner='cli', params=params)
 
     def parse_destination_params( self, params ):
-        shell_params = dict((k.replace('shell_', '', 1), v) for k, v in params.items() if k.startswith('shell_'))
-        job_params = dict((k.replace('job_', '', 1), v) for k, v in params.items() if k.startswith('job_'))
-        return shell_params, job_params
+        return split_params( params )
 
     def queue_job( self, job_wrapper ):
         """Create job script and submit it to the DRM"""
