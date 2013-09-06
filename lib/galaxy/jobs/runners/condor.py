@@ -3,36 +3,16 @@ Job control via the Condor DRM.
 """
 
 import os
-import re
 import logging
-import subprocess
 
 from galaxy import model
 from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
+from galaxy.jobs.runners.util.condor import build_submit_description, condor_submit, condor_stop, summarize_condor_log
+from galaxy.jobs.runners.util.job_script import job_script
 
 log = logging.getLogger( __name__ )
 
 __all__ = [ 'CondorJobRunner' ]
-
-drm_template = """#!/bin/sh
-GALAXY_LIB="%s"
-if [ "$GALAXY_LIB" != "None" ]; then
-    if [ -n "$PYTHONPATH" ]; then
-        PYTHONPATH="$GALAXY_LIB:$PYTHONPATH"
-    else
-        PYTHONPATH="$GALAXY_LIB"
-    fi
-    export PYTHONPATH
-fi
-cd %s
-%s
-"""
-
-default_query_classad = dict(
-    universe = 'vanilla',
-    getenv = 'true',
-    notification = 'NEVER',
-)
 
 
 class CondorJobState( AsynchronousJobState ):
@@ -76,26 +56,28 @@ class CondorJobRunner( AsynchronousJobRunner ):
         # wrapper.get_id_tag() instead of job_id for compatibility with TaskWrappers.
         galaxy_id_tag = job_wrapper.get_id_tag()
 
-        # get destination params
-        query_params = default_query_classad.copy()
-        query_params.update( job_destination.params )
-
         # define job attributes
         cjs = CondorJobState( files_dir=self.app.config.cluster_files_directory, job_wrapper=job_wrapper )
         cjs.user_log = os.path.join( self.app.config.cluster_files_directory, 'galaxy_%s.condor.log' % galaxy_id_tag )
+        cjs.exit_code_file = os.path.join( self.app.config.cluster_files_directory, 'galaxy_%s.ec' % galaxy_id_tag )
         cjs.register_cleanup_file_attribute( 'user_log' )
         submit_file = os.path.join( self.app.config.cluster_files_directory, 'galaxy_%s.condor.desc' % galaxy_id_tag )
         executable = cjs.job_file
-        submit_desc = [ ]
-        for k, v in query_params.items():
-            submit_desc.append( '%s = %s' % ( k, v ) )
-        submit_desc.append( 'executable = ' + executable )
-        submit_desc.append( 'output = ' + cjs.output_file )
-        submit_desc.append( 'error = ' + cjs.error_file )
-        submit_desc.append( 'log = ' + cjs.user_log )
-        submit_desc.append( 'queue' )
-
-        script = drm_template % (job_wrapper.galaxy_lib_dir, os.path.abspath( job_wrapper.working_directory ), command_line)
+        build_submit_params = dict(
+            executable=executable,
+            output=cjs.output_file,
+            error=cjs.error_file,
+            user_log=cjs.user_log,
+            query_params=job_destination.params,
+        )
+        submit_description = build_submit_description( **build_submit_params )
+        job_script_params = {
+            'galaxy_lib': job_wrapper.galaxy_lib_dir,
+            'exit_code_path': cjs.exit_code_file,
+            'command': command_line,
+            'working_directory': os.path.abspath( job_wrapper.working_directory )
+        }
+        script = job_script(**job_script_params)
         try:
             fh = file( executable, "w" )
             fh.write( script )
@@ -108,8 +90,7 @@ class CondorJobRunner( AsynchronousJobRunner ):
 
         try:
             fh = file( submit_file, 'w' )
-            for line in submit_desc:
-                fh.write( line + '\n' )
+            fh.write( submit_description )
             fh.close()
         except:
             if self.app.config.cleanup_job == "always":
@@ -131,23 +112,9 @@ class CondorJobRunner( AsynchronousJobRunner ):
         log.debug( "(%s) submitting file %s" % ( galaxy_id_tag, executable ) )
         log.debug( "(%s) command is: %s" % ( galaxy_id_tag, command_line ) )
 
-        s_out = ''
-        external_job_id = None
-        try:
-            submit = subprocess.Popen( ( 'condor_submit', submit_file ), stdout=subprocess.PIPE, stderr=subprocess.STDOUT )
-            s_out, s_err = submit.communicate()
-            if submit.returncode == 0:
-                match = re.search( 'submitted to cluster (\\d+).', s_out )
-                if match is None:
-                    s_out = 'Failed to find job id from condor_submit'
-                else:
-                    external_job_id = match.group( 1 )
-        except Exception, e:
-            # TODO Add extra except for OSError?
-            s_out = str(e)
-
+        external_job_id, message = condor_submit( submit_file )
         if external_job_id is None:
-            log.debug( "condor_submit failed for job %s: %s" % (job_wrapper.get_id_tag(), s_out) )
+            log.debug( "condor_submit failed for job %s: %s" % (job_wrapper.get_id_tag(), message) )
             if self.app.config.cleanup_job == "always":
                 os.unlink( submit_file )
                 cjs.cleanup()
@@ -176,7 +143,6 @@ class CondorJobRunner( AsynchronousJobRunner ):
         new_watched = []
         for cjs in self.watched:
             job_id = cjs.job_id
-            log_job_id = job_id.zfill(3)
             galaxy_id_tag = cjs.job_wrapper.get_id_tag()
             job_running = False
             job_complete = False
@@ -185,19 +151,11 @@ class CondorJobRunner( AsynchronousJobRunner ):
                 if os.stat( cjs.user_log ).st_size == cjs.user_log_size:
                     new_watched.append( cjs )
                     continue
-                with open(cjs.user_log, 'r') as fh:
-                    for line in fh:
-                        if '001 (' + log_job_id + '.' in line:
-                            job_running = True
-                        if '004 (' + log_job_id + '.' in line:
-                            job_running = False
-                        if '007 (' + log_job_id + '.' in line:
-                            job_running = False
-                        if '005 (' + log_job_id + '.' in line:
-                            job_complete = True
-                        if '009 (' + log_job_id + '.' in line:
-                            job_failed = True
-                    cjs.user_log_size = fh.tell()
+                s1, s4, s7, s5, s9, log_size = summarize_condor_log(cjs.user_log, job_id)
+                job_complete = s5
+                job_failed = s9
+                job_running = s1 and not s4 and not s7
+                cjs.user_log_size = log_size
             except Exception:
                 # so we don't kill the monitor thread
                 log.exception( "(%s/%s) Unable to check job status" % ( galaxy_id_tag, job_id ) )
@@ -229,13 +187,11 @@ class CondorJobRunner( AsynchronousJobRunner ):
 
     def stop_job( self, job ):
         """Attempts to delete a job from the DRM queue"""
-        try:
-            subprocess.check_call( ( 'condor_rm', job.job_runner_external_id ) )
+        failure_message = condor_stop( job.job_runner_external_id )
+        if not failure_message:
             log.debug( "(%s/%s) Removed from DRM queue at user's request" % ( job.id, job.job_runner_external_id ) )
-        except subprocess.CalledProcessError:
-            log.debug( "(%s/%s) User killed running job, but condor_rm failed" % ( job.id, job.job_runner_external_id ) )
-        except Exception, e:
-            log.debug( "(%s/%s) User killed running job, but error encountered removing from Condor queue: %s" % ( job.id, job.job_runner_external_id, e ) )
+        else:
+            log.debug( "(%s/%s) User killed running job, but %s" % ( job.id, job.job_runner_external_id, failure_message ) )
 
     def recover( self, job, job_wrapper ):
         """Recovers jobs stuck in the queued/running state when Galaxy started"""
