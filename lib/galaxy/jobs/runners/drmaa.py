@@ -3,8 +3,6 @@ Job control via the DRMAA API.
 """
 
 import os
-import sys
-import time
 import string
 import logging
 import subprocess
@@ -59,7 +57,8 @@ echo $? > %s
 """
 
 DRMAA_jobTemplate_attributes = [ 'args', 'remoteCommand', 'outputPath', 'errorPath', 'nativeSpecification',
-                    'jobName','email','project' ]
+                                 'jobName', 'email', 'project' ]
+
 
 class DRMAAJobRunner( AsynchronousJobRunner ):
     """
@@ -171,7 +170,7 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
             job_wrapper.change_ownership_for_run()
             log.debug( '(%s) submitting with credentials: %s [uid: %s]' % ( galaxy_id_tag, job_wrapper.user_system_pwent[0], job_wrapper.user_system_pwent[2] ) )
             filename = self.store_jobtemplate(job_wrapper, jt)
-            self.userid =  job_wrapper.user_system_pwent[2]
+            self.userid = job_wrapper.user_system_pwent[2]
             external_job_id = self.external_runjob(filename, job_wrapper.user_system_pwent[2]).strip()
         log.info( "(%s) queued as %s" % ( galaxy_id_tag, external_job_id ) )
 
@@ -286,7 +285,6 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
                 ajs.exit_code_file = "%s.drmec" % os.path.join(os.getcwd(), ajs.job_wrapper.working_directory, ajs.job_wrapper.get_id_tag())
                 ajs.job_file = job_file
 
-
     def store_jobtemplate(self, job_wrapper, jt):
         """ Stores the content of a DRMAA JobTemplate object in a file as a JSON string.
         Path is hard-coded, but it's no worse than other path in this module.
@@ -299,7 +297,7 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
             except:
                 pass
         s = json.dumps(data)
-        f = open(filename,'w')
+        f = open(filename, 'w')
         f.write(s)
         f.close()
         log.debug( '(%s) Job script for external submission is: %s' % ( job_wrapper.job_id, filename ) )
@@ -325,5 +323,3 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         # the DRMAA job-ID. If not the case, will throw an error.
         jobId = stdoutdata
         return jobId
-
-
