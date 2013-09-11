@@ -1002,7 +1002,6 @@ class Tool( object, Dictifiable ):
         self.populate_tool_shed_info()
         # Parse XML element containing configuration
         self.parse( root, guid=guid )
-        self.external_runJob_script = app.config.drmaa_external_runjob_script
     @property
     def sa_session( self ):
         """Returns a SQLAlchemy session"""

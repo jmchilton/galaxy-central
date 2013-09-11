@@ -156,6 +156,7 @@ class Configuration( object ):
         self.pbs_dataset_server = kwargs.get('pbs_dataset_server', "" )
         self.pbs_dataset_path = kwargs.get('pbs_dataset_path', "" )
         self.pbs_stage_path = kwargs.get('pbs_stage_path', "" )
+        # Next two options should be considered deprecated.
         self.drmaa_external_runjob_script = kwargs.get('drmaa_external_runjob_script', None )
         self.drmaa_external_killjob_script = kwargs.get('drmaa_external_killjob_script', None)
         self.external_chown_script = kwargs.get('external_chown_script', None)

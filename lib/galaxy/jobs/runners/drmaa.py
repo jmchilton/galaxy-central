@@ -13,10 +13,12 @@ from galaxy import model
 from galaxy.jobs import JobDestination
 from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
 
-eggs.require( "drmaa" )
+#eggs.require( "drmaa" )
 # We foolishly named this file the same as the name exported by the drmaa
 # library... 'import drmaa' imports itself.
 drmaa = __import__( "drmaa" )
+
+
 
 log = logging.getLogger( __name__ )
 
@@ -34,6 +36,8 @@ drmaa_state = {
     drmaa.JobState.DONE: 'job finished normally',
     drmaa.JobState.FAILED: 'job finished, but failed',
 }
+
+from galaxy.jobs.runners.util.sudo import sudo_popen
 
 # The last four lines (following the last fi) will:
 #  - setup the env
@@ -66,14 +70,14 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
     """
     runner_name = "DRMAARunner"
 
-    def __init__( self, app, nworkers ):
+    def __init__( self, app, nworkers, run_job_script=None, kill_job_script=None ):
         """Start the job runner"""
         self.ds = drmaa.Session()
         self.ds.initialize()
 
         # external_runJob_script can be None, in which case it's not used.
-        self.external_runJob_script = app.config.drmaa_external_runjob_script
-        self.external_killJob_script = app.config.drmaa_external_killjob_script
+        self.external_runJob_script = run_job_script or app.config.drmaa_external_runjob_script
+        self.external_killJob_script = kill_job_script or app.config.drmaa_external_killjob_script
         self.userid = None
 
         super( DRMAAJobRunner, self ).__init__( app, nworkers )
@@ -242,8 +246,7 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
             if self.external_killJob_script is None:
                 self.ds.control( ext_id, drmaa.JobControlAction.TERMINATE )
             else:
-                # FIXME: hardcoded path
-                subprocess.Popen( [ '/usr/bin/sudo', '-E', self.external_killJob_script, str( ext_id ), str( self.userid ) ], shell=False )
+                sudo_popen(self.external_killJob_script, str( ext_id ), str( self.userid ))
             log.debug( "(%s/%s) Removed from DRM queue at user's request" % ( job.get_id(), ext_id ) )
         except drmaa.InvalidJobException:
             log.debug( "(%s/%s) User killed running job, but it was already dead" % ( job.get_id(), ext_id ) )
@@ -308,8 +311,7 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         The external script will be run with sudo, and will setuid() to the specified user.
         Effectively, will QSUB as a different user (then the one used by Galaxy).
         """
-        p = subprocess.Popen([ '/usr/bin/sudo', '-E', self.external_runJob_script, str(username), jobtemplate_filename ],
-                shell=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        p = sudo_popen(self.external_runJob_script, str(username), jobtemplate_filename)
         (stdoutdata, stderrdata) = p.communicate()
         exitcode = p.returncode
         #os.unlink(jobtemplate_filename)

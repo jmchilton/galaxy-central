@@ -13,6 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
+import stat
 import threading
 import traceback
 from galaxy import model, util
@@ -1455,6 +1456,8 @@ class JobWrapper( object ):
             except:
                 log.exception( '(%s) Failed to change ownership of %s, making world-writable instead' % ( job.id, self.working_directory ) )
                 os.chmod( self.working_directory, 0777 )
+                if not (os.stat("run.sh").st_mode & stat.S_IWOTH):
+                    raise Exception("Failed to change ownership for run.")
 
     def reclaim_ownership( self ):
         job = self.get_job()
