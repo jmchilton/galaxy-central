@@ -2,7 +2,7 @@
     <div class="toolForm">
         <div class="toolFormTitle">${form.title}</div>
         <div class="toolFormBody">
-            <input type="hidden" name="type" value="${module.type}" />
+            <input type="hidden" name="galaxy_module_type" value="${module.type}" />
             %if form.inputs:
               %for input in form.inputs:
                   <%

@@ -620,7 +620,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         return trans.fill_template( "workflow/editor.mako", stored=stored, annotation=self.get_item_annotation_str( trans.sa_session, trans.user, stored ) )
 
     @web.json
-    def editor_form_post( self, trans, type='tool', tool_id=None, annotation=None, **incoming ):
+    def editor_form_post( self, trans, galaxy_module_type='tool', tool_id=None, annotation=None, **incoming ):
         """
         Accepts a tool state and incoming values, and generates a new tool
         form and some additional information, packed into a json dictionary.
@@ -629,20 +629,14 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         """
 
         trans.workflow_building_mode = True
-        # HACK: Required for workflow editor to be used with tool params named type.
-        # Imagine that likewise params name tool_id, annontation, and trans break things.
-        if type not in module_factory.module_types:
-            incoming['type'] = type
-            type = 'tool'
-        # END HACK
         module = module_factory.from_dict( trans, {
-            'type': type,
+            'type': galaxy_module_type,
             'tool_id': tool_id,
             'tool_state': incoming.pop("tool_state")
         } )
         module.update_state( incoming )
 
-        if type=='tool':
+        if galaxy_module_type=='tool':
             return {
                 'tool_state': module.get_state(),
                 'data_inputs': module.get_data_inputs(),
@@ -663,7 +657,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
             }
 
     @web.json
-    def get_new_module_info( self, trans, type, **kwargs ):
+    def get_new_module_info( self, trans, galaxy_module_type, **kwargs ):
         """
         Get the info for a new instance of a module initialized with default
         parameters (any keyword arguments will be passed along to the module).
@@ -672,7 +666,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         This is called asynchronously whenever a new node is added.
         """
         trans.workflow_building_mode = True
-        module = module_factory.new( trans, type, **kwargs )
+        module = module_factory.new( trans, galaxy_module_type, **kwargs )
         return {
             'type': module.type,
             'name':  module.get_name(),
@@ -1662,7 +1656,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
             # Step info
             step_dict = {
                 'id': step.order_index,
-                'type': module.type,
+                'galaxy_module_type': module.type,
                 'tool_id': module.get_tool_id(),
                 'tool_version' : step.tool_version,
                 'name': module.get_name(),

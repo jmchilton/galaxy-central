@@ -295,7 +295,7 @@ $.extend( Node.prototype, {
     init_field_data : function ( data ) {
         var f = this.element;
         if ( data.type ) {
-            this.type = data.type;
+            this.galaxy_module_type = data.type;
         }
         this.name = data.name;
         this.form_html = data.form_html;
@@ -669,7 +669,8 @@ $.extend( Workflow.prototype, {
         if (this.active_form_has_changes) {
             this.has_changes = true;
             // Submit form.
-            $("#right-content").find("form").submit();
+            var form = $("#right-content").find("form");
+            form.submit();
             this.active_form_has_changes = false;
         }
     },
@@ -845,6 +846,7 @@ function prebuild_node( type, title_text, tool_id ) {
     var f = $("<div class='toolForm toolFormInCanvas'></div>");
     var node = new Node( f );
     node.type = type;
+    node.galaxy_module_type = type;
     if ( type == 'tool' ) {
         node.tool_id = tool_id;
     }

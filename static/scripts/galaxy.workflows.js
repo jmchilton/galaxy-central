@@ -327,7 +327,7 @@ function add_node_for_tool( id, title ) {
     workflow.activate_node( node );
     $.ajax( {
         url: get_new_module_info_url,
-        data: { type: "tool", tool_id: id, "_": "true" },
+        data: { galaxy_module_type: "tool", tool_id: id, "_": "true" },
         global: false,
         dataType: "json",
         success: function( data ) {
@@ -351,7 +351,7 @@ function add_node_for_module( type, title ) {
     workflow.activate_node( node );
     $.ajax( {
         url: get_new_module_info_url,
-        data: { type: type, "_": "true" },
+        data: { galaxy_module_type: type, "_": "true" },
         dataType: "json",
         success: function( data ) {
             node.init_field_data( data );
