@@ -629,6 +629,12 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         """
 
         trans.workflow_building_mode = True
+        # HACK: Required for workflow editor to be used with tool params named type.
+        # Imagine that likewise params name tool_id, annontation, and trans break things.
+        if type not in module_factory.module_types:
+            incoming['type'] = type
+            type = 'tool'
+        # END HACK
         module = module_factory.from_dict( trans, {
             'type': type,
             'tool_id': tool_id,
