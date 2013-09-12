@@ -2297,7 +2297,7 @@ class Tool( object, Dictifiable ):
         args = dict()
         for key, param in self.inputs.iteritems():
             if isinstance( param, HiddenToolParameter ):
-                args[key] = param.value
+                args[key] = model.User.expand_user_properties( trans.user, param.value )
             elif isinstance( param, BaseURLToolParameter ):
                 args[key] = param.get_value( trans )
             else:

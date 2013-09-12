@@ -6,6 +6,7 @@ on the values of other parameters or other aspects of the current state)
 import operator, sys, os, logging
 import basic, validation
 from galaxy.util import string_as_bool
+from galaxy.model import User
 import galaxy.tools
 
 log = logging.getLogger(__name__)
@@ -55,8 +56,7 @@ class StaticValueFilter( Filter ):
         rval = []
         filter_value = self.value
         try:
-            if trans.user.email:
-                filter_value = filter_value.replace('$__user_email__',trans.user.email)
+            filter_value = User.expand_user_properties( trans.user, filter_value)
         except:
             pass
         for fields in options:
@@ -397,7 +397,8 @@ filter_types = dict( data_meta = DataMetaFilter,
                      sort_by = SortByColumnFilter )
 
 class DynamicOptions( object ):
-    """Handles dynamically generated SelectToolParameter options"""
+    """Handles dynamically generated SelectToolParameter options
+    """
     def __init__( self, elem, tool_param  ):
         def load_from_parameter( from_parameter, transform_lines = None ):
             obj = self.tool_param
