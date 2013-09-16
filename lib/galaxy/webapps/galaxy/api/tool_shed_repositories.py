@@ -8,8 +8,10 @@ from galaxy.util import json
 from galaxy.web.base.controller import BaseAPIController
 
 from tool_shed.galaxy_install import repository_util
+from tool_shed.util.container_util import Workflow
 from tool_shed.util import common_util
 from tool_shed.util import encoding_util
+from tool_shed.util import workflow_util
 import tool_shed.util.shed_util_common as suc
 
 log = logging.getLogger( __name__ )
@@ -31,6 +33,14 @@ def get_message_for_no_shed_tool_config():
 
 class ToolShedRepositoriesController( BaseAPIController ):
     """RESTful controller for interactions with tool shed repositories."""
+
+    def __repository_workflows( self, trans, id ):
+        repository = suc.get_tool_shed_repository_by_id( trans, id )
+        metadata = repository.metadata
+        workflows = []
+        if metadata:
+            workflows = Workflow.from_metadata_workflows(metadata.get('workflows', []))
+        return workflows
 
     @web.expose_api
     def index( self, trans, **kwd ):
@@ -56,6 +66,42 @@ class ToolShedRepositoriesController( BaseAPIController ):
             log.error( message, exc_info=True )
             trans.response.status = 500
             return message
+
+    @web.expose_api
+    def import_workflow( self, trans, tool_shed_repository_id, id, **kwd ):
+        """
+        POST /api/tool_shed_repositories/{encoded_tool_shed_repsository_id}/workflows/{workflow_id}/import
+
+        Import the specified workflow into Galaxy.
+
+        BETA: This is a community contributed API and should be considered a
+        beta feature, this API may change in the future without warning.
+        """
+        repo_workflows = self.__repository_workflows( trans, tool_shed_repository_id )
+        repository = suc.get_tool_shed_repository_by_id( trans, tool_shed_repository_id )
+        repo_workflow = repo_workflows[ int(id) ]
+        workflow_name = repo_workflow.workflow_name
+        workflow, status, message = workflow_util.import_workflow( trans, repository, workflow_name )
+        if status == 'error':
+            log.error( message, exc_info=True )
+            trans.response.status = 500
+            return message
+        else:
+            return workflow.to_dict( view='element' )
+
+    @web.expose_api
+    def index_workflows( self, trans, tool_shed_repository_id, **kwd ):
+        """
+        GET /api/tool_shed_repositories/{encoded_tool_shed_repsository_id}/workflows
+
+        Display a list of dictionaries containing information about this tool
+        shed repositories's workflows.
+
+        BETA: This is a community contributed API and should be considered a
+        beta feature, this API may change in the future without warning.
+        """
+        workflows = self.__repository_workflows( trans, tool_shed_repository_id )
+        return [workflow.to_dict(view='collection') for workflow in workflows]
 
     @web.expose_api
     def show( self, trans, id, **kwd ):

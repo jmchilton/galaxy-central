@@ -2353,7 +2353,10 @@ class StoredWorkflow( object, Dictifiable):
         return rval
 
 
-class Workflow( object ):
+class Workflow( object, Dictifiable ):
+    dict_collection_visible_keys = ( 'name', 'has_cycles', 'has_errors' )
+    dict_element_visible_keys = ( 'name', 'has_cycles', 'has_errors' )
+
     def __init__( self ):
         self.user = None
         self.name = None

@@ -178,6 +178,9 @@ def app_factory( global_conf, **kwargs ):
                             path_prefix='/api',
                             new={ 'install_repository_revision' : 'POST' },
                             parent_resources=dict( member_name='tool_shed_repository', collection_name='tool_shed_repositories' ) )
+    webapp.mapper.connect("tool_shed_index_workflows", '/api/tool_shed_repositories/{tool_shed_repository_id}/workflows', controller='tool_shed_repositories', action='index_workflows', conditions=dict(method=['GET']))
+    webapp.mapper.connect("tool_shed_import_workflow", '/api/tool_shed_repositories/{tool_shed_repository_id}/workflows/{id}/import', controller='tool_shed_repositories', action='import_workflow', conditions=dict(method=['POST']))
+
     # Connect logger from app
     if app.trace_logger:
         webapp.trace_logger = app.trace_logger

@@ -2,6 +2,7 @@ import logging
 import os
 import threading
 from galaxy.util import asbool
+from galaxy.model.item_attrs import Dictifiable
 from galaxy.web.framework.helpers import time_ago
 from tool_shed.util import common_util
 from tool_shed.util import readme_util
@@ -296,8 +297,10 @@ class ToolDependencyInstallationError( object ):
         self.error_message = error_message
 
 
-class Workflow( object ):
+class Workflow( object, Dictifiable ):
     """Workflow object."""
+
+    dict_collection_visible_keys = dict_element_visible_keys = ( 'id', 'workflow_name', 'format_version', 'annontation' )
 
     def __init__( self, id=None, workflow_name=None, steps=None, format_version=None, annotation=None, repository_metadata_id=None, repository_id=None ):
         # When rendered in the tool shed, repository_metadata_id will have a value and repository_id will be None.  When rendered in Galaxy, repository_id
@@ -309,6 +312,34 @@ class Workflow( object ):
         self.annotation = annotation
         self.repository_metadata_id = repository_metadata_id
         self.repository_id = repository_id
+
+    @staticmethod
+    def from_metadata_workflows( metadata_workflows, initial_id=0, repository_metadata_id=None, repository_id=None ):
+        workflow_id = initial_id
+
+        def workflow_from_metadata_tup( workflow_tup ):
+            workflow_dict = workflow_tup[ 1 ]
+            steps = workflow_dict.get( 'steps', [] )
+            if steps:
+                steps = str( len( steps ) )
+            else:
+                steps = 'unknown'
+            workflow = Workflow( id=workflow_id,
+                                 workflow_name=workflow_dict.get( 'name', '' ),
+                                 steps=steps,
+                                 format_version=workflow_dict.get( 'format-version', '' ),
+                                 annotation=workflow_dict.get( 'annotation', '' ),
+                                 repository_metadata_id=repository_metadata_id,
+                                 repository_id=repository_id )
+            return workflow
+
+        workflows = []
+        for workflow_tup in metadata_workflows:
+            workflows.append( workflow_from_metadata_tup( workflow_tup ) )
+            workflow_id += 1
+
+        return workflows
+
 
 def add_orphan_settings_to_tool_dependencies( tool_dependencies, orphan_tool_dependencies ):
     """Inspect all received tool dependencies and label those that are orphans within the repository."""
@@ -1210,21 +1241,7 @@ def build_workflows_folder( trans, folder_id, workflows, repository_metadata_id=
                              repository_metadata_id=repository_metadata_id,
                              repository_id=repository_id )
         folder.workflows.append( workflow )
-        for workflow_tup in workflows:
-            workflow_dict=workflow_tup[ 1 ]
-            steps = workflow_dict.get( 'steps', [] )
-            if steps:
-                steps = str( len( steps ) )
-            else:
-                steps = 'unknown'
-            workflow_id += 1
-            workflow = Workflow( id=workflow_id,
-                                 workflow_name=workflow_dict.get( 'name', '' ),
-                                 steps=steps,
-                                 format_version=workflow_dict.get( 'format-version', '' ),
-                                 annotation=workflow_dict.get( 'annotation', '' ),
-                                 repository_metadata_id=repository_metadata_id,
-                                 repository_id=repository_id )
+        for workflow in Workflow.from_metadata_workflows( workflows, initial_id=workflow_id+1, repository_metadata_id=None, repository_id=None ):
             folder.workflows.append( workflow )
     else:
         workflows_root_folder = None
