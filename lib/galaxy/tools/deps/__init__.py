@@ -30,15 +30,20 @@ class DependencyManager( object ):
                 log.warn( "Path '%s' is not directory, ignoring", base_path )
             self.base_paths.append( os.path.abspath( base_path ) )
 
-    def find_dep( self, name, version=None, type='package', installed_tool_dependencies=None ):
+    def find_dep( self, name, version=None, type='package', installed_tool_dependencies=None, allow_default=False ):
         """
         Attempt to find a dependency named `name` at version `version`. If version is None, return the "default" version as determined using a
         symbolic link (if found). Returns a triple of: env_script, base_path, real_version
         """
+        resolved_script, resolved_path, resolved_version = (None, None, None)
         if version is None:
-            return self._find_dep_default( name, type=type, installed_tool_dependencies=installed_tool_dependencies )
+            resolved_script, resolved_path, resolved_version = self._find_dep_default( name, type=type, installed_tool_dependencies=installed_tool_dependencies )
         else:
-            return self._find_dep_versioned( name, version, type=type, installed_tool_dependencies=installed_tool_dependencies )
+            resolved_script, resolved_path, resolved_version = self._find_dep_versioned( name, version, type=type, installed_tool_dependencies=installed_tool_dependencies )
+            if allow_default and not resolved_version:
+                resolved_script, resolved_path, resolved_version = self._find_dep_default( name, type=type, installed_tool_dependencies=installed_tool_dependencies )
+
+        return resolved_script, resolved_path, resolved_version
 
     def _find_dep_versioned( self, name, version, type='package', installed_tool_dependencies=None ):
         installed_tool_dependency = self._get_installed_dependency( installed_tool_dependencies, name, type, version=version )

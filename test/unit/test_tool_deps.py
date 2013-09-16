@@ -49,4 +49,6 @@ def test_tool_dependencies():
     assert default_script == None
     assert default_version == None
 
-    
+    ## Test default will be fallen back upon if allow_default is flagged
+    default_script, default_path, default_version = dm.find_dep( "dep1", "2.1", allow_default=True )
+    assert default_version == "2.0"
