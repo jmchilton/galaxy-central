@@ -943,10 +943,11 @@ class ToolRequirement( object ):
     Represents an external requirement that must be available for the tool to run (for example, a program, package, or library).
     Requirements can optionally assert a specific version.
     """
-    def __init__( self, name=None, type=None, version=None ):
+    def __init__( self, name=None, type=None, version=None, allow_default_fallback=False ):
         self.name = name
         self.type = type
         self.version = version
+        self.allow_default_fallback = allow_default_fallback
 
 class Tool( object, Dictifiable ):
     """
@@ -1821,7 +1822,8 @@ class Tool( object, Dictifiable ):
             name = xml_text( requirement_elem )
             type = requirement_elem.get( "type", "package" )
             version = requirement_elem.get( "version", None )
-            requirement = ToolRequirement( name=name, type=type, version=version )
+            allow_default_fallback = string_as_bool( requirement_elem.get( "allow_default_fallback", "false" ) )
+            requirement = ToolRequirement( name=name, type=type, version=version, allow_default_fallback=allow_default_fallback )
             self.requirements.append( requirement )
 
     def populate_tool_shed_info( self ):
@@ -2690,7 +2692,8 @@ class Tool( object, Dictifiable ):
                 script_file, base_path, version = self.app.toolbox.dependency_manager.find_dep( name=requirement.name,
                                                                                                 version=requirement.version,
                                                                                                 type=requirement.type,
-                                                                                                installed_tool_dependencies=installed_tool_dependencies )
+                                                                                                installed_tool_dependencies=installed_tool_dependencies,
+                                                                                                allow_default=requirement.allow_default_fallback )
             if script_file is None and base_path is None:
                 log.warn( "Failed to resolve dependency on '%s', ignoring", requirement.name )
             elif requirement.type == 'package' and script_file is None:
