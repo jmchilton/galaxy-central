@@ -42,6 +42,9 @@ class DependencyManager( object ):
             resolved_script, resolved_path, resolved_version = self._find_dep_versioned( name, version, type=type, installed_tool_dependencies=installed_tool_dependencies )
             if allow_default and not resolved_version:
                 resolved_script, resolved_path, resolved_version = self._find_dep_default( name, type=type, installed_tool_dependencies=installed_tool_dependencies )
+                if resolved_version:
+                    message = "Exact requested version (%s) of dependency (%s), defaulting to version - %s. " % (version, name, resolved_version)
+                    log.info(message)
 
         return resolved_script, resolved_path, resolved_version
 
