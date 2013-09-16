@@ -1,6 +1,6 @@
 import tempfile
 import os.path
-from os import makedirs
+from os import makedirs, symlink
 import galaxy.tools.deps
 
 
@@ -38,3 +38,15 @@ def test_tool_dependencies():
     assert d2_script == None
     assert d2_path == os.path.join( base_path, 'dep1', '2.0' )
     assert d2_version == "2.0"
+
+    ## Test default versions
+    symlink( os.path.join( base_path, 'dep1', '2.0'), os.path.join( base_path, 'dep1', 'default' ) )
+    default_script, default_path, default_version = dm.find_dep( "dep1", None )
+    assert default_version == "2.0"
+
+    ## Test default will not be fallen back upon by default
+    default_script, default_path, default_version = dm.find_dep( "dep1", "2.1" )
+    assert default_script == None
+    assert default_version == None
+
+    
