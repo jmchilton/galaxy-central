@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!-- A sample job config that explicitly configures job running the way it is configured by default (if there is no explicit config). -->
+<job_conf>
+    <plugins>
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+    </plugins>
+    <handlers>
+        <handler id="main"/>
+    </handlers>
+    <destinations default="local">
+      <destination id="local" runner="local"/>
+      <destination id="has_license" runner="dynamic">
+          <param id="function">has_license</param>
+      </destination>
+    </destinations>
+    <tools>
+      <tool id="cat1" destination="has_license" />
+    </tools>
+</job_conf>
