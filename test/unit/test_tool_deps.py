@@ -28,7 +28,7 @@ def test_tool_dependencies():
         if sub == "env.sh":
             touch( os.path.join( p, "env.sh" ) )
 
-    dm = galaxy.tools.deps.DependencyManager( [ base_path ] )
+    dm = galaxy.tools.deps.DependencyManager( default_base_path=base_path )
 
     d1_script, d1_path, d1_version = dm.find_dep( "dep1", "1.0" )
     assert d1_script == os.path.join( base_path, 'dep1', '1.0', 'env.sh' )
