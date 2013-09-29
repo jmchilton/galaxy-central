@@ -8,10 +8,11 @@ import logging
 log = logging.getLogger( __name__ )
 
 from galaxy.util import parse_xml
+import galaxy.tools.deps.resolvers
+
 from .resolvers import INDETERMINATE_DEPENDENCY
 from .resolvers.galaxy_packages import GalaxyPackageDependencyResolver
 from .resolvers.tool_shed_packages import ToolShedPackageDependencyResolver
-from .resolvers.modules import ModuleDependencyResolver
 
 
 class DependencyManager( object ):
@@ -35,6 +36,7 @@ class DependencyManager( object ):
         if not os.path.isdir( default_base_path ):
             log.warn( "Path '%s' is not directory, ignoring", default_base_path )
         self.default_base_path = default_base_path
+        self.resolver_classes = self.__resolvers_dict()
         self.dependency_resolvers = self.__build_dependency_resolvers( conf_file )
 
     def find_dep( self, name, version=None, type='package', **kwds ):
@@ -67,12 +69,44 @@ class DependencyManager( object ):
         for resolver_element in resolvers_element.getchildren():
             resolver_type = resolver_element.tag
             resolver_kwds = dict(resolver_element.items())
-            resolver = RESOLVER_CLASSES[resolver_type](self, **resolver_kwds)
+            resolver = self.resolver_classes[resolver_type](self, **resolver_kwds)
             resolvers.append(resolver)
         return resolvers
 
-RESOLVER_CLASSES = {
-    'tool_shed_packages': ToolShedPackageDependencyResolver,
-    'galaxy_packages': GalaxyPackageDependencyResolver,
-    'modules': ModuleDependencyResolver,
-}
+    def __resolvers_dict( self ):
+        resolver_dict = {}
+        for resolver_module in self.__resolver_modules():
+            for clazz in resolver_module.__all__:
+                resolver_type = getattr(clazz, 'resolver_type', None)
+                if resolver_type:
+                    resolver_dict[resolver_type] = clazz
+        return resolver_dict
+
+    ## Utterly shameless copying and pasting between this and dynamic job
+    ## runner code. TODO: Merge code bases and refactor in Carl's plugin
+    ## framework.
+    def __resolver_modules( self ):
+        unsorted_module_names = self.__resolver_module_names( )
+        module_names = sorted( unsorted_module_names, reverse=True )
+        modules = []
+        for resolver_module_name in module_names:
+            try:
+                module = __import__( resolver_module_name )
+                for comp in resolver_module_name.split( "." )[1:]:
+                    module = getattr( module, comp )
+                modules.append( module )
+            except BaseException, exception:
+                exception_str = str( exception )
+                message = "%s resolve module could not be loaded: %s" % ( resolver_module_name, exception_str )
+                log.debug( message )
+                continue
+        return modules
+
+    def __resolver_module_names( self ):
+        resolvers_dir = galaxy.tools.deps.resolvers.__path__[0]
+        names = []
+        for fname in os.listdir( resolvers_dir ):
+            if not( fname.startswith( "_" ) ) and fname.endswith( ".py" ):
+                resolver_module_name = "galaxy.tools.deps.resolvers.%s" % fname[:-len(".py")]
+                names.append( resolver_module_name )
+        return names

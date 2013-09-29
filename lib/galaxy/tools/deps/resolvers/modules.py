@@ -12,6 +12,7 @@ UNKNOWN_FIND_BY_MESSAGE = "ModuleDependencyResolver does not know how to find mo
 
 
 class ModuleDependencyResolver(DependencyResolver):
+    resolver_type = "modules"
 
     def __init__(self, dependency_manager, **kwds):
         self.module_command = kwds.get('command', DEFAULT_MODULE_COMMAND)
@@ -101,3 +102,5 @@ class ModuleDependency(Dependency):
         if self.module_version:
             command = '%s/%s' % self.module_version
         return command
+
+__all__ = [ModuleDependencyResolver]
