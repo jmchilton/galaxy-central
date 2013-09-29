@@ -3,6 +3,7 @@ import os.path
 from os import makedirs, symlink
 import galaxy.tools.deps
 from galaxy.util.bunch import Bunch
+from contextlib import contextmanager
 
 
 def touch( fname, data=None ):
@@ -103,3 +104,31 @@ def __build_test_repo(type, version=None):
             installed_changeset_revision=TEST_REPO_CHANGESET
         )
     )
+
+
+def test_parse():
+    with __parse_resolvers('''<dependency_resolvers>
+  <tool_shed_package />
+  <galaxy_package />
+</dependency_resolvers>
+''') as dependency_resolvers:
+        assert 'ToolShed' in dependency_resolvers[0].__class__.__name__
+        assert 'Galaxy' in dependency_resolvers[1].__class__.__name__
+
+    with __parse_resolvers('''<dependency_resolvers>
+  <galaxy_package />
+  <tool_shed_package />
+</dependency_resolvers>
+''') as dependency_resolvers:
+        assert 'Galaxy' in dependency_resolvers[0].__class__.__name__
+        assert 'ToolShed' in dependency_resolvers[1].__class__.__name__
+
+
+@contextmanager
+def __parse_resolvers(xml_content):
+    base_path = tempfile.mkdtemp()
+    f = tempfile.NamedTemporaryFile()
+    f.write(xml_content)
+    f.flush()
+    dm = galaxy.tools.deps.DependencyManager( default_base_path=base_path, conf_file=f.name )
+    yield dm.dependency_resolvers
