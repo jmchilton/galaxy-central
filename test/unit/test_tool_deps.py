@@ -2,7 +2,7 @@ import tempfile
 import os.path
 from os import makedirs, symlink
 from shutil import rmtree
-from galaxy.tools.deps import DependencyManager
+from galaxy.tools.deps import DependencyManager, INDETERMINATE_DEPENDENCY
 from galaxy.util.bunch import Bunch
 from contextlib import contextmanager
 
@@ -23,24 +23,23 @@ def test_tool_dependencies():
                 __touch( os.path.join( p, "env.sh" ) )
 
         dm = DependencyManager( default_base_path=base_path )
-        d1_script, d1_path, d1_version = dm.find_dep( "dep1", "1.0" )
-        assert d1_script == os.path.join( base_path, 'dep1', '1.0', 'env.sh' )
-        assert d1_path == os.path.join( base_path, 'dep1', '1.0' )
-        assert d1_version == "1.0"
-        d2_script, d2_path, d2_version = dm.find_dep( "dep1", "2.0" )
-        assert d2_script == None
-        assert d2_path == os.path.join( base_path, 'dep1', '2.0' )
-        assert d2_version == "2.0"
+        dependency = dm.find_dep( "dep1", "1.0" )
+        assert dependency.script == os.path.join( base_path, 'dep1', '1.0', 'env.sh' )
+        assert dependency.path == os.path.join( base_path, 'dep1', '1.0' )
+        assert dependency.version == "1.0"
+        dependency = dm.find_dep( "dep1", "2.0" )
+        assert dependency.script == None
+        assert dependency.path == os.path.join( base_path, 'dep1', '2.0' )
+        assert dependency.version == "2.0"
 
         ## Test default versions
         symlink( os.path.join( base_path, 'dep1', '2.0'), os.path.join( base_path, 'dep1', 'default' ) )
-        default_script, default_path, default_version = dm.find_dep( "dep1", None )
-        assert default_version == "2.0"
+        dependency = dm.find_dep( "dep1", None )
+        assert dependency.version == "2.0"
 
         ## Test default will not be fallen back upon by default
-        default_script, default_path, default_version = dm.find_dep( "dep1", "2.1" )
-        assert default_script == None
-        assert default_version == None
+        dependency = dm.find_dep( "dep1", "2.1" )
+        assert dependency == INDETERMINATE_DEPENDENCY
 
 
 TEST_REPO_USER = "devteam"
@@ -66,9 +65,9 @@ def test_toolshed_set_enviornment():
         dm = DependencyManager( default_base_path=base_path )
         env_settings_dir = os.path.join(base_path, "environment_settings", TEST_REPO_NAME, TEST_REPO_USER, TEST_REPO_NAME, TEST_REPO_CHANGESET)
         os.makedirs(env_settings_dir)
-        d1_script, d1_path, d1_version = dm.find_dep( TEST_REPO_NAME, version=None, type='set_environment', installed_tool_dependencies=[test_repo] )
-        assert d1_version == None
-        assert d1_script == os.path.join(env_settings_dir, "env.sh"), d1_script
+        dependency = dm.find_dep( TEST_REPO_NAME, version=None, type='set_environment', installed_tool_dependencies=[test_repo] )
+        assert dependency.version == None
+        assert dependency.script == os.path.join(env_settings_dir, "env.sh")
 
 
 def test_toolshed_package():
@@ -79,9 +78,9 @@ def test_toolshed_package():
         package_dir = os.path.join(base_path, TEST_REPO_NAME, TEST_VERSION, TEST_REPO_USER, TEST_REPO_NAME, TEST_REPO_CHANGESET)
         os.makedirs(package_dir)
         __touch(os.path.join(package_dir, 'env.sh'))
-        d1_script, d1_path, d1_version = dm.find_dep( TEST_REPO_NAME, version=TEST_VERSION, type='package', installed_tool_dependencies=[test_repo] )
-        assert d1_version == TEST_VERSION, d1_version
-        assert d1_script == os.path.join(package_dir, "env.sh"), d1_script
+        dependency = dm.find_dep( TEST_REPO_NAME, version=TEST_VERSION, type='package', installed_tool_dependencies=[test_repo] )
+        assert dependency.version == TEST_VERSION
+        assert dependency.script == os.path.join(package_dir, "env.sh")
 
 
 def __touch( fname, data=None ):
