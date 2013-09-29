@@ -144,6 +144,25 @@ def test_parse():
         assert dependency_resolvers[0].base_path != dependency_resolvers[2].base_path
 
 
+def test_config_module_defaults():
+    with __parse_resolvers('''<dependency_resolvers>
+  <modules />
+</dependency_resolvers>
+''') as dependency_resolvers:
+        module_resolver = dependency_resolvers[0]
+        assert module_resolver.module_command == "module"
+        assert module_resolver.module_checker.__class__.__name__ == "AvailModuleChecker"
+
+
+def test_config_module_directory_searcher():
+    with __parse_resolvers('''<dependency_resolvers>
+  <modules find_by="directory" directory="/opt/Modules/modulefiles" />
+</dependency_resolvers>
+''') as dependency_resolvers:
+        module_resolver = dependency_resolvers[0]
+        assert module_resolver.module_checker.directory == "/opt/Modules/modulefiles"
+
+
 @contextmanager
 def __parse_resolvers(xml_content):
     with __test_base_path() as base_path:
