@@ -35,7 +35,8 @@ from galaxy.model import (HistoryDatasetAssociation, LibraryDatasetDatasetAssoci
 History, Library, LibraryFolder, LibraryDataset,StoredWorkflowTagAssociation,
 StoredWorkflow, HistoryTagAssociation,HistoryDatasetAssociationTagAssociation,
 ExtendedMetadata, ExtendedMetadataIndex, HistoryAnnotationAssociation, Job, JobParameter,
-JobToInputDatasetAssociation, JobToOutputDatasetAssociation, ToolVersion)
+JobToInputDatasetAssociation, JobToOutputDatasetAssociation)
+from galaxy.model.tool_shed_install import ToolVersion
 
 from galaxy.util.json import to_json_string
 from sqlalchemy import and_
@@ -266,6 +267,7 @@ class ToolView(ViewQueryBaseClass):
     }
 
     def search(self, trans):
+        # Likely this will break in subsequent model refactoring. Need to revisit.
         self.query = trans.sa_session.query( ToolVersion )
 
 ##################
