@@ -330,7 +330,7 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
         self.security = webapp.security
         base.DefaultWebTransaction.__init__( self, environ )
         self.setup_i18n()
-        self.sa_session.expunge_all()
+        self.expunge_all()
         self.debug = asbool( self.app.config.get( 'debug', False ) )
         # Flag indicating whether we are in workflow building mode (means
         # that the current history should not be used for parameter values
@@ -389,6 +389,10 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
         """
         return self.app.model.context.current
 
+    def expunge_all( self ):
+        self.sa_session.expunge_all()
+        #if self.sa_session != self.app.install_model.context:
+        #    self.app.install_model.context.expunge_all()
 
     def get_user( self ):
         """Return the current user if logged in or None."""
@@ -923,6 +927,10 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
     @property
     def model( self ):
         return self.app.model
+
+    @property
+    def install_model( self ):
+        return self.app.install_model
 
     def make_form_data( self, name, **kwargs ):
         rval = self.template_context[name] = FormData()

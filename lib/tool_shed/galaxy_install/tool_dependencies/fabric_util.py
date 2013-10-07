@@ -76,20 +76,20 @@ def filter_actions_after_binary_installation( actions ):
     return filtered_actions
 
 def handle_command( app, tool_dependency, install_dir, cmd, return_output=False ):
-    sa_session = app.model.context.current
+    context = app.install_model.context
     with settings( warn_only=True ):
         output = local( cmd, capture=True )
     log_results( cmd, output, os.path.join( install_dir, INSTALLATION_LOG ) )
     if output.return_code:
-        tool_dependency.status = app.model.ToolDependency.installation_status.ERROR
+        tool_dependency.status = app.install_model.ToolDependency.installation_status.ERROR
         if output.stderr:
             tool_dependency.error_message = unicodify( str( output.stderr )[ :32768 ] )
         elif output.stdout:
             tool_dependency.error_message = unicodify( str( output.stdout )[ :32768 ] )
         else:
             tool_dependency.error_message = "Unknown error occurred executing shell command %s, return_code: %s"  % ( str( cmd ), str( output.return_code ) )
-        sa_session.add( tool_dependency )
-        sa_session.flush()
+        context.add( tool_dependency )
+        context.flush()
     if return_output:
         return output
     return output.return_code
@@ -201,7 +201,6 @@ def install_virtualenv( app, venv_dir ):
 
 def install_and_build_package( app, tool_dependency, actions_dict ):
     """Install a Galaxy tool dependency package either via a url or a mercurial or git clone command."""
-    sa_session = app.model.context.current
     install_dir = actions_dict[ 'install_dir' ]
     package_name = actions_dict[ 'package_name' ]
     actions = actions_dict.get( 'actions', None )

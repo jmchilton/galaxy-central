@@ -246,15 +246,15 @@ class ReportResults( Plugin ):
 def execute_uninstall_method( app, deactivate_only=False ):
     # Clean out any generated tests.
     remove_generated_tests( app )
-    sa_session = app.model.context.current
-    repositories_to_uninstall = sa_session.query( app.model.ToolShedRepository ).all()
+    sa_session = app.install_model.context.current
+    repositories_to_uninstall = sa_session.query( app.install_model.ToolShedRepository ).all()
     for repository in repositories_to_uninstall:
-        if repository.status == app.model.ToolShedRepository.installation_status.UNINSTALLED:
+        if repository.status == app.install_model.ToolShedRepository.installation_status.UNINSTALLED:
             continue
-        if repository.status not in [ app.model.ToolShedRepository.installation_status.UNINSTALLED,
-                                      app.model.ToolShedRepository.installation_status.ERROR,
-                                      app.model.ToolShedRepository.installation_status.INSTALLED ]:
-            repository.status = app.model.ToolShedRepository.installation_status.ERROR
+        if repository.status not in [ app.install_model.ToolShedRepository.installation_status.UNINSTALLED,
+                                      app.install_model.ToolShedRepository.installation_status.ERROR,
+                                      app.install_model.ToolShedRepository.installation_status.INSTALLED ]:
+            repository.status = app.install_model.ToolShedRepository.installation_status.ERROR
             sa_session.add( repository )
             sa_session.flush()
         name = str( repository.name )

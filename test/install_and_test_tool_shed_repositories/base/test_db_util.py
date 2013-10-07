@@ -39,13 +39,13 @@ def get_private_role( user ):
 
 def get_tool_dependencies_for_installed_repository( repository_id, status=None ):
     if status is not None:
-        return sa_session.query( model.ToolDependency ) \
-                         .filter( and_( model.ToolDependency.table.c.tool_shed_repository_id == repository_id,
-                                        model.ToolDependency.table.c.status == status ) ) \
+        return sa_session.query( install_model.ToolDependency ) \
+                         .filter( and_( install_model.ToolDependency.table.c.tool_shed_repository_id == repository_id,
+                                        install_model.ToolDependency.table.c.status == status ) ) \
                          .all()
     else:
-        return sa_session.query( model.ToolDependency ) \
-                         .filter( model.ToolDependency.table.c.tool_shed_repository_id == repository_id ) \
+        return sa_session.query( install_model.ToolDependency ) \
+                         .filter( install_model.ToolDependency.table.c.tool_shed_repository_id == repository_id ) \
                          .all()
 
 def mark_obj_deleted( obj ):
