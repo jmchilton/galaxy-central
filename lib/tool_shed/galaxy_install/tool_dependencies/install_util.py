@@ -51,13 +51,13 @@ def get_absolute_path_to_file_in_repository( repo_files_dir, file_name ):
     return file_path
 
 def get_tool_shed_repository_by_tool_shed_name_owner_changeset_revision( app, tool_shed_url, name, owner, changeset_revision ):
-    sa_session = app.model.context.current
+    context = app.install_model.context
     tool_shed = td_common_util.clean_tool_shed_url( tool_shed_url )
-    tool_shed_repository =  sa_session.query( app.model.ToolShedRepository ) \
-                                      .filter( and_( app.model.ToolShedRepository.table.c.tool_shed == tool_shed,
-                                                     app.model.ToolShedRepository.table.c.name == name,
-                                                     app.model.ToolShedRepository.table.c.owner == owner,
-                                                     app.model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
+    tool_shed_repository = context.query( app.install_model.ToolShedRepository ) \
+                                      .filter( and_( app.install_model.ToolShedRepository.table.c.tool_shed == tool_shed,
+                                                     app.install_model.ToolShedRepository.table.c.name == name,
+                                                     app.install_model.ToolShedRepository.table.c.owner == owner,
+                                                     app.install_model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
                                       .first()
     if tool_shed_repository:
         return tool_shed_repository
@@ -67,11 +67,11 @@ def get_tool_shed_repository_by_tool_shed_name_owner_changeset_revision( app, to
     if text:
         changeset_revisions = listify( text )
         for changeset_revision in changeset_revisions:
-            tool_shed_repository = sa_session.query( app.model.ToolShedRepository ) \
-                                             .filter( and_( app.model.ToolShedRepository.table.c.tool_shed == tool_shed,
-                                                            app.model.ToolShedRepository.table.c.name == name,
-                                                            app.model.ToolShedRepository.table.c.owner == owner,
-                                                            app.model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
+            tool_shed_repository = context.query( app.install_model.ToolShedRepository ) \
+                                             .filter( and_( app.install_model.ToolShedRepository.table.c.tool_shed == tool_shed,
+                                                            app.install_model.ToolShedRepository.table.c.name == name,
+                                                            app.install_model.ToolShedRepository.table.c.owner == owner,
+                                                            app.install_model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
                                              .first()
             if tool_shed_repository:
                 return tool_shed_repository
@@ -141,8 +141,8 @@ def handle_complex_repository_dependency_for_package( app, elem, package_name, p
                                                                  tool_dependency_version=package_version )
         # Set this dependent repository's tool dependency env.sh file with a path to the required repository's installed tool dependency package.
         # We can get everything we need from the discovered installed required_repository.
-        if required_repository.status in [ app.model.ToolShedRepository.installation_status.DEACTIVATED,
-                                           app.model.ToolShedRepository.installation_status.INSTALLED ]:
+        if required_repository.status in [ app.install_model.ToolShedRepository.installation_status.DEACTIVATED,
+                                           app.install_model.ToolShedRepository.installation_status.INSTALLED ]:
             if not os.path.exists( required_repository_package_install_dir ):
                 print 'Missing required tool dependency directory %s' % str( required_repository_package_install_dir )
             repo_files_dir = required_repository.repo_files_directory( app )
@@ -208,7 +208,7 @@ def handle_set_environment_entry_for_package( app, install_dir, tool_shed_reposi
                                                                                      name=package_name,
                                                                                      version=package_version,
                                                                                      type='package',
-                                                                                     status=app.model.ToolDependency.installation_status.INSTALLING,
+                                                                                     status=app.install_model.ToolDependency.installation_status.INSTALLING,
                                                                                      set_status=True )
             # Get the installation method version from a tag like: <install version="1.0">
             package_install_version = package_elem.get( 'version', '1.0' )
@@ -242,8 +242,8 @@ def handle_set_environment_entry_for_package( app, install_dir, tool_shed_reposi
                                 env_var_dicts.append( dict( name="PYTHONPATH", action="prepend_to", value=output.stdout ) )
                                 env_var_dicts.append( dict( name="PATH", action="prepend_to", value=os.path.join( install_dir, 'venv', 'bin' ) ) )
                 if env_var_dicts:
-                    if required_repository.status in [ app.model.ToolShedRepository.installation_status.INSTALLED,
-                                                       app.model.ToolShedRepository.installation_status.DEACTIVATED ]:
+                    if required_repository.status in [ app.install_model.ToolShedRepository.installation_status.INSTALLED,
+                                                       app.install_model.ToolShedRepository.installation_status.DEACTIVATED ]:
                         # Handle the case where we have an installed required repository due to the prior_installation_required = True
                         # setting in the received tool_shed_repository's tool_dependencies.xml file and the required repository's
                         # tool_dependencies.xml file may include the use of the $ENV[] variable inheritance feature.  To handle this,
@@ -283,24 +283,24 @@ def handle_set_environment_entry_for_package( app, install_dir, tool_shed_reposi
     return None, actions
 
 def install_and_build_package_via_fabric( app, tool_dependency, actions_dict ):
-    sa_session = app.model.context.current
+    context = app.install_model.context
     try:
         # There is currently only one fabric method.
         fabric_util.install_and_build_package( app, tool_dependency, actions_dict )
     except Exception, e:
         log.exception( 'Error installing tool dependency %s version %s.', str( tool_dependency.name ), str( tool_dependency.version ) )
-        tool_dependency.status = app.model.ToolDependency.installation_status.ERROR
+        tool_dependency.status = app.install_model.ToolDependency.installation_status.ERROR
         tool_dependency.error_message = '%s\n%s' % ( td_common_util.format_traceback(), str( e ) )
-        sa_session.add( tool_dependency )
-        sa_session.flush()
-    if tool_dependency.status != app.model.ToolDependency.installation_status.ERROR:
-        tool_dependency.status = app.model.ToolDependency.installation_status.INSTALLED
-        sa_session.add( tool_dependency )
-        sa_session.flush()
+        context.add( tool_dependency )
+        context.flush()
+    if tool_dependency.status != app.install_model.ToolDependency.installation_status.ERROR:
+        tool_dependency.status = app.install_model.ToolDependency.installation_status.INSTALLED
+        context.add( tool_dependency )
+        context.flush()
 
 def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
     # The value of tool_dependencies is a partial or full list of ToolDependency records associated with the tool_shed_repository.
-    sa_session = app.model.context.current
+    context = app.install_model.context
     tool_dependency = None
     # The value of package_name should match the value of the "package" type in the tool config's <requirements> tag set, but it's not required.
     package_name = elem.get( 'name', None )
@@ -310,7 +310,7 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
             if package_elem.tag == 'repository':
                 # We have a complex repository dependency definition.
                 rd_tool_dependency = handle_complex_repository_dependency_for_package( app, package_elem, package_name, package_version, tool_shed_repository )
-                if rd_tool_dependency and rd_tool_dependency.status == app.model.ToolDependency.installation_status.ERROR:
+                if rd_tool_dependency and rd_tool_dependency.status == app.install_model.ToolDependency.installation_status.ERROR:
                     print "Error installing tool dependency for required repository: %s" % str( rd_tool_dependency.error_message )
             elif package_elem.tag == 'install':
                 # <install version="1.0">
@@ -329,9 +329,9 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                                                                                                 package_name,
                                                                                                                 package_version,
                                                                                                                 'package' )
-                    tool_dependency.status = app.model.ToolDependency.installation_status.INSTALLED
-                    sa_session.add( tool_dependency )
-                    sa_session.flush()
+                    tool_dependency.status = app.install_model.ToolDependency.installation_status.INSTALLED
+                    context.add( tool_dependency )
+                    context.flush()
                 else:
                     package_install_version = package_elem.get( 'version', '1.0' )
                     tool_dependency = tool_dependency_util.create_or_update_tool_dependency( app=app,
@@ -339,7 +339,7 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                                                                              name=package_name,
                                                                                              version=package_version,
                                                                                              type='package',
-                                                                                             status=app.model.ToolDependency.installation_status.INSTALLING,
+                                                                                             status=app.install_model.ToolDependency.installation_status.INSTALLING,
                                                                                              set_status=True )
                     # Get the information about the current platform in case the tool dependency definition includes tag sets for installing
                     # compiled binaries.
@@ -376,8 +376,8 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                                             package_name=package_name, 
                                                             actions_elem=actions_elem, 
                                                             action_elem=None )
-                                        sa_session.refresh( tool_dependency )
-                                        if tool_dependency.status == app.model.ToolDependency.installation_status.INSTALLED:
+                                        context.refresh( tool_dependency )
+                                        if tool_dependency.status == app.install_model.ToolDependency.installation_status.INSTALLED:
                                             # If an <actions> tag was found that matches the current platform, and the install_via_fabric method 
                                             # did not result in an error state, set binary_installed to True in order to skip any remaining 
                                             # platform-specific <actions> tags.
@@ -394,7 +394,7 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                         if not binary_installed:
                                             print 'Binary installation did not occur, so proceeding with install and compile recipe.'
                                             # Make sure to reset for installation if attempt at binary installation resulted in an error.
-                                            if tool_dependency.status != app.model.ToolDependency.installation_status.NEVER_INSTALLED:
+                                            if tool_dependency.status != app.install_model.ToolDependency.installation_status.NEVER_INSTALLED:
                                                 removed, error_message = tool_dependency_util.remove_tool_dependency( app, tool_dependency )
                                             install_via_fabric( app, 
                                                                 tool_dependency, 
@@ -406,7 +406,7 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                     # an <actions> tag, such as a set_environment entry, or a download_file or download_by_url command to
                                     # retrieve extra data for this tool dependency. Only do this if the tool dependency is not in an error
                                     # state, otherwise skip this action.
-                                    if actions_elem.tag == 'action' and tool_dependency.status != app.model.ToolDependency.installation_status.ERROR:
+                                    if actions_elem.tag == 'action' and tool_dependency.status != app.install_model.ToolDependency.installation_status.ERROR:
                                         install_via_fabric( app, 
                                                             tool_dependency, 
                                                             install_dir, 
@@ -423,8 +423,8 @@ def install_package( app, elem, tool_shed_repository, tool_dependencies=None ):
                                                     package_name=package_name, 
                                                     actions_elem=actions_elems, 
                                                     action_elem=None )
-                                sa_session.refresh( tool_dependency )
-                                if tool_dependency.status != app.model.ToolDependency.installation_status.ERROR:
+                                context.refresh( tool_dependency )
+                                if tool_dependency.status != app.install_model.ToolDependency.installation_status.ERROR:
                                     print package_name, 'version', package_version, 'installed in', install_dir
                     else:
                         raise NotImplementedError( 'Only install version 1.0 is currently supported (i.e., change your tag to be <install version="1.0">).' )
@@ -449,7 +449,6 @@ def install_via_fabric( app, tool_dependency, install_dir, package_name=None, pr
         """ Substitute variables defined in XML blocks from dependencies file."""
         return Template( text ).safe_substitute( td_common_util.get_env_var_values( install_dir ) )
 
-    sa_session = app.model.context.current
     if not os.path.exists( install_dir ):
         os.makedirs( install_dir )
     actions_dict = dict( install_dir=install_dir )
@@ -687,7 +686,6 @@ def populate_actions_dict( app, dependent_install_dir, required_install_dir, too
     basically does what the install_via_fabric method does, but restricts it's activity to the <action type="set_environment"> tag set within the required
     repository's tool_dependencies.xml file.
     """
-    sa_session = app.model.context.current
     if not os.path.exists( dependent_install_dir ):
         os.makedirs( dependent_install_dir )
     actions_dict = dict( install_dir=dependent_install_dir )
@@ -792,7 +790,7 @@ def set_environment( app, elem, tool_shed_repository ):
     # <set_environment version="1.0">
     #    <repository toolshed="<tool shed>" name="<repository name>" owner="<repository owner>" changeset_revision="<changeset revision>" />
     # </set_environment>
-    sa_session = app.model.context.current
+    context = app.install_model.context
     tool_dependency = None
     env_var_version = elem.get( 'version', '1.0' )
     for env_var_elem in elem:
@@ -818,17 +816,17 @@ def set_environment( app, elem, tool_shed_repository ):
                                                                                          name=env_var_name,
                                                                                          version=None,
                                                                                          type='set_environment',
-                                                                                         status=app.model.ToolDependency.installation_status.INSTALLING,
+                                                                                         status=app.install_model.ToolDependency.installation_status.INSTALLING,
                                                                                          set_status=True )
                 env_entry, env_file = td_common_util.create_or_update_env_shell_file( install_dir, env_var_dict )
                 if env_var_version == '1.0':
                     # Handle setting environment variables using a fabric method.
                     fabric_util.add_to_env_shell_file( env_entry, env_file )
-                    sa_session.refresh( tool_dependency )
-                    if tool_dependency.status != app.model.ToolDependency.installation_status.ERROR:
-                        tool_dependency.status = app.model.ToolDependency.installation_status.INSTALLED
-                        sa_session.add( tool_dependency )
-                        sa_session.flush()
+                    context.refresh( tool_dependency )
+                    if tool_dependency.status != app.install_model.ToolDependency.installation_status.ERROR:
+                        tool_dependency.status = app.install_model.ToolDependency.installation_status.INSTALLED
+                        context.add( tool_dependency )
+                        context.flush()
                         print 'Environment variable ', env_var_name, 'set in', install_dir
                 else:
                     raise NotImplementedError( 'Only set_environment version 1.0 is currently supported (i.e., change your tag to be <set_environment version="1.0">).' )

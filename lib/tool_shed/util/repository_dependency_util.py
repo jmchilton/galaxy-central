@@ -73,14 +73,14 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                             # Make sure required_repository is in the repository_dependency table.
                             repository_dependency = get_repository_dependency_by_repository_id( trans, required_repository.id )
                             if not repository_dependency:
-                                repository_dependency = trans.model.RepositoryDependency( tool_shed_repository_id=required_repository.id )
-                                trans.sa_session.add( repository_dependency )
-                                trans.sa_session.flush()
+                                repository_dependency = trans.install_model.RepositoryDependency( tool_shed_repository_id=required_repository.id )
+                                trans.install_model.context.add( repository_dependency )
+                                trans.install_model.context.flush()
                             # Build the relationship between the d_repository and the required_repository.
-                            rrda = trans.model.RepositoryRepositoryDependencyAssociation( tool_shed_repository_id=d_repository.id,
+                            rrda = trans.install_model.RepositoryRepositoryDependencyAssociation( tool_shed_repository_id=d_repository.id,
                                                                                           repository_dependency_id=repository_dependency.id )
-                            trans.sa_session.add( rrda )
-                            trans.sa_session.flush()
+                            trans.install_model.context.add( rrda )
+                            trans.install_model.context.flush()
 
 def can_add_to_key_rd_dicts( key_rd_dict, key_rd_dicts ):
     """Handle the case where an update to the changeset revision was done."""
@@ -134,9 +134,9 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                     # If the user elected to install repository dependencies, all items in the all_repo_info_dicts list will be processed.  However, if
                     # repository dependencies are not to be installed, only those items contained in the received repo_info_dicts list will be processed.
                     if is_in_repo_info_dicts( repo_info_dict, repo_info_dicts ) or install_repository_dependencies:
-                        if installed_tool_shed_repository.status in [ trans.model.ToolShedRepository.installation_status.ERROR,
-                                                                      trans.model.ToolShedRepository.installation_status.NEW,
-                                                                      trans.model.ToolShedRepository.installation_status.UNINSTALLED ]:
+                        if installed_tool_shed_repository.status in [ trans.install_model.ToolShedRepository.installation_status.ERROR,
+                                                                      trans.install_model.ToolShedRepository.installation_status.NEW,
+                                                                      trans.install_model.ToolShedRepository.installation_status.UNINSTALLED ]:
                             # The current tool shed repository is not currently installed, so we can update it's record in the database.
                             can_update = True
                             name = installed_tool_shed_repository.name
@@ -144,7 +144,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                             installed_changeset_revision = installed_tool_shed_repository.installed_changeset_revision
                             metadata_dict = installed_tool_shed_repository.metadata
                             dist_to_shed = installed_tool_shed_repository.dist_to_shed
-                        elif installed_tool_shed_repository.status in [ trans.model.ToolShedRepository.installation_status.DEACTIVATED ]:
+                        elif installed_tool_shed_repository.status in [ trans.install_model.ToolShedRepository.installation_status.DEACTIVATED ]:
                             # The current tool shed repository is deactivated, so updating it's database record is not necessary - just activate it.
                             log.debug( "Reactivating deactivated tool_shed_repository '%s'." % str( installed_tool_shed_repository.name ) )
                             common_install_util.activate_repository( trans, installed_tool_shed_repository )
@@ -152,7 +152,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                         else:
                             # The tool shed repository currently being processed is already installed or is in the process of being installed, so it's record
                             # in the database cannot be updated.
-                            if installed_tool_shed_repository.status in [ trans.model.ToolShedRepository.installation_status.INSTALLED ]:
+                            if installed_tool_shed_repository.status in [ trans.install_model.ToolShedRepository.installation_status.INSTALLED ]:
                                 log.debug( "Skipping installation of tool_shed_repository '%s' because it is already installed." % \
                                            str( installed_tool_shed_repository.name ) )
                             else:
@@ -170,7 +170,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                 else:
                     # This block will be reached only if reinstalling is False and install_repository_dependencies is False.  This implies that the tool shed
                     # repository currently being processed has already been installed.
-                    if installed_tool_shed_repository.status in [ trans.model.ToolShedRepository.installation_status.INSTALLED ]:
+                    if installed_tool_shed_repository.status in [ trans.install_model.ToolShedRepository.installation_status.INSTALLED ]:
                         # Since the repository currently being processed is already in the INSTALLED state, skip it and process the next repository in the
                         # list if there is one.
                         log.debug( "Skipping installation of tool_shed_repository '%s' because it's installation status is '%s'." % \
@@ -230,7 +230,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                                                                                   ctx_rev=ctx_rev,
                                                                                   repository_clone_url=repository_clone_url,
                                                                                   metadata_dict={},
-                                                                                  status=trans.model.ToolShedRepository.installation_status.NEW,
+                                                                                  status=trans.install_model.ToolShedRepository.installation_status.NEW,
                                                                                   current_changeset_revision=changeset_revision,
                                                                                   owner=repository_owner,
                                                                                   dist_to_shed=False )
@@ -766,8 +766,8 @@ def get_repository_dependency_as_key( repository_dependency ):
                                                                                only_if_compiling_contained_td )
 
 def get_repository_dependency_by_repository_id( trans, decoded_repository_id ):
-    return trans.sa_session.query( trans.model.RepositoryDependency ) \
-                           .filter( trans.model.RepositoryDependency.table.c.tool_shed_repository_id == decoded_repository_id ) \
+    return trans.install_model.context.query( trans.install_model.RepositoryDependency ) \
+                           .filter( trans.install_model.RepositoryDependency.table.c.tool_shed_repository_id == decoded_repository_id ) \
                            .first()
 
 def update_circular_repository_dependencies( repository_key, repository_dependency, repository_dependencies, circular_repository_dependencies ):

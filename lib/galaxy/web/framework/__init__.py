@@ -924,6 +924,10 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
     def model( self ):
         return self.app.model
 
+    @property
+    def install_model( self ):
+        return self.app.install_model
+
     def make_form_data( self, name, **kwargs ):
         rval = self.template_context[name] = FormData()
         rval.values.update( kwargs )

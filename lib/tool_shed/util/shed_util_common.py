@@ -135,10 +135,10 @@ def build_repository_ids_select_field( trans, name='repository_ids', multiple=Tr
                 repositories_select_field.add_option( option_label, option_value )
     else:
         # We're in Galaxy.
-        for repository in trans.sa_session.query( trans.model.ToolShedRepository ) \
-                                          .filter( trans.model.ToolShedRepository.table.c.uninstalled == False ) \
-                                          .order_by( trans.model.ToolShedRepository.table.c.name,
-                                                     trans.model.ToolShedRepository.table.c.owner ):
+        for repository in trans.install_model.context.query( trans.install_model.ToolShedRepository ) \
+                                          .filter( trans.install_model.ToolShedRepository.table.c.uninstalled == False ) \
+                                          .order_by( trans.install_model.ToolShedRepository.table.c.name,
+                                                     trans.install_model.ToolShedRepository.table.c.owner ):
             option_label = '%s (%s)' % ( repository.name, repository.owner )
             option_value = trans.security.encode_id( repository.id )
             repositories_select_field.add_option( option_label, option_value )
@@ -148,8 +148,8 @@ def build_tool_dependencies_select_field( trans, tool_shed_repository, name, mul
     """Method called from Galaxy to generate the current list of tool dependency ids for an installed tool shed repository."""
     tool_dependencies_select_field = SelectField( name=name, multiple=multiple, display=display )
     for tool_dependency in tool_shed_repository.tool_dependencies:
-        if uninstalled and tool_dependency.status not in [ trans.model.ToolDependency.installation_status.NEVER_INSTALLED,
-                                                           trans.model.ToolDependency.installation_status.UNINSTALLED ]:
+        if uninstalled and tool_dependency.status not in [ trans.install_model.ToolDependency.installation_status.NEVER_INSTALLED,
+                                                           trans.install_model.ToolDependency.installation_status.UNINSTALLED ]:
             continue
         option_label = '%s version %s' % ( str( tool_dependency.name ), str( tool_dependency.version ) )
         option_value = trans.security.encode_id( tool_dependency.id )
@@ -179,8 +179,8 @@ def check_or_update_tool_shed_status_for_installed_repository( trans, repository
         ok = True
         if tool_shed_status_dict != repository.tool_shed_status:
             repository.tool_shed_status = tool_shed_status_dict
-            trans.sa_session.add( repository )
-            trans.sa_session.flush()
+            trans.install_model.context.add( repository )
+            trans.install_model.context.flush()
             updated = True
     else:
         ok = False
@@ -263,15 +263,15 @@ def create_or_update_tool_shed_repository( app, name, description, installed_cha
         # was later uninstalled, this value should be received as the value of that change set to which the repository had been updated just prior
         # to it being uninstalled.
         current_changeset_revision = installed_changeset_revision
-    sa_session = app.model.context.current
+    context = app.install_model.context
     tool_shed = get_tool_shed_from_clone_url( repository_clone_url )
     if not owner:
         owner = get_repository_owner_from_clone_url( repository_clone_url )
     includes_datatypes = 'datatypes' in metadata_dict
-    if status in [ app.model.ToolShedRepository.installation_status.DEACTIVATED ]:
+    if status in [ app.install_model.ToolShedRepository.installation_status.DEACTIVATED ]:
         deleted = True
         uninstalled = False
-    elif status in [ app.model.ToolShedRepository.installation_status.UNINSTALLED ]:
+    elif status in [ app.install_model.ToolShedRepository.installation_status.UNINSTALLED ]:
         deleted = True
         uninstalled = True
     else:
@@ -292,7 +292,7 @@ def create_or_update_tool_shed_repository( app, name, description, installed_cha
         tool_shed_repository.uninstalled = uninstalled
         tool_shed_repository.status = status
     else:
-        tool_shed_repository = app.model.ToolShedRepository( tool_shed=tool_shed,
+        tool_shed_repository = app.install_model.ToolShedRepository( tool_shed=tool_shed,
                                                              name=name,
                                                              description=description,
                                                              owner=owner,
@@ -305,8 +305,8 @@ def create_or_update_tool_shed_repository( app, name, description, installed_cha
                                                              deleted=deleted,
                                                              uninstalled=uninstalled,
                                                              status=status )
-    sa_session.add( tool_shed_repository )
-    sa_session.flush()
+    context.add( tool_shed_repository )
+    context.flush()
     return tool_shed_repository
 
 def extract_components_from_tuple( repository_components_tuple ):
@@ -617,17 +617,17 @@ def get_file_type_str( changeset_revision, file_type ):
 
 def get_ids_of_tool_shed_repositories_being_installed( trans, as_string=False ):
     installing_repository_ids = []
-    new_status = trans.model.ToolShedRepository.installation_status.NEW
-    cloning_status = trans.model.ToolShedRepository.installation_status.CLONING
-    setting_tool_versions_status = trans.model.ToolShedRepository.installation_status.SETTING_TOOL_VERSIONS
-    installing_dependencies_status = trans.model.ToolShedRepository.installation_status.INSTALLING_TOOL_DEPENDENCIES
-    loading_datatypes_status = trans.model.ToolShedRepository.installation_status.LOADING_PROPRIETARY_DATATYPES
-    for tool_shed_repository in trans.sa_session.query( trans.model.ToolShedRepository ) \
-                                                .filter( or_( trans.model.ToolShedRepository.status == new_status,
-                                                              trans.model.ToolShedRepository.status == cloning_status,
-                                                              trans.model.ToolShedRepository.status == setting_tool_versions_status,
-                                                              trans.model.ToolShedRepository.status == installing_dependencies_status,
-                                                              trans.model.ToolShedRepository.status == loading_datatypes_status ) ):
+    new_status = trans.install_model.ToolShedRepository.installation_status.NEW
+    cloning_status = trans.install_model.ToolShedRepository.installation_status.CLONING
+    setting_tool_versions_status = trans.install_model.ToolShedRepository.installation_status.SETTING_TOOL_VERSIONS
+    installing_dependencies_status = trans.install_model.ToolShedRepository.installation_status.INSTALLING_TOOL_DEPENDENCIES
+    loading_datatypes_status = trans.install_model.ToolShedRepository.installation_status.LOADING_PROPRIETARY_DATATYPES
+    for tool_shed_repository in trans.install_model.context.query( trans.install_model.ToolShedRepository ) \
+                                                .filter( or_( trans.install_model.ToolShedRepository.status == new_status,
+                                                              trans.install_model.ToolShedRepository.status == cloning_status,
+                                                              trans.install_model.ToolShedRepository.status == setting_tool_versions_status,
+                                                              trans.install_model.ToolShedRepository.status == installing_dependencies_status,
+                                                              trans.install_model.ToolShedRepository.status == loading_datatypes_status ) ):
         installing_repository_ids.append( trans.security.encode_id( tool_shed_repository.id ) )
     if as_string:
         return ','.join( installing_repository_ids )
@@ -635,7 +635,7 @@ def get_ids_of_tool_shed_repositories_being_installed( trans, as_string=False ):
 
 def get_installed_tool_shed_repository( trans, id ):
     """Get a tool shed repository record from the Galaxy database defined by the id."""
-    return trans.sa_session.query( trans.model.ToolShedRepository ).get( trans.security.decode_id( id ) )
+    return trans.install_model.context.query( trans.install_model.ToolShedRepository ).get( trans.security.decode_id( id ) )
 
 def get_latest_changeset_revision( trans, repository, repo ):
     repository_tip = repository.tip( trans.app )
@@ -761,7 +761,7 @@ def get_or_create_tool_shed_repository( trans, tool_shed, name, owner, changeset
                                                             ctx_rev=ctx_rev,
                                                             repository_clone_url=repository_clone_url,
                                                             metadata_dict={},
-                                                            status=trans.model.ToolShedRepository.installation_status.NEW,
+                                                            status=trans.install_model.ToolShedRepository.installation_status.NEW,
                                                             current_changeset_revision=None,
                                                             owner=owner,
                                                             dist_to_shed=False )
@@ -856,30 +856,30 @@ def get_repository_and_repository_dependencies_from_repo_info_dict( trans, repo_
 def get_repository_by_id( trans, id ):
     """Get a repository from the database via id."""
     if trans.webapp.name == 'galaxy':
-        return trans.sa_session.query( trans.model.ToolShedRepository ).get( trans.security.decode_id( id ) )
+        return trans.install_model.context.query( trans.install_model.ToolShedRepository ).get( trans.security.decode_id( id ) )
     else:
         return trans.sa_session.query( trans.model.Repository ).get( trans.security.decode_id( id ) )
 
 def get_repository_by_name( app, name ):
     """Get a repository from the database via name."""
-    sa_session = app.model.context.current
+    repository_query = __repository_query( app )
     if app.name == 'galaxy':
-        return sa_session.query( app.model.ToolShedRepository ).filter_by( name=name ).first()
+        return repository_query.filter_by( name=name ).first()
     else:
-        return sa_session.query( app.model.Repository ).filter_by( name=name ).first()
+        return repository_query.filter_by( name=name ).first()
 
 def get_repository_by_name_and_owner( app, name, owner ):
     """Get a repository from the database via name and owner"""
-    sa_session = app.model.context.current
+    repository_query = __repository_query( app )
     if app.name == 'galaxy':
-        return sa_session.query( app.model.ToolShedRepository ) \
-                         .filter( and_( app.model.ToolShedRepository.table.c.name == name,
-                                        app.model.ToolShedRepository.table.c.owner == owner ) ) \
+        return repository_query \
+                         .filter( and_( app.install_model.ToolShedRepository.table.c.name == name,
+                                        app.install_model.ToolShedRepository.table.c.owner == owner ) ) \
                          .first()
     # We're in the tool shed.
     user = get_user_by_username( app, owner )
     if user:
-        return sa_session.query( app.model.Repository ) \
+        return repository_query \
                          .filter( and_( app.model.Repository.table.c.name == name,
                                         app.model.Repository.table.c.user_id == user.id ) ) \
                          .first()
@@ -1182,36 +1182,36 @@ def get_tool_shed_from_clone_url( repository_clone_url ):
 def get_tool_shed_repository_by_id( trans, repository_id ):
     """Return a tool shed repository database record defined by the id."""
     # This method is used only in Galaxy, not the tool shed.
-    return trans.sa_session.query( trans.model.ToolShedRepository ) \
-                           .filter( trans.model.ToolShedRepository.table.c.id == trans.security.decode_id( repository_id ) ) \
+    return trans.install_model.context.query( trans.install_model.ToolShedRepository ) \
+                           .filter( trans.install_model.ToolShedRepository.table.c.id == trans.security.decode_id( repository_id ) ) \
                            .first()
 
 def get_tool_shed_repository_by_shed_name_owner_changeset_revision( app, tool_shed, name, owner, changeset_revision ):
     """Return a tool shed repository database record defined by the combination of a tool_shed, repository name, repository owner and current changeet_revision."""
     # This method is used only in Galaxy, not the tool shed.
-    sa_session = app.model.context.current
+    repository_query = __repository_query( app )
     if tool_shed.find( '//' ) > 0:
         tool_shed = tool_shed.split( '//' )[1]
     tool_shed = tool_shed.rstrip( '/' )
-    return sa_session.query( app.model.ToolShedRepository ) \
-                     .filter( and_( app.model.ToolShedRepository.table.c.tool_shed == tool_shed,
-                                    app.model.ToolShedRepository.table.c.name == name,
-                                    app.model.ToolShedRepository.table.c.owner == owner,
-                                    app.model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
+    return repository_query \
+                     .filter( and_( app.install_model.ToolShedRepository.table.c.tool_shed == tool_shed,
+                                    app.install_model.ToolShedRepository.table.c.name == name,
+                                    app.install_model.ToolShedRepository.table.c.owner == owner,
+                                    app.install_model.ToolShedRepository.table.c.changeset_revision == changeset_revision ) ) \
                      .first()
 
 def get_tool_shed_repository_by_shed_name_owner_installed_changeset_revision( app, tool_shed, name, owner, installed_changeset_revision ):
     """Return a tool shed repository database record defined by the combination of a tool_shed, repository name, repository owner and installed_changeet_revision."""
     # This method is used only in Galaxy, not the tool shed.
-    sa_session = app.model.context.current
+    repository_query = __repository_query( app )
     if tool_shed.find( '//' ) > 0:
         tool_shed = tool_shed.split( '//' )[1]
     tool_shed = tool_shed.rstrip( '/' )
-    return sa_session.query( app.model.ToolShedRepository ) \
-                     .filter( and_( app.model.ToolShedRepository.table.c.tool_shed == tool_shed,
-                                    app.model.ToolShedRepository.table.c.name == name,
-                                    app.model.ToolShedRepository.table.c.owner == owner,
-                                    app.model.ToolShedRepository.table.c.installed_changeset_revision == installed_changeset_revision ) ) \
+    return repository_query \
+                     .filter( and_( app.install_model.ToolShedRepository.table.c.tool_shed == tool_shed,
+                                    app.install_model.ToolShedRepository.table.c.name == name,
+                                    app.install_model.ToolShedRepository.table.c.owner == owner,
+                                    app.install_model.ToolShedRepository.table.c.installed_changeset_revision == installed_changeset_revision ) ) \
                      .first()
 
 def get_tool_shed_status_for_installed_repository( app, repository ):
@@ -1473,10 +1473,10 @@ def reset_previously_installed_repository( trans, repository ):
     repository.deleted = False
     repository.tool_shed_status = None
     repository.uninstalled = False
-    repository.status = trans.model.ToolShedRepository.installation_status.NEW
+    repository.status = trans.install_model.ToolShedRepository.installation_status.NEW
     repository.error_message = None
-    trans.sa_session.add( repository )
-    trans.sa_session.flush()
+    trans.install_model.context.add( repository )
+    trans.install_model.context.flush()
 
 def reversed_lower_upper_bounded_changelog( repo, excluded_lower_bounds_changeset_revision, included_upper_bounds_changeset_revision ):
     """
@@ -1655,12 +1655,12 @@ def update_repository( repo, ctx_rev=None ):
 
 def update_tool_shed_repository_status( app, tool_shed_repository, status, error_message=None ):
     """Update the status of a tool shed repository in the process of being installed into Galaxy."""
-    sa_session = app.model.context.current
+    context = app.install_model.context
     tool_shed_repository.status = status
     if error_message:
         tool_shed_repository.error_message = str( error_message )
-    sa_session.add( tool_shed_repository )
-    sa_session.flush()
+    context.add( tool_shed_repository )
+    context.flush()
 
 def url_join( *args ):
     """Return a valid URL produced by appending a base URL and a set of request parameters."""
@@ -1668,3 +1668,10 @@ def url_join( *args ):
     for arg in args:
         parts.append( arg.strip( '/' ) )
     return '/'.join( parts )
+
+def __repository_query( app ):
+    if app.name == "galaxy":
+        query = app.install_model.context.query( app.install_model.ToolShedRepository )
+    else:
+        query = app.model.context.query( app.model.Repository )
+    return query

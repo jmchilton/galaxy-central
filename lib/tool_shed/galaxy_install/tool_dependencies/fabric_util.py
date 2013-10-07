@@ -74,7 +74,7 @@ def handle_command( app, tool_dependency, install_dir, cmd, return_output=False 
         output = local( cmd, capture=True )
     log_results( cmd, output, os.path.join( install_dir, INSTALLATION_LOG ) )
     if output.return_code:
-        tool_dependency.status = app.model.ToolDependency.installation_status.ERROR
+        tool_dependency.status = app.install_model.ToolDependency.installation_status.ERROR
         if output.stderr:
             tool_dependency.error_message = str( output.stderr )[ :32768 ]
         elif output.stdout:
