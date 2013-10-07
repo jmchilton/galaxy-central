@@ -43,6 +43,7 @@ class UniverseApplication( object ):
             db_url = self.config.database_connection
         else:
             db_url = "sqlite:///%s?isolation_level=IMMEDIATE" % self.config.database
+        combined_install_database = self.config.install_database_connection is None
         # Set up the tool sheds registry
         if os.path.isfile( self.config.tool_sheds_config ):
             self.tool_shed_registry = tool_shed.tool_shed_registry.Registry( self.config.root, self.config.tool_sheds_config )
@@ -62,14 +63,20 @@ class UniverseApplication( object ):
         self.model = mapping.init( self.config.file_path,
                                    db_url,
                                    self.config.database_engine_options,
+                                   map_install_models=combined_install_database,
                                    database_query_profiling_proxy = self.config.database_query_profiling_proxy,
                                    object_store = self.object_store,
                                    trace_logger=self.trace_logger,
                                    use_pbkdf2=self.config.get_bool( 'use_pbkdf2', True ) )
-        # Want tool_shed_install models accessed through new attribute
-        # (install_model). This is the same object for now, but should ultimately
-        # be allowed to be a separate ModelMapping instances.
-        self.install_model = self.model
+
+        if combined_install_database:
+            self.install_model = self.model
+        else:
+            from galaxy.model.tool_shed_install import mapping as install_mapping
+            install_db_url = self.config.install_database_connection
+            install_db_engine_options = self.config.install_database_engine_options
+            self.install_model = install_mapping.init( install_db_url,
+                                                       install_db_engine_options )
         # Manage installed tool shed repositories.
         self.installed_repository_manager = tool_shed.galaxy_install.InstalledRepositoryManager( self )
         # Create an empty datatypes registry.
