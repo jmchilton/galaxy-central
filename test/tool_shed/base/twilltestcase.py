@@ -1,5 +1,5 @@
 import galaxy.webapps.tool_shed.util.hgweb_config
-import galaxy.model as galaxy_model
+import galaxy.model.tool_shed_install as galaxy_model
 import common, string, os, re, test_db_util, simplejson, logging, time
 import galaxy.util as util
 from tool_shed.util import shed_util_common as suc
