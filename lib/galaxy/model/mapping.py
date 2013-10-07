@@ -24,7 +24,6 @@ log = logging.getLogger( __name__ )
 
 metadata = MetaData()
 
-
 model.User.table = Table( "galaxy_user", metadata,
     Column( "id", Integer, primary_key=True),
     Column( "create_time", DateTime, default=now ),

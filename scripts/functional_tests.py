@@ -53,6 +53,8 @@ default_galaxy_test_file_dir = "test-data"
 migrated_tool_panel_config = 'migrated_tools_conf.xml'
 installed_tool_panel_configs = [ 'shed_tool_conf.xml' ]
 
+from functional import database_contexts
+
 # should this serve static resources (scripts, images, styles, etc.)
 STATIC_ENABLED = True
 
@@ -305,6 +307,8 @@ def main():
         kwargs[ 'config_file' ] = galaxy_config_file
         # Build the Universe Application
         app = UniverseApplication( **kwargs )
+        database_contexts.galaxy_context = app.model.context
+        database_contexts.install_context = app.install_model.context
         log.info( "Embedded Universe application started" )
 
     # ---- Run webserver ------------------------------------------------------

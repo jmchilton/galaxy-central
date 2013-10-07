@@ -2,9 +2,9 @@ import sys, new
 from galaxy.tools.parameters import grouping
 from galaxy.tools.parameters import basic
 from base.twilltestcase import TwillTestCase
+from base.test_db_util import sa_session
 import galaxy.model
 from galaxy.model.orm import *
-from galaxy.model.mapping import context as sa_session
 
 toolbox = None
 

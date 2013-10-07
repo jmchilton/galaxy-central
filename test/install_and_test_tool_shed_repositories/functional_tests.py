@@ -68,6 +68,8 @@ from base.util import parse_tool_panel_config, get_database_version, get_test_en
 
 from common import update
 
+from functional import database_contexts
+
 log = logging.getLogger( 'install_and_test_repositories' )
 
 default_galaxy_test_port_min = 10000
@@ -718,7 +720,8 @@ def main():
         kwargs[ 'database_engine_option_pool_size' ] = '10'
     kwargs[ 'config_file' ] = galaxy_config_file
     app = UniverseApplication( **kwargs )
-
+    database_contexts.galaxy_context = app.model.context
+    database_contexts.install_context = app.install_model.context
     log.info( "Embedded Galaxy application started" )
 
     # ---- Run galaxy webserver ------------------------------------------------------

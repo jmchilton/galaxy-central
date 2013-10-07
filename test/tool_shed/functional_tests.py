@@ -11,7 +11,7 @@ default_tool_shed_test_file_dir = os.path.join( tool_shed_home_directory, 'test_
 # the full path to the temporary directroy wher eht repositories are located cannot contain invalid url characters.
 tool_shed_test_tmp_dir = os.path.join( tool_shed_home_directory, 'tmp' )
 os.environ[ 'TOOL_SHED_TEST_TMP_DIR' ] = tool_shed_test_tmp_dir
-new_path = [ os.path.join( cwd, "lib" ) ]
+new_path = [ os.path.join( cwd, "lib" ), os.path.join( cwd, "test" ) ]
 new_path.extend( sys.path[1:] )
 sys.path = new_path
 
@@ -45,6 +45,8 @@ import nose.core
 import nose.config
 import nose.loader
 import nose.plugins.manager
+
+from functional import database_contexts
 
 log = logging.getLogger( "tool_shed_functional_tests.py" )
 
@@ -242,7 +244,7 @@ def main():
             kwargs[ 'database_engine_option_pool_size' ] = '10'
 
     toolshedapp = ToolshedUniverseApplication( **kwargs )
-
+    database_contexts.tool_shed_context = toolshedapp.model.context
     log.info( "Embedded Toolshed application started" )
 
     # ---- Run tool shed webserver ------------------------------------------------------
@@ -339,7 +341,8 @@ def main():
             kwargs[ 'database_engine_option_pool_size' ] = '10'
             kwargs[ 'database_engine_option_max_overflow' ] = '20'
         galaxyapp = GalaxyUniverseApplication( **kwargs )
-        
+        database_contexts.galaxy_context = galaxyapp.model.context
+        database_contexts.install_context = galaxyapp.install_model.context
         log.info( "Embedded Galaxy application started" )
     
         # ---- Run galaxy webserver ------------------------------------------------------
