@@ -2,8 +2,12 @@ import galaxy.model, logging
 import galaxy.model.tool_shed_install
 import galaxy.webapps.tool_shed.model as model
 from galaxy.model.orm import *
-from galaxy.webapps.tool_shed.model.mapping import context as sa_session
-from galaxy.model.mapping import context as ga_session
+
+from sqlalchemy.orm import scoped_session, sessionmaker
+context = scoped_session( sessionmaker( autoflush=False, autocommit=True ) )
+sa_session = context
+
+from base.test_db_util import context as ga_session
 
 log = logging.getLogger( 'test.tool_shed.test_db_util' )
 

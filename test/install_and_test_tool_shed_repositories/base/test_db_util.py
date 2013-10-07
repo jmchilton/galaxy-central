@@ -2,7 +2,10 @@ import logging
 import galaxy.model as model
 import galaxy.model.tool_shed_install as install_model
 from galaxy.model.orm import and_
-from galaxy.model.mapping import context as sa_session
+
+from sqlalchemy.orm import scoped_session, sessionmaker
+context = scoped_session( sessionmaker( autoflush=False, autocommit=True ) )
+sa_session = context
 
 log = logging.getLogger(__name__)
 

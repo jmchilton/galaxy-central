@@ -1,8 +1,12 @@
 import galaxy.model
 from galaxy.model.orm import *
-from galaxy.model.mapping import context as sa_session
 from base.twilltestcase import *
 import sys
+
+from sqlalchemy.orm import scoped_session, sessionmaker
+context = scoped_session( sessionmaker( autoflush=False, autocommit=True ) )
+sa_session = context
+
 
 def delete_obj( obj ):
     sa_session.delete( obj )
