@@ -191,6 +191,10 @@ def main():
         galaxy_database_connection = os.environ[ 'GALAXY_TEST_DBURI' ]
     else:
         galaxy_database_connection = 'sqlite:///' + os.path.join( galaxy_db_path, 'universe_test.sqlite' )
+    if 'INSTALL_TEST_DBURI' in os.environ:
+        install_galaxy_database_connection = os.environ[ 'INSTALL_TEST_DBURI' ]
+    else:
+        install_galaxy_database_connection = galaxy_database_connection
     tool_shed_global_conf = get_webapp_global_conf()
     tool_shed_global_conf[ '__file__' ] = 'tool_shed_wsgi.ini.sample'
     kwargs = dict( admin_users = 'test@bx.psu.edu',
@@ -311,6 +315,7 @@ def main():
                        allow_user_deletion = True,
                        admin_users = 'test@bx.psu.edu',
                        allow_library_path_paste = True,
+                       install_database_connection = install_galaxy_database_connection,
                        database_connection = galaxy_database_connection,
                        datatype_converters_config_file = "datatype_converters_conf.xml.sample",
                        enable_tool_shed_check = True,
