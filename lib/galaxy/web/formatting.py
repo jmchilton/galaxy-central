@@ -25,6 +25,6 @@ def expand_pretty_datetime_format(value):
     except AttributeError:  # nl_langinfo not available
         pass
     if not locale_format:
-        locale_format = '%a %b %e %H:%M:%S %Y'
+        locale_format = DEFAULT_LOCALE_FORMAT
 
     return Template(value).safe_substitute(locale=locale_format)
