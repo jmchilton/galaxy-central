@@ -1,8 +1,9 @@
 import locale
 from string import Template
 
-DEFAULT_DATETIME_FORMAT = "$locale (UTC)"
+DEFAULT_DATETIME_FORMAT = "$locale (UTC)"  # Alternatively "$iso8601 (UTC)"
 DEFAULT_LOCALE_FORMAT = '%a %b %e %H:%M:%S %Y'
+ISO_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def expand_pretty_datetime_format(value):
@@ -15,6 +16,8 @@ def expand_pretty_datetime_format(value):
     >>> expected_format = '%s (UTC)' % locale.nl_langinfo(locale.D_T_FMT)
     >>> locale_format == expected_format
     True
+    >>> expand_pretty_datetime_format("$iso8601")
+    '%Y-%m-%d %H:%M:%S'
     """
     if not value:
         value = DEFAULT_DATETIME_FORMAT
@@ -26,5 +29,8 @@ def expand_pretty_datetime_format(value):
         pass
     if not locale_format:
         locale_format = DEFAULT_LOCALE_FORMAT
-
-    return Template(value).safe_substitute(locale=locale_format)
+    stock_formats = dict(
+        locale=locale_format,
+        iso8601=ISO_DATETIME_FORMAT,
+    )
+    return Template(value).safe_substitute(**stock_formats)
