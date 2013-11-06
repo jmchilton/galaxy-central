@@ -276,6 +276,7 @@ class SelectField(BaseField):
         self.multiple = multiple or False
         self.size = size
         self.options = list()
+        self.classes = []
         if display == "checkboxes":
             assert multiple, "Checkbox display only supported for multiple select"
         elif display == "radio":
@@ -291,6 +292,9 @@ class SelectField(BaseField):
                 self.refresh_on_change_text = '%s refresh_on_change_values="%s"' % ( self.refresh_on_change_text, escape( ",".join( self.refresh_on_change_values ), quote=True ) )
         else:
             self.refresh_on_change_text = ''
+    def add_class( self, html_class ):
+        # Not used with checkboxes or radio at this time.
+        self.classes.append( html_class )
     def add_option( self, text, value, selected = False ):
         self.options.append( ( text, value, selected ) )
     def get_html( self, prefix="", disabled=False ):
@@ -374,8 +378,12 @@ class SelectField(BaseField):
             rval.append( '<option value="%s"%s>%s</option>' % ( escape( unicodify( value ), quote=True ), selected_text, escape( unicodify( text ), quote=True ) ) )
         if last_selected_value:
             last_selected_value = ' last_selected_value="%s"' % escape( unicodify( last_selected_value ), quote=True )
-        rval.insert( 0, '<select name="%s%s"%s%s%s%s%s>' % \
-                     ( prefix, self.name, multiple, size, self.refresh_on_change_text, last_selected_value, self.get_disabled_str( disabled ) ) )
+        if self.classes:
+            classes_str = ' class="%s"' % " ".join(self.classes)
+        else:
+            classes_str = ''
+        rval.insert( 0, '<select name="%s%s"%s%s%s%s%s%s>' % \
+                     ( prefix, self.name, multiple, size, self.refresh_on_change_text, last_selected_value, self.get_disabled_str( disabled ), classes_str ) )
         rval.append( '</select>' )
         return unicodify( "\n".join( rval ) )
     def get_selected( self, return_label=False, return_value=False, multi=False ):
