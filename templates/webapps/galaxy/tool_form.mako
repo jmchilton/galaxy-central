@@ -31,7 +31,23 @@
                 }
             });
         });
-
+        var multirunInput = function(select) {
+            var multirunName = select.attr("name") + "|multirun";
+            return $("input[name='" + multirunName + "']");
+        }
+        $('select.data_param').each(function( i, s) {
+            var select = $(s);
+            var button = $('<span class="icon-button multiinput"></span>').click(function() {
+                select.attr({"multiple": true});
+                multirunInput(select).val("true");
+                select.select2({"closeOnSelect": false});
+            }).attr('title',
+                'Enable/disable selection of multiple input ' +
+                'files. Tool will be execued for each input.').tooltip({placement: 'bottom'});
+            select.closest( ".form-row" ).find( "label" ).append( button );
+            var multirunName = select.attr("name") + "|multirun";
+            select.after('<input type="hidden" name="' + multirunName + '" value="false" />');
+        });
         // For drilldown parameters: add expand/collapse buttons and collapse initially-collapsed elements
         $( 'div.drilldown-container' ).each( function() {
             $(this).find('span.form-toggle' ).each( function() {
