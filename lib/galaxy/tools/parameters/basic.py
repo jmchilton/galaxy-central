@@ -1618,7 +1618,7 @@ class DataToolParameter( ToolParameter ):
             if type( value ) != list:
                 value = [ value ]
         field = form_builder.SelectField( self.name, self.multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
-
+        field.add_class("data_param")
         # CRUCIAL: the dataset_collector function needs to be local to DataToolParameter.get_html_field()
         def selected( hda ):
             if value and str(value[0]).isdigit():
