@@ -1820,12 +1820,10 @@ class Tool( object, Dictifiable ):
                 return "tool_form.mako", dict( errors={}, tool_state=state, param_values={}, incoming={} )
 
         errors, params = self.__check_param_values( trans, incoming, state, old_errors )
-
         if self.__should_refresh_state( incoming ):
             return self.__handle_state_refresh( trans, state, errors )
         else:
             # User actually clicked next or execute.
-
             # If there were errors, we stay on the same page and display
             # error messages
             if errors:
