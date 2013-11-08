@@ -113,7 +113,7 @@ class ToolsController( BaseAPIController, UsesVisualizationMixin ):
         # TODO: encode data ids and decode ids.
         # TODO: handle dbkeys
         params = util.Params( inputs, sanitize = False )
-        template, vars = tool.handle_input( trans, params.__dict__, history=target_history )
+        template, vars = tool.handle_input( trans, params.__dict__, history=target_history, process_state="populate" )
         if 'errors' in vars:
             trans.response.status = 400
             return { "message": { "type": "error", "data" : vars[ 'errors' ] } }
