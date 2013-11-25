@@ -19,6 +19,7 @@ log = logging.getLogger( __name__ )
 __all__ = [ 'LocalJobRunner' ]
 
 DEFAULT_POOL_SLEEP_TIME = 1
+LOCAL_RUNNER_EXTERNAL_METADATA = False
 
 
 class LocalJobRunner( BaseJobRunner ):
@@ -63,7 +64,7 @@ class LocalJobRunner( BaseJobRunner ):
 
     def queue_job( self, job_wrapper ):
         # prepare the job
-        if not self.prepare_job( job_wrapper ):
+        if not self.prepare_job( job_wrapper, include_metadata=not LOCAL_RUNNER_EXTERNAL_METADATA ):
             return
 
         stderr = stdout = ''
@@ -105,7 +106,8 @@ class LocalJobRunner( BaseJobRunner ):
             job_wrapper.fail( "failure running job", exception=True )
             log.exception("failure running job %d" % job_wrapper.job_id)
             return
-        self._handle_metadata_externally( job_wrapper, resolve_requirements=True )
+        if LOCAL_RUNNER_EXTERNAL_METADATA:
+            self._handle_metadata_externally( job_wrapper, resolve_requirements=True )
         # Finish the job!
         try:
             job_wrapper.finish( stdout, stderr, exit_code )
