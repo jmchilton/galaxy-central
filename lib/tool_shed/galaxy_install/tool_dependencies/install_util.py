@@ -7,7 +7,6 @@ import sys
 import tempfile
 from string import Template
 import fabric_util
-import td_common_util
 import tool_shed.util.shed_util_common as suc
 from tool_shed.util import common_util
 from tool_shed.util import encoding_util
@@ -821,6 +820,7 @@ def install_via_fabric( app, tool_dependency, install_dir, package_name=None, pr
         tool_dependency = install_and_build_package_via_fabric( app, tool_dependency, actions_dict )
     return tool_dependency
 
+
 def parse_env_shell_entry( action, name, value, line ):
     new_value = value
     var_name = '$%s' % name
@@ -836,6 +836,7 @@ def parse_env_shell_entry( action, name, value, line ):
         new_value = tmp_value.split( ':' )[ 1 ]
         new_value = new_value.split( ';' )[ 0 ]
     return new_value
+
 
 def populate_actions_dict( app, dependent_install_dir, required_install_dir, tool_shed_repository, required_repository, package_name, package_version, tool_dependencies_config ):
     """
