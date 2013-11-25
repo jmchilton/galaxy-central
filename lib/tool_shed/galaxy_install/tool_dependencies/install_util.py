@@ -823,18 +823,21 @@ def install_via_fabric( app, tool_dependency, install_dir, package_name=None, pr
 
 def parse_env_shell_entry( action, name, value, line ):
     new_value = value
-    var_name = '$%s' % name
-    tmp_value = line.split( '=' )[ 1 ]
-    if action == 'prepend_to':
-        # PATH=/test/package_rdkit_2012_12/62ebd7bb637a/rdkit/bin:$PATH; export PATH
-        new_value = tmp_value.split( ':%s' % var_name )[ 0 ]
-    elif action == 'set_to':
-        # RDBASE=test/package_rdkit_2012_12/62ebd7bb637a/rdkit; export RDBASE
-        new_value = tmp_value.split( ';' )[ 0 ]
-    elif action == 'append_to':
-        # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:test/package_rdkit_2012_12/62ebd7bb637a/rdkit/lib/; export LD_LIBRARY_PATH
-        new_value = tmp_value.split( ':' )[ 1 ]
-        new_value = new_value.split( ';' )[ 0 ]
+    if action == "source":
+        new_value = line.split(" ", 1)[ 1 ]
+    else:
+        var_name = '$%s' % name
+        tmp_value = line.split( '=' )[ 1 ]
+        if action == 'prepend_to':
+            # PATH=/test/package_rdkit_2012_12/62ebd7bb637a/rdkit/bin:$PATH; export PATH
+            new_value = tmp_value.split( ':%s' % var_name )[ 0 ]
+        elif action == 'set_to':
+            # RDBASE=test/package_rdkit_2012_12/62ebd7bb637a/rdkit; export RDBASE
+            new_value = tmp_value.split( ';' )[ 0 ]
+        elif action == 'append_to':
+            # LD_LIBRARY_PATH=$LD_LIBRARY_PATH:test/package_rdkit_2012_12/62ebd7bb637a/rdkit/lib/; export LD_LIBRARY_PATH
+            new_value = tmp_value.split( ':' )[ 1 ]
+            new_value = new_value.split( ';' )[ 0 ]
     return new_value
 
 

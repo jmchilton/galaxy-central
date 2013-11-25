@@ -17,3 +17,8 @@ def test_parse_env_shell_entry():
     line = "PATH=/test/package_bwa_0_5_9/62ebd7bb637a/bwa/bin; export PATH"
     new_value = parse_env_shell_entry( action, "PATH", None, line )
     assert new_value == expected_value
+
+    action = "source"
+    line = ". /test/package_bwa_0_5_9/62ebd7bb637a/bwa/bin"
+    new_value = parse_env_shell_entry( action, "PATH", None, line )
+    assert new_value == expected_value
