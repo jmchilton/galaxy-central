@@ -2369,6 +2369,113 @@ class ImplicitlyConvertedDatasetAssociation( object ):
             try: os.unlink( self.file_name )
             except Exception, e: print "Failed to purge associated file (%s) from disk: %s" % ( self.file_name, e )
 
+
+DEFAULT_COLLECTION_NAME = "Unnamed Collection"
+
+
+class DatasetCollection( object,  Dictifiable, UsesAnnotations ):
+    """
+    """
+    dict_collection_visible_keys = ( 'id', 'name', 'collection_type', 'deleted' )
+    dict_element_visible_keys = ( 'id', 'name', 'collection_type', 'deleted' )
+
+    def __init__(
+        self,
+        id=None,
+        collection_type=None,
+        name=None,
+    ):
+        self.id = id
+        self.name = name or DEFAULT_COLLECTION_NAME
+        self.collection_type = collection_type
+        self.deleted = False
+        self.datasets = []
+
+    def validate(self):
+        if self.collection_type is None:
+            raise Exception("Each dataset collection must define a collection type.")
+
+
+class DatasetCollectionInstance( object ):
+    """
+    """
+    def __init__(
+        self,
+        id=None,
+        collection=None,
+    ):
+        self.id = id
+        # Relationships
+        self.collection = collection
+
+
+class HistoryDatasetCollectionAssociation( DatasetCollectionInstance, Dictifiable ):
+    """ Associates a DatasetCollection with a History. """
+    dict_collection_visible_keys = ( 'id' )
+    dict_element_visible_keys = ( 'id' )
+
+    def __init__(
+        self,
+        id=None,
+        collection=None,
+        history=None,
+        visible=True,
+    ):
+        super(HistoryDatasetCollectionAssociation, self).__init__( id=id, collection=collection )
+        # Do we need something like hid or is just displaying
+        # it based on update time sufficient? update time could allow
+        # intermingling with hdas in same panel.
+        self.history = history
+        # TODO: Want visible?
+        self.visible = visible
+        # TODO: Determine if deleted should be here and in datasetcollection
+        # just in dataset collection or just here.
+
+
+class LibraryDatasetCollectionAssociation( DatasetCollectionInstance, Dictifiable ):
+    """ Associates a DatasetCollection with a library folder. """
+    dict_collection_visible_keys = ( 'id' )
+    dict_element_visible_keys = ( 'id' )
+
+    def __init__(
+        self,
+        id=None,
+        collection=None,
+        folder=None,
+    ):
+        super(LibraryDatasetCollectionAssociation, self).__init__( id=id, collection=collection )
+        self.folder = folder
+
+
+class DatasetInstanceDatasetCollectionAssociation( object, Dictifiable ):
+    """ Associates a DatasetInstance (hda or ldda) with a DatasetCollection. """
+    # actionable dataset id needs to be available via API...
+    dict_collection_visible_keys = ( 'id', 'dataset_instance_type', 'element_index', 'element_identifier' )
+    dict_element_visible_keys = ( 'id', 'dataset_instance_type', 'element_index', 'element_identifier' )
+
+    def __init__(
+        self,
+        id=None,
+        collection=None,
+        dataset=None,
+        element_index=None,
+        element_identifier=None,
+    ):
+        if isinstance(dataset, HistoryDatasetAssociation):
+            self.dataset_hda = dataset
+            self.dataset_instance_type = 'hda'
+        elif isinstance(dataset, LibraryDatasetDatasetAssociation):
+            self.dataset_ldda = dataset
+            self.dataset_instance_type = 'ldda'
+        else:
+            raise AttributeError( 'Unknown dataset type provided for dataset: %s' % type( dataset ) )
+
+        self.id = id
+        self.collection = collection
+        self.element_index = element_index
+        self.element_identifier = element_identifier or str(element_index)
+
+
 class Event( object ):
     def __init__( self, message=None, history=None, user=None, galaxy_session=None ):
         self.history = history
@@ -3347,6 +3454,11 @@ class StoredWorkflowTagAssociation ( ItemTagAssociation ):
 class VisualizationTagAssociation ( ItemTagAssociation ):
     pass
 
+
+class DatasetCollectionTagAssociation( ItemTagAssociation ):
+    pass
+
+
 class ToolTagAssociation( ItemTagAssociation ):
     def __init__( self, id=None, user=None, tool_id=None, tag_id=None, user_tname=None, value=None ):
         self.id = id
@@ -3376,6 +3488,11 @@ class PageAnnotationAssociation( object ):
 
 class VisualizationAnnotationAssociation( object ):
     pass
+
+
+class DatasetCollectionAnnotationAssociation( object ):
+    pass
+
 
 # Item rating classes.
 
@@ -3409,6 +3526,12 @@ class PageRatingAssociation( ItemRatingAssociation ):
 class VisualizationRatingAssociation( ItemRatingAssociation ):
     def set_item( self, visualization ):
         self.visualization = visualization
+
+
+class DatasetCollectionRatingAssociation( ItemRatingAssociation ):
+    def set_item( self, dataset_collection ):
+        self.dataset_collection = dataset_collection
+
 
 #Data Manager Classes
 class DataManagerHistoryAssociation( object ):

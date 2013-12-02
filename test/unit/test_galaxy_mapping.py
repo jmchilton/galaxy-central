@@ -54,6 +54,10 @@ class MappingTests( unittest.TestCase ):
         self.persist( visualization )
         persist_and_check_annotation( model.VisualizationAnnotationAssociation, visualization=visualization )
 
+        dataset_collection = model.DatasetCollection(collection_type="pair")
+        self.persist( dataset_collection )
+        persist_and_check_annotation( model.DatasetCollectionAnnotationAssociation, dataset_collection=dataset_collection )
+
     def test_ratings( self ):
         model = self.model
 
@@ -95,6 +99,10 @@ class MappingTests( unittest.TestCase ):
         self.persist( visualization )
         persist_and_check_rating( model.VisualizationRatingAssociation, visualization=visualization )
 
+        dataset_collection = model.DatasetCollection(collection_type="pair")
+        self.persist( dataset_collection )
+        persist_and_check_rating( model.DatasetCollectionRatingAssociation, dataset_collection=dataset_collection )
+
     def test_tags( self ):
         model = self.model
 
@@ -130,6 +138,51 @@ class MappingTests( unittest.TestCase ):
         visualization = model.Visualization()
         visualization.user = u
         tag_and_test( visualization, model.VisualizationTagAssociation, "tagged_visualizations" )
+
+        dataset_collection = model.DatasetCollection(collection_type="pair")
+        tag_and_test( dataset_collection, model.DatasetCollectionTagAssociation, "tagged_dataset_collections" )
+
+    def test_collections_in_histories(self):
+        model = self.model
+
+        u = model.User( email="mary@example.com", password="password" )
+        h1 = model.History( name="History 1", user=u)
+        d1 = model.HistoryDatasetAssociation( extension="txt", history=h1, create_dataset=True, sa_session=model.session )
+        d2 = model.HistoryDatasetAssociation( extension="txt", history=h1, create_dataset=True, sa_session=model.session )
+
+        c1 = model.DatasetCollection(collection_type="pair", name="HistoryCollectionTest1")
+        hc1 = model.HistoryDatasetCollectionAssociation(history=h1, collection=c1)
+        dc1 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d1)
+        dc2 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d2)
+
+        self.persist( u, h1, d1, d2, c1, hc1, dc1, dc2 )
+
+        loaded_dataset_collection = self.query( model.DatasetCollection ).filter( model.DatasetCollection.name == "HistoryCollectionTest1" ).first()
+        self.assertEquals(len(loaded_dataset_collection.datasets), 2)
+        assert loaded_dataset_collection.collection_type == "pair"
+
+    def test_collections_in_library_folders(self):
+        model = self.model
+
+        u = model.User( email="mary2@example.com", password="password" )
+        lf = model.LibraryFolder( name="RootFolder" )
+        l = model.Library( name="Library1", root_folder=lf )
+        ld1 = model.LibraryDataset( )
+        ld2 = model.LibraryDataset( )
+        #self.persist( u, l, lf, ld1, ld2, expunge=False )
+
+        ldda1 = model.LibraryDatasetDatasetAssociation( extension="txt", library_dataset=ld1 )
+        ldda2 = model.LibraryDatasetDatasetAssociation( extension="txt", library_dataset=ld1 )
+        #self.persist(  ld1, ld2, ldda1, ldda2, expunge=False )
+
+        c1 = model.DatasetCollection(collection_type="pair", name="LibraryCollectionTest1")
+        dc1 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=ldda1)
+        dc2 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=ldda2)
+        self.persist( u, l, lf, ld1, ld2, c1, ldda1, ldda2, dc1, dc2 )
+
+        loaded_dataset_collection = self.query( model.DatasetCollection ).filter( model.DatasetCollection.name == "LibraryCollectionTest1" ).first()
+        self.assertEquals(len(loaded_dataset_collection.datasets), 2)
+        assert loaded_dataset_collection.collection_type == "pair"
 
     def test_basic( self ):
         model = self.model

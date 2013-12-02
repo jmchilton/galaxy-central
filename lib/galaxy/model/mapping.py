@@ -531,6 +531,38 @@ model.TransferJob.table = Table( "transfer_job", metadata,
     Column( "socket", Integer ),
     Column( "params", JSONType ) )
 
+model.DatasetCollection.table = Table( "dataset_collection", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "collection_type", Unicode(255), ),
+    Column( "deleted", Boolean, default=False ),
+    Column( "name", TrimmedString( 255 ) ),
+    Column( "create_time", DateTime, default=now ),
+    Column( "update_time", DateTime, default=now, onupdate=now ),
+)
+
+model.HistoryDatasetCollectionAssociation.table = Table( "history_dataset_collection_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_id", Integer, ForeignKey( "history.id" ), index=True ),
+    Column( "visible", Boolean ),
+)
+
+model.LibraryDatasetCollectionAssociation.table = Table( "library_dataset_collection_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "folder_id", Integer, ForeignKey( "library_folder.id" ), index=True ),
+)
+
+model.DatasetInstanceDatasetCollectionAssociation.table = Table( "dataset_instance_dataset_collection_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_dataset_collection_association_id", Integer, ForeignKey("history_dataset_collection_association.id"), index=True ),
+    Column( "hda_id", Integer, ForeignKey( "history_dataset_association.id" ), index=True, nullable=True ),
+    Column( "ldda_id", Integer, ForeignKey( "library_dataset_dataset_association.id" ), index=True, nullable=True ),
+    Column( "element_index", Integer ),
+    Column( "element_identifier", Integer ),
+)
+
 model.Event.table = Table( "event", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "create_time", DateTime, default=now ),
@@ -949,6 +981,15 @@ model.VisualizationTagAssociation.table = Table( "visualization_tag_association"
     Column( "value", TrimmedString(255), index=True),
     Column( "user_value", TrimmedString(255), index=True) )
 
+model.DatasetCollectionTagAssociation.table = Table( "dataset_collection_tag_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "tag_id", Integer, ForeignKey( "tag.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "user_tname", TrimmedString(255), index=True),
+    Column( "value", TrimmedString(255), index=True),
+    Column( "user_value", TrimmedString(255), index=True) )
+
 model.ToolTagAssociation.table = Table( "tool_tag_association", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "tool_id", TrimmedString(255), index=True ),
@@ -996,6 +1037,12 @@ model.VisualizationAnnotationAssociation.table = Table( "visualization_annotatio
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "annotation", TEXT, index=True) )
 
+model.DatasetCollectionAnnotationAssociation.table = Table( "dataset_collection_annotation_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "annotation", TEXT, index=True) )
+
 # Ratings tables.
 model.HistoryRatingAssociation.table = Table( "history_rating_association", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -1024,6 +1071,12 @@ model.PageRatingAssociation.table = Table( "page_rating_association", metadata,
 model.VisualizationRatingAssociation.table = Table( "visualization_rating_association", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "visualization_id", Integer, ForeignKey( "visualization.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "rating", Integer, index=True) )
+
+model.DatasetCollectionRatingAssociation.table = Table( "dataset_collection_rating_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "rating", Integer, index=True) )
 
@@ -1614,6 +1667,40 @@ mapper( model.DeferredJob, model.DeferredJob.table,
 mapper( model.TransferJob, model.TransferJob.table,
     properties = {} )
 
+
+simple_mapping( model.DatasetCollection,
+    tags=relation( model.DatasetCollectionTagAssociation, order_by=model.DatasetCollectionTagAssociation.table.c.id, backref='dataset_collections' ),
+    annotations=relation( model.DatasetCollectionAnnotationAssociation, order_by=model.DatasetCollectionAnnotationAssociation.table.c.id, backref="dataset_collections" ),
+    ratings=relation( model.DatasetCollectionRatingAssociation, order_by=model.DatasetCollectionRatingAssociation.table.c.id, backref="dataset_collections" ),
+)
+
+simple_mapping( model.HistoryDatasetCollectionAssociation,
+    collection=relation( model.DatasetCollection ),
+    history=relation( model.History, backref='dataset_collections' ),
+)
+
+simple_mapping( model.LibraryDatasetCollectionAssociation,
+    collection=relation( model.DatasetCollection ),
+    folder=relation( model.LibraryFolder, backref='dataset_collections' ),
+)
+
+simple_mapping( model.DatasetInstanceDatasetCollectionAssociation,
+    collection=relation(
+        model.DatasetCollection,
+        primaryjoin=( model.DatasetCollection.table.c.id == model.DatasetInstanceDatasetCollectionAssociation.table.c.collection_id ),
+        backref='datasets',
+        lazy=False,
+    ),
+    hda=relation(
+        model.HistoryDatasetAssociation,
+        primaryjoin=( model.DatasetInstanceDatasetCollectionAssociation.table.c.hda_id == model.HistoryDatasetAssociation.table.c.id )
+    ),
+    ldda=relation(
+        model.LibraryDatasetDatasetAssociation,
+        primaryjoin=( model.DatasetInstanceDatasetCollectionAssociation.table.c.ldda_id == model.LibraryDatasetDatasetAssociation.table.c.id )
+    ),
+)
+
 mapper( model.Event, model.Event.table,
     properties=dict( history=relation( model.History ),
                      galaxy_session=relation( model.GalaxySession ),
@@ -1774,6 +1861,8 @@ tag_mapping( model.WorkflowStepTagAssociation, "tagged_workflow_steps" )
 
 tag_mapping( model.VisualizationTagAssociation, "tagged_visualizations" )
 
+tag_mapping( model.DatasetCollectionTagAssociation, "tagged_dataset_collections" )
+
 tag_mapping( model.ToolTagAssociation, "tagged_tools" )
 
 
@@ -1794,6 +1883,8 @@ annotation_mapping( model.PageAnnotationAssociation, page=model.Page )
 
 annotation_mapping( model.VisualizationAnnotationAssociation, visualization=model.Visualization )
 
+annotation_mapping( model.DatasetCollectionAnnotationAssociation, dataset_collection=model.DatasetCollection )
+
 
 # Rating tables.
 def rating_mapping( rating_class, **kwds ):
@@ -1809,6 +1900,8 @@ rating_mapping( model.StoredWorkflowRatingAssociation, stored_workflow=model.Sto
 rating_mapping( model.PageRatingAssociation, page=model.Page )
 
 rating_mapping( model.VisualizationRatingAssociation, visualizaiton=model.Visualization )
+
+rating_mapping( model.DatasetCollectionRatingAssociation, dataset_collection=model.DatasetCollection )
 
 #Data Manager tables
 mapper( model.DataManagerHistoryAssociation, model.DataManagerHistoryAssociation.table,
