@@ -220,7 +220,7 @@ class ReportResults( Plugin ):
 def deactivate_repository( app, repository_dict ):
     # Clean out any generated tests. This is necessary for Twill.
     remove_generated_tests( app )
-    sa_session = app.model.context.current
+    sa_session = app.install_model.context.current
     # The dict contains the only repository the app should have installed at this point.
     repository = test_db_util.get_installed_repository_by_name_owner_changeset_revision( str( repository_dict[ 'name' ] ),
                                                                                          str( repository_dict[ 'owner' ] ),
