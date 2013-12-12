@@ -77,6 +77,7 @@ def app_factory( global_conf, **kwargs ):
 
     valid_history_contents_types = [
         'dataset',
+        'dataset_collection',
     ]
     # This must come before history contents below.
     # Accesss HDA details via histories/:history_id/contents/datasets/:hda_id
@@ -134,6 +135,7 @@ def app_factory( global_conf, **kwargs ):
                                path_prefix='/api/histories/:history_id/contents/:history_content_id' )
 
     webapp.mapper.resource( 'dataset', 'datasets', path_prefix='/api' )
+    webapp.mapper.resource( 'dataset_collection', 'dataset_collections', path_prefix='/api/')
     webapp.mapper.resource_with_deleted( 'library', 'libraries', path_prefix='/api' )
     webapp.mapper.resource( 'sample', 'samples', path_prefix='/api' )
     webapp.mapper.resource( 'request', 'requests', path_prefix='/api' )
