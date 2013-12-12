@@ -10,6 +10,7 @@ from galaxy.web import security
 import galaxy.model
 import galaxy.datatypes.registry
 import galaxy.security
+from galaxy import dataset_collections
 from galaxy.objectstore import build_object_store_from_config
 import galaxy.quota
 from galaxy.tags.tag_handler import GalaxyTagHandler
@@ -105,6 +106,8 @@ class UniverseApplication( object ):
         self.security = security.SecurityHelper( id_secret=self.config.id_secret )
         # Tag handler
         self.tag_handler = GalaxyTagHandler()
+        # Dataset Collection Plugins
+        self.dataset_collections_service = dataset_collections.DatasetCollectionsService(self)
         # Genomes
         self.genomes = Genomes( self )
         # Data providers registry.
