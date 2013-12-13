@@ -1103,6 +1103,38 @@ SpaceGhost.prototype.getUniverseSetting = function getUniverseSetting( iniKey ){
     return match[2];
 };
 
+/** Create test datasets by "pasting" content into upload tool via API.
+ *  @param {String} historyId    historyId (obtained via history API)
+ *  @param {Any} descriptions    Count of datasets to create or array of properties.
+ *  @returns {Array} Array of created datasets.
+ */
+SpaceGhost.prototype.createTestDatasets = function _datasets( historyId, descriptions ) {
+    if( utils.isNumber( descriptions ) ) {
+        var count = descriptions;
+        descriptions = [];
+        for( var i=0; i<count; i += 1 ){
+            descriptions[i] = {};
+        }
+    }
+
+    var datasets = [];
+    for( var i=0; i<descriptions.length; i += 1 ){
+        var upload_params = {
+            'files_0|NAME': 'Test Dataset',
+            'files_0|url_paste': 'Hello World',
+            'dbkey': '?',
+            'file_type': 'txt'
+        };
+        var payload = {
+            'tool_id': 'upload1',
+            'inputs': upload_params,
+            'upload_type': 'upload_dataset',
+        };
+        var toolCreate = this.api.tools.create( payload );
+        datasets[i] = toolCreate["outputs"][0];
+    }
+}
+
 SpaceGhost.prototype.waitForMasthead = function wait( then ) {
     return this.waitForText( this.data.labels.masthead.menus.user, then );
 }
