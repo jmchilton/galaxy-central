@@ -24,13 +24,7 @@ spaceghost.start();
 // =================================================================== SET UP
 var utils = require( 'utils' );
 
-var email = spaceghost.user.getRandomEmail(),
-    password = '123456';
-if( spaceghost.fixtureData.testUser ){
-    email = spaceghost.fixtureData.testUser.email;
-    password = spaceghost.fixtureData.testUser.password;
-}
-spaceghost.user.loginOrRegisterUser( email, password );
+spaceghost.loginTestUser();
 
 var uploadFilename = '1.sam',
     uploadFilepath = '../../test-data/' + uploadFilename,

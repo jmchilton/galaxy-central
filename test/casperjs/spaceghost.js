@@ -1108,6 +1108,17 @@ SpaceGhost.prototype.waitForMasthead = function wait( then ) {
 }
 
 
+SpaceGhost.prototype.loginTestUser = function _loginTestUser( ) {
+    var email = this.user.getRandomEmail(),
+        password = '123456';
+    if( this.fixtureData.testUser ){
+        email = this.fixtureData.testUser.email;
+        password = this.fixtureData.testUser.password;
+    }
+    this.user.loginOrRegisterUser( email, password );
+}
+
+
 // =================================================================== TEST DATA
 /** General use selectors, labels, and text. Kept here to allow a centralized location.
  */

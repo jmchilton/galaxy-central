@@ -25,6 +25,7 @@ var API = function API( spaceghost, apikey ){
     this.workflows  = new WorkflowsAPI( this );
     this.users      = new UsersAPI( this );
     this.visualizations = new VisualizationsAPI( this );
+    this.dataset_collections = new DatasetCollectionsAPI( this );
 };
 exports.API = API;
 
@@ -545,6 +546,30 @@ VisualizationsAPI.prototype.update = function create( id, payload ){
 
     return this.api._ajax( url, {
         type : 'PUT',
+        data : payload
+    });
+};
+
+// =================================================================== DATASET COLLECTIONS
+var DatasetCollectionsAPI = function DatasetCollectionsAPI( api ){
+    this.api = api;
+};
+DatasetCollectionsAPI.prototype.toString = function toString(){
+    return this.api + '.DatasetCollectionsAPI';
+};
+
+// -------------------------------------------------------------------
+DatasetCollectionsAPI.prototype.urlTpls = {
+    create  : 'api/dataset_collections',
+};
+
+DatasetCollectionsAPI.prototype.create = function create( payload ){
+    this.api.spaceghost.info( 'dataset_collections.create: ' + this.api.spaceghost.jsonStr( payload ) );
+
+    // py.payload <-> ajax.data
+    payload = this.api.ensureObject( payload );
+    return this.api._ajax( utils.format( this.urlTpls.create ), {
+        type : 'POST',
         data : payload
     });
 };
