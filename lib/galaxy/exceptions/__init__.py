@@ -6,6 +6,8 @@ from galaxy import eggs
 eggs.require( "Paste" )
 
 from paste import httpexceptions
+from ..exceptions import error_codes
+
 
 class MessageException( Exception ):
     """
@@ -21,9 +23,13 @@ class ItemDeletionException( MessageException ):
     pass
 
 class ItemAccessibilityException( MessageException ):
+    status_code = 403
+    error_code = error_codes.USER_CANNOT_ACCESS_ITEM
     pass
 
 class ItemOwnershipException( MessageException ):
+    status_code = 403
+    error_code = error_codes.USER_DOES_NOT_OWN_ITEM
     pass
 
 class ActionInputError( MessageException ):
