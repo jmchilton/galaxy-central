@@ -1,0 +1,5 @@
+<test file="1.ga">
+  <input name="Input Dataset1" value="workflows/i1.txt" />
+  <input name="Input Dataset2" value="workflows/i2.txt" />
+  <output name="2" file="workflows/o1.txt" /> <!-- index of n'th output, less than ideal syntax -->
+</test>
