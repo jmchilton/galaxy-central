@@ -2496,7 +2496,7 @@ class Tool( object, Dictifiable ):
         if isinstance( e, LateValidationError ):
             message = e.message
         return message
-    def build_param_dict( self, incoming, input_datasets, output_datasets, output_paths, job_working_directory ):
+    def build_param_dict( self, incoming, input_datasets, output_datasets, output_paths, job_working_directory, input_paths=[] ):
         """
         Build the dictionary of parameters for substituting into the command
         line. Each value is wrapped in a `InputValueWrapper`, which allows
@@ -2509,6 +2509,7 @@ class Tool( object, Dictifiable ):
         # All parameters go into the param_dict
         param_dict.update( incoming )
 
+        input_false_paths = dict( [ ( dp.real_path, dp.false_path ) for dp in input_paths if getattr( dp, "false_path", None ) ] )
         def wrap_values( inputs, input_values ):
             """
             Wraps parameters as neccesary.
@@ -2524,6 +2525,7 @@ class Tool( object, Dictifiable ):
                 elif isinstance( input, DataToolParameter ) and input.multiple:
                     input_values[ input.name ] = \
                         DatasetListWrapper( input_values[ input.name ],
+                                            false_paths=input_false_paths,
                                             datatypes_registry = self.app.datatypes_registry,
                                             tool = self,
                                             name = input.name )
@@ -2565,6 +2567,9 @@ class Tool( object, Dictifiable ):
                         tool=self,
                         name=input.name
                     )
+                    real_path = dataset.file_name
+                    if real_path in input_false_paths:
+                        wrapper_kwds[ "false_path" ] = input_false_paths[ real_path ]
                     input_values[ input.name ] = \
                         DatasetFilenameWrapper( dataset, **wrapper_kwds )
                 elif isinstance( input, SelectToolParameter ):
@@ -2572,6 +2577,7 @@ class Tool( object, Dictifiable ):
                         input, input_values[ input.name ], self.app, other_values = param_dict )
 
                 elif isinstance( input, LibraryDatasetToolParameter ):
+                    # TODO: Handle input rewrites in here? How to test LibraryDatasetToolParameters?
                     input_values[ input.name ] = LibraryDatasetValueWrapper(
                         input, input_values[ input.name ], param_dict )
 
@@ -2610,6 +2616,10 @@ class Tool( object, Dictifiable ):
                     tool=self,
                     name=name,
                 )
+                real_path = data.file_name
+                if real_path in input_false_paths:
+                    false_path = input_false_paths[ real_path ]
+                    wrapper_kwds[ 'false_path' ] = false_path
                 param_dict[name] = DatasetFilenameWrapper( data, **wrapper_kwds )
             if data:
                 for child in data.children:
@@ -3489,12 +3499,15 @@ class DatasetFilenameWrapper( ToolParameterValueWrapper ):
 class DatasetListWrapper( list ):
     """
     """
-    def __init__( self, datasets, **kwargs ):
+    def __init__( self, datasets, false_paths=[], **kwargs ):
         if not isinstance(datasets, list):
             datasets = [datasets]
 
         def to_wrapper( dataset ):
+            real_path = dataset.file_name
             wrapper_kwds = kwargs.copy()
+            if real_path in false_paths:
+                wrapper_kwds[ "false_path" ] = false_paths[ real_path ]
             return DatasetFilenameWrapper( dataset, **wrapper_kwds )
 
         list.__init__( self, map( to_wrapper, datasets ) )
