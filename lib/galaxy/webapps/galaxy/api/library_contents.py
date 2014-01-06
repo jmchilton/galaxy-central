@@ -166,6 +166,20 @@ class LibraryContentsController( BaseAPIController, UsesLibraryMixin, UsesLibrar
         # The rest of the security happens in the library_common controller.
         real_folder_id = trans.security.encode_id( parent.id )
 
+        roles = payload.get("roles", None)
+        if roles:
+            roles = util.listify(roles)
+
+            def to_id_as_str(role):
+                role = role.replace("__at__", "@")
+                if "@" in role:
+                    role = str( trans.sa_session.query( trans.app.model.Role ).filter( trans.app.model.Role.table.c.name == role ).first().id )
+                else:
+                    role = str( trans.security.decode_id( role ) )
+                return role
+
+            payload["roles"] = map( to_id_as_str, roles )
+
         # are we copying an HDA to the library folder?
         #   we'll need the id and any message to attach, then branch to that private function
         from_hda_id, ldda_message = ( payload.pop( 'from_hda_id', None ), payload.pop( 'ldda_message', '' ) )
