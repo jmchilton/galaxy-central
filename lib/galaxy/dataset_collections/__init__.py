@@ -56,6 +56,9 @@ class DatasetCollectionsService(object, SharableItemSecurityMixin):
 
         return self.__persist( dataset_collection_instance )
 
+    def history_dataset_collections(self, history, query):
+        return history.dataset_collections
+
     def __persist( self, dataset_collection_instance ):
         context = self.model.context
         context.add( dataset_collection_instance )
