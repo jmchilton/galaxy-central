@@ -1545,7 +1545,21 @@ class DummyDataset( object ):
     pass
 
 
-class DataToolParameter( ToolParameter ):
+class BaseDataToolParameter( ToolParameter ):
+
+    def __init__( self, tool, elem, trans ):
+        super(BaseDataToolParameter, self).__init__( tool, elem )
+
+    def _get_history( self, trans, history=None ):
+        class_name = self.__class__.__name__
+        assert trans is not None, "%s requires a trans" % class_name
+        if history is None:
+            history = trans.get_history()
+        assert history is not None, "%s requires a history" % class_name
+        return history
+
+
+class DataToolParameter( BaseDataToolParameter ):
     # TODO, Nate: Make sure the following unit tests appropriately test the dataset security
     # components.  Add as many additional tests as necessary.
     """
@@ -1560,7 +1574,7 @@ class DataToolParameter( ToolParameter ):
     """
 
     def __init__( self, tool, elem, trans=None):
-        ToolParameter.__init__( self, tool, elem )
+        super(DataToolParameter, self).__init__( tool, elem, trans )
         # Add metadata validator
         if not string_as_bool( elem.get( 'no_validation', False ) ):
             self.validators.append( validation.MetadataValidator() )
@@ -1827,13 +1841,86 @@ class DataToolParameter( ToolParameter ):
             ref = ref()
         return ref
 
-    def _get_history( self, trans, history=None ):
-        class_name = self.__class__.__name__
-        assert trans is not None, "%s requires a trans" % class_name
-        if history is None:
-            history = trans.get_history()
-        assert history is not None, "%s requires a history" % class_name
-        return history
+
+class DataCollectionToolParameter( BaseDataToolParameter ):
+    """
+    Parameter that takes one tool value.
+    """
+
+    def __init__( self, tool, elem, trans=None ):
+        super(DataCollectionToolParameter, self).__init__( tool, elem, trans )
+        self.history_query = self.__build_history_query( elem )
+        self.multiple = False  # Accessed on DataToolParameter a lot, may want in future
+
+    def get_html_field( self, trans=None, value=None, other_values={} ):
+        # dropped refresh values, may be needed..
+        field = form_builder.SelectField( self.name, self.multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
+        history = self._get_history( trans )
+        dataset_collections = trans.app.dataset_collections_service.history_dataset_collections( history, self.history_query )
+        for dataset_collection_instance in dataset_collections:
+            instance_id = dataset_collection_instance.hid
+            instance_name = dataset_collection_instance.collection.name
+            selected = ( value and ( dataset_collection_instance == value ) )
+            if dataset_collection_instance.visible:
+                hidden_text = ""
+            else:
+                hidden_text = " (hidden)"
+            field.add_option( "%s:%s %s" % ( instance_id, hidden_text, instance_name ), dataset_collection_instance.id, selected )
+        return field
+
+    def from_html( self, value, trans, other_values={} ):
+        if not value and not self.optional:
+            raise ValueError( "History does not include a dataset of the required format / build" )
+        if value in [None, "None"]:
+            return None
+        if isinstance( value, str ) and value.find( "," ) > 0:
+            value = [ int( value_part ) for value_part in value.split( "," ) ]
+        elif isinstance( value, trans.app.model.HistoryDatasetCollectionAssociation ):
+            rval = value
+        elif isinstance( value, dict ) and 'src' in value and 'id' in value:
+            if value['src'] == 'hdca':
+                rval = trans.sa_session.query( trans.app.model.HistoryDatasetCollectionAssociation ).get( trans.app.security.decode_id(value['id']) )
+        else:
+            rval = trans.sa_session.query( trans.app.model.HistoryDatasetCollectionAssociation ).get( value )
+        if rval:
+            if rval.deleted:
+                raise ValueError( "The previously selected dataset collection has been deleted" )
+            # TODO: Handle error states, implement error states ...
+        return rval
+
+    def to_string( self, value, app ):
+        if value is None or isinstance( value, basestring ):
+            return value
+        elif isinstance( value, int ):
+            return str( value )
+        try:
+            return value.id
+        except:
+            return str( value )
+
+    def to_python( self, value, app ):
+        # Both of these values indicate that no dataset is selected.  However, 'None'
+        # indicates that the dataset is optional, while '' indicates that it is not.
+        if value is None or value == '' or value == 'None':
+            return value
+        return app.model.context.query( app.model.HistoryDatasetCollectionAssociation ).get( int( value ) )
+
+    def value_to_display_text( self, value, app ):
+        try:
+            display_text = "%s: %s" % ( value.hid, value.collection.name )
+        except AttributeError:
+            display_text = "No dataset collection."
+        return display_text
+
+    def validate( self, value, history=None ):
+        return True  # TODO
+
+    def __build_history_query( self, elem ):
+        """ Build a query object allowing dataset collection service to filter
+        history to match this query.
+        """
+        collection_type = elem.get("collection_type", None)
+        return dict(collection_type=collection_type)
 
 
 class HiddenDataToolParameter( HiddenToolParameter, DataToolParameter ):
@@ -1953,6 +2040,7 @@ parameter_types = dict(
     file=FileToolParameter,
     ftpfile=FTPFileToolParameter,
     data=DataToolParameter,
+    data_collection=DataCollectionToolParameter,
     library_data=LibraryDatasetToolParameter,
     drill_down=DrillDownSelectToolParameter
 )
