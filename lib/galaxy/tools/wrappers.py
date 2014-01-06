@@ -1,6 +1,9 @@
 import pipes
 from galaxy.util.none_like import NoneDataset
 
+from logging import getLogger
+log = getLogger( __name__ )
+
 
 class ToolParameterValueWrapper( object ):
     """
@@ -198,7 +201,17 @@ class DatasetFilenameWrapper( ToolParameterValueWrapper ):
         return bool( self.dataset )
 
 
-class DatasetListWrapper( list ):
+class HasDatasets:
+
+    def _dataset_wrapper( self, dataset, dataset_paths, **kwargs ):
+        real_path = dataset.file_name
+        wrapper_kwds = kwargs.copy()
+        if real_path in dataset_paths:
+            wrapper_kwds[ "dataset_path" ] = dataset_paths[ real_path ]
+        return DatasetFilenameWrapper( dataset, **wrapper_kwds )
+
+
+class DatasetListWrapper( list, HasDatasets ):
     """
     """
     def __init__( self, datasets, dataset_paths=[], **kwargs ):
@@ -206,10 +219,31 @@ class DatasetListWrapper( list ):
             datasets = [datasets]
 
         def to_wrapper( dataset ):
-            real_path = dataset.file_name
-            wrapper_kwds = kwargs.copy()
-            if real_path in dataset_paths:
-                wrapper_kwds[ "dataset_path" ] = dataset_paths[ real_path ]
-            return DatasetFilenameWrapper( dataset, **wrapper_kwds )
+            return self._dataset_wrapper( dataset, dataset_paths, **kwargs )
 
         list.__init__( self, map( to_wrapper, datasets ) )
+
+
+class DatasetCollectionWrapper( object, HasDatasets ):
+
+    def __init__( self, dataset_collection, dataset_paths=[], **kwargs ):
+        super(DatasetCollectionWrapper, self).__init__()
+
+        datasets = dataset_collection.collection.datasets
+        dataset_instances = {}
+
+        dataset_instances_list = []
+        for dataset_collection_element in datasets:
+            dataset_wrapper = self._dataset_wrapper( dataset_collection_element.dataset_instance, dataset_paths, **kwargs)
+            element_identifier = dataset_collection_element.element_identifier
+            dataset_instances[element_identifier] = dataset_wrapper
+            dataset_instances_list.append(dataset_wrapper)
+
+        self.dataset_instances = dataset_instances
+        self.dataset_instances_list = dataset_instances_list
+
+    def __getattr__( self, key ):
+        return self.dataset_instances[ key ]
+
+    def __iter__( self, key ):
+        return self.dataset_instances_list.__iter__()
