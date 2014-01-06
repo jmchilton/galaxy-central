@@ -5,6 +5,7 @@ from galaxy.exceptions import ObjectInvalid
 from galaxy.model import LibraryDatasetDatasetAssociation
 from galaxy.tools.parameters import DataToolParameter
 from galaxy.tools.parameters import SelectToolParameter
+from galaxy.tools.parameters import DataCollectionToolParameter
 from galaxy.tools.parameters.grouping import Conditional, Repeat
 from galaxy.util.json import from_json_string
 from galaxy.util.json import to_json_string
@@ -171,6 +172,12 @@ class DefaultToolAction( object ):
                                                              datatypes_registry=trans.app.datatypes_registry,
                                                              tool=tool,
                                                              name=input.name )
+                elif isinstance( input, DataCollectionToolParameter ):
+                    input_values[ input.name ] = galaxy.tools.DatasetCollectionWrapper(
+                        input_values[ input.name ],
+                        tool=tool,
+                        name=input.name,
+                    )
                 elif isinstance( input, SelectToolParameter ):
                     input_values[ input.name ] = galaxy.tools.SelectToolParameterWrapper( input, input_values[ input.name ], tool.app, other_values=incoming )
                 else:
