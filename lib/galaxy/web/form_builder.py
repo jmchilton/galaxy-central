@@ -535,6 +535,25 @@ class DrillDownField( BaseField ):
         rval.append( '</div>' )
         return unicodify( '\n'.join( rval ) )
 
+
+class SwitchingSelectField(BaseField):
+
+    def __init__( self, delegate_fields, default_field=None ):
+        self.delegate_fields = delegate_fields
+        self.default_field = default_field or delegate_fields.keys()[ 0 ]
+
+    def get_html( self, prefix="", disabled=False ):
+        options = []
+        for name, delegate_field in self.delegate_fields.items():
+            delegate_html = delegate_field.get_html(prefix=prefix, disabled=disabled)
+            case_html = '<div class="switch-option"><input name="__switch_option_on__" type="hidden" value="%s" />%s</div>' % (name, delegate_html)
+            options.append( case_html )
+        all_options_html = "\n".join( options )
+        default_html = '<input name="__switch_default__" type="hidden" value="%s" />' % self.default_field
+        switch_html = '<div class="switch-field">%s%s</div>' % (default_html, all_options_html)
+        return switch_html
+
+
 class AddressField(BaseField):
     @staticmethod
     def fields():
