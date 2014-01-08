@@ -106,6 +106,100 @@
                 }
             });
         });
+
+        var SELECTION_TYPE = {
+            'select_single': {
+                'icon_class': 'fa-file-o',
+                'select_by': 'Run tool on single input',
+                'allow_remap': true
+            },
+            'select_multiple': {
+                'icon_class': 'fa-files-o',
+                'select_by': 'Run tool in parallel across multiple datasets',
+                'allow_remap': false
+            },
+            'select_collection': { // NOT YET IMPLEMENTED
+                'icon_class': 'fa-folder',
+                'select_by': 'Run tool in parallel across dataset collection',
+                'allow_remap': false
+            },
+            'multiselect_single': {
+                'icon_class': 'fa-list-alt',
+                'select_by': 'Run tool with multiple inputs',
+                'allow_remap': true
+            }
+        };
+
+        var enableSwitchOption = function(optionElement, onValue) {
+            $(optionElement).children(":input").each(function(i, formElement) {
+                var name = $(formElement).attr('name');
+                if(name.indexOf(onValue) != -1) {
+                    var newName = name.substring(onValue.length + 1);
+                    $(formElement).attr('name', newName);
+                }
+            });
+            $(optionElement).show();
+        };
+
+        var disableSwitchOption = function(optionElement, onValue) {
+            $(optionElement).children(":input").each(function(i, formElement) {
+                var name = $(formElement).attr('name');
+                if(name.indexOf(onValue) == -1) {
+                    var newName = onValue + "_" + name;
+                    $(formElement).attr('name', newName);
+                }
+            });
+            $(optionElement).hide();
+        };
+
+        var enableSelectBy = function(switchField, enableIndex) {
+            $(switchField).children(".switch-option").each( function(index, optionElement) {
+                var onValue = $(optionElement).children("input:hidden").val();
+                if(enableIndex == index) {
+                    enableSwitchOption(optionElement, onValue);
+                    var selectionType = SELECTION_TYPE[onValue];
+                    if(selectionType["allow_remap"]) {
+                        $("div#remap-row").css("display", "none");
+                    } else {
+                        $("div#remap-row").css("display", "inherit");
+                    }
+
+                } else {
+                    disableSwitchOption(optionElement, onValue);
+                }
+            });
+            $(switchField).closest(".form-row").find("i").each(function(index, iElement) {
+                if(index == enableIndex) {
+                    $(iElement).css('color', 'black');
+                } else {
+                    $(iElement).css('color', 'gray');
+                }
+            });
+        };
+
+        $('.switch-field').each( function( fieldIndex, switchFieldElement ) {
+            $(switchFieldElement).children(".switch-option").each( function(index, optionElement) {
+                var onValue = $(optionElement).children("input:hidden").val();
+                var selection_type = SELECTION_TYPE[onValue];
+                var select = $(optionElement);
+                var button = $('<i class="fa ' + selection_type['icon_class'] + '" style="padding-left: 5px; padding-right: 2px;"></i>').click(function() {
+                    enableSelectBy(switchFieldElement, index);
+                }).attr(
+                    'title',
+                    selection_type['select_by']
+                )
+                select.closest( ".form-row" ).find( "label" ).append( button );
+            } );
+            var defaultSelection = $(switchFieldElement).find("input[name=__switch_default__]").val();
+            var selectByIndex = 0;
+            $(switchFieldElement).children(".switch-option").each(function(index, switchOption) {
+                var optionValue = $(switchOption).find("input[name=__switch_option_on__]").val();
+                if(optionValue == defaultSelection) {
+                    selectByIndex = index;
+                }
+            });
+            enableSelectBy(switchFieldElement, selectByIndex);
+        });
     });
 
     %if not add_frame.debug:
