@@ -1620,6 +1620,12 @@ class DataToolParameter( ToolParameter ):
         field = form_builder.SelectField( self.name, self.multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
 
         # CRUCIAL: the dataset_collector function needs to be local to DataToolParameter.get_html_field()
+        def selected( hda ):
+            if value and str(value[0]).isdigit():
+                return hda.id in map(int, value)
+            else:
+                return value and hda in value
+
         def dataset_collector( hdas, parent_hid ):
             current_user_roles = trans.get_current_user_roles()
             for i, hda in enumerate( hdas ):
@@ -1629,7 +1635,7 @@ class DataToolParameter( ToolParameter ):
                 else:
                     hid = str( hda.hid )
                 if not hda.dataset.state in [galaxy.model.Dataset.states.ERROR, galaxy.model.Dataset.states.DISCARDED] and \
-                    ( hda.visible or ( value and hda in value and not hda.implicitly_converted_parent_datasets ) ) and \
+                    ( hda.visible or ( selected( hda ) and not hda.implicitly_converted_parent_datasets ) ) and \
                     trans.app.security_agent.can_access_dataset( current_user_roles, hda.dataset ):
                     # If we are sending data to an external application, then we need to make sure there are no roles
                     # associated with the dataset that restrict it's access from "public".
@@ -1638,12 +1644,11 @@ class DataToolParameter( ToolParameter ):
                     if self.options and self._options_filter_attribute( hda ) != filter_value:
                         continue
                     if hda.datatype.matches_any( self.formats ):
-                        selected = ( value and ( hda in value ) )
                         if hda.visible:
                             hidden_text = ""
                         else:
                             hidden_text = " (hidden)"
-                        field.add_option( "%s:%s %s" % ( hid, hidden_text, hda_name ), hda.id, selected )
+                        field.add_option( "%s:%s %s" % ( hid, hidden_text, hda_name ), hda.id, selected( hda ) )
                     else:
                         target_ext, converted_dataset = hda.find_conversion_destination( self.formats )
                         if target_ext:
@@ -1651,8 +1656,7 @@ class DataToolParameter( ToolParameter ):
                                 hda = converted_dataset
                             if not trans.app.security_agent.can_access_dataset( current_user_roles, hda.dataset ):
                                 continue
-                            selected = ( value and ( hda in value ) )
-                            field.add_option( "%s: (as %s) %s" % ( hid, target_ext, hda_name ), hda.id, selected )
+                            field.add_option( "%s: (as %s) %s" % ( hid, target_ext, hda_name ), hda.id, selected( hda ) )
                 # Also collect children via association object
                 dataset_collector( hda.children, hid )
         dataset_collector( history.active_datasets, None )
