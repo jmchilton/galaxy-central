@@ -133,7 +133,7 @@ class ToolsController( BaseAPIController, UsesVisualizationMixin, UsesHistoryMix
             return { "message": { "type": "error", "data" : vars[ 'errors' ] } }
 
         # TODO: check for errors and ensure that output dataset(s) are available.
-        output_datasets = vars.get( 'out_data', {} ).iteritems()
+        output_datasets = vars.get( 'out_data', [] )
         rval = {
             "outputs": []
         }
@@ -191,8 +191,8 @@ class ToolsController( BaseAPIController, UsesVisualizationMixin, UsesHistoryMix
         template, vars = tool.handle_input( trans, params.__dict__, history=target_history )
 
         # TODO: check for errors and ensure that output dataset is available.
-        output_datasets = vars[ 'out_data' ].values()
-        return self.add_track_async( trans, output_datasets[0].id )
+        first_dataset = vars[ 'out_data' ][ 0 ][ 1 ]
+        return self.add_track_async( trans, first_dataset.id )
 
     def _rerun_tool( self, trans, payload, **kwargs ):
         """
