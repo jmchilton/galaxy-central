@@ -44,6 +44,7 @@ from babel import Locale, UnknownLocaleError
 pkg_resources.require( "SQLAlchemy >= 0.4" )
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.orm import joinedload
 
 pkg_resources.require( "pexpect" )
 pkg_resources.require( "amqplib" )
@@ -718,6 +719,7 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
                 galaxy_session = self.sa_session.query( self.app.model.GalaxySession ) \
                                                 .filter( and_( self.app.model.GalaxySession.table.c.session_key==session_key,
                                                                self.app.model.GalaxySession.table.c.is_valid==True ) ) \
+                                                .options( joinedload( "user" ) ) \
                                                 .first()
         # If remote user is in use it can invalidate the session and in some
         # cases won't have a cookie set above, so we need to to check some
