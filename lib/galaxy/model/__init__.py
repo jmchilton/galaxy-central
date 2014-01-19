@@ -3202,6 +3202,14 @@ class Page( object, Dictifiable ):
         rval['revision_ids'] = rev
         return rval
 
+
+class PageLibraryAssociation( object ):
+
+    def __init__( self, page_id, library_id ):
+        self.page_id = page_id
+        self.library_id = library_id
+
+
 class PageRevision( object, Dictifiable ):
     dict_element_visible_keys = [ 'id', 'page_id', 'title', 'content' ]
     def __init__( self ):

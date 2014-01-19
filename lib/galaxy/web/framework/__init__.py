@@ -1302,8 +1302,8 @@ class FormBuilder( object ):
     def add_password( self, name, label, value=None, error=None, help=None  ):
         return self.add_input( 'password', label, name, value, error, help )
 
-    def add_select( self, name, label, value=None, options=[], error=None, help=None, use_label=True ):
-        self.inputs.append( SelectInput( name, label, value=value, options=options, error=error, help=help, use_label=use_label   ) )
+    def add_select( self, name, label, value=None, options=[], error=None, help=None, use_label=True, allow_multiple=False ):
+        self.inputs.append( SelectInput( name, label, value=value, options=options, error=error, help=help, use_label=use_label, allow_multiple=allow_multiple  ) )
         return self
 
 
@@ -1311,7 +1311,7 @@ class FormInput( object ):
     """
     Simple class describing a form input element
     """
-    def __init__( self, type, name, label, value=None, error=None, help=None, use_label=True ):
+    def __init__( self, type, name, label, value=None, error=None, help=None, use_label=True, allow_multiple=False ):
         self.type = type
         self.name = name
         self.label = label
@@ -1319,12 +1319,13 @@ class FormInput( object ):
         self.error = error
         self.help = help
         self.use_label = use_label
+        self.allow_multiple = allow_multiple
 
 
 class SelectInput( FormInput ):
     """ A select form input. """
-    def __init__( self, name, label, value=None, options=[], error=None, help=None, use_label=True ):
-        FormInput.__init__( self, "select", name, label, value=value, error=error, help=help, use_label=use_label )
+    def __init__( self, name, label, value=None, options=[], error=None, help=None, use_label=True, allow_multiple=False ):
+        FormInput.__init__( self, "select", name, label, value=value, error=error, help=help, use_label=use_label, allow_multiple=allow_multiple )
         self.options = options
 
 

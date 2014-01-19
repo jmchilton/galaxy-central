@@ -39,9 +39,14 @@
     self.overlay_visible        = False
     self.active_view            = 'user'
 
+    url_base = trans.request.path_url
+    if getattr( grid, 'url_extra', ''):
+        url_base = "%s?%s" % ( url_base, getattr( grid, 'url_extra' ) )
+    endif
+
     self.grid_config = {
         'title'                         : grid.title,
-        'url_base'                      : trans.request.path_url,
+        'url_base'                      : url_base,
         'async'                         : grid.use_async,
         'async_ops'                     : [],
         'categorical_filters'           : {},

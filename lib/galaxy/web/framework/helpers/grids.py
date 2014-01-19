@@ -7,6 +7,7 @@ from galaxy.util.json import from_json_string, to_json_string
 from galaxy.util.odict import odict
 from galaxy.web.framework import error, url_for
 from galaxy.web.framework.helpers import iff
+from copy import deepcopy
 
 from sqlalchemy.sql.expression import and_, func, or_
 
@@ -39,6 +40,7 @@ class Grid( object ):
     cur_filter_pref_name = ".filter"
     cur_sort_key_pref_name = ".sort_key"
     pass_through_operations = {}
+    pass_through_data = {}
     legend = None
     def __init__( self ):
         # Determine if any multiple row operations are defined
@@ -263,6 +265,7 @@ class Grid( object ):
                 new_kwargs['action'] = trans.action
             return url_for( **new_kwargs)
 
+        self.url_extra = kwargs.get( 'url_extra', '' )
         self.use_panels = ( kwargs.get( 'use_panels', False ) in [ True, 'True', 'true' ] )
         self.advanced_search = ( kwargs.get( 'advanced_search', False ) in [ True, 'True', 'true' ] )
         async_request = ( ( self.use_async ) and ( kwargs.get( 'async', False ) in [ True, 'True', 'true'] ) )
@@ -320,6 +323,7 @@ class Grid( object ):
         # (gvk) Is this method necessary?  Why not simply build the entire query,
         # including applying filters in the build_initial_query() method?
         return query
+
 
 class GridColumn( object ):
     def __init__( self, label, key=None, model_class=None, method=None, format=None, \
@@ -733,6 +737,12 @@ class SharingStatusColumn( GridColumn ):
             args = { self.key: val }
             accepted_filters.append( GridColumnFilter( label, args) )
         return accepted_filters
+
+class PageLibraryConnectionColumn( GridColumn ):
+    """ Grid column to indicate get Library Connecton of a page. """
+    def get_value( self, trans, grid, item ):
+        query = trans.sa_session.query( trans.model.PageLibraryAssociation ).filter_by( page_id=item.id )
+        return ", ".join([trans.sa_session.query( trans.model.Library ).get( assoc.library_id ). name for assoc in query])
 
 class GridOperation( object ):
     def __init__( self, label, key=None, condition=None, allow_multiple=True, allow_popup=True,

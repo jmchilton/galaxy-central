@@ -816,6 +816,13 @@ model.Page.table = Table( "page", metadata,
     Column( "deleted", Boolean, index=True, default=False ),
     )
 
+model.PageLibraryAssociation.table = Table( "page_library_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "page_id", Integer, ForeignKey( "page.id" ), index=True ),
+    Column( "library_id", Integer, ForeignKey( "library.id" ), index=True ),
+    Column( "create_time", DateTime, default=now ),
+    Column( "update_time", DateTime, default=now, onupdate=now ) )
+
 model.PageRevision.table = Table( "page_revision", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "create_time", DateTime, default=now ),
@@ -1732,6 +1739,15 @@ mapper( model.PageUserShareAssociation, model.PageUserShareAssociation.table,
    properties=dict( user=relation( model.User, backref='pages_shared_by_others' ),
                     page=relation( model.Page, backref='users_shared_with' )
                   ) )
+
+
+model.Page.connected_libraries_proxy = association_proxy( 'connected_libraries', 'library' )
+model.Library.connected_pages_proxy = association_proxy( 'connected_pages', 'pages' )
+mapper( model.PageLibraryAssociation, model.PageLibraryAssociation.table,
+   properties=dict( library=relation( model.Library, backref='connected_pages' ),
+                    page=relation( model.Page, backref='connected_libraries' )
+                  ) )
+
 
 mapper( model.VisualizationRevision, model.VisualizationRevision.table )
 

@@ -17,7 +17,7 @@
 ##
 
 <%def name="title()">
-    Galaxy | ${iff( item.published, "Published ", iff( item.importable , "Accessible ", iff( item.users_shared_with, "Shared ", "Private " ) ) ) + get_class_display_name( item.__class__ )} | ${get_item_name( item ) | h}
+    Galaxy | ${iff( item.published, "Published ", iff( item.importable , "Accessible ", iff(item.__class__ == Page and item.connected_libraries, "Collaborating ", iff( item.users_shared_with, "Shared ", "Private " ) ) ) ) + get_class_display_name( item.__class__ )} | ${get_item_name( item ) | h}
 </%def>
 
 <%def name="init()">
@@ -203,6 +203,9 @@
                     <a href="${href_to_user_items}">${item.user.username}</a>
             %elif item.importable:
                 Accessible ${get_class_display_name( item.__class__ )}
+            ## FIX: Scaffolding: only Pages have connected libraries, either we need to add support for History and Workflow or better a common base class
+            %elif item.__class__ == Page and item.connected_libraries: 
+                Library ${", ".join([get_item_name( x.library ) for x in item.connected_libraries])}
             %elif item.users_shared_with:
                 Shared ${get_class_display_name( item.__class__ )}
             %else:

@@ -1,4 +1,4 @@
-from sqlalchemy import desc, and_
+from sqlalchemy import desc, and_, or_, not_
 from galaxy import model, web
 from galaxy.web import error, url_for
 from galaxy.model.item_attrs import UsesItemRatings
@@ -7,6 +7,9 @@ from galaxy.web.framework.helpers import time_ago, grids
 from galaxy import util
 from galaxy.util.sanitize_html import sanitize_html, _BaseHTMLProcessor
 from galaxy.util.json import from_json_string
+
+import logging
+log = logging.getLogger( __name__ )
 
 def format_bool( b ):
     if b:
@@ -32,6 +35,7 @@ class PageListGrid( grids.Grid ):
         grids.OwnerAnnotationColumn( "Annotation", key="annotation", model_annotation_association_class=model.PageAnnotationAssociation, filterable="advanced" ),
         grids.IndividualTagsColumn( "Tags", key="tags", model_tag_association_class=model.PageTagAssociation, filterable="advanced", grid_name="PageListGrid" ),
         grids.SharingStatusColumn( "Sharing", key="sharing", filterable="advanced", sortable=False ),
+        grids.PageLibraryConnectionColumn( "Library", key="Library", sortable=False ),
         grids.GridColumn( "Created", key="create_time", format=time_ago ),
         grids.GridColumn( "Last Updated", key="update_time", format=time_ago ),
     ]
@@ -49,10 +53,12 @@ class PageListGrid( grids.Grid ):
         grids.GridOperation( "Edit content", allow_multiple=False, url_args=dict( action='edit_content') ),
         grids.GridOperation( "Edit attributes", allow_multiple=False, url_args=dict( action='edit') ),
         grids.GridOperation( "Share or Publish", allow_multiple=False, condition=( lambda item: not item.deleted ), async_compatible=False ),
+        grids.GridOperation( "Collaborate", allow_multiple=True,  condition=( lambda item: not item.deleted ), async_compatible=False ),
         grids.GridOperation( "Delete", confirm="Are you sure you want to delete this page?" ),
     ]
     def apply_query_filter( self, trans, query, **kwargs ):
         return query.filter_by( user=trans.user, deleted=False )
+
 
 class PageAllPublishedGrid( grids.Grid ):
     # Grid definition
@@ -192,6 +198,39 @@ class PageSelectionGrid( ItemSelectionGrid ):
         key="free-text-search", visible=False, filterable="standard" )
                 )
 
+
+class LibrarySelectionGrid( ItemSelectionGrid ):
+    """ Grid for selecting library. """
+    # Grid definition.
+    title = "Select Libraries "
+    model_class = model.Library
+    columns = [
+       grids.TextColumn( "Library Name", key="name", filterable="standard" ),
+       grids.TextColumn( "Description", key="description", filterable="advanced" ),
+       grids.TextColumn( "Synopsis", key="synopsis", filterable="advanced" )
+    ]
+    operations = [
+            grids.GridOperation( "Connect page to library", allow_multiple=True,
+                url_args=dict(pageids=[]),
+                async_compatible=False ),
+    ]
+
+    def apply_query_filter( self, trans, query, **kwargs ):
+        """Return all data libraries that the received user can access"""
+        user = trans.user
+        current_user_role_ids = [ role.id for role in user.all_roles() ]
+        library_access_action = trans.app.model.Library.permitted_actions.LIBRARY_ACCESS.action
+        restricted_library_ids = [ lp.library_id for lp in trans.sa_session.query( trans.model.LibraryPermissions ) \
+                                                                           .filter( trans.model.LibraryPermissions.table.c.action == library_access_action ) \
+                                                                           .distinct() ]
+        accessible_restricted_library_ids = [ lp.library_id for lp in trans.sa_session.query( trans.model.LibraryPermissions ) \
+                                                                                      .filter( and_( trans.model.LibraryPermissions.table.c.action == library_access_action,
+                                                                                                     trans.model.LibraryPermissions.table.c.role_id.in_( current_user_role_ids ) ) ) ]
+        # Filter to get libraries accessible by the current user.  Get both 
+        # public libraries and restricted libraries accessible by the current user.
+        return query.filter( and_( trans.model.Library.table.c.deleted == False, ( or_( not_( trans.model.Library.table.c.id.in_( restricted_library_ids ) ), trans.model.Library.table.c.id.in_( accessible_restricted_library_ids ) ) ) ) )  .order_by( trans.app.model.Library.name )
+
+
 class VisualizationSelectionGrid( ItemSelectionGrid ):
     """ Grid for selecting visualizations. """
     # Grid definition.
@@ -284,13 +323,60 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
     _datasets_selection_grid = HistoryDatasetAssociationSelectionGrid()
     _page_selection_grid = PageSelectionGrid()
     _visualization_selection_grid = VisualizationSelectionGrid()
+    _libraries_selection_grid = LibrarySelectionGrid()
+    _libraries_connected_help = "Collaborate on this page using this library. If none are selected,the page will not be connected to any library.<p>Windows users: Hold down the control (ctrl) key to select multiple libraries.<br>Mac users: Hold down the command key to select multiple libraries."
 
     @web.expose
     @web.require_login()
     def list( self, trans, *args, **kwargs ):
         """ List user's pages. """
         # Handle operation
-        if 'operation' in kwargs and 'id' in kwargs:
+
+        # library connect step 1 was to select pages and call step 2.
+        # library connect step 2, select libraies.
+        if 'operation' in kwargs and kwargs['operation'].lower() == 'collaborate':
+            pageidsraw = kwargs['id']
+            pageids = util.listify( pageidsraw )
+
+            if len(pageids) > 0:
+                pages = [trans.sa_session.query( model.Page ).get( trans.security.decode_id( id ) ) for id in pageids]
+                pagetitles = [page.title for page in pages]
+                pagetitles.sort()
+                pagetitles = ", ".join(pagetitles)
+
+                # Clone a copy of grid to have the pageids.
+                grid = self._libraries_selection_grid
+                url_extra = "pageids=%s&" % ",".join(util.listify(pageidsraw))
+                return trans.fill_template( "page/library_page_select_grid.mako", pagetitles=pagetitles, grid=grid, url_extra=url_extra, **kwargs)
+            else:
+                return trans.show_error_message( "Please select one library.")
+
+        # library connect step 3 do the work specified.
+        elif 'operation' in kwargs and kwargs['operation'] == 'connect page to library':
+            libraryids = util.listify( kwargs['id'] )
+            pageids = util.listify( kwargs['pageids'] )
+            if len(pageids) > 0:
+                pageids = [ trans.security.decode_id( id )  for id in pageids]
+
+                # There must be better ways to do this in SQLish sqlAchemy
+                if len(libraryids) == 0:
+                    for pageid in pageids:
+                        for association in trans.sa_session.query( model.PageLibraryAssociation ).filter_by( page_id=pageid ):
+                            trans.sa_session.delete( association )
+                else:
+                    libraryids = [ trans.security.decode_id( id ) for id in libraryids]
+                    for pageid in pageids:
+                        for libraryid in libraryids:
+                            associationQ = trans.sa_session.query( model.PageLibraryAssociation ) \
+                                 .filter_by( library_id=libraryid, page_id=pageid ).all()
+                            if len(associationQ) == 0:
+                                library = trans.sa_session.query( model.Library ).get(libraryid)
+                                if library and trans.app.security_agent.can_access_library( trans.user.all_roles(), library ):
+                                    pa = model.PageLibraryAssociation(pageid, libraryid)
+                                    trans.sa_session.add( pa )
+                trans.sa_session.flush()
+
+        elif 'operation' in kwargs and 'id' in kwargs:
             session = trans.sa_session
             operation = kwargs['operation'].lower()
             ids = util.listify( kwargs['id'] )
@@ -329,7 +415,7 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
 
     @web.expose
     @web.require_login( "create pages" )
-    def create( self, trans, page_title="", page_slug="", page_annotation="" ):
+    def create( self, trans, page_title="", page_slug="", page_annotation="", libraries=[] ):
         """
         Create a new page
         """
@@ -362,6 +448,21 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
                 session = trans.sa_session
                 session.add( page )
                 session.flush()
+
+                # Add connections to libraries
+                if libraries != "None":
+                    log.info("libraries is %s" % libraries)
+                    for library_encoded_id in util.listify( libraries ):
+                        log.info( "library_encoded_id is %s" % library_encoded_id)
+                        library_id = trans.security.decode_id(library_encoded_id)
+                        library = session.query( model.Library ).get(library_id)
+                        # Check again
+                        if library and trans.app.security_agent.can_access_library( trans.user.all_roles(), library ):
+                            pa = model.PageLibraryAssociation(page.id, library.id)
+                            session.add( pa )
+                            session.flush()
+                            trans.show_message( "Page '%s' connected to library %s" % (page.title, library.name )  )
+
                 # Display the management page
                 ## trans.set_message( "Page '%s' created" % page.title )
                 return trans.response.send_redirect( web.url_for(controller='page', action='list' ) )
@@ -375,12 +476,15 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
                                 must contain only lowercase letters, numbers, and
                                 the '-' character.""" )
                 .add_text( "page_annotation", "Page annotation", value=page_annotation, error=page_annotation_err,
-                            help="A description of the page; annotation is shown alongside published pages."),
-                template="page/create.mako" )
+                            help="A description of the page; annotation is shown alongside published pages.")
+                .add_select( "libraries", "Libraries connected to this page", value=libraries, error=None, allow_multiple=True,
+                            help=self._libraries_connected_help,
+                            options=self._libs(trans)),
+                 template="page/create.mako" )
 
     @web.expose
     @web.require_login( "edit pages" )
-    def edit( self, trans, id, page_title="", page_slug="", page_annotation="" ):
+    def edit( self, trans, id, page_title="", page_slug="", page_annotation="", libraries=[]):
         """
         Edit a page's attributes.
         """
@@ -391,6 +495,9 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
         user = trans.user
         assert page.user == user
         page_title_err = page_slug_err = page_annotation_err = ""
+
+        current_page_library_associations = session.query( model.PageLibraryAssociation ).filter_by( page=page ).all()
+
         if trans.request.method == "POST":
             if not page_title:
                 page_title_err = "Page name is required"
@@ -407,7 +514,30 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
                 page.slug = page_slug
                 page_annotation = sanitize_html( page_annotation, 'utf-8', 'text/html' )
                 self.add_item_annotation( trans.sa_session, trans.get_user(), page, page_annotation )
-                session.flush()
+
+                # Edit connection of  page to libraries
+                # This will needs to more elaboration when webforms support multiple selection
+
+                if libraries != "None":
+                    if not isinstance(libraries, (list, tuple)): # incoming html sends singletons and lists (and maybe tuples someday)
+                        libraries = [ libraries ];               # turn singletons into lists so that it can be iterated
+
+                    wants = set([ trans.security.decode_id( encoded_library_id )  for encoded_library_id  in libraries]);
+                    has   = set([assoc.library_id for assoc in  current_page_library_associations] )
+                    missing = wants - has
+                    unnecessary = has - wants 
+
+                    for library_id in unnecessary:
+                        for association in trans.sa_session.query( model.PageLibraryAssociation ).filter_by( page_id=page.id , library_id=library_id):
+                            trans.sa_session.delete( association )
+
+                    for library_id in missing:
+                        library = session.query( model.Library ).get( library_id )
+                        if library and  trans.app.security_agent.can_access_library( trans.user.all_roles(), library ): 
+                            pa = model.PageLibraryAssociation(page.id, library.id);
+                            session.add( pa );
+
+                session.flush();
                 # Redirect to page list.
                 return trans.response.send_redirect( web.url_for(controller='page', action='list' ) )
         else:
@@ -426,8 +556,23 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
                                 must contain only lowercase letters, numbers, and
                                 the '-' character.""" )
                 .add_text( "page_annotation", "Page annotation", value=page_annotation, error=page_annotation_err,
-                            help="A description of the page; annotation is shown alongside published pages."),
+                            help="A description of the page; annotation is shown alongside published pages.")
+                .add_select( "libraries", "Libraries connected to this page", error=None, allow_multiple=True,
+                            help=self._libraries_connected_help,
+                            options= self._libs(trans, [pl.library for pl in current_page_library_associations])),
             template="page/create.mako" )
+
+    def _libs( self, trans, selected=[]):
+        """ return the name of libraries"""
+        liblist = trans.app.security_agent.get_accessible_libraries( trans, trans.user )
+        liblist.sort()
+        libs = []
+        for library in liblist:
+            encoded_id = trans.security.encode_id( library.id )
+            name = library.name
+            libs.append((name, encoded_id, library in selected))
+
+        return libs
 
     @web.expose
     @web.require_login( "edit pages" )
@@ -437,8 +582,13 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
         """
         id = trans.security.decode_id( id )
         page = trans.sa_session.query( model.Page ).get( id )
-        assert page.user == trans.user
-        return trans.fill_template( "page/editor.mako", page=page )
+        if page.user == trans.user:
+            return trans.fill_template( "page/editor.mako", page=page )
+        for assoc in trans.sa_session.query( model.PageLibraryAssociation ).filter_by( page=page ):
+            if trans.app.security_agent.can_modify_library_item( trans.user.all_roles(), assoc.library ):
+                return trans.fill_template( "page/editor.mako", page=page )
+
+        return trans.show_error_message( "You (%s) do not have permission to edit page '%s'" % ( trans.user.email,  page.title) )
 
     @web.expose
     @web.require_login( "use Galaxy pages" )
@@ -505,8 +655,7 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
                 session.add( share )
                 self.create_item_slug( session, page )
                 session.flush()
-                trans.set_message( "Page '%s' shared with user '%s'" % ( page.title, other.email ) )
-                return trans.response.send_redirect( url_for( controller='page', action='sharing', id=id ) )
+                return trans.show_message( "Page '%s' shared with user '%s'" % ( page.title, other.email ) )
         return trans.fill_template( "/ind_share_base.mako",
                                     message = msg,
                                     messagetype = mtype,
@@ -519,7 +668,18 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
     def save( self, trans, id, content, annotations ):
         id = trans.security.decode_id( id )
         page = trans.sa_session.query( model.Page ).get( id )
-        assert page.user == trans.user
+
+        allowed = False
+        if page.user == trans.user:
+            allowed = True
+        else:
+            for assoc in trans.sa_session.query( model.PageLibraryAssociation ).filter_by( page=page ):
+                if trans.app.security_agent.can_modify_library_item( trans.user.all_roles(), assoc.library ):
+                    allowed = True
+
+        if not allowed:
+            msg = ( "You (%s) are not allowed to modify page '%s'" % ( trans.user.email, page.title ))
+            raise RuntimeError(msg)
 
         # Sanitize content
         content = sanitize_html( content, 'utf-8', 'text/html' )
@@ -671,6 +831,13 @@ class PageController( BaseUIController, SharableMixin, UsesHistoryMixin,
         """ Returns HTML that enables a user to select one or more workflows. """
         # Render the list view
         return self._workflow_selection_grid( trans, **kwargs )
+
+    @web.expose
+    @web.require_login("select libraries from all accessible libraries")
+    def list_libraries_for_selection( self, trans, **kwargs ):
+        " Returns HTML that enables a user to select one or more libraries. "
+        # Render the list view
+        return self._libraries_selection_grid( trans, **kwargs )
 
     @web.expose
     @web.require_login("select a visualization from saved visualizations")

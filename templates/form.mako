@@ -83,10 +83,22 @@
                     %if input.type == 'textarea':
                         <textarea name="${input.name}">${input.value}</textarea>
                     %elif input.type == 'select':
-                        <select name="${input.name}">
-                            %for (name, value) in input.options:
-                                <option value="${value}">${name}</option>
-                            %endfor
+                        <select name="${input.name}"
+                            %if input.allow_multiple:
+                                multiple="multiple" >
+                                %for (name, value, selected) in input.options:
+                                    %if selected:
+                                        <option selected="selected" value="${value}">${name}</option>
+                                    %else:
+                                        <option value="${value}">${name}</option>
+                                    %endif
+                                %endfor
+                            %else:
+                                >
+                                %for (name, value) in input.options:
+                                    <option value="${value}">${name}</option>
+                                %endfor
+                            %endif
                         </select>
                     %else:
                         <input type="${input.type}" name="${input.name}" value="${input.value}">

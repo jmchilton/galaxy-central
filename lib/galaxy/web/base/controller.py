@@ -350,6 +350,13 @@ class SharableItemSecurityMixin:
                     raise ItemAccessibilityException( "%s is not accessible to the current user" % item.__class__.__name__, type='error' )
             else:
                 if ( item.user != trans.user ) and ( not item.importable ) and ( trans.user not in item.users_shared_with_dot_users ):
+
+                    # last chance, see if there is a library connection
+                    if type( item ) ==  trans.app.model.Page :
+                        for page_library_association in trans.sa_session.query( trans.app.model.PageLibraryAssociation ).filter_by( page=item ):
+                            if trans.app.security_agent.can_access_library_item( trans.get_current_user_roles(), page_library_association.library, trans.user ) :
+                                return item
+                                
                     raise ItemAccessibilityException( "%s is not accessible to the current user" % item.__class__.__name__, type='error' )
         return item
 
