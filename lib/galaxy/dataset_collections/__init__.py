@@ -7,6 +7,7 @@ from galaxy.web.base.controller import (
     UsesHistoryDatasetAssociationMixin,
     UsesLibraryMixinItems,
 )
+from galaxy.util.bunch import Bunch
 
 import logging
 log = logging.getLogger( __name__ )
@@ -101,6 +102,36 @@ class DatasetCollectionsService(UsesHistoryDatasetAssociationMixin, UsesLibraryM
 
     def __type_plugin( self, collection_type ):
         return self.type_registry.get( collection_type )
+
+    def match_collections( self, collections ):
+        """
+        May seem odd to place it here, but planning to grow sophistication and
+        get plugin types involved so it will likely make sense in the future.
+        """
+        collection_info = None
+        first = True
+        for input_key, hdc in collections.iteritems():
+            iteration_element_identifiers = sorted( map( lambda d: d.element_identifier, hdc.collection.datasets ) )
+            iteration_collection_type = hdc.collection.collection_type
+            if first:
+                first = False
+                collection_info = Bunch(
+                    identifiers=iteration_element_identifiers,
+                    type=iteration_collection_type,
+                    collections={ input_key: hdc },
+                )
+            else:
+                error_message = None
+                if collection_info.type != iteration_collection_type:
+                    error_message = "Cannot match collection types."
+                if collection_info.identifiers != iteration_element_identifiers:
+                    # TODO: This could be more general...
+                    error_message = "Cannot match multirun collection identifiers."
+                if error_message:
+                    raise MessageException(error_message)
+                collection_info.collections[input_key] = hdc
+
+        return collection_info
 
     def get_dataset_collection_instance( self, trans, instance_type, id, **kwds ):
         """
