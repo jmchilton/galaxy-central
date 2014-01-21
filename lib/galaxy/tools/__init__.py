@@ -3,6 +3,7 @@ Classes encapsulating galaxy tools and tool configuration.
 """
 
 import binascii
+import collections
 import glob
 import json
 import logging
@@ -38,6 +39,7 @@ from galaxy.datatypes.metadata import JobExternalOutputMetadataWrapper
 from galaxy import exceptions
 from galaxy.jobs import ParallelismInfo
 from galaxy.tools.actions import DefaultToolAction
+from galaxy.tools.actions import on_text_for_names
 from galaxy.tools.actions.data_source import DataSourceToolAction
 from galaxy.tools.actions.data_manager import DataManagerToolAction
 from galaxy.tools.deps import build_dependency_manager
@@ -1871,7 +1873,7 @@ class Tool( object, Dictifiable ):
         # Fixed set of input parameters may correspond to any number of jobs.
         # Expand these out to individual parameters for given jobs (tool
         # executions).
-        expanded_incomings = self.__expand_meta_properties( trans, incoming )
+        expanded_incomings, collection_info = self.__expand_meta_properties( trans, incoming )
 
         # Remapping a single job to many jobs doesn't make sense, so disable
         # remap if multi-runs of tools are being used.
@@ -1916,7 +1918,7 @@ class Tool( object, Dictifiable ):
                 template_vars = dict( errors=errors, tool_state=state, incoming=incoming, error_message=error_message )
             # If we've completed the last page we can execute the tool
             elif all_pages or state.page == self.last_page:
-                execution_tracker = ToolExecutionTracker( self, all_params )
+                execution_tracker = ToolExecutionTracker( self, all_params, collection_info )
                 self.__handle_tool_executions( execution_tracker, trans, rerun_remap_job_id, history )
                 if execution_tracker.successful_jobs:
                     template = 'tool_executed.mako'
@@ -1942,6 +1944,10 @@ class Tool( object, Dictifiable ):
                 execution_tracker.record_success( result )
             else:
                 execution_tracker.record_error( result )
+
+        if execution_tracker.collection_info:
+            history = history or self.get_default_history_by_trans( trans )
+            execution_tracker.create_output_collections( trans, history, params )
 
     def __handle_tool_execute( self, trans, rerun_remap_job_id, params, history ):
         """
@@ -2055,6 +2061,8 @@ class Tool( object, Dictifiable ):
             else:
                 return input_classification.SINGLE, incoming[ input_key ]
 
+        matched_collections = {}
+
         def collection_classifier( input_key ):
             multirun_key = "%s|__collection_multirun__" % input_key
             if multirun_key in incoming:
@@ -2062,6 +2070,7 @@ class Tool( object, Dictifiable ):
                 hdc_id = self.app.security.decode_id( encoded_hdc_id )
                 hdc = trans.sa_session.query( model.HistoryDatasetCollectionAssociation ).get( hdc_id )
                 hdas = map( lambda didca: didca.hda, hdc.collection.datasets )
+                matched_collections[ input_key ] = hdc
                 return input_classification.MATCHED, hdas
             else:
                 return input_classification.SINGLE, incoming[ input_key ]
@@ -2083,7 +2092,7 @@ class Tool( object, Dictifiable ):
         collection_multirun_found = False
         for key, value in incoming.iteritems():
             multirun_found = try_replace_key( key, "|__multirun__" ) or multirun_found
-            collection_multirun_found = try_replace_key( key, "|__collection_multirun__" )
+            collection_multirun_found = try_replace_key( key, "|__collection_multirun__" ) or collection_multirun_found
 
         if multirun_found and collection_multirun_found:
             # In theory doable, but to complicated for a first pass.
@@ -2091,9 +2100,33 @@ class Tool( object, Dictifiable ):
             raise exceptions.ToolMetaParameterException( message )
 
         if multirun_found:
-            return expand_multi_inputs( incoming_template, classifier )
+            return expand_multi_inputs( incoming_template, classifier ), None
         else:
-            return expand_multi_inputs( incoming_template, collection_classifier )
+            expanded_incomings = expand_multi_inputs( incoming_template, collection_classifier )
+            # TODO: Match these in dataset_collections.
+            collection_info = None
+            first = True
+            for input_key, hdc in matched_collections.iteritems():
+                iteration_element_identifiers = sorted( map( lambda d: d.element_identifier, hdc.collection.datasets ) )
+                iteration_collection_type = hdc.collection.collection_type
+                if first:
+                    first = False
+                    collection_info = Bunch(
+                        identifiers=iteration_element_identifiers,
+                        type=iteration_collection_type,
+                        collections={ input_key: hdc },
+                    )
+                else:
+                    error_message = None
+                    if collection_info.type != iteration_collection_type:
+                        error_message = "Cannot match collection types."
+                    if collection_info.identifiers != iteration_element_identifiers:
+                        # TODO: This could be more general...
+                        error_message = "Cannot match multirun collection identifiers."
+                    if error_message:
+                        raise exceptions.ToolMetaParameterException(error_message)
+                    collection_info.collections[input_key] = hdc
+            return expanded_incomings, collection_info
 
     def find_fieldstorage( self, x ):
         if isinstance( x, FieldStorage ):
@@ -3292,21 +3325,76 @@ class ToolStdioRegex( object ):
 
 class ToolExecutionTracker( object ):
 
-    def __init__( self, tool, param_combinations ):
+    def __init__( self, tool, param_combinations, collection_info ):
         self.tool = tool
         self.param_combinations = param_combinations
+        self.collection_info = collection_info
         self.successful_jobs = 0
         self.failed_jobs = 0
         self.execution_errors = []
         self.output_datasets = []
+        self.output_datasets_by_output_name = collections.defaultdict(list)
 
     def record_success( self, outputs ):
         self.successful_jobs += 1
         self.output_datasets.extend( outputs )
+        for output_name, output_dataset in outputs:
+            self.output_datasets_by_output_name[ output_name ].append( output_dataset )
 
     def record_error( self, error ):
         self.failed_jobs += 1
         self.execution_errors.append( error )
+
+    def create_output_collections( self, trans, history, params ):
+        # TODO: Move this function - it doesn't belong here but it does need
+        # the information in this class and potential extensions.
+        if self.failed_jobs > 0:
+            return []
+
+        identifiers = self.collection_info.identifiers
+        collections = self.collection_info.collections.values()
+
+        # params is just one sample tool param execution with parallelized
+        # collection replaced with a specific dataset. Need to replace this
+        # with the collection and wrap everything up so can evaluate output
+        # label.
+        params.update( self.collection_info.collections )  # Replace datasets
+                                                           # with source collections
+                                                           # for labelling outputs.
+
+        # TODO: Should be an hid I guess.
+        collection_names = map( lambda c: c.collection.name, collections )
+        on_text = on_text_for_names( collection_names )
+
+        for output_name, outputs_datasets in self.output_datasets_by_output_name.iteritems():
+            if not len( identifiers ) == len( outputs_datasets ):
+                # Output does not have the same structure, if all jobs were
+                # successful this shouldn't have happened.
+                continue
+            output = self.tool.outputs[ output_name ]
+            collection_parts = dict( zip( identifiers, outputs_datasets ) )
+
+            try:
+                output_collection_name = self.tool_action.get_output_name(
+                    output,
+                    dataset=None,
+                    tool=self.tool,
+                    on_text=on_text,
+                    trans=trans,
+                    params=params,
+                    incoming=None,
+                    job_params=None,
+                )
+            except Exception:
+                output_collection_name = "%s across %s" % ( self.tool.name, on_text )
+
+            trans.app.dataset_collections_service.create(
+                trans=trans,
+                parent=history,
+                name=output_collection_name,
+                dataset_instances=collection_parts,
+                collection_type=self.collection_info.type,
+            )
 
 
 class ToolStdioExitCode( object ):
