@@ -1872,7 +1872,7 @@ class Tool( object, Dictifiable ):
         # Fixed set of input parameters may correspond to any number of jobs.
         # Expand these out to individual parameters for given jobs (tool
         # executions).
-        expanded_incomings = self.__expand_meta_properties( trans, incoming )
+        expanded_incomings, collection_info = self.__expand_meta_properties( trans, incoming )
 
         # Remapping a single job to many jobs doesn't make sense, so disable
         # remap if multi-runs of tools are being used.
@@ -1917,7 +1917,7 @@ class Tool( object, Dictifiable ):
                 template_vars = dict( errors=errors, tool_state=state, incoming=incoming, error_message=error_message )
             # If we've completed the last page we can execute the tool
             elif all_pages or state.page == self.last_page:
-                execution_tracker = execute( trans, self, all_params, history=history, rerun_remap_job_id=rerun_remap_job_id )
+                execution_tracker = execute( trans, self, all_params, history=history, rerun_remap_job_id=rerun_remap_job_id, collection_info=collection_info )
                 if execution_tracker.successful_jobs:
                     template = 'tool_executed.mako'
                     template_vars = dict( out_data=execution_tracker.output_datasets, num_jobs=len( execution_tracker.successful_jobs ), job_errors=execution_tracker.execution_errors )
@@ -2044,6 +2044,8 @@ class Tool( object, Dictifiable ):
             else:
                 return input_classification.SINGLE, incoming[ input_key ]
 
+        matched_collections = {}
+
         def collection_classifier( input_key ):
             multirun_key = "%s|__collection_multirun__" % input_key
             if multirun_key in incoming:
@@ -2051,6 +2053,7 @@ class Tool( object, Dictifiable ):
                 hdc_id = self.app.security.decode_id( encoded_hdc_id )
                 hdc = trans.sa_session.query( model.HistoryDatasetCollectionAssociation ).get( hdc_id )
                 hdas = map( lambda didca: didca.hda, hdc.collection.datasets )
+                matched_collections[ input_key ] = hdc
                 return input_classification.MATCHED, hdas
             else:
                 return input_classification.SINGLE, incoming[ input_key ]
@@ -2072,7 +2075,7 @@ class Tool( object, Dictifiable ):
         collection_multirun_found = False
         for key, value in incoming.iteritems():
             multirun_found = try_replace_key( key, "|__multirun__" ) or multirun_found
-            collection_multirun_found = try_replace_key( key, "|__collection_multirun__" )
+            collection_multirun_found = try_replace_key( key, "|__collection_multirun__" ) or collection_multirun_found
 
         if multirun_found and collection_multirun_found:
             # In theory doable, but to complicated for a first pass.
@@ -2080,9 +2083,11 @@ class Tool( object, Dictifiable ):
             raise exceptions.ToolMetaParameterException( message )
 
         if multirun_found:
-            return expand_multi_inputs( incoming_template, classifier )
+            return expand_multi_inputs( incoming_template, classifier ), None
         else:
-            return expand_multi_inputs( incoming_template, collection_classifier )
+            expanded_incomings = expand_multi_inputs( incoming_template, collection_classifier )
+            collection_info = self.app.dataset_collections_service.match_collections( matched_collections )
+            return expanded_incomings, collection_info
 
     def find_fieldstorage( self, x ):
         if isinstance( x, FieldStorage ):
