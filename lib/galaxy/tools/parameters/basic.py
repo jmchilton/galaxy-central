@@ -1672,10 +1672,47 @@ class DataToolParameter( BaseDataToolParameter ):
                 multi_select = self._get_select_dataset_field( history, multi_dataset_matcher, multiple=True, suffix="|__multirun__" )
                 fields[ "select_multiple" ] = multi_select
 
+                collection_field = self._get_select_dataset_collection_fields( dataset_matcher, multiple=False )
+                fields[ "select_collection" ] = collection_field
+
         if len(fields) > 1:
             field = form_builder.SwitchingSelectField( fields, default_field=default_field )
         else:
             field = fields.values()[0]
+        return field
+
+    def _get_select_dataset_collection_fields( self, history, dataset_matcher, multiple=False ):
+        value = dataset_matcher.value
+        if value is not None:
+            if type( value ) != list:
+                value = [ value ]
+
+        field_name = "%s|__collection_multirun__" % self.name
+        field = form_builder.SelectField( field_name, multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
+
+        def valid_dataset_collection_association( hca ):
+            # Simplify things for now and assume these are hdas and not implicit
+            # converts. One could imagine handling both of those cases down the
+            # road.
+            hda = hca.hda
+            if not hda:
+                return False
+            hda_match = dataset_matcher.hda_match( hda )
+            return hda_match and not hda_match.implicit_conversion
+
+        def valid_dataset_collection( history_dataset_collection_association ):
+            valid = True
+            for hca in history_dataset_collection_association.collection.datasets:
+                if not valid_dataset_collection_association( hca ):
+                    valid = False
+            return valid
+
+        for history_dataset_collection in history.dataset_collections:
+            if valid_dataset_collection( history_dataset_collection ):
+                name = history_dataset_collection.collection.name
+                id = dataset_matcher.trans.security.encode_id( history_dataset_collection.id )
+                field.add_option( name, id, False )
+
         return field
 
     def _get_select_dataset_field( self, history, dataset_matcher, multiple=False, suffix="" ):
