@@ -143,7 +143,7 @@ class DatasetCollectionMatcher( object ):
 
     def hdca_match( self, history_dataset_collection_association ):
         valid = True
-        for element in history_dataset_collection_association.collection.datasets:
+        for element in history_dataset_collection_association.collection.elements:
             if not self.__valid_element( element ):
                 valid = False
                 break
