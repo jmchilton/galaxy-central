@@ -35,6 +35,11 @@
     "message": "Slug must be unique per user."
     },
    {
+    "name": "USER_TOOL_META_PARAMETER_PROBLEM",
+    "code": 400007,
+    "message": "Supplied incorrect or incompatible tool meta parameters."
+   },
+   {
     "name": "USER_NO_API_KEY",
     "code": 403001,
     "message": "API Authentication Required for this request"

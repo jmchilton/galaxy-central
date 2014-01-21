@@ -56,6 +56,11 @@ class ObjectAttributeMissingException( MessageException ):
     err_code = error_codes.USER_OBJECT_ATTRIBUTE_MISSING
 
 
+class ToolMetaParameterException( MessageException ):
+    status_code = 400
+    err_code = error_codes.USER_TOOL_META_PARAMETER_PROBLEM
+
+
 class ActionInputError( MessageException ):
     def __init__( self, err_msg, type="error" ):
         super( ActionInputError, self ).__init__( err_msg, type )
