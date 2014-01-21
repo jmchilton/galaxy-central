@@ -60,9 +60,9 @@ class MalformedId( MessageException ):
     status_code = 400
     err_code = error_codes.MALFORMED_ID
 
-class RequestParameterMissingException( MessageException ):
+class ToolMetaParameterException( MessageException ):
     status_code = 400
-    err_code = error_codes.USER_REQUEST_MISSING_PARAMETER
+    err_code = error_codes.USER_TOOL_META_PARAMETER_PROBLEM
 
 class RequestParameterInvalidException( MessageException ):
     status_code = 400
