@@ -35,6 +35,7 @@ from sqlalchemy import and_
 from galaxy import jobs, model
 from galaxy.jobs.error_level import StdioErrorLevel
 from galaxy.datatypes.metadata import JobExternalOutputMetadataWrapper
+from galaxy import exceptions
 from galaxy.jobs import ParallelismInfo
 from galaxy.tools.actions import DefaultToolAction
 from galaxy.tools.actions.data_source import DataSourceToolAction
@@ -2054,6 +2055,17 @@ class Tool( object, Dictifiable ):
             else:
                 return input_classification.SINGLE, incoming[ input_key ]
 
+        def collection_classifier( input_key ):
+            multirun_key = "%s|__collection_multirun__" % input_key
+            if multirun_key in incoming:
+                encoded_hdc_id = incoming[ multirun_key ]
+                hdc_id = self.app.security.decode_id( encoded_hdc_id )
+                hdc = trans.sa_session.query( model.HistoryDatasetCollectionAssociation ).get( hdc_id )
+                hdas = map( lambda didca: didca.hda, hdc.collection.datasets )
+                return input_classification.MATCHED, hdas
+            else:
+                return input_classification.SINGLE, incoming[ input_key ]
+
         # Stick an unexpanded version of multirun keys so they can be replaced,
         # by expand_mult_inputs.
         incoming_template = incoming.copy()
@@ -2067,10 +2079,21 @@ class Tool( object, Dictifiable ):
                     incoming_template[ simple_key ] = None
             return found
 
+        multirun_found = False
+        collection_multirun_found = False
         for key, value in incoming.iteritems():
-            try_replace_key( key, "|__multirun__" )
+            multirun_found = try_replace_key( key, "|__multirun__" ) or multirun_found
+            collection_multirun_found = try_replace_key( key, "|__collection_multirun__" )
 
-        return expand_multi_inputs( incoming_template, classifier )
+        if multirun_found and collection_multirun_found:
+            # In theory doable, but to complicated for a first pass.
+            message = "Cannot specify parallel execution across both multiple datasets and dataset collections."
+            raise exceptions.ToolMetaParameterException( message )
+
+        if multirun_found:
+            return expand_multi_inputs( incoming_template, classifier )
+        else:
+            return expand_multi_inputs( incoming_template, collection_classifier )
 
     def find_fieldstorage( self, x ):
         if isinstance( x, FieldStorage ):
@@ -2451,6 +2474,7 @@ class Tool( object, Dictifiable ):
         result = incoming.copy()
         meta_property_suffixes = [
             "__multirun__",
+            "__collection_multirun__",
         ]
         for key, value in incoming.iteritems():
             if any( map( lambda s: key.endswith(s), meta_property_suffixes ) ):
