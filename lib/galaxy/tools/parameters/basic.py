@@ -13,6 +13,8 @@ from galaxy import config, datatypes, util
 from galaxy.web import form_builder
 from galaxy.util.bunch import Bunch
 from galaxy.util import string_as_bool, sanitize_param, unicodify
+from galaxy.util import listify
+from galaxy.util.odict import odict
 from sanitize import ToolParameterSanitizer
 import validation
 import dynamic_options
@@ -1625,12 +1627,46 @@ class DataToolParameter( BaseDataToolParameter ):
             self.conversions.append( ( name, conv_extensions, conv_types ) )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
-        history = self._get_history( trans )
-        dataset_param_context = DatasetParamContext( trans, history, self, value, other_values )
         if value is not None:
             if type( value ) != list:
                 value = [ value ]
-        field = form_builder.SelectField( self.name, self.multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
+        history = self._get_history( trans )
+        dataset_param_context = DatasetParamContext( trans, history, self, value, other_values )
+        multiple = self.multiple
+        fields = odict()
+        if multiple:
+            # Select one dataset, run one job.
+            default_field = "multiselect_single"
+            multi_select = self._get_select_dataset_field( dataset_param_context, multiple=True )
+            fields[ "multiselect_single" ] = multi_select
+        else:
+            # Select one dataset, run one job.
+            default_field = "select_single"
+            single_select = self._get_select_dataset_field( dataset_param_context, multiple=False )
+            fields[ "select_single" ] = single_select
+
+            if self.__display_multirun_option():
+                # Select multiple datasets, run multiple jobs.
+                multirun_key = "%s|__multirun__" % self.name
+                if multirun_key in (other_values or {}):
+                    multirun_value = listify( other_values[ multirun_key ] )
+                    if multirun_value and len( multirun_value ) > 1:
+                        default_field = "select_multiple"
+                else:
+                    multirun_value = value
+                multi_dataset_param_context = DatasetParamContext( trans, history, self, multirun_value, other_values )
+                multi_select = self._get_select_dataset_field( multi_dataset_param_context, multiple=True, suffix="|__multirun__" )
+                fields[ "select_multiple" ] = multi_select
+
+        if len(fields) > 1:
+            field = form_builder.SwitchingSelectField( fields, default_field=default_field )
+        else:
+            field = fields.values()[0]
+        return field
+
+    def _get_select_dataset_field( self, dataset_param_context, multiple=False, suffix="" ):
+        value = dataset_param_context.value
+        history = dataset_param_context.history
 
         # CRUCIAL: the dataset_collector function needs to be local to DataToolParameter.get_html_field()
         def dataset_collector( hdas, parent_hid ):
@@ -1657,6 +1693,10 @@ class DataToolParameter( BaseDataToolParameter ):
                     field.add_option( "%s: (as %s) %s" % ( hid, target_ext, hda_name ), hda.id, selected )
                 # Also collect children via association object
                 dataset_collector( hda.children, hid )
+
+        field_name = "%s%s" % ( self.name, suffix )
+        field = form_builder.SelectField( field_name, multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
+
         dataset_collector( history.active_datasets_children_and_roles, None )
         some_data = bool( field.options )
         if some_data:
@@ -1822,6 +1862,23 @@ class DataToolParameter( BaseDataToolParameter ):
                     converter_safe[0] = False  # This option does not allow for conversion, i.e. uses contents of dataset file to generate options
         self.tool.visit_inputs( other_values, visitor )
         return False not in converter_safe
+
+    def __display_multirun_option( self ):
+        """ Certain parameters may not make sense to allow multi-run variants
+        of for instance if other parameters are filtered or contrained based on
+        this one. TODO: Figure out if these exist and how to detect them (
+        for instance should I just be checking dynamic options).
+        """
+        allow = True
+        if self.tool.app.config.running_functional_tests:
+            # Terrible Hack! These extra forms would trip up twill. I would
+            # fix up this to work with Twill - but we have abandoned
+            # progressive enhancement (I think) elsewhere in the UI and I
+            # consider the functional testing of tools via the twill to be
+            # deprecated in lieu of API functional test and will kill them at
+            # some point and then remove this.
+            allow = False
+        return allow
 
     def _options_filter_attribute( self, value ):
         #HACK to get around current hardcoded limitation of when a set of dynamic options is defined for a DataToolParameter
