@@ -53,6 +53,8 @@ from galaxy.tools.parameters.validation import LateValidationError
 from galaxy.tools.filters import FilterFactory
 from galaxy.tools.test import parse_tests_elem
 from galaxy.util import listify, parse_xml, rst_to_html, string_as_bool, string_to_object, xml_text, xml_to_string
+from galaxy.util.permutations import input_classification
+from galaxy.util.permutations import expand_multi_inputs
 from galaxy.util.bunch import Bunch
 from galaxy.util.expressions import ExpressionContext
 from galaxy.util.hash_util import hmac_new
@@ -1865,7 +1867,21 @@ class Tool( object, Dictifiable ):
                 message = 'Failure executing tool (attempting to rerun invalid job).'
                 return 'message.mako', dict( status='error', message=message, refresh_frames=[] )
 
-        state, state_new = self.__fetch_state( trans, incoming, history, all_pages=all_pages )
+        # Fixed set of input parameters may correspond to any number of jobs.
+        # Expand these out to individual parameters for given jobs (tool
+        # executions).
+        expanded_incomings = self.__expand_meta_properties( trans, incoming )
+
+        # Remapping a single job to many jobs doesn't make sense, so disable
+        # remap if multi-runs of tools are being used.
+        if rerun_remap_job_id and len( expanded_incomings ) > 1:
+            message = 'Failure executing tool (cannot create multiple jobs when remapping existing job).'
+            return 'message.mako', dict( status='error', message=message, refresh_frames=[] )
+
+        all_states = []
+        for expanded_incoming in expanded_incomings:
+            state, state_new = self.__fetch_state( trans, expanded_incoming, history, all_pages=all_pages )
+            all_states.append( state )
         if state_new:
             # This feels a bit like a hack. It allows forcing full processing
             # of inputs even when there is no state in the incoming dictionary
@@ -1879,7 +1895,13 @@ class Tool( object, Dictifiable ):
                     self.update_state( trans, self.inputs_by_page[state.page], state.inputs, incoming, old_errors=old_errors or {}, source=source )
                 return "tool_form.mako", dict( errors={}, tool_state=state, param_values={}, incoming={} )
 
-        errors, params = self.__check_param_values( trans, incoming, state, old_errors, process_state, history=history, source=source )
+        all_errors = []
+        all_params = []
+        for expanded_incoming, expanded_state in zip(expanded_incomings, all_states):
+            errors, params = self.__check_param_values( trans, expanded_incoming, expanded_state, old_errors, process_state, history=history, source=source )
+            all_errors.append( errors )
+            all_params.append( params )
+
         if self.__should_refresh_state( incoming ):
             template, template_vars = self.__handle_state_refresh( trans, state, errors )
         else:
@@ -1887,19 +1909,20 @@ class Tool( object, Dictifiable ):
 
             # If there were errors, we stay on the same page and display
             # error messages
-            if errors:
+            if any( all_errors ):
                 error_message = "One or more errors were found in the input you provided. The specific errors are marked below."
                 template = "tool_form.mako"
                 template_vars = dict( errors=errors, tool_state=state, incoming=incoming, error_message=error_message )
             # If we've completed the last page we can execute the tool
             elif all_pages or state.page == self.last_page:
-                tool_executed, result = self.__handle_tool_execute( trans, rerun_remap_job_id, params, history )
-                if tool_executed:
+                execution_tracker = ToolExecutionTracker( self, all_params )
+                self.__handle_tool_executions( execution_tracker, trans, rerun_remap_job_id, history )
+                if execution_tracker.successful_jobs:
                     template = 'tool_executed.mako'
-                    template_vars = dict( out_data=result )
+                    template_vars = dict( out_data=execution_tracker.output_datasets, num_jobs=execution_tracker.successful_jobs, job_errors=execution_tracker.execution_errors )
                 else:
                     template = 'message.mako'
-                    template_vars = dict( status='error', message=result, refresh_frames=[] )
+                    template_vars = dict( status='error', message=execution_tracker.execution_errors[0], refresh_frames=[] )
             # Otherwise move on to the next page
             else:
                 template, template_vars = self.__handle_page_advance( trans, state, errors )
@@ -1908,12 +1931,24 @@ class Tool( object, Dictifiable ):
     def __should_refresh_state( self, incoming ):
         return not( 'runtool_btn' in incoming or 'URL' in incoming or 'ajax_upload' in incoming )
 
+    def __handle_tool_executions( self, execution_tracker, trans, rerun_remap_job_id, history ):
+        """ Run through each combination of parameters that result from the
+        call and record successes and failures.
+        """
+        for params in execution_tracker.param_combinations:
+            tool_executed, result = self.__handle_tool_execute( trans, rerun_remap_job_id, params, history )
+            if tool_executed:
+                execution_tracker.record_success( result )
+            else:
+                execution_tracker.record_error( result )
+
     def __handle_tool_execute( self, trans, rerun_remap_job_id, params, history ):
         """
         Return a pair with whether execution is successful as well as either
         resulting output data or an error message indicating the problem.
         """
         try:
+            params = self.__remove_meta_properties( params )
             _, out_data = self.execute( trans, incoming=params, history=history, rerun_remap_job_id=rerun_remap_job_id )
         except httpexceptions.HTTPFound, e:
             #if it's a paste redirect exception, pass it up the stack
@@ -1996,6 +2031,46 @@ class Tool( object, Dictifiable ):
                 validate_input( trans, errors, state.inputs, inputs )
             params = state.inputs
         return errors, params
+
+    def __expand_meta_properties( self, trans, incoming ):
+        """
+        Take in a dictionary of raw incoming parameters and expand to a list
+        of expanded incoming parameters (one set of parameters per tool
+        execution).
+
+        More straight-forwardly, simply expand __multirun__ parameters.
+        """
+
+        def classifier( input_key ):
+            multirun_key = "%s|__multirun__" % input_key
+            if multirun_key in incoming:
+                multi_value = listify( incoming[ multirun_key ] )
+                if len( multi_value ) > 1:
+                    return input_classification.MULTIPLIED, multi_value
+                else:
+                    if len( multi_value ) == 0:
+                        multi_value = None
+                    return input_classification.SINGLE, multi_value[ 0 ]
+            else:
+                return input_classification.SINGLE, incoming[ input_key ]
+
+        # Stick an unexpanded version of multirun keys so they can be replaced,
+        # by expand_mult_inputs.
+        incoming_template = incoming.copy()
+
+        # Will reuse this in subsequent work, so design this way now...
+        def try_replace_key( key, suffix ):
+            found = key.endswith( suffix )
+            if found:
+                simple_key = key[ 0:-len( suffix ) ]
+                if simple_key not in incoming_template:
+                    incoming_template[ simple_key ] = None
+            return found
+
+        for key, value in incoming.iteritems():
+            try_replace_key( key, "|__multirun__" )
+
+        return expand_multi_inputs( incoming_template, classifier )
 
     def find_fieldstorage( self, x ):
         if isinstance( x, FieldStorage ):
@@ -2369,7 +2444,26 @@ class Tool( object, Dictifiable ):
                     if error:
                         errors[ input.name ] = error
                     state[ input.name ] = value
+                    state.update( self.__meta_properties_for_state( key, incoming, incoming_value, value )  )
         return errors
+
+    def __remove_meta_properties( self, incoming ):
+        result = incoming.copy()
+        meta_property_suffixes = [
+            "__multirun__",
+        ]
+        for key, value in incoming.iteritems():
+            if any( map( lambda s: key.endswith(s), meta_property_suffixes ) ):
+                del result[ key ]
+        return result
+
+    def __meta_properties_for_state( self, key, incoming, incoming_val, state_val ):
+        meta_properties = {}
+        multirun_key = "%s|__multirun__" % key
+        if multirun_key in incoming:
+            multi_value = incoming[ multirun_key ]
+            meta_properties[ multirun_key ] = multi_value
+        return meta_properties
 
     @property
     def params_with_missing_data_table_entry( self ):
@@ -3170,6 +3264,25 @@ class ToolStdioRegex( object ):
         # TODO: Define a common class or constant for error level:
         self.error_level = "fatal"
         self.desc = ""
+
+
+class ToolExecutionTracker( object ):
+
+    def __init__( self, tool, param_combinations ):
+        self.tool = tool
+        self.param_combinations = param_combinations
+        self.successful_jobs = 0
+        self.failed_jobs = 0
+        self.execution_errors = []
+        self.output_datasets = []
+
+    def record_success( self, outputs ):
+        self.successful_jobs += 1
+        self.output_datasets.extend( outputs )
+
+    def record_error( self, error ):
+        self.failed_jobs += 1
+        self.execution_errors.append( error )
 
 
 class ToolStdioExitCode( object ):
