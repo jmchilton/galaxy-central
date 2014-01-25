@@ -369,7 +369,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
 
         data = payload['workflow']
 
-        workflow, missing_tool_tups = self._workflow_from_dict( trans, data, source="API" )
+        workflow, missing_tool_tups = self._persist_workflow_from_dict( trans, data, source="API" )
 
         # galaxy workflow newly created id
         workflow_id = workflow.id

@@ -1601,7 +1601,7 @@ class UsesStoredWorkflowMixin( SharableItemSecurityMixin, UsesAnnotations ):
         session.flush()
         return imported_stored
 
-    def _workflow_from_dict( self, trans, data, source=None, add_to_menu=False ):
+    def _persist_workflow_from_dict( self, trans, data, source=None, add_to_menu=False ):
         """
         Creates a workflow from a dict. Created workflow is stored in the database and returned.
         """

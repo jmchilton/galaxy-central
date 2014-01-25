@@ -1069,7 +1069,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                     src = None
                     if cntrller != 'api':
                         src = workflow_source
-                    workflow, missing_tool_tups = self._workflow_from_dict( trans, data, source=src, add_to_menu=add_to_menu )
+                    workflow, missing_tool_tups = self._persist_workflow_from_dict( trans, data, source=src, add_to_menu=add_to_menu )
                     workflow = workflow.latest_workflow
                     if workflow_name:
                         workflow.name = workflow_name
