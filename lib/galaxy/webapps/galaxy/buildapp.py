@@ -166,13 +166,17 @@ def app_factory( global_conf, **kwargs ):
     webapp.add_route( '/visualization/show/:visualization_name',
         controller='visualization', action='render', visualization_name=None )
 
-    # "POST /api/workflows/import"  =>  ``workflows.import_workflow()``.
-    # Defines a named route "import_workflow".
-    webapp.mapper.connect( 'import_workflow', '/api/workflows/upload', controller='workflows', action='import_new_workflow', conditions=dict( method=['POST'] ) )
     webapp.mapper.connect( 'workflow_dict', '/api/workflows/{workflow_id}/download', controller='workflows', action='workflow_dict', conditions=dict( method=['GET'] ) )
-    # Preserve the following download route for now for dependent applications  -- deprecate at some point
+    webapp.mapper.connect( 'run_workflow', '/api/workflows/{workflow_id}/run', controller='workflows', action='run_workflow', conditions=dict( method=[ 'POST' ] ) )
+
+    # Following workflow routes are all deprecated in favor of REST-y versions
+    # above.
+    # Deprecated in favor of POST /api/workflows
+    webapp.mapper.connect( 'import_workflow', '/api/workflows/upload', controller='workflows', action='import_new_workflow', conditions=dict( method=['POST'] ) )
+    # Deprecated in favor of GET /api/workflows/{workflow_id}/download
     webapp.mapper.connect( 'workflow_dict', '/api/workflows/download/{workflow_id}', controller='workflows', action='workflow_dict', conditions=dict( method=['GET'] ) )
-    webapp.mapper.connect( 'import_shared_workflow', '/api/workflows/import', controller='workflows', action='import_shared_workflow', conditions=dict( method=['POST'] ) )
+    # Deprecated in favor of POST /api/workflows with workflow_id in payload.
+    webapp.mapper.connect( 'import_shared_workflow_deprecated', '/api/workflows/import', controller='workflows', action='import_shared_workflow_deprecated', conditions=dict( method=['POST'] ) )
 
     # ============================
     # ===== AUTHENTICATE API =====

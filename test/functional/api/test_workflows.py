@@ -9,8 +9,6 @@ from base.interactor import delete_request  # requests like delete
 
 # Workflow API TODO:
 # - Allow history_id as param to workflow run action. (hist_id)
-# - Allow post to workflows/<workflow_id>/run in addition to posting to
-#    /workflows with id in payload.
 # - Much more testing obviously, always more testing.
 class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
 
@@ -44,7 +42,7 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         data = dict(
             workflow=dumps( self.workflow_populator.load_workflow( name="test_import" ) ),
         )
-        upload_response = self._post( "workflows/upload", data=data )
+        upload_response = self._post( "workflows", data=data )
         self._assert_status_code_is( upload_response, 200 )
         self._assert_user_has_workflow_with_name( "test_import (imported from API)" )
 
@@ -58,12 +56,21 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         first_input = downloaded_workflow[ "steps" ][ "0" ][ "inputs" ][ 0 ]
         assert first_input[ "name" ] == "WorkflowInput1"
 
+    def test_run_workflow_deprecated( self ):
+        workflow = self.workflow_populator.load_workflow( name="test_for_run_deprecated" )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
+        # In deprecated version of this call workflow_id is placed in payload
+        # and post is made to /api/workflows directly.
+        workflow_request[ "workflow_id" ] = workflow_id
+        run_workflow_response = self._post( "workflows", data=workflow_request )
+        self._assert_status_code_is( run_workflow_response, 200 )
+        self._wait_for_history( history_id, assert_ok=True )
+
     def test_run_workflow( self ):
         workflow = self.workflow_populator.load_workflow( name="test_for_run" )
-        workflow_request, history_id = self._setup_workflow_run( workflow )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
         # TODO: This should really be a post to workflows/<workflow_id>/run or
-        # something like that.
-        run_workflow_response = self._post( "workflows", data=workflow_request )
+        run_workflow_response = self._post( "workflows/%s/run" % workflow_id, data=workflow_request )
         self._assert_status_code_is( run_workflow_response, 200 )
         self._wait_for_history( history_id, assert_ok=True )
 
@@ -107,8 +114,9 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         """ Tests both import and execution of post job actions.
         """
         workflow = self.workflow_populator.load_workflow( name="test_for_pja_run", add_pja=True )
-        workflow_request, history_id = self._setup_workflow_run( workflow )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
         run_workflow_response = self._post( "workflows", data=workflow_request )
+        run_workflow_response = self._post( "workflows/%s/run" % workflow_id, data=workflow_request )
         self._assert_status_code_is( run_workflow_response, 200 )
         self._wait_for_history( history_id, assert_ok=True )
         time.sleep(.1)  # Give another little bit of time for rename (needed?)
@@ -132,13 +140,12 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         hda2 = self._new_dataset( history_id, content="4 5 6" )
         workflow_request = dict(
             history="hist_id=%s" % history_id,
-            workflow_id=uploaded_workflow_id,
             ds_map=dumps( {
                 step_1: self._ds_entry(hda1),
                 step_2: self._ds_entry(hda2),
             } ),
         )
-        return workflow_request, history_id
+        return workflow_request, history_id, uploaded_workflow_id
 
     def _setup_random_x2_workflow( self, name ):
         workflow = self.workflow_populator.load_random_x2_workflow( name )

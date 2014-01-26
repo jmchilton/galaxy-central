@@ -136,36 +136,58 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         return item
 
     @web.expose_api
-    def create(self, trans, payload, **kwd):
+    def create(self, trans, payload, **kwds):
         """
         POST /api/workflows
 
         We're not creating workflows from the api.  Just execute for now.
 
         However, we will import them if installed_repository_file is specified
-        """
 
+        TODO: Update documentation here.
+        """
+        if self.__deprecated_run_workflow_call( payload ):
+            workflow_id = payload[ "workflow_id" ]
+            return self.__run_workflow( trans, workflow_id, payload )
+
+        # create new
+        if 'installed_repository_file' in payload:
+            workflow_controller = trans.webapp.controllers[ 'workflow' ]
+            result = workflow_controller.import_workflow( trans=trans,
+                                                          cntrller='api',
+                                                          **payload)
+            return result
+
+        if 'shared_workflow_id' in payload:
+            workflow_id = payload[ 'shared_workflow_id' ]
+            return self.__api_import_shared_workflow( trans, workflow_id, payload )
+
+        return self.__api_import_new_workflow( trans, payload, **kwds )
+
+    @web.expose_api
+    def run_workflow( self, trans, workflow_id, payload, **kwds ):
+        """
+        run_workflow( self, trans, workflow_id, payload )
+        * POST /api/workflows/{workflow_id}/run
+            Run/execute the workflow with the given ``workflow_id``.
+
+        :type   id:     str
+        :param  id:     the encoded id of the workflow to run
+        :type   payload: dict
+        :param  payload: a dictionary containing description of inptus to
+            workflow.
+
+        :rtype:     dict
+        :returns:   Description of execution.
+        """
+        self.__run_workflow( trans, workflow_id, payload )
+
+    def __run_workflow( self, trans, workflow_id, payload ):
         # Pull parameters out of payload.
-        workflow_id = payload['workflow_id']
         param_map = payload.get('parameters', {})
         ds_map = payload['ds_map']
         add_to_history = 'no_add_to_history' not in payload
         history_param = payload['history']
-
-        # Get/create workflow.
-        if not workflow_id:
-            # create new
-            if 'installed_repository_file' in payload:
-                workflow_controller = trans.webapp.controllers[ 'workflow' ]
-                result = workflow_controller.import_workflow( trans=trans,
-                                                              cntrller='api',
-                                                              **payload)
-                return result
-            trans.response.status = 403
-            return "Either workflow_id or installed_repository_file must be specified"
-        if 'installed_repository_file' in payload:
-            trans.response.status = 403
-            return "installed_repository_file may not be specified with workflow_id"
 
         # Get workflow + accessibility check.
         stored_workflow = trans.sa_session.query(self.app.model.StoredWorkflow).get(
@@ -361,11 +383,15 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
     def import_new_workflow(self, trans, payload, **kwd):
         """
         POST /api/workflows/upload
-        Importing dynamic workflows from the api. Return newly generated workflow id.
-        Author: rpark
+
+        Deprecated route for uploading workflow files, POST to /api/workflows
+        instead.
 
         # currently assumes payload['workflow'] is a json representation of a workflow to be inserted into the database
         """
+        return self.__api_import_new_workflow( trans, payload, **kwd )
+
+    def __api_import_new_workflow( self, trans, payload, **kwd ):
 
         data = payload['workflow']
 
@@ -387,7 +413,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         return item
 
     @expose_api
-    def import_shared_workflow(self, trans, payload, **kwd):
+    def import_shared_workflow_deprecated(self, trans, payload, **kwd):
         """
         POST /api/workflows/import
         Import a workflow shared by other users.
@@ -401,6 +427,9 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         workflow_id = payload.get('workflow_id', None)
         if workflow_id == None:
             raise exceptions.ObjectAttributeMissingException( "Missing required parameter 'workflow_id'." )
+        self.__api_import_shared_workflow( trans, workflow_id, payload, **kwd )
+
+    def __api_import_shared_workflow( self, trans, workflow_id, payload, **kwd ):
         try:
             stored_workflow = self.get_stored_workflow( trans, workflow_id, check_ownership=False )
         except:
@@ -414,3 +443,11 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         encoded_id = trans.security.encode_id(imported_workflow.id)
         item['url'] = url_for('workflow', id=encoded_id)
         return item
+
+    def __deprecated_run_workflow_call( self, payload ):
+        """ Allow running workflows by posting to /api/workflows -only if-
+        payload contains a workflow_id. This is for backward compatbility
+        and should be considered deprecated. Run workflows by posting to
+        /api/workflows/{workflow_id}/run.
+        """
+        return "workflow_id" in payload
