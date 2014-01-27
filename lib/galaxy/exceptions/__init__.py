@@ -56,7 +56,20 @@ class ObjectAttributeMissingException( MessageException ):
     err_code = error_codes.USER_OBJECT_ATTRIBUTE_MISSING
 
 
+class RequestParameterMissingException( MessageException ):
+    status_code = 400
+    err_code = error_codes.USER_REQUEST_MISSING_PARAMETER
+
+
+class RequestParameterInvalidException( MessageException ):
+    status_code = 400
+    err_code = error_codes.USER_REQUEST_INVALID_PARAMETER
+
+
 class ActionInputError( MessageException ):
+    status_code = 400
+    err_code = error_codes.USER_REQUEST_INVALID_PARAMETER
+
     def __init__( self, err_msg, type="error" ):
         super( ActionInputError, self ).__init__( err_msg, type )
 
