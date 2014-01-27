@@ -5,6 +5,7 @@ from .helpers import TestsDatasets
 from .helpers import WorkflowPopulator
 
 from base.interactor import delete_request  # requests like delete
+from base.interactor import get_request  # requests like get
 
 
 # Workflow API TODO:
@@ -37,6 +38,17 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         index_response = self._get( "workflows" )
         self._assert_status_code_is( index_response, 200 )
         assert isinstance( index_response.json(), list )
+
+    def test_show_invalid_is_404( self ):
+        show_response = self._get( "workflow/%s" % self._random_key() )
+        self._assert_status_code_is( show_response, 404 )
+
+    def test_cannot_show_private_workflow( self ):
+        workflow_id = self._simple_workflow( "test_not_importportable" )
+        key = self._setup_user_get_key( "uses_workflows@bx.psu.edu" )
+        show_private_url = self._api_url( "workflows/%s" % workflow_id, params=dict( key=key ), use_key=False )
+        show_response = get_request( show_private_url )
+        self._assert_status_code_is( show_response, 403 )
 
     def test_import( self ):
         data = dict(
@@ -119,6 +131,39 @@ class WorkflowsApiTestCase( api.ApiTestCase, TestsDatasets ):
         # Would be 8 and 6 without modification
         self.__assert_lines_hid_line_count_is( history_id, 2, 8 )
         self.__assert_lines_hid_line_count_is( history_id, 3, 5 )
+
+    def test_cannot_run_inaccessible_workflow( self ):
+        workflow = self._load_workflow( name="test_for_run_cannot_access" )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
+        with self._different_user():
+            run_workflow_response = self._post( "workflows/%s/run" % workflow_id, data=workflow_request )
+            self._assert_status_code_is( run_workflow_response, 403 )
+
+    def test_404_on_invalid_workflow( self ):
+        workflow = self._load_workflow( name="test_for_run_does_not_exist" )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
+        run_workflow_response = self._post( "workflows/%s/run" % self._random_key(), data=workflow_request )
+        self._assert_status_code_is( run_workflow_response, 404 )
+
+    def test_cannot_run_against_other_users_history( self ):
+        workflow = self._load_workflow( name="test_for_run_wrong_history" )
+        workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow )
+        with self._different_user():
+            other_history_id = self._new_history()
+        workflow_request[ "history" ] = "hist_id=%s" % other_history_id
+        run_workflow_response = self._post( "workflows/%s/run" % workflow_id, data=workflow_request )
+        self._assert_status_code_is( run_workflow_response, 403 )
+
+    ## No way to make a History/HDA private via the API currently? Add this to
+    ## API to and test use of LDs.
+    #def test_cannot_use_inaccessible_datasets( self ):
+    #    workflow = self._load_workflow( name="test_for_run_wrong_history" )
+    #    with self._different_user():
+    #        other_history_id = self._new_history()
+    #        other_hda1 = self._new_dataset( other_history_id, content="1 2 3" )
+    #    workflow_request, history_id, workflow_id = self._setup_workflow_run( workflow, hda1=other_hda1 )
+    #    run_workflow_response = self._post( "workflows/%s/run" % workflow_id, data=workflow_request )
+    #    self._assert_status_code_is( run_workflow_response, 403 )
 
     def test_pja_import_export( self ):
         workflow = self.workflow_populator.load_workflow( name="test_for_pja_import", add_pja=True )

@@ -268,6 +268,14 @@ class BaseAPIController( BaseController ):
         raise HTTPNotImplemented()
 
 
+class FutureBaseAPIController( BaseAPIController ):
+    # BaseAPIController is overriding get_object and returning error
+    # responses that do not conform to new API guidelines. These
+    # exceptions should just be filtered backup to the wrapping function
+    # where they will be handled correctly.
+    get_object = BaseController.get_object
+
+
 class Datatype( object ):
     """Used for storing in-memory list of datatypes currently in the datatypes registry."""
 
