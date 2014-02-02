@@ -60,7 +60,7 @@
         </table>
         %if disabled:
             <hr>
-            <div><input type="checkbox" name="dataset_ids" value="${data.hid}" checked="true" />${_('Treat as input dataset')}</div>
+            <div><input type="checkbox" name="${data.history_content_type}_ids" value="${data.hid}" checked="true" />${_('Treat as input dataset')}</div>
         %endif
     </div>
 </%def>
