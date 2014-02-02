@@ -22,6 +22,7 @@ from galaxy.model.item_attrs import UsesItemRatings
 from galaxy.model.mapping import desc
 from galaxy.tools.parameters import visit_input_values
 from galaxy.tools.parameters.basic import DataToolParameter, DrillDownSelectToolParameter, SelectToolParameter, UnvalidatedValue
+from galaxy.tools.parameters.basic import DataCollectionToolParameter
 from galaxy.tools.parameters.grouping import Conditional, Repeat
 from galaxy.util.odict import odict
 from galaxy.util.sanitize_html import sanitize_html
@@ -748,7 +749,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 data_input_names = {}
 
                 def callback( input, value, prefixed_name, prefixed_label ):
-                    if isinstance( input, DataToolParameter ):
+                    if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                         data_input_names[ prefixed_name ] = True
                         multiple_input[input.name] = input.multiple
                 visit_input_values( module.tool.inputs, module.state.inputs, callback )
@@ -1172,7 +1173,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         return dict( ext_to_class_name=ext_to_class_name, class_to_classes=class_to_classes )
 
     @web.expose
-    def build_from_current_history( self, trans, job_ids=None, dataset_ids=None, workflow_name=None ):
+    def build_from_current_history( self, trans, job_ids=None, dataset_ids=None, dataset_collection_ids=None, workflow_name=None ):
         user = trans.get_user()
         history = trans.get_history()
         if not user:
@@ -1196,9 +1197,14 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 dataset_ids = []
             elif type( dataset_ids ) is not list:
                 dataset_ids = [ dataset_ids ]
+            if dataset_collection_ids is None:
+                dataset_collection_ids = []
+            elif type( dataset_collection_ids) is not list:
+                dataset_collection_ids = [  dataset_collection_ids ]
             # Convert both sets of ids to integers
             job_ids = [ int( id ) for id in job_ids ]
             dataset_ids = [ int( id ) for id in dataset_ids ]
+            dataset_collection_ids = [ int( id ) for id in dataset_collection_ids ]
             # Find each job, for security we (implicately) check that they are
             # associated witha job in the current history.
             jobs, warnings = get_job_dict( trans )
@@ -1211,6 +1217,12 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 step = model.WorkflowStep()
                 step.type = 'data_input'
                 step.tool_inputs = dict( name="Input Dataset" )
+                hid_to_output_pair[ hid ] = ( step, 'output' )
+                steps.append( step )
+            for hid in dataset_collection_ids:
+                step = model.WorkflowStep()
+                step.type = 'data_collection_input'
+                step.tool_inputs = dict( name="Input Dataset Collection" )
                 hid_to_output_pair[ hid ] = ( step, 'output' )
                 steps.append( step )
             # Tool steps
@@ -1738,6 +1750,18 @@ class FakeJob( object ):
         self.id = "fake_%s" % dataset.id
 
 
+class DatasetCollectionCreationJob( object ):
+
+    def __init__( self, dataset_collection ):
+        self.is_fake = True
+        self.id = "fake_%s" % dataset_collection.id
+        self.from_jobs = None
+
+    def set_jobs( self, jobs ):
+        assert jobs is not None
+        self.from_jobs = jobs
+
+
 def get_job_dict( trans ):
     """
     Return a dictionary of Job -> [ Dataset ] mappings, for all finished
@@ -1747,11 +1771,12 @@ def get_job_dict( trans ):
     # Get the jobs that created the datasets
     warnings = set()
     jobs = odict()
-    for dataset in history.active_datasets:
+
+    def append_dataset( dataset ):
         # FIXME: Create "Dataset.is_finished"
         if dataset.state in ( 'new', 'running', 'queued' ):
             warnings.add( "Some datasets still queued or running were ignored" )
-            continue
+            return
 
         #if this hda was copied from another, we need to find the job that created the origial hda
         job_hda = dataset
@@ -1767,6 +1792,14 @@ def get_job_dict( trans ):
                 jobs[ job ].append( ( assoc.name, dataset ) )
             else:
                 jobs[ job ] = [ ( assoc.name, dataset ) ]
+
+    for content in history.active_contents:
+        if content.history_content_type == "dataset_collection":
+            job = DatasetCollectionCreationJob( content )
+            jobs[ job ] = [ ( None, content ) ]
+            collection_jobs[ content ] = job
+        else:
+            append_dataset( content )
     return jobs, warnings
 
 
@@ -1787,7 +1820,7 @@ def cleanup_param_values( inputs, values ):
             if isinstance( input, ( SelectToolParameter, DrillDownSelectToolParameter ) ):
                 if input.is_dynamic and not isinstance( values[key], UnvalidatedValue ):
                     values[key] = UnvalidatedValue( values[key] )
-            if isinstance( input, DataToolParameter ):
+            if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                 tmp = values[key]
                 values[key] = None
                 # HACK: Nested associations are not yet working, but we
