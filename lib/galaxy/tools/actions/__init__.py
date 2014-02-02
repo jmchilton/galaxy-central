@@ -111,8 +111,7 @@ class DefaultToolAction( object ):
                         #allow explicit conversion to be stored in job_parameter table
                         target_dict[ conversion_name ] = conversion_data.id  # a more robust way to determine JSONable value is desired
             elif isinstance( input, DataCollectionToolParameter ):
-                value = listify( value )
-                for i, v in enumerate( value ):
+                for i, v in enumerate( value.collection.datasets ):
                     data = v
                     current_user_roles = trans.get_current_user_roles()
                     if not trans.app.security_agent.can_access_dataset( current_user_roles, data.dataset ):
@@ -120,10 +119,11 @@ class DefaultToolAction( object ):
                     # Skipping implicit conversion stuff for now, revisit at
                     # some point and figure out if implicitly converting a
                     # dataset collection makes senese.
-                    if i == 0:
-                        # Allow copying metadata to output, first item will be source.
-                        input_datasets[ prefix + input.name ] = data
-                    input_datasets[ prefix + input.name + str( i + 1 ) ] = data
+
+                    #if i == 0:
+                    #    # Allow copying metadata to output, first item will be source.
+                    #    input_datasets[ prefix + input.name ] = data.dataset_instance
+                    input_datasets[ prefix + input.name + str( i + 1 ) ] = data.dataset_instance
 
         tool.visit_inputs( param_values, visitor )
         return input_datasets

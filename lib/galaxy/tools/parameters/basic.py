@@ -1861,7 +1861,7 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
         for dataset_collection_instance in dataset_collections:
             instance_id = dataset_collection_instance.hid
             instance_name = dataset_collection_instance.collection.name
-            selected = ( value and ( dataset_collection_instance in value ) )
+            selected = ( value and ( dataset_collection_instance == value ) )
             if dataset_collection_instance.visible:
                 hidden_text = ""
             else:
