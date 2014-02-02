@@ -4,6 +4,7 @@ from galaxy import exceptions
 from galaxy.jobs.actions.post import ActionBox
 
 from galaxy.tools.parameters.basic import DataToolParameter
+from galaxy.tools.parameters.basic import DataCollectionToolParameter
 from galaxy.tools.parameters import visit_input_values
 from galaxy.util.odict import odict
 
@@ -71,7 +72,7 @@ class WorkflowInvoker( object ):
         # Connect up
         def callback( input, value, prefixed_name, prefixed_label ):
             replacement = None
-            if isinstance( input, DataToolParameter ):
+            if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                 if prefixed_name in step.input_connections_by_name:
                     conn = step.input_connections_by_name[ prefixed_name ]
                     if input.multiple:
