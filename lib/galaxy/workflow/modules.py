@@ -12,6 +12,7 @@ from galaxy import web
 from galaxy.jobs.actions.post import ActionBox
 from galaxy.model import PostJobAction
 from galaxy.tools.parameters import check_param, DataToolParameter, DummyDataset, RuntimeValue, visit_input_values
+from galaxy.tools.parameters import DataCollectionToolParameter
 from galaxy.util.bunch import Bunch
 from galaxy.util.json import from_json_string, to_json_string
 
@@ -195,6 +196,16 @@ class InputDataModule( InputModule ):
     default_name = "Input Dataset"
 
 
+class InputDataCollectionModule( InputModule ):
+    type = "data_collection_input"
+    name = "Input dataset collection"
+    default_name = "Input Dataset Collection"
+
+    def get_runtime_inputs( self, filter_set=['data'] ):
+        label = self.state.get( "name", self.default_name )
+        return dict( input=DataCollectionToolParameter( None, Element( "param", name="input", label=label, type="data_collection"), self.trans ) )
+
+
 class ToolModule( WorkflowModule ):
 
     type = "tool"
@@ -325,6 +336,12 @@ class ToolModule( WorkflowModule ):
                     label=prefixed_label,
                     multiple=input.multiple,
                     extensions=input.extensions ) )
+            if isinstance( input, DataCollectionToolParameter ):
+                data_inputs.append( dict(
+                    name=prefixed_name,
+                    label=prefixed_label,
+                    multiple=input.multiple,
+                    ) )
 
         visit_input_values( self.tool.inputs, self.state.inputs, callback )
         return data_inputs
@@ -374,7 +391,7 @@ class ToolModule( WorkflowModule ):
 
         def item_callback( trans, key, input, value, error, old_value, context ):
             # Dummy value for Data parameters
-            if isinstance( input, DataToolParameter ):
+            if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                 return DummyDataset(), None
             # Deal with build/runtime (does not apply to Data parameters)
             if key == make_buildtime_key:
@@ -414,6 +431,9 @@ class ToolModule( WorkflowModule ):
                         replacement = [] if not connections else [DummyDataset() for conn in connections]
                     else:
                         replacement = DummyDataset()
+            elif isinstance( input, DataCollectionToolParameter ):
+                if connections is None or prefixed_name in input_connections_by_name:
+                    replacement = DummyDataset()
             return replacement
 
         visit_input_values( self.tool.inputs, self.state.inputs, callback )
@@ -447,4 +467,4 @@ class WorkflowModuleFactory( object ):
         type = step.type
         return self.module_types[type].from_workflow_step( trans, step )
 
-module_factory = WorkflowModuleFactory( dict( data_input=InputDataModule, tool=ToolModule ) )
+module_factory = WorkflowModuleFactory( dict( data_input=InputDataModule, data_collection_input=InputDataCollectionModule, tool=ToolModule ) )
