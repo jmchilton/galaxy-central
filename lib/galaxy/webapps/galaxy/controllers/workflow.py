@@ -20,6 +20,7 @@ from galaxy.datatypes.data import Data
 from galaxy.model.item_attrs import UsesItemRatings
 from galaxy.model.mapping import desc
 from galaxy.tools.parameters.basic import DataToolParameter
+from galaxy.tools.parameters.basic import DataCollectionToolParameter
 from galaxy.tools.parameters import visit_input_values
 from galaxy.util.sanitize_html import sanitize_html
 from galaxy.web import error, url_for
@@ -761,7 +762,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 data_input_names = {}
 
                 def callback( input, value, prefixed_name, prefixed_label ):
-                    if isinstance( input, DataToolParameter ):
+                    if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                         data_input_names[ prefixed_name ] = True
                         multiple_input[input.name] = input.multiple
                 visit_input_values( module.tool.inputs, module.state.inputs, callback )
@@ -1186,7 +1187,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         return dict( ext_to_class_name=ext_to_class_name, class_to_classes=class_to_classes )
 
     @web.expose
-    def build_from_current_history( self, trans, job_ids=None, dataset_ids=None, workflow_name=None ):
+    def build_from_current_history( self, trans, job_ids=None, dataset_ids=None, dataset_collection_ids=None, workflow_name=None ):
         user = trans.get_user()
         history = trans.get_history()
         if not user:
@@ -1206,6 +1207,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 user=user,
                 job_ids=job_ids,
                 dataset_ids=dataset_ids,
+                dataset_collection_ids=dataset_collection_ids,
                 workflow_name=workflow_name
             )
             # Index page with message
@@ -1626,7 +1628,6 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         return canvas
 
 
-## ---- Utility methods -------------------------------------------------------
 def _build_workflow_on_str(instance_ds_names):
     # Returns suffix for new histories based on multi input iteration
     num_multi_inputs = len(instance_ds_names)
