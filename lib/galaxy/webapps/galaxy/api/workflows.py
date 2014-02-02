@@ -12,6 +12,7 @@ from galaxy import web
 from galaxy.tools.parameters import visit_input_values, DataToolParameter
 from galaxy.web import _future_expose_api as expose_api
 from galaxy.web.base.controller import BaseAPIController, url_for, UsesStoredWorkflowMixin
+from galaxy.web.base.controller import SharableMixin
 from galaxy.workflow.modules import module_factory
 from galaxy.jobs.actions.post import ActionBox
 
@@ -52,7 +53,7 @@ def _update_step_parameters(step, param_map):
         step.state.inputs.update(param_dict)
 
 
-class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
+class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, SharableMixin):
 
     @web.expose_api
     def index(self, trans, **kwd):
@@ -135,7 +136,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         item['steps'] = steps
         return item
 
-    @web.expose_api
+    @expose_api
     def create(self, trans, payload, **kwds):
         """
         POST /api/workflows
@@ -395,7 +396,23 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
 
         data = payload['workflow']
 
-        workflow, missing_tool_tups = self._persist_workflow_from_dict( trans, data, source="API" )
+        publish = util.string_as_bool( payload.get( "publish", False ) )
+        # If 'publish' set, default to importable.
+        importable = util.string_as_bool( payload.get( "importable", publish ) )
+
+        if publish and not importable:
+            raise exceptions.ObjectAttributeInvalidException( "Published workflow must be importable." )
+
+        persist_kwds = dict(
+            source="API",
+            publish=publish,
+        )
+
+        workflow, missing_tool_tups = self._persist_workflow_from_dict( trans, data, **persist_kwds )
+
+        if importable:
+            self._make_item_accessible( trans.sa_session, workflow )
+            trans.sa_session.flush()
 
         # galaxy workflow newly created id
         workflow_id = workflow.id
@@ -426,18 +443,18 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
         # Pull parameters out of payload.
         workflow_id = payload.get('workflow_id', None)
         if workflow_id == None:
-            raise exceptions.ObjectAttributeMissingException( "Missing required parameter 'workflow_id'." )
+            raise exceptions.RequestParameterMissingException( "Missing required parameter 'workflow_id'." )
         self.__api_import_shared_workflow( trans, workflow_id, payload, **kwd )
 
     def __api_import_shared_workflow( self, trans, workflow_id, payload, **kwd ):
         try:
             stored_workflow = self.get_stored_workflow( trans, workflow_id, check_ownership=False )
-        except:
+        except Exception:
             raise exceptions.ObjectNotFound( "Malformed workflow id ( %s ) specified." % workflow_id )
         if stored_workflow.importable == False:
-            raise exceptions.MessageException( 'The owner of this workflow has disabled imports via this link.' )
+            raise exceptions.ItemAccessibilityException(  'The owner of this workflow has disabled imports via this link.' )
         elif stored_workflow.deleted:
-            raise exceptions.MessageException( "You can't import this workflow because it has been deleted." )
+            raise exceptions.ItemDeletionException( "You can't import this workflow because it has been deleted." )
         imported_workflow = self._import_shared_workflow( trans, stored_workflow )
         item = imported_workflow.to_dict( value_mapper={ 'id': trans.security.encode_id } )
         encoded_id = trans.security.encode_id(imported_workflow.id)
