@@ -196,10 +196,11 @@ class ToolEvaluator( object ):
                     tool=self,
                     name=input.name
                 )
-                input_values[ input.name ] = DatasetCollectionWrapper(
+                wrapper = DatasetCollectionWrapper(
                     dataset_collection,
                     **wrapper_kwds
                 )
+                input_values[ input.name ] = wrapper
             elif isinstance( input, SelectToolParameter ):
                 input_values[ input.name ] = SelectToolParameterWrapper(
                     input, input_values[ input.name ], self.app, other_values=param_dict, path_rewriter=self.unstructured_path_rewriter )
