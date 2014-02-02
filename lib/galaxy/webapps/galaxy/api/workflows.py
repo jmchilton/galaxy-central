@@ -204,6 +204,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
                 history = self.get_history( trans, from_history_id, check_ownership=False, check_accessible=True )
                 job_ids = map( trans.security.decode_id, payload.get( "job_ids", [] ) )
                 dataset_ids = map( trans.security.decode_id, payload.get( "dataset_ids", [] ) )
+                dataset_collection_ids = map( trans.security.decode_id, payload.get( "dataset_collection_ids", [] ) )
                 workflow_name = payload[ "workflow_name" ]
                 stored_workflow = extract_workflow(
                     trans=trans,
@@ -211,6 +212,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
                     history=history,
                     job_ids=job_ids,
                     dataset_ids=dataset_ids,
+                    dataset_collection_ids=dataset_collection_ids,
                     workflow_name=workflow_name,
                 )
                 item = stored_workflow.to_dict( value_mapper={ "id": trans.security.encode_id } )
