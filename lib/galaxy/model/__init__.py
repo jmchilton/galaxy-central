@@ -974,8 +974,7 @@ class History( object, Dictifiable, UsesAnnotations, HasName ):
         db_session = object_session( self )
         assert db_session != None
         query = db_session.query( content_class ).filter( content_class.table.c.history_id == self.id )
-        if content_class == HistoryDatasetAssociation:
-            query = query.order_by( HistoryDatasetAssociation.table.c.hid.asc() )
+        query = query.order_by( content_class.table.c.hid.asc() )
         python_filter = None
         deleted = galaxy.util.string_as_bool_or_none( kwds.get( 'deleted', None ) )
         if deleted is not None:
