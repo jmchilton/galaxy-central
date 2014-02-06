@@ -76,9 +76,9 @@ class WorkflowInvoker( object ):
                 if prefixed_name in step.input_connections_by_name:
                     conn = step.input_connections_by_name[ prefixed_name ]
                     if input.multiple:
-                        replacement = [outputs[ c.output_step.id ][ c.output_name ] for c in conn]
+                        replacement = [ outputs[ c.output_step.id ][ c.output_name ] for c in conn ]
                     else:
-                        replacement = outputs[ conn[0].output_step.id ][ conn[0].output_name ]
+                        replacement = outputs[ conn[ 0 ].output_step.id ][ conn[ 0 ].output_name ]
             return replacement
         try:
             # Replace DummyDatasets with historydatasetassociations
@@ -86,7 +86,7 @@ class WorkflowInvoker( object ):
         except KeyError, k:
             raise exceptions.MessageException( "Error due to input mapping of '%s' in '%s'.  A common cause of this is conditional outputs that cannot be determined until runtime, please review your workflow." % (tool.name, k.message))
         # Execute it
-        job, out_data = tool.execute( trans, step.state.inputs, history=self.target_history)
+        job, out_data = tool.execute( trans, step.state.inputs, history=self.target_history )
         outputs[ step.id ] = out_data
         # Create new PJA associations with the created job, to be run on completion.
         # PJA Parameter Replacement (only applies to immediate actions-- rename specifically, for now)
@@ -95,7 +95,7 @@ class WorkflowInvoker( object ):
             if pja.action_type in ActionBox.immediate_actions:
                 ActionBox.execute( trans.app, trans.sa_session, pja, job, replacement_dict )
             else:
-                job.add_post_job_action(pja)
+                job.add_post_job_action( pja )
 
         return job
 
@@ -111,10 +111,11 @@ class WorkflowInvoker( object ):
         if self.copy_inputs_to_history:
             for input_dataset_hda in out_data.values():
                 new_hda = input_dataset_hda.copy( copy_children=True )
-                self.target_history.add_dataset(new_hda)
-                outputs[ step.id ]['input_ds_copy'] = new_hda
+                self.target_history.add_dataset( new_hda )
+                outputs[ step.id ][ 'input_ds_copy' ] = new_hda
         if self.ds_map:
-            outputs[step.id]['output'] = self.ds_map[ str( step.id ) ][ 'hda' ]
+            outputs[ step.id ][ 'output' ] = self.ds_map[ str( step.id ) ][ 'hda' ]
+
         return job
 
 __all__ = [ invoke ]
