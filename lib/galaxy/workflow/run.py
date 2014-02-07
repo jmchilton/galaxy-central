@@ -65,7 +65,6 @@ class WorkflowInvoker( object ):
     def _execute_tool_step( self, step ):
         trans = self.trans
         outputs = self.outputs
-        replacement_dict = self.replacement_dict
 
         tool = trans.app.toolbox.get_tool( step.tool_id )
 
@@ -111,6 +110,7 @@ class WorkflowInvoker( object ):
         if self.ds_map:
             outputs[ step.id ][ 'output' ] = self.ds_map[ str( step.id ) ][ 'hda' ]
 
+        self._handle_post_job_actions( step, job )
         return job
 
     def _handle_post_job_actions( self, step, job ):
