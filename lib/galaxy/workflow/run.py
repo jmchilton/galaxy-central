@@ -73,12 +73,7 @@ class WorkflowInvoker( object ):
         def callback( input, value, prefixed_name, prefixed_label ):
             replacement = None
             if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
-                if prefixed_name in step.input_connections_by_name:
-                    conn = step.input_connections_by_name[ prefixed_name ]
-                    if input.multiple:
-                        replacement = [ outputs[ c.output_step.id ][ c.output_name ] for c in conn ]
-                    else:
-                        replacement = outputs[ conn[ 0 ].output_step.id ][ conn[ 0 ].output_name ]
+                replacement = self._replacement_for_input( input, prefixed_name, step )
             return replacement
         try:
             # Replace DummyDatasets with historydatasetassociations
@@ -117,5 +112,19 @@ class WorkflowInvoker( object ):
             outputs[ step.id ][ 'output' ] = self.ds_map[ str( step.id ) ][ 'hda' ]
 
         return job
+
+    def _replacement_for_input( self, input, prefixed_name, step ):
+        """ For given workflow 'step' that has had input_connections_by_name
+        populated fetch the actual runtime input for the given tool 'input'.
+        """
+        replacement = None
+        if prefixed_name in step.input_connections_by_name:
+            outputs = self.outputs
+            connection = step.input_connections_by_name[ prefixed_name ]
+            if input.multiple:
+                replacement = [ outputs[ c.output_step.id ][ c.output_name ] for c in connection ]
+            else:
+                replacement = outputs[ connection[ 0 ].output_step.id ][ connection[ 0 ].output_name ]
+        return replacement
 
 __all__ = [ invoke ]
