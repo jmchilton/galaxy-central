@@ -2,6 +2,7 @@ import pkg_resources
 pkg_resources.require( "SVGFig" )
 
 import base64
+import collections
 import httplib
 import json
 import os
@@ -16,6 +17,7 @@ from tool_shed.util import encoding_util
 from galaxy import model
 from galaxy import util
 from galaxy import web
+from galaxy import exceptions
 from galaxy.datatypes.data import Data
 from galaxy.model.item_attrs import UsesItemRatings
 from galaxy.model.mapping import desc
@@ -38,6 +40,9 @@ from galaxy.workflow.steps import (
     edgelist_for_workflow_steps,
     order_workflow_steps_with_levels,
 )
+
+import logging
+log = logging.getLogger( __name__ )
 
 
 class StoredWorkflowListGrid( grids.Grid ):
@@ -1210,6 +1215,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 dataset_collection_ids=dataset_collection_ids,
                 workflow_name=workflow_name
             )
+
             # Index page with message
             return trans.show_message( "Workflow '%s' created from current history." % workflow_name )
             ## return trans.show_ok_message( "<p>Workflow '%s' created.</p><p><a target='_top' href='%s'>Click to load in workflow editor</a></p>"
@@ -1628,97 +1634,8 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         return canvas
 
 
-def get_job_dict( trans ):
-    """
-    Return a dictionary of Job -> [ Dataset ] mappings, for all finished
-    active Datasets in the current history and the jobs that created them.
-    """
-    history = trans.get_history()
-    # Get the jobs that created the datasets
-    warnings = set()
-    jobs = odict()
-
-    def append_dataset( dataset ):
-        # FIXME: Create "Dataset.is_finished"
-        if dataset.state in ( 'new', 'running', 'queued' ):
-            warnings.add( "Some datasets still queued or running were ignored" )
-            return
-
-        #if this hda was copied from another, we need to find the job that created the origial hda
-        job_hda = dataset
-        while job_hda.copied_from_history_dataset_association:
-            job_hda = job_hda.copied_from_history_dataset_association
-
-        if not job_hda.creating_job_associations:
-            jobs[ FakeJob( dataset ) ] = [ ( None, dataset ) ]
-
-        for assoc in job_hda.creating_job_associations:
-            job = assoc.job
-            if job in jobs:
-                jobs[ job ].append( ( assoc.name, dataset ) )
-            else:
-                jobs[ job ] = [ ( assoc.name, dataset ) ]
-
-    for content in history.active_contents:
-        if content.history_content_type == "dataset_collection":
-            job = DatasetCollectionCreationJob( content )
-            jobs[ job ] = [ ( None, content ) ]
-            collection_jobs[ content ] = job
-        else:
-            append_dataset( content )
-    return jobs, warnings
 
 
-def cleanup_param_values( inputs, values ):
-    """
-    Remove 'Data' values from `param_values`, along with metadata cruft,
-    but track the associations.
-    """
-    associations = []
-    # dbkey is pushed in by the framework
-    if 'dbkey' in values:
-        del values['dbkey']
-    root_values = values
-
-    # Recursively clean data inputs and dynamic selects
-    def cleanup( prefix, inputs, values ):
-        for key, input in inputs.items():
-            if isinstance( input, ( SelectToolParameter, DrillDownSelectToolParameter ) ):
-                if input.is_dynamic and not isinstance( values[key], UnvalidatedValue ):
-                    values[key] = UnvalidatedValue( values[key] )
-            if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
-                tmp = values[key]
-                values[key] = None
-                # HACK: Nested associations are not yet working, but we
-                #       still need to clean them up so we can serialize
-                # if not( prefix ):
-                if tmp:  # this is false for a non-set optional dataset
-                    if not isinstance(tmp, list):
-                        associations.append( ( tmp.hid, prefix + key ) )
-                    else:
-                        associations.extend( [ (t.hid, prefix + key) for t in tmp] )
-
-                # Cleanup the other deprecated crap associated with datasets
-                # as well. Worse, for nested datasets all the metadata is
-                # being pushed into the root. FIXME: MUST REMOVE SOON
-                key = prefix + key + "_"
-                for k in root_values.keys():
-                    if k.startswith( key ):
-                        del root_values[k]
-            elif isinstance( input, Repeat ):
-                group_values = values[key]
-                for i, rep_values in enumerate( group_values ):
-                    rep_index = rep_values['__index__']
-                    cleanup( "%s%s_%d|" % (prefix, key, rep_index ), input.inputs, group_values[i] )
-            elif isinstance( input, Conditional ):
-                group_values = values[input.name]
-                current_case = group_values['__current_case__']
-                cleanup( "%s%s|" % ( prefix, key ), input.cases[current_case].inputs, group_values )
-    cleanup( "", inputs, values )
-    return associations
-
-
->>>>>>> efcdece... Dataset collections - workflows - allow data_collection params.
 def _build_workflow_on_str(instance_ds_names):
     # Returns suffix for new histories based on multi input iteration
     num_multi_inputs = len(instance_ds_names)
