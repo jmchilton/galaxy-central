@@ -3,7 +3,6 @@ Classes encapsulating galaxy tools and tool configuration.
 """
 
 import binascii
-import collections
 import glob
 import json
 import logging
@@ -39,7 +38,6 @@ from galaxy.datatypes.metadata import JobExternalOutputMetadataWrapper
 from galaxy import exceptions
 from galaxy.jobs import ParallelismInfo
 from galaxy.tools.actions import DefaultToolAction
-from galaxy.tools.actions import on_text_for_names
 from galaxy.tools.actions.data_source import DataSourceToolAction
 from galaxy.tools.actions.data_manager import DataManagerToolAction
 from galaxy.tools.deps import build_dependency_manager

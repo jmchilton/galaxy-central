@@ -1,8 +1,7 @@
 """
 Once state information has been calculated, handle actually executing tools
-from various states and tracking results.
-
-Later will also create implicit dataset collections from these executions.
+from various states, tracking results, and building implicit dataset
+collections from matched collections.
 """
 import collections
 from galaxy.tools.actions import on_text_for_names
@@ -71,6 +70,7 @@ class ToolExecutionTracker( object ):
         collection_names = map( lambda c: c.collection.name, collections )
         on_text = on_text_for_names( collection_names )
 
+        collections = {}
         for output_name, outputs_datasets in self.output_datasets_by_output_name.iteritems():
             if not len( identifiers ) == len( outputs_datasets ):
                 # Output does not have the same structure, if all jobs were
@@ -93,12 +93,14 @@ class ToolExecutionTracker( object ):
             except Exception:
                 output_collection_name = "%s across %s" % ( self.tool.name, on_text )
 
-            trans.app.dataset_collections_service.create(
+            collection = trans.app.dataset_collections_service.create(
                 trans=trans,
                 parent=history,
                 name=output_collection_name,
                 dataset_instances=collection_parts,
                 collection_type=self.collection_info.type,
             )
+            collections[ output_name ] = collection
+        return collections
 
 __all__ = [ execute ]
