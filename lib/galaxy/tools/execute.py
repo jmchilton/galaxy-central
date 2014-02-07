@@ -15,9 +15,9 @@ def execute( trans, tool, param_combinations, history, rerun_remap_job_id=None, 
     """
     execution_tracker = ToolExecutionTracker( tool, param_combinations, collection_info )
     for params in execution_tracker.param_combinations:
-        tool_executed, result = tool.handle_single_execution( trans, rerun_remap_job_id, params, history )
-        if tool_executed:
-            execution_tracker.record_success( result )
+        job, result = tool.handle_single_execution( trans, rerun_remap_job_id, params, history )
+        if job:
+            execution_tracker.record_success( job, result )
         else:
             execution_tracker.record_error( result )
 
@@ -34,14 +34,14 @@ class ToolExecutionTracker( object ):
         self.tool = tool
         self.param_combinations = param_combinations
         self.collection_info = collection_info
-        self.successful_jobs = 0
+        self.successful_jobs = []
         self.failed_jobs = 0
         self.execution_errors = []
         self.output_datasets = []
         self.output_datasets_by_output_name = collections.defaultdict(list)
 
-    def record_success( self, outputs ):
-        self.successful_jobs += 1
+    def record_success( self, job, outputs ):
+        self.successful_jobs.append( job )
         self.output_datasets.extend( outputs )
         for output_name, output_dataset in outputs:
             self.output_datasets_by_output_name[ output_name ].append( output_dataset )

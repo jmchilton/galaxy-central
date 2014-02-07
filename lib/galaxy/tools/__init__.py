@@ -1922,7 +1922,7 @@ class Tool( object, Dictifiable ):
                 execution_tracker = execute( trans, self, all_params, history=history, rerun_remap_job_id=rerun_remap_job_id, collection_info=collection_info )
                 if execution_tracker.successful_jobs:
                     template = 'tool_executed.mako'
-                    template_vars = dict( out_data=execution_tracker.output_datasets, num_jobs=execution_tracker.successful_jobs, job_errors=execution_tracker.execution_errors )
+                    template_vars = dict( out_data=execution_tracker.output_datasets, num_jobs=len( execution_tracker.successful_jobs ), job_errors=execution_tracker.execution_errors )
                 else:
                     template = 'message.mako'
                     template_vars = dict( status='error', message=execution_tracker.execution_errors[0], refresh_frames=[] )
@@ -1941,7 +1941,7 @@ class Tool( object, Dictifiable ):
         """
         try:
             params = self.__remove_meta_properties( params )
-            _, out_data = self.execute( trans, incoming=params, history=history, rerun_remap_job_id=rerun_remap_job_id )
+            job, out_data = self.execute( trans, incoming=params, history=history, rerun_remap_job_id=rerun_remap_job_id )
         except httpexceptions.HTTPFound, e:
             #if it's a paste redirect exception, pass it up the stack
             raise e
@@ -1950,7 +1950,7 @@ class Tool( object, Dictifiable ):
             message = 'Error executing tool: %s' % str(e)
             return False, message
         if isinstance( out_data, odict ):
-            return True, out_data.items()
+            return job, out_data.items()
         else:
             if isinstance( out_data, str ):
                 message = out_data
