@@ -1771,6 +1771,8 @@ def get_job_dict( trans ):
     # Get the jobs that created the datasets
     warnings = set()
     jobs = odict()
+    collection_jobs = {}
+    dataset_jobs = {}
 
     def append_dataset( dataset ):
         # FIXME: Create "Dataset.is_finished"
@@ -1784,7 +1786,9 @@ def get_job_dict( trans ):
             job_hda = job_hda.copied_from_history_dataset_association
 
         if not job_hda.creating_job_associations:
-            jobs[ FakeJob( dataset ) ] = [ ( None, dataset ) ]
+            job = FakeJob( dataset )
+            jobs[ job ] = [ ( None, dataset ) ]
+            dataset_jobs[ dataset ] = job
 
         for assoc in job_hda.creating_job_associations:
             job = assoc.job
@@ -1792,6 +1796,7 @@ def get_job_dict( trans ):
                 jobs[ job ].append( ( assoc.name, dataset ) )
             else:
                 jobs[ job ] = [ ( assoc.name, dataset ) ]
+            dataset_jobs[ dataset ] = job  # May not make sense if multiple creating_job_assocs exist.
 
     for content in history.active_contents:
         if content.history_content_type == "dataset_collection":
@@ -1800,6 +1805,20 @@ def get_job_dict( trans ):
             collection_jobs[ content ] = job
         else:
             append_dataset( content )
+
+    # TODO: Next block is work in progress - unused right now.
+    for dataset_collection, job in collection_jobs.iteritems():
+        from_tracked_job = True
+        from_jobs = []
+        for dataset in dataset_collection.collection.datasets:
+            job = dataset_jobs.get( dataset, None  )
+            if not job or getattr( job, "is_fake", False ):
+                from_tracked_job = False
+                break
+            from_jobs.add( job )
+        if from_tracked_job:
+            collection_jobs.set_jobs( from_jobs )
+
     return jobs, warnings
 
 
