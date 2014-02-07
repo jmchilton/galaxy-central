@@ -75,41 +75,46 @@ class WorkflowInvoker( object ):
         matched_collections = self._find_matched_collections( tool, step )
         # Have implicit collections...
         if matched_collections:
-            collection_info = self.trans.app.dataset_collection_service.match_collections( matched_collections )
+            collection_info = self.trans.app.dataset_collections_service.match_collections( matched_collections )
         else:
             collection_info = None
 
-        all_states = []
+        param_combinations = []
         identifiers = ( [ None ] if not collection_info else collection_info.identifiers )
         for identifier in identifiers:
-            execution_state = make_dict_copy( tool_state )
+            execution_state = tool_state.copy()
+            # TODO: Move next step into copy()
+            execution_state.inputs = make_dict_copy( execution_state.inputs )
 
             # Connect up
             def callback( input, value, prefixed_name, prefixed_label ):
                 replacement = None
                 if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
+                    # TODO: Handle multiple differently...
                     if identifier and isinstance( input, DataToolParameter ):
                         # TODO: Introduce some sort of mapping here so this doesn't
                         # have to be exact identifier.
-                        replacement = collection_info.collections[ prefixed_name ][ identifier ].dataset_instance
+                        collection = collection_info.collections[ prefixed_name ].collection
+                        replacement = collection[ identifier ].dataset_instance
                     else:
                         replacement = self._replacement_for_input( input, prefixed_name, step )
                 return replacement
             try:
                 # Replace DummyDatasets with historydatasetassociations
-                visit_input_values( tool.inputs, execution_state, callback )
+                visit_input_values( tool.inputs, execution_state.inputs, callback )
             except KeyError, k:
                 raise exceptions.MessageException( "Error due to input mapping of '%s' in '%s'.  A common cause of this is conditional outputs that cannot be determined until runtime, please review your workflow." % (tool.name, k.message))
-            all_states.append( execution_state )
+            param_combinations.append( execution_state.inputs )
 
         execution_tracker = execute(
             trans=self.trans,
             tool=tool,
-            param_combinations=all_states,
-            history=self.target_history
+            param_combinations=param_combinations,
+            history=self.target_history,
+            collection_info=collection_info,
         )
         if collection_info:
-            output_collections = execution_tracker.create_output_collections( self.trans, self.target_history, all_states[ 0 ] )
+            output_collections = execution_tracker.create_output_collections( self.trans, self.target_history, param_combinations[ 0 ] )
             outputs[ step.id ] = output_collections
         else:
             outputs[ step.id ] = dict( execution_tracker.output_datasets )
@@ -120,14 +125,15 @@ class WorkflowInvoker( object ):
         return jobs
 
     def _find_matched_collections( self, tool, step ):
-        matched_collections = []
+        matched_collections = {}
 
         def callback( input, value, prefixed_name, prefixed_label ):
             if isinstance( input, DataToolParameter ):
                 data = self._replacement_for_input( input, prefixed_name, step )
                 if isinstance( data, model.HistoryDatasetCollectionAssociation ):
-                    matched_collections.append( data )
+                    matched_collections[ prefixed_name ] = data
 
+        visit_input_values( tool.inputs, step.state.inputs, callback )
         return matched_collections
 
     def _execute_input_step( self, step ):
