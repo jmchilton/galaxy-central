@@ -113,6 +113,16 @@ class WorkflowInvoker( object ):
 
         return job
 
+    def _handle_post_job_actions( self, step, job ):
+        # Create new PJA associations with the created job, to be run on completion.
+        # PJA Parameter Replacement (only applies to immediate actions-- rename specifically, for now)
+        # Pass along replacement dict with the execution of the PJA so we don't have to modify the object.
+        for pja in step.post_job_actions:
+            if pja.action_type in ActionBox.immediate_actions:
+                ActionBox.execute( self.trans.app, self.trans.sa_session, pja, job, self.replacement_dict )
+            else:
+                job.add_post_job_action( pja )
+
     def _replacement_for_input( self, input, prefixed_name, step ):
         """ For given workflow 'step' that has had input_connections_by_name
         populated fetch the actual runtime input for the given tool 'input'.
