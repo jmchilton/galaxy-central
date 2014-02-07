@@ -182,14 +182,16 @@ class MappingTests( unittest.TestCase ):
 
         c1 = model.DatasetCollection(collection_type="pair", name="HistoryCollectionTest1")
         hc1 = model.HistoryDatasetCollectionAssociation(history=h1, collection=c1)
-        dc1 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d1)
-        dc2 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d2)
+        dc1 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d1, element_identifier="left")
+        dc2 = model.DatasetInstanceDatasetCollectionAssociation(collection=c1, dataset=d2, element_identifier="right")
 
         self.persist( u, h1, d1, d2, c1, hc1, dc1, dc2 )
 
         loaded_dataset_collection = self.query( model.DatasetCollection ).filter( model.DatasetCollection.name == "HistoryCollectionTest1" ).first()
         self.assertEquals(len(loaded_dataset_collection.datasets), 2)
         assert loaded_dataset_collection.collection_type == "pair"
+        assert loaded_dataset_collection[ "left" ] == dc1
+        assert loaded_dataset_collection[ "right" ] == dc2
 
     def test_collections_in_library_folders(self):
         model = self.model
