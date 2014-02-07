@@ -118,6 +118,8 @@ class DatasetCollectionsService(object, SharableItemSecurityMixin):
                     raise MessageException(error_message)
                 collection_info.collections[input_key] = hdc
 
+        return collection_info
+
     def get_dataset_collection_instance( self, trans, instance_type, id, **kwds ):
         """
         """
