@@ -2,6 +2,7 @@ import pkg_resources
 pkg_resources.require( "SVGFig" )
 
 import base64
+import collections
 import httplib
 import json
 import math
@@ -17,6 +18,7 @@ from tool_shed.util import encoding_util
 from galaxy import model
 from galaxy import util
 from galaxy import web
+from galaxy import exceptions
 from galaxy.datatypes.data import Data
 from galaxy.model.item_attrs import UsesItemRatings
 from galaxy.model.mapping import desc
@@ -34,6 +36,9 @@ from galaxy.web.framework.helpers import grids, time_ago
 from galaxy.web.framework.helpers import to_unicode
 from galaxy.workflow.modules import module_factory
 from galaxy.workflow.run import invoke
+
+import logging
+log = logging.getLogger( __name__ )
 
 
 class StoredWorkflowListGrid( grids.Grid ):
@@ -1217,8 +1222,9 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
             dataset_collection_ids = [ int( id ) for id in dataset_collection_ids ]
             # Find each job, for security we (implicately) check that they are
             # associated witha job in the current history.
-            jobs, warnings = get_job_dict( trans )
+            jobs, warnings, hid_map, implicit_map_jobs = get_job_dict( trans, include_implicit_mapping=True )
             jobs_by_id = dict( ( job.id, job ) for job in jobs.keys() )
+            log.info("job_ids are %s, jobs_by_id is %s" % ( job_ids, jobs_by_id ) )
             steps = []
             steps_by_job_id = {}
             hid_to_output_pair = {}
@@ -1237,6 +1243,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 steps.append( step )
             # Tool steps
             for job_id in job_ids:
+                log.info("job_ids are %s, jobs_by_id is %s in %s" % ( job_ids, jobs_by_id, job_id in jobs_by_id ) )
                 assert job_id in jobs_by_id, "Attempt to create workflow with job not connected to current history"
                 job = jobs_by_id[ job_id ]
                 tool = trans.app.toolbox.get_tool( job.tool_id )
@@ -1250,6 +1257,14 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 #       an earlier job can be used as an input to a later
                 #       job.
                 for other_hid, input_name in associations:
+                    if job in implicit_map_jobs:
+                        implicit_collection = implicit_map_jobs[ job ][ 0 ]
+                        log.info("Hey look there is an implicit collection.")
+                        input_collection = implicit_collection.find_implicit_input_collection( input_name )
+                        log.info("Found input? %s" % input_collection)
+                        if input_collection:
+                            log.info("Rewriting other_hid as %s" % input_collection.hid)
+                            other_hid = input_collection.hid
                     if other_hid in hid_to_output_pair:
                         other_step, other_name = hid_to_output_pair[ other_hid ]
                         conn = model.WorkflowStepConnection()
@@ -1262,7 +1277,12 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 steps_by_job_id[ job_id ] = step
                 # Store created dataset hids
                 for assoc in job.output_datasets:
-                    hid_to_output_pair[ assoc.dataset.hid ] = ( step, assoc.name )
+                    hid = assoc.dataset.hid
+                    log.info("ohid %s" % hid)
+                    if hid in hid_map:
+                        hid = hid_map[ hid ]
+                    log.info("stored hid %s" % hid)
+                    hid_to_output_pair[ hid ] = ( step, assoc.name )
             # Workflow to populate
             workflow = model.Workflow()
             workflow.name = workflow_name
@@ -1771,13 +1791,15 @@ class DatasetCollectionCreationJob( object ):
         self.is_fake = True
         self.id = "fake_%s" % dataset_collection.id
         self.from_jobs = None
+        self.name = "Dataset Collection Creation"
+        self.disabled_why = "Dataset collection created in a way not compatible with workflows"
 
     def set_jobs( self, jobs ):
         assert jobs is not None
         self.from_jobs = jobs
 
 
-def get_job_dict( trans ):
+def get_job_dict( trans, include_implicit_mapping=False ):
     """
     Return a dictionary of Job -> [ Dataset ] mappings, for all finished
     active Datasets in the current history and the jobs that created them.
@@ -1786,6 +1808,9 @@ def get_job_dict( trans ):
     # Get the jobs that created the datasets
     warnings = set()
     jobs = odict()
+    dataset_jobs = {}
+    hid_map = {}
+    implicit_map_jobs = {}
 
     def append_dataset( dataset ):
         # FIXME: Create "Dataset.is_finished"
@@ -1793,13 +1818,15 @@ def get_job_dict( trans ):
             warnings.add( "Some datasets still queued or running were ignored" )
             return
 
+        # TODO: need to likewise find job for dataset collections.
         #if this hda was copied from another, we need to find the job that created the origial hda
         job_hda = dataset
         while job_hda.copied_from_history_dataset_association:
             job_hda = job_hda.copied_from_history_dataset_association
 
         if not job_hda.creating_job_associations:
-            jobs[ FakeJob( dataset ) ] = [ ( None, dataset ) ]
+            job = FakeJob( dataset )
+            jobs[ job ] = [ ( None, dataset ) ]
 
         for assoc in job_hda.creating_job_associations:
             job = assoc.job
@@ -1808,14 +1835,88 @@ def get_job_dict( trans ):
             else:
                 jobs[ job ] = [ ( assoc.name, dataset ) ]
 
+        dataset_jobs[ dataset ] = job
+
+    def replace_datasets_with_implicit_collections( job, collections ):
+        for collection in collections:
+            found_job = False
+            for hda in collection.collection.dataset_instances:
+                log.info("hda is %s, datset_job is %s (%s), job id is %s" % ( hda, dataset_jobs[ hda ], dataset_jobs[ hda ].id, job.id ) )
+                hda_job = dataset_jobs[ hda ]
+                if job == hda_job:
+                    found_job = True
+                    break
+
+            if not found_job:
+                log.info("Failed to find job")
+                raise exceptions.MessageException( "Cannot determine collection provenance." )
+
+            found_hda = -1  # Index of original dataset
+            job_contents = jobs[ job ]
+            for i, name_to_dataset in enumerate( job_contents ):
+                if name_to_dataset[ 1 ] == hda:
+                    found_hda = i
+                    break
+
+            if found_hda == -1:
+                log.info("Failed to find hda")
+                raise exceptions.MessageException( "Cannot determine collection provenance." )
+
+            hda_content = job_contents[ found_hda ]
+            collection_content = ( hda_content[ 0 ], collection )
+            job_contents[ found_hda ] = collection_content
+            hid_map[ hda_content[ 1 ].hid ] = collection.hid
+        implicit_map_jobs[ job ] = collections
+
+    implicit_collections_dict = collections.defaultdict(list)  # Job -> [Collection]
+    implicit_jobs_dict = collections.defaultdict(list)  # Collection -> [ Jobs ]
     for content in history.active_contents:
         if content.history_content_type == "dataset_collection":
+            if content.implicit_output_name:
+                continue
             job = DatasetCollectionCreationJob( content )
             jobs[ job ] = [ ( None, content ) ]
-            collection_jobs[ content ] = job
         else:
             append_dataset( content )
-    return jobs, warnings
+
+    for content in history.active_contents:
+        if content.history_content_type == "dataset_collection":
+            if content.implicit_output_name:
+                for hda in content.collection.dataset_instances:
+                    job = dataset_jobs[ hda ]
+                    if not job:
+                        raise exceptions.MessageException( "Cannot determine collection provenance." )
+                    implicit_collections_dict[ job ].append( content )
+                    implicit_jobs_dict[ content ].append( job )
+
+    keep_jobs = []
+    drop_jobs = []
+    for job in sorted( implicit_collections_dict, key=lambda job: job.id ):
+        implicit_collections = implicit_collections_dict[ job ]
+        if job in drop_jobs:
+            continue
+        keep_jobs.append( job )
+        first = True
+        for collection in implicit_collections:
+            for other_job in implicit_jobs_dict[ collection ]:
+                if job == other_job:
+                    continue
+                if first:
+                    drop_jobs.append( other_job )
+                elif other_job not in drop_jobs:
+                    raise exceptions.MessageException( "Cannot determine collection provenance." )
+
+            first = False
+
+    for job in drop_jobs:
+        del jobs[ job ]
+    for job in keep_jobs:
+        replace_datasets_with_implicit_collections( job, implicit_collections_dict[ job ])
+
+    if include_implicit_mapping:
+        return jobs, warnings, hid_map, implicit_map_jobs
+    else:
+        return jobs, warnings
 
 
 def cleanup_param_values( inputs, values ):
