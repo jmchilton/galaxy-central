@@ -1750,6 +1750,18 @@ class FakeJob( object ):
         self.id = "fake_%s" % dataset.id
 
 
+class DatasetCollectionCreationJob( object ):
+
+    def __init__( self, dataset_collection ):
+        self.is_fake = True
+        self.id = "fake_%s" % dataset_collection.id
+        self.from_jobs = None
+
+    def set_jobs( self, jobs ):
+        assert jobs is not None
+        self.from_jobs = jobs
+
+
 def get_job_dict( trans ):
     """
     Return a dictionary of Job -> [ Dataset ] mappings, for all finished
@@ -1783,7 +1795,9 @@ def get_job_dict( trans ):
 
     for content in history.active_contents:
         if content.history_content_type == "dataset_collection":
-            jobs[ FakeJob( content ) ] = [ ( None, content ) ]
+            job = DatasetCollectionCreationJob( content )
+            jobs[ job ] = [ ( None, content ) ]
+            collection_jobs[ content ] = job
         else:
             append_dataset( content )
     return jobs, warnings
