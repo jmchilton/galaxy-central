@@ -99,4 +99,4 @@ def make_list_copy( from_list ):
     return new_list
 
 
-__all__ = [ WrappedParameters ]
+__all__ = [ WrappedParameters, make_dict_copy ]
