@@ -2465,6 +2465,14 @@ class DatasetCollection( object,  Dictifiable, UsesAnnotations ):
         if self.collection_type is None:
             raise Exception("Each dataset collection must define a collection type.")
 
+    def __getitem__( self, key ):
+        get_by_attribute = "element_index" if isinstance( key, int ) else "element_identifier"
+        for dataset in self.datasets:
+            if getattr( dataset, get_by_attribute ) == key:
+                return dataset
+        error_message = "Dataset collection has no %s with key %s." % ( get_by_attribute, key )
+        raise KeyError( error_message )
+
 
 class DatasetCollectionInstance( object ):
     """
