@@ -768,7 +768,7 @@ class HistoryController( BaseUIController, SharableMixin, UsesAnnotations, UsesI
         return ac_data
 
     @web.expose
-    def imp( self, trans, id=None, confirm=False, **kwd ):
+    def imp( self, trans, id=None, confirm=False, switch=None, **kwd ):
         """Import another user's history via a shared URL"""
         msg = ""
         user = trans.get_user()
@@ -814,9 +814,12 @@ class HistoryController( BaseUIController, SharableMixin, UsesAnnotations, UsesI
             trans.sa_session.flush()
             # Set imported history to be user's current history.
             trans.set_history( new_history )
-            return trans.show_ok_message(
-                message="""History "%s" has been imported. <br>You can <a href="%s" onclick="parent.window.location='%s';">start using this history</a> or %s."""
-                % ( new_history.name, web.url_for( '/' ), web.url_for( '/' ), referer_message ), use_panels=True )
+            if switch:
+                return trans.response.send_redirect( url_for( "/" ) )
+            else:
+                return trans.show_ok_message(
+                    message="""History "%s" has been imported. <br>You can <a href="%s" onclick="parent.window.location='%s';">start using this history</a> or %s."""
+                    % ( new_history.name, web.url_for( '/' ), web.url_for( '/' ), referer_message ), use_panels=True )
 
         elif not user_history or not user_history.datasets or confirm:
             #TODO:?? should anon-users be allowed to include deleted datasets when importing?
@@ -835,9 +838,13 @@ class HistoryController( BaseUIController, SharableMixin, UsesAnnotations, UsesI
             trans.sa_session.add( new_history )
             trans.sa_session.flush()
             trans.set_history( new_history )
-            return trans.show_ok_message(
-                message="""History "%s" has been imported. <br>You can <a href="%s">start using this history</a> or %s."""
-                % ( new_history.name, web.url_for( '/' ), referer_message ), use_panels=True )
+            log.info( "Switch %s" % switch )
+            if switch:
+                return trans.response.send_redirect( url_for( "/" ) )
+            else:
+                return trans.show_ok_message(
+                    message="""History "%s" has been imported. <br>You can <a href="%s">start using this history</a> or %s."""
+                    % ( new_history.name, web.url_for( '/' ), referer_message ), use_panels=True )
         return trans.show_warn_message( """
             Warning! If you import this history, you will lose your current
             history. <br>You can <a href="%s">continue and import this history</a> or %s.
