@@ -908,6 +908,19 @@ class History( object, Dictifiable, UsesAnnotations, HasName ):
             db_session.flush()
             # Copy annotation.
             self.copy_item_annotation( db_session, self.user, hda, target_user, new_hda )
+        # Copy history dataset collections
+        if all_datasets:
+            hdcas = self.dataset_collections
+        else:
+            hdcas = self.active_dataset_collections
+        for hdca in hdcas:
+            new_hdca = hdca.copy( )
+            new_history.add_dataset_collection( new_hdca, set_hid=False )
+            db_session.add( new_hdca )
+            db_session.flush()
+            # Copy annotation.
+            self.copy_item_annotation( db_session, self.user, hdca, target_user, new_hdca )
+
         new_history.hid_counter = self.hid_counter
         db_session.add( new_history )
         db_session.flush()
@@ -2504,6 +2517,7 @@ class DatasetCollection( object, Dictifiable, UsesAnnotations ):
         id=None,
         collection_type=None,
         name=None,
+        deleted=False,
     ):
         self.id = id
         self.name = name or DEFAULT_COLLECTION_NAME
@@ -2543,8 +2557,8 @@ class DatasetCollection( object, Dictifiable, UsesAnnotations ):
             name=self.name,
             deleted=self.deleted
         )
-        for dataset in self.datasets:
-            dataset.copy_to_collection( new_collection )
+        for element in self.elemenets:
+            element.copy_to_collection( new_collection )
         object_session( self ).add( new_collection )
         object_session( self ).flush()
         return new_collection
@@ -2675,6 +2689,23 @@ class HistoryDatasetCollectionAssociation( DatasetCollectionInstance, Dictifiabl
                 break
         return matching_collection
 
+    def copy( self ):
+        """
+        Create a copy of this history dataset collection association. Copy
+        underlying collection.
+        """
+        hdca = HistoryDatasetCollectionAssociation(
+            hid=self.hid,
+            collection=self.collection.copy(),
+            visible=self.visible,
+            deleted=self.deleted,
+            copied_from_history_dataset_collection_association=self,
+        )
+
+        object_session( self ).add( hdca )
+        object_session( self ).flush()
+        return hdca
+
 
 class LibraryDatasetCollectionAssociation( DatasetCollectionInstance, Dictifiable ):
     """ Associates a DatasetCollection with a library folder. """
@@ -2764,6 +2795,15 @@ class DatasetCollectionElement( object, Dictifiable ):
     @property
     def dataset( self ):
         return self.dataset_instance.dataset
+
+    def copy_to_collection( self, collection ):
+        new_element = DatasetCollectionElement(
+            element=self.dataset_instance,
+            collection=collection,
+            element_index=self.element_index,
+            element_identifier=self.element_identifier,
+        )
+        return new_element
 
 
 class Event( object ):
