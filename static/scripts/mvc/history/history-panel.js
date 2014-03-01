@@ -229,6 +229,19 @@ var HistoryPanel = readonlyPanel.ReadOnlyHistoryPanel.extend(
                         panel.getSelectedHdaCollection().ajaxQueue( action );
                     }
                 }
+            },
+            {
+                // Certain passing the panel into the model to refresh is wrong
+                // 
+                html: _l( 'Build Dataset List' ), func: function() {
+                    panel.getSelectedHdaCollection().promoteToHistoryDatasetCollection( panel.model, "list" );
+                }
+            },
+            {
+                // TODO: Only show quick pair if two things selected.
+                html: _l( 'Build Dataset Pair' ), func: function() {
+                    panel.getSelectedHdaCollection().promoteToHistoryDatasetCollection( panel.model, "paired" );
+                }
             }
         ]));
     },
