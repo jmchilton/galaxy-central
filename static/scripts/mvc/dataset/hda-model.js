@@ -622,6 +622,54 @@ var HDACollection = Backbone.Collection.extend( LoggableMixin ).extend(
         Backbone.Collection.prototype.set.call( this, models, options );
     },
 
+    /** Convert this ad-hoc collection of HDAs to a formal collection tracked
+        by the server.
+    **/
+    promoteToHistoryDatasetCollection : function _promote( history, collection_type, options ){
+        options = options || {};
+        options.url = this.url();
+        options.type = "POST";
+        var dataset_identifiers = {};
+            name = null;
+
+        if(collection_type == "list") {
+            this.chain().each( function( hda ) {
+                // TODO: Handle duplicate names.
+                dataset_identifiers[ hda.name ] = { "src": "hda", "id": hda.id };
+            });
+            name = "New Dataset List";
+        } else if( collection_type == "paired" ) {
+            var ids = this.ids();
+            if( ids.length != 2 ){
+                // TODO: Do something...
+            }
+            dataset_identifiers[ "left" ] = { "src": "hda", "id": ids[ 0 ] };
+            dataset_identifiers[ "right" ] = { "src": "hda", "id": ids[ 1 ] };
+            name = "New Dataset Pair";
+        }
+
+        options.data = {"type": "dataset_collection",
+                        "name": name,
+                        "collection_type": collection_type,
+                        "dataset_identifiers": JSON.stringify(dataset_identifiers),
+                       };
+
+        var xhr = jQuery.ajax( options );
+        xhr.done( function( message, status, responseObj ){
+            history.refresh( );
+        });
+        xhr.fail( function( xhr, status, message ){
+            if( xhr.responseJSON && xhr.responseJSON.error ){
+                error = xhr.responseJSON.error;
+            } else {
+                error = xhr.responseJSON;
+            }
+            xhr.responseText = error;
+            // Do something?
+        });
+        return xhr;
+    },
+
     /** String representation. */
     toString : function(){
          return ([ 'HDACollection(', [ this.historyId, this.length ].join(), ')' ].join( '' ));
