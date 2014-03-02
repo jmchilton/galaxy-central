@@ -90,7 +90,7 @@ class HistoryContentsController( BaseAPIController, UsesHistoryDatasetAssociatio
         if types:
             types = util.listify(types)
         else:
-            types = [ 'dataset' ]
+            types = [ 'dataset', "dataset_collection" ]
 
         contents_kwds = {'types': types}
         if ids:
