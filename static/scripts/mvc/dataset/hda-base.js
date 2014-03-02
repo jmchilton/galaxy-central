@@ -1,28 +1,98 @@
 define([
     "mvc/dataset/hda-model"
 ], function( hdaModel ){
-/* global Backbone, LoggableMixin, HistoryDatasetAssociation, HDABaseView */
-//==============================================================================
-/** @class Read only view for HistoryDatasetAssociation.
- *  @name HDABaseView
+/** @class Read only view for history content views to extend.
+ *  @name HistoryContentBaseView
  *
  *  @augments Backbone.View
  *  @borrows LoggableMixin#logger as #logger
  *  @borrows LoggableMixin#log as #log
  *  @constructs
  */
-var HDABaseView = Backbone.View.extend( LoggableMixin ).extend(
+var HistoryContentBaseView = Backbone.View.extend( LoggableMixin ).extend(
+/** @lends HistoryContentBaseView.prototype */{
+    tagName     : "div",
+    fxSpeed     : 'fast',
+
+    _queueNewRender : function( $newRender, fade ) {
+        fade = ( fade === undefined )?( true ):( fade );
+        var view = this;
+
+        // fade the old render out (if desired)
+        if( fade ){
+            $( view ).queue( function( next ){ this.$el.fadeOut( view.fxSpeed, next ); });
+        }
+        // empty the old render, update to any new HDA state, swap in the new render contents, handle multi-select
+        $( view ).queue( function( next ){
+            this.$el.empty()
+                .attr( 'class', view.className ).addClass( 'state-' + view.model.get( 'state' ) )
+                .append( $newRender.children() );
+            if( this.selectable ){ this.showSelector( 0 ); }
+            next();
+        });
+        // fade the new in
+        if( fade ){
+            $( view ).queue( function( next ){ this.$el.fadeIn( view.fxSpeed, next ); });
+        }
+        // trigger an event to know we're ready
+        $( view ).queue( function( next ){
+            this.trigger( 'rendered', view );
+            if( this.model.inReadyState() ){
+                this.trigger( 'rendered:ready', view );
+            }
+            if( this.draggable ){ this.draggableOn(); }
+            next();
+        });        
+    },
+
+    /** Show or hide the body/details of history content.
+     *      note: if the model does not have detailed data, fetch that data before showing the body
+     *  @param {Event} event the event that triggered this (@link HDABaseView#events)
+     *  @param {Boolean} expanded if true, expand; if false, collapse
+     *  @fires body-expanded when a body has been expanded
+     *  @fires body-collapsed when a body has been collapsed
+     */
+    toggleBodyVisibility : function( event, expand ){
+        // bail (with propagation) if keydown and not space or enter
+        var KEYCODE_SPACE = 32, KEYCODE_RETURN = 13;
+        if( event && ( event.type === 'keydown' )
+        &&  !( event.keyCode === KEYCODE_SPACE || event.keyCode === KEYCODE_RETURN ) ){
+            return true;
+        }
+
+        var $body = this.$el.find( '.dataset-body' );
+        expand = ( expand === undefined )?( !$body.is( ':visible' ) ):( expand );
+        if( expand ){
+            this.expandBody();
+        } else {
+            this.collapseBody();
+        }
+        return false;
+    }
+
+
+});
+
+
+/* global Backbone, LoggableMixin, HistoryDatasetAssociation, HDABaseView */
+//==============================================================================
+/** @class Read only view for HistoryDatasetAssociation.
+ *  @name HDABaseView
+ *
+ *  @augments HistoryContentBaseView
+ *  @borrows LoggableMixin#logger as #logger
+ *  @borrows LoggableMixin#log as #log
+ *  @constructs
+ */
+var HDABaseView = HistoryContentBaseView.extend(
 /** @lends HDABaseView.prototype */{
 
     ///** logger used to record this.log messages, commonly set to console */
     //// comment this out to suppress log output
     //logger              : console,
 
-    tagName     : "div",
     className   : "dataset hda history-panel-hda",
     id          : function(){ return 'hda-' + this.model.get( 'id' ); },
-
-    fxSpeed     : 'fast',
 
     // ......................................................................... set up
     /** Set up the view, cache url templates, bind listeners
@@ -88,9 +158,6 @@ var HDABaseView = Backbone.View.extend( LoggableMixin ).extend(
      *  @returns {Object} this HDABaseView
      */
     render : function( fade ){
-        fade = ( fade === undefined )?( true ):( fade );
-        var view = this;
-
         //HACK: hover exit doesn't seem to be called on prev. tooltips when RE-rendering - so: no tooltip hide
         // handle that here by removing previous view's tooltips
         this.$el.find("[title]").tooltip( "destroy" );
@@ -99,32 +166,9 @@ var HDABaseView = Backbone.View.extend( LoggableMixin ).extend(
         this.urls = this.model.urls();
         var $newRender = this._buildNewRender();
 
-        // fade the old render out (if desired)
-        if( fade ){
-            $( view ).queue( function( next ){ this.$el.fadeOut( view.fxSpeed, next ); });
-        }
-        // empty the old render, update to any new HDA state, swap in the new render contents, handle multi-select
-        $( view ).queue( function( next ){
-            this.$el.empty()
-                .attr( 'class', view.className ).addClass( 'state-' + view.model.get( 'state' ) )
-                .append( $newRender.children() );
-            if( this.selectable ){ this.showSelector( 0 ); }
-            next();
-        });
-        // fade the new in
-        if( fade ){
-            $( view ).queue( function( next ){ this.$el.fadeIn( view.fxSpeed, next ); });
-        }
-        // trigger an event to know we're ready
-        $( view ).queue( function( next ){
-            this.trigger( 'rendered', view );
-            if( this.model.inReadyState() ){
-                this.trigger( 'rendered:ready', view );
-            }
-            if( this.draggable ){ this.draggableOn(); }
-            next();
-        });
+        this._queueNewRender( $newRender, fade );
         return this;
+
     },
     
     _buildNewRender : function(){
@@ -425,31 +469,6 @@ var HDABaseView = Backbone.View.extend( LoggableMixin ).extend(
         'click .dataset-selector'       : 'toggleSelect'
     },
 
-    /** Show or hide the body/details of an HDA.
-     *      note: if the model does not have detailed data, fetch that data before showing the body
-     *  @param {Event} event the event that triggered this (@link HDABaseView#events)
-     *  @param {Boolean} expanded if true, expand; if false, collapse
-     *  @fires body-expanded when a body has been expanded
-     *  @fires body-collapsed when a body has been collapsed
-     */
-    toggleBodyVisibility : function( event, expand ){
-        // bail (with propagation) if keydown and not space or enter
-        var KEYCODE_SPACE = 32, KEYCODE_RETURN = 13;
-        if( event && ( event.type === 'keydown' )
-        &&  !( event.keyCode === KEYCODE_SPACE || event.keyCode === KEYCODE_RETURN ) ){
-            return true;
-        }
-
-        var $body = this.$el.find( '.dataset-body' );
-        expand = ( expand === undefined )?( !$body.is( ':visible' ) ):( expand );
-        if( expand ){
-            this.expandBody();
-        } else {
-            this.collapseBody();
-        }
-        return false;
-    },
-
     /** Render and show the full, detailed body of this view including extra data and controls.
      *  @fires body-expanded when a body has been expanded
      */
@@ -667,5 +686,6 @@ HDABaseView.templates = {
 
 //==============================================================================
 return {
+    HistoryContentBaseView : HistoryContentBaseView,
     HDABaseView  : HDABaseView
 };});
