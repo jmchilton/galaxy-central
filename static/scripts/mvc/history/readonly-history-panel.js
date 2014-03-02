@@ -385,7 +385,7 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
         // bind events from the model's hda collection
         // note: don't listen to the hdas for errors, history will pass that to us
         //this.model.hdas.on( 'reset', this.addAll, this );
-        this.model.hdas.on( 'add', this.addHdaView, this );
+        this.model.hdas.on( 'add', this.addContentView, this );
 
         // on a model error - bounce it up to the panel and remove it from the model
         this.model.on( 'error error:hdas', function( model, xhr, options, msg ){
@@ -488,10 +488,10 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
     },
 
     // ------------------------------------------------------------------------ hda sub-views
-    /** Create an HDA view for the given HDA (but leave attachment for addHdaView above)
+    /** Create an HDA view for the given HDA (but leave attachment for addContentView above)
      *  @param {HistoryDatasetAssociation} hda
      */
-    createHdaView : function( hda ){
+    createContentView : function( hda ){
         var hdaId = hda.get( 'id' ),
             hdaView = new this.HDAViewClass({
                 model           : hda,
@@ -547,12 +547,12 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
             visibleHdas.each( function( hda ){
                 // render it (NOTE: reverse order, newest on top (prepend))
                 var hdaId = hda.get( 'id' ),
-                    hdaView = historyView.createHdaView( hda );
+                    hdaView = historyView.createContentView( hda );
                 newHdaViews[ hdaId ] = hdaView;
                 if( _.contains( historyView.selectedHdaIds, hdaId ) ){
                     hdaView.selected = true;
                 }
-                historyView.attachHdaView( hdaView.render(), $whereTo );
+                historyView.attachContentView( hdaView.render(), $whereTo );
             });
             $whereTo.find( this.emptyMsgSelector ).hide();
 
@@ -566,7 +566,7 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
         return this.hdaViews;
     },
 
-    attachHdaView : function( hdaView, $whereTo ){
+    attachContentView : function( hdaView, $whereTo ){
         $whereTo = $whereTo || this.$el;
         var $datasetsList = $whereTo.find( this.datasetsSelector );
         $datasetsList.prepend( hdaView.$el );
@@ -575,7 +575,7 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
     /** Add an hda view to the panel for the given hda
      *  @param {HistoryDatasetAssociation} hda
      */
-    addHdaView : function( hda ){
+    addContentView : function( hda ){
         this.log( 'add.' + this, hda );
         var panel = this;
 
@@ -597,7 +597,7 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
             function createAndPrepend( next ){
                 panel.scrollToTop();
                 var $whereTo = panel.$el.find( panel.datasetsSelector ),
-                    hdaView = panel.createHdaView( hda );
+                    hdaView = panel.createContentView( hda );
                 panel.hdaViews[ hda.id ] = hdaView;
                 hdaView.render().$el.hide().prependTo( $whereTo ).slideDown( panel.fxSpeed );
             }

@@ -242,10 +242,10 @@ var HistoryPanel = readonlyPanel.ReadOnlyHistoryPanel.extend(
         } // otherwise, the hdaView rendering should handle it
     },
 
-    /** Create an HDA view for the given HDA (but leave attachment for addHdaView above)
+    /** Create an HDA view for the given HDA (but leave attachment for addContentView above)
      *  @param {HistoryDatasetAssociation} hda
      */
-    createHdaView : function( hda ){
+    createContentView : function( hda ){
         var hdaId = hda.get( 'id' ),
             hdaView = new this.HDAViewClass({
                 model           : hda,
