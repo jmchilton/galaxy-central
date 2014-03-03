@@ -826,7 +826,8 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         steps_by_external_id = {}
         errors = []
         for key, step_dict in data['steps'].iteritems():
-            if step_dict['type'] != 'data_input' and step_dict['tool_id'] not in trans.app.toolbox.tools_by_id:
+            is_input = step_dict[ 'type' ] in [ 'data_input', 'data_collection_input' ]
+            if not is_input and step_dict['tool_id'] not in trans.app.toolbox.tools_by_id:
                 errors.append("Step %s requires tool '%s'." % (step_dict['id'], step_dict['tool_id']))
         if errors:
             return dict( name=workflow.name,
