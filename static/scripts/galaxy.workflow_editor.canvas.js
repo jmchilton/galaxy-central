@@ -68,6 +68,27 @@ $.extend( InputTerminal.prototype, {
     }
 });
 
+
+function InputCollectionTerminal( element ) {
+    Terminal.call( this, element );
+    this.multiple = false;
+}
+
+InputCollectionTerminal.prototype = new Terminal();
+
+$.extend( InputCollectionTerminal.prototype, {
+    can_accept: function ( other ) {
+        var cat_outputs = new Array();
+        cat_outputs = cat_outputs.concat( other.datatypes );
+        if ( this.connectors.length < 1 ) {
+            if ( cat_outputs[ 0 ] == "input_collection" ) {
+                return true;
+            }
+        }
+        return false;
+    }
+});
+
 function Connector( handle1, handle2 ) {
     this.canvas = null;
     this.dragging = false;
@@ -179,7 +200,11 @@ $.extend( Node.prototype, {
     enable_input_terminal : function( elements, name, types, multiple ) {
         var node = this;
         $(elements).each( function() {
-            var terminal = this.terminal = new InputTerminal( this, types, multiple );
+            if( input_type == "dataset_collection" ) {
+                var terminal = this.terminal = new InputCollectionTerminal( this );
+            } else {
+                var terminal = this.terminal = new InputTerminal( this, types, multiple );
+            }
             terminal.node = node;
             terminal.name = name;
             $(this).bind( "dropinit", function( e, d ) {
@@ -344,7 +369,8 @@ $.extend( Node.prototype, {
             var t = $( "<div class='terminal output-terminal'></div>" );
             node.enable_output_terminal( t, output.name, output.extensions );
             var label = output.name;
-            if ( output.extensions.indexOf( 'input' ) < 0 ) {
+            var isInput = output.extensions.indexOf( 'input' ) >= 0 || output.extensions.indexOf( 'input_collection' ) >= 0;
+            if ( ! isInput ) {
                 label = label + " (" + output.extensions.join(", ") + ")";
             }
             var r = $("<div class='form-row dataRow'>" + label + "</div>" );
