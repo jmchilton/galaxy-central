@@ -205,6 +205,9 @@ class InputDataCollectionModule( InputModule ):
         label = self.state.get( "name", self.default_name )
         return dict( input=DataCollectionToolParameter( None, Element( "param", name="input", label=label, type="data_collection"), self.trans ) )
 
+    def get_data_outputs( self ):
+        return [ dict( name='output', extensions=['input_collection'] ) ]
+
 
 class ToolModule( WorkflowModule ):
 
@@ -335,12 +338,14 @@ class ToolModule( WorkflowModule ):
                     name=prefixed_name,
                     label=prefixed_label,
                     multiple=input.multiple,
-                    extensions=input.extensions ) )
+                    extensions=input.extensions,
+                    input_type="dataset", ) )
             if isinstance( input, DataCollectionToolParameter ):
                 data_inputs.append( dict(
                     name=prefixed_name,
                     label=prefixed_label,
                     multiple=input.multiple,
+                    input_type="dataset_collection",
                     ) )
 
         visit_input_values( self.tool.inputs, self.state.inputs, callback )
