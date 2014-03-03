@@ -1,9 +1,10 @@
 define([
     "mvc/history/history-model",
+    "mvc/collection/dataset-collection-base",
     "mvc/dataset/hda-base",
     "mvc/user/user-model",
     "mvc/base-mvc"
-], function( historyModel, hdaBase, userModel, baseMVC ){
+], function( historyModel, datasetCollectionBase, hdaBase, userModel, baseMVC ){
 // ============================================================================
 /** session storage for individual history preferences */
 var HistoryPrefs = baseMVC.SessionStorageModel.extend({
@@ -612,6 +613,15 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( baseMVC.LoggableMixin ).extend(
             hdaView = null;
         if( historyContentType == "dataset" ) {
             hdaView = new this.HDAViewClass({
+                model           : hda,
+                linkTarget      : this.linkTarget,
+                expanded        : this.storage.get( 'expandedHdas' )[ hdaId ],
+                //draggable       : true,
+                hasUser         : this.model.ownedByCurrUser(),
+                logger          : this.logger
+            });
+        } else {
+            hdaView = new datasetCollectionBase.DatasetCollectionBaseView({
                 model           : hda,
                 linkTarget      : this.linkTarget,
                 expanded        : this.storage.get( 'expandedHdas' )[ hdaId ],
