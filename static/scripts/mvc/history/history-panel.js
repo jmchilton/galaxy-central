@@ -1,8 +1,9 @@
 define([
     "mvc/dataset/hda-model",
     "mvc/dataset/hda-edit",
+    "mvc/collection/dataset-collection-edit",
     "mvc/history/readonly-history-panel"
-], function( hdaModel, hdaEdit, readonlyPanel ){
+], function( hdaModel, hdaEdit, datasetCollectionEdit, readonlyPanel ){
 /* =============================================================================
 TODO:
 
@@ -282,6 +283,15 @@ var HistoryPanel = readonlyPanel.ReadOnlyHistoryPanel.extend(
                 logger          : this.logger,
                 tagsEditorShown       : ( this.tagsEditor && !this.tagsEditor.hidden ),
                 annotationEditorShown : ( this.annotationEditor && !this.annotationEditor.hidden )
+            });
+        } else if ( historyContentType == "dataset_collection" ) {
+            hdaView = new datasetCollectionEdit.DatasetCollectionEditView({
+                model           : hda,
+                linkTarget      : this.linkTarget,
+                expanded        : this.storage.get( 'expandedHdas' )[ hdaId ],
+                //draggable       : true,
+                hasUser         : this.model.ownedByCurrUser(),
+                logger          : this.logger
             });
         }
         this._setUpHdaListeners( hdaView );
