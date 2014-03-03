@@ -1,7 +1,8 @@
 define([
     "mvc/history/history-model",
+    "mvc/collection/dataset-collection-base",
     "mvc/dataset/hda-base"
-], function( historyModel, hdaBase ){
+], function( historyModel, datasetCollectionBase, hdaBase ){
 // ============================================================================
 /** session storage for individual history preferences */
 var HistoryPrefs = SessionStorageModel.extend({
@@ -504,6 +505,16 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
                 hasUser         : this.model.ownedByCurrUser(),
                 logger          : this.logger
             });
+        } else {
+            hdaView = new datasetCollectionBase.DatasetCollectionBaseView({
+                model           : hda,
+                linkTarget      : this.linkTarget,
+                expanded        : this.storage.get( 'expandedHdas' )[ hdaId ],
+                //draggable       : true,
+                hasUser         : this.model.ownedByCurrUser(),
+                logger          : this.logger
+            });
+        }
         this._setUpHdaListeners( hdaView );
         return hdaView;
     },
