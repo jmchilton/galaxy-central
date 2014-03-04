@@ -761,6 +761,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
             }
             # Connections
             input_connections = step.input_connections
+            input_connections_type = {}
             multiple_input = {}  # Boolean value indicating if this can be mutliple
             if step.type is None or step.type == 'tool':
                 # Determine full (prefixed) names of valid input datasets
@@ -770,6 +771,10 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                     if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                         data_input_names[ prefixed_name ] = True
                         multiple_input[input.name] = input.multiple
+                        if isinstance( input, DataToolParameter ):
+                            input_connections_type[ input.name ] = "dataset"
+                        if isinstance( input, DataCollectionToolParameter ):
+                            input_connections_type[ input.name ] = "dataset_collection"
                 visit_input_values( module.tool.inputs, module.state.inputs, callback )
                 # Filter
                 # FIXME: this removes connection without displaying a message currently!
@@ -791,7 +796,10 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
             # Encode input connections as dictionary
             input_conn_dict = {}
             for conn in input_connections:
-                conn_dict = dict( id=conn.output_step.order_index, output_name=conn.output_name )
+                input_type = "dataset"
+                if conn.input_name in input_connections_type:
+                    input_type = input_connections_type[ conn.input_name ]
+                conn_dict = dict( id=conn.output_step.order_index, output_name=conn.output_name, input_type=input_type )
                 if conn.input_name in multiple_input:
                     if conn.input_name in input_conn_dict:
                         input_conn_dict[ conn.input_name ].append( conn_dict )
