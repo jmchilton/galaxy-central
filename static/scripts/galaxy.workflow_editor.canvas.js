@@ -59,6 +59,7 @@ $.extend( Terminal.prototype, {
         this.set_multirun( ! this.multirun );
     },
     update_multirun_element : function( ) {
+        this.redraw();
         if( this.multirun ) {
             this.multirun_element.css( "color", "black" );
         } else {
@@ -244,20 +245,52 @@ $.extend( Connector.prototype, {
         end_x -= canvas_left;
         end_y -= canvas_top;
         // Draw the line
+
+        var c = this.canvas.getContext("2d"),
+            start_offsets = null,
+            end_offsets = null;
+        var num_offsets = 1;
+        if ( this.handle1 && this.handle1.multirun ) {
+            var start_offsets = [ -6, -3, 0, 3, 6 ];
+            num_offsets = 5;
+        } else {
+            var start_offsets = [ 0 ];
+        }
+        if ( this.handle2 && this.handle2.multirun ) {
+            var end_offsets = [ -6, -3, 0, 3, 6 ];
+            num_offsets = 5;
+        } else {
+            var end_offsets = [ 0 ];
+        }
+        var connector = this;
+        for( var i = 0; i < num_offsets; i++ ) {
+            var inner_width = 5,
+                outer_width = 7;
+            if( start_offsets.length > 1 || end_offsets.length > 1 ) {
+                // We have a multi-run, using many lines, make them small.
+                inner_width = 1;
+                outer_width = 3;
+            }
+            connector.draw_outlined_curve( start_x, start_y, end_x, end_y, cp_shift, inner_width, outer_width, start_offsets[ i % start_offsets.length ], end_offsets[ i % end_offsets.length ] ); 
+        }
+    },
+    draw_outlined_curve : function( start_x, start_y, end_x, end_y, cp_shift, inner_width, outer_width, offset_start, offset_end ) {
+        var offset_start = offset_start || 0;
+        var offset_end = offset_end || 0;
         var c = this.canvas.getContext("2d");
         c.lineCap = "round";
         c.strokeStyle = this.outer_color;
-        c.lineWidth = 7;
+        c.lineWidth = outer_width;
         c.beginPath();
-        c.moveTo( start_x, start_y );
-        c.bezierCurveTo( start_x + cp_shift, start_y, end_x - cp_shift, end_y, end_x, end_y );
+        c.moveTo( start_x, start_y + offset_start );
+        c.bezierCurveTo( start_x + cp_shift, start_y + offset_start, end_x - cp_shift, end_y + offset_end, end_x, end_y + offset_end);
         c.stroke();
         // Inner line
         c.strokeStyle = this.inner_color;
-        c.lineWidth = 5;
+        c.lineWidth = inner_width;
         c.beginPath();
-        c.moveTo( start_x, start_y );
-        c.bezierCurveTo( start_x + cp_shift, start_y, end_x - cp_shift, end_y, end_x, end_y );
+        c.moveTo( start_x, start_y + offset_start );
+        c.bezierCurveTo( start_x + cp_shift, start_y + offset_start, end_x - cp_shift, end_y + offset_end, end_x, end_y + offset_end );
         c.stroke();
     }
 } );
