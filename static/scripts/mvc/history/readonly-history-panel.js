@@ -605,7 +605,7 @@ var ReadOnlyHistoryPanel = Backbone.View.extend( LoggableMixin ).extend(
     },
 
     /** alias to the model. Updates the hda list only (not the history) */
-    refreshHdas : function( detailIds, options ){
+    refreshContents : function( detailIds, options ){
         if( this.model ){
             return this.model.refresh( detailIds, options );
         }
