@@ -11,8 +11,10 @@ from galaxy import util
 from galaxy import web
 from galaxy.web import _future_expose_api as expose_api
 from galaxy.web.base.controller import BaseAPIController, url_for, UsesStoredWorkflowMixin
+from galaxy.web.base.controller import UsesHistoryMixin
 from galaxy.workflow.modules import module_factory
 from galaxy.workflow.run import invoke
+from galaxy.workflow.extract import extract_workflow
 
 
 log = logging.getLogger(__name__)
@@ -51,7 +53,7 @@ def _update_step_parameters(step, param_map):
         step.state.inputs.update(param_dict)
 
 
-class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
+class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHistoryMixin):
 
     @web.expose_api
     def index(self, trans, **kwd):
@@ -183,6 +185,24 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin):
                                                               cntrller='api',
                                                               **payload)
                 return result
+            if 'from_history_id' in payload:
+                from_history_id = payload.get( 'from_history_id' )
+                history = self.get_history( trans, from_history_id, check_ownership=False, check_accessible=True )
+                job_ids = map( trans.security.decode_id, payload.get( "job_ids", [] ) )
+                dataset_ids = map( trans.security.decode_id, payload.get( "dataset_ids", [] ) )
+                workflow_name = payload[ "workflow_name" ]
+                stored_workflow = extract_workflow(
+                    trans=trans,
+                    user=trans.get_user(),
+                    history=history,
+                    job_ids=job_ids,
+                    dataset_ids=dataset_ids,
+                    workflow_name=workflow_name,
+                )
+                item = stored_workflow.to_dict( value_mapper={ "id": trans.security.encode_id } )
+                item[ 'url' ] = url_for( 'workflow', id=item[ "id" ] )
+                return item
+
             trans.response.status = 403
             return "Either workflow_id or installed_repository_file must be specified"
         if 'installed_repository_file' in payload:
