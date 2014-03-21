@@ -55,7 +55,7 @@ class ToolExecutionTracker( object ):
         if self.failed_jobs > 0:
             return []
 
-        identifiers = self.collection_info.identifiers
+        structure = self.collection_info.structure
         collections = self.collection_info.collections.values()
 
         # params is just one sample tool param execution with parallelized
@@ -74,12 +74,12 @@ class ToolExecutionTracker( object ):
 
         implicit_inputs = list(self.collection_info.collections.iteritems())
         for output_name, outputs_datasets in self.output_datasets_by_output_name.iteritems():
-            if not len( identifiers ) == len( outputs_datasets ):
+            if not len( structure ) == len( outputs_datasets ):
                 # Output does not have the same structure, if all jobs were
                 # successful this shouldn't have happened.
                 continue
             output = self.tool.outputs[ output_name ]
-            collection_parts = dict( zip( identifiers, outputs_datasets ) )
+            element_identifiers_for_datasets = structure.element_identifiers_for_datasets( trans, outputs_datasets )
 
             implicit_collection_info = dict(
                 implicit_inputs=implicit_inputs,
@@ -103,8 +103,8 @@ class ToolExecutionTracker( object ):
                 trans=trans,
                 parent=history,
                 name=output_collection_name,
-                elements=collection_parts,
-                collection_type=self.collection_info.type,
+                element_identifiers=element_identifiers_for_datasets[ "element_identifiers" ],
+                collection_type=structure.collection_type,
                 implicit_collection_info=implicit_collection_info,
             )
             collections[ output_name ] = collection

@@ -1,4 +1,5 @@
 from .registry import DatasetCollectionTypesRegistry
+from .structure import get_structure
 
 from galaxy import model
 from galaxy.exceptions import MessageException
@@ -47,19 +48,12 @@ class DatasetCollectionsService(
     ):
         """
         """
-        if element_identifiers is None and elements is None:
-            raise RequestParameterInvalidException( ERROR_INVALID_ELEMENTS_SPECIFICATION )
-        if not collection_type:
-            raise RequestParameterInvalidException( ERROR_NO_COLLECTION_TYPE )
-        rank_collection_type = collection_type.split( ":" )[ 0 ]
-        if elements is None:
-            if rank_collection_type != collection_type:
-                # Nested collection - recursively create collections and update identifiers.
-                self.__recursively_create_collections( trans, parent, element_identifiers )
-            elements = self.__load_elements( trans, element_identifiers )
-        type_plugin = self.__type_plugin( rank_collection_type )
-        dataset_collection = type_plugin.build_collection( elements )
-        dataset_collection.collection_type = collection_type
+        dataset_collection = self.__create_dataset_collection(
+            trans=trans,
+            collection_type=collection_type,
+            element_identifiers=element_identifiers,
+            elements=elements,
+        )
         if isinstance( parent, model.History ):
             dataset_collection_instance = self.model.HistoryDatasetCollectionAssociation(
                 collection=dataset_collection,
@@ -82,6 +76,29 @@ class DatasetCollectionsService(
             raise MessageException( message )
 
         return self.__persist( dataset_collection_instance )
+
+    def __create_dataset_collection(
+        self,
+        trans,
+        collection_type,
+        element_identifiers=None,
+        elements=None,
+    ):
+        if element_identifiers is None and elements is None:
+            raise RequestParameterInvalidException( ERROR_INVALID_ELEMENTS_SPECIFICATION )
+        if not collection_type:
+            raise RequestParameterInvalidException( ERROR_NO_COLLECTION_TYPE )
+        rank_collection_type = collection_type.split( ":" )[ 0 ]
+        if elements is None:
+            if rank_collection_type != collection_type:
+                # Nested collection - recursively create collections and update identifiers.
+                self.__recursively_create_collections( trans, element_identifiers )
+            elements = self.__load_elements( trans, element_identifiers )
+
+        type_plugin = self.__type_plugin( rank_collection_type )
+        dataset_collection = type_plugin.build_collection( elements )
+        dataset_collection.collection_type = collection_type
+        return dataset_collection
 
     def delete( self, trans, instance_type, id ):
         dataset_collection_instance = self.get_dataset_collection_instance( trans, instance_type, id, check_ownership=True )
@@ -147,7 +164,7 @@ class DatasetCollectionsService(
         context.flush()
         return dataset_collection_instance
 
-    def __recursively_create_collections( self, trans, parent, element_identifiers ):
+    def __recursively_create_collections( self, trans, element_identifiers ):
         # TODO: Optimize - don't recheck parent, reload created model, just use as is.
         new_elements = dict()
         for key, element_identifier in element_identifiers.iteritems():
@@ -163,19 +180,16 @@ class DatasetCollectionsService(
             collection_type = element_identifier.get( "collection_type", None )
             if not collection_type:
                 raise RequestParameterInvalidException( "No collection_type define for nested collection." )
-            name = element_identifier.get( "name", None )  # If unset, let model populate default name.
-            collection_instance = self.create(
+            collection = self.__create_dataset_collection(
                 trans=trans,
-                parent=parent,
-                name=name,
                 collection_type=collection_type,
                 element_identifiers=element_identifier[ "element_identifiers" ],
             )
-            if isinstance( collection_instance, model.HistoryDatasetCollectionAssociation ):
-                new_elements[ key ] = dict(
-                    src="hdca",
-                    id=trans.security.encode_id( collection_instance.id ),
-                )
+            self.__persist( collection )
+            new_elements[ key ] = dict(
+                src="dc",
+                id=trans.security.encode_id( collection.id ),
+            )
         element_identifiers.update( new_elements )
         return element_identifiers
 
@@ -184,13 +198,16 @@ class DatasetCollectionsService(
         return dict( [ ( k, load_element( i ) ) for k, i in element_identifiers.iteritems() ] )
 
     def __load_element( self, trans, element_identifier ):
-        if not isinstance( element_identifier, dict ):
-            # Is allowing this to just be the id of an hda too clever? Somewhat
-            # consistent with other API methods though.
-            element_identifier = dict( src='hda', id=str( element_identifier ) )
+        #if not isinstance( element_identifier, dict ):
+        #    # Is allowing this to just be the id of an hda too clever? Somewhat
+        #    # consistent with other API methods though.
+        #    element_identifier = dict( src='hda', id=str( element_identifier ) )
 
         # dateset_identifier is dict {src=hda|ldda, id=<encoded_id>}
-        src_type = element_identifier.get( 'src', 'hda' )
+        try:
+            src_type = element_identifier.get( 'src', 'hda' )
+        except AttributeError:
+            raise MessageException( "Dataset collection element definition (%s) not dictionary-like." % element_identifier )
         encoded_id = element_identifier.get( 'id', None )
         if not src_type or not encoded_id:
             raise RequestParameterInvalidException( "Problem decoding element identifier %s" % element_identifier )
@@ -203,6 +220,10 @@ class DatasetCollectionsService(
             # TODO: Option to copy? Force copy? Copy or allow if not owned?
             element = self.__get_history_collection_instance( trans, encoded_id, check_ownership=True ).collection
         # TODO: ldca.
+        elif src_type == "dc":
+            # TODO: Force only used internally during nested creation so no
+            # need to recheck security.
+            element = self.get_dataset_collection( trans, encoded_id )
         else:
             raise RequestParameterInvalidException( "Unknown src_type parameter supplied '%s'." % src_type )
         return element
@@ -218,25 +239,20 @@ class DatasetCollectionsService(
         collection_info = None
         first = True
         for input_key, hdc in collections.iteritems():
-            iteration_element_identifiers = sorted( map( lambda d: d.element_identifier, hdc.collection.elements ) )
-            iteration_collection_type = hdc.collection.collection_type
+            iteration_structure = get_structure( hdc )
             if first:
                 first = False
                 collection_info = Bunch(
-                    identifiers=iteration_element_identifiers,
-                    type=iteration_collection_type,
+                    structure=iteration_structure,
                     collections={ input_key: hdc },
                 )
             else:
                 error_message = None
-                if collection_info.type != iteration_collection_type:
+                if not collection_info.structure.can_match( iteration_structure ):
                     error_message = "Cannot match collection types."
-                if collection_info.identifiers != iteration_element_identifiers:
-                    # TODO: This could be more general...
-                    error_message = "Cannot match multirun collection identifiers."
                 if error_message:
                     raise MessageException(error_message)
-                collection_info.collections[input_key] = hdc
+                collection_info.collections[ input_key ] = hdc
 
         return collection_info
 
@@ -247,6 +263,11 @@ class DatasetCollectionsService(
             return self.__get_history_collection_instance( trans, id, **kwds )
         elif instance_type == "library":
             return self.__get_library_collection_instance( trans, id, **kwds )
+
+    def get_dataset_collection( self, trans, encoded_id ):
+        collection_id = int( trans.app.security.decode_id( encoded_id ) )
+        collection = trans.sa_session.query( trans.app.model.DatasetCollection ).get( collection_id )
+        return collection
 
     def __get_history_collection_instance( self, trans, id, check_ownership=False, check_accessible=True ):
         instance_id = int( trans.app.security.decode_id( id ) )

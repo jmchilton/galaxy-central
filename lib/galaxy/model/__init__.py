@@ -2534,7 +2534,7 @@ class DatasetCollection( object, Dictifiable, UsesAnnotations ):
         for element in self.elements:
             instance = element.dataset_instance
             if isinstance( instance, DatasetCollection ):
-                instances.extend( instance.dataset_instances() )
+                instances.extend( instance.dataset_instances )
             else:
                 instances.append( instance )
         return instances

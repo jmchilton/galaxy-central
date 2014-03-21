@@ -2067,7 +2067,7 @@ class Tool( object, Dictifiable ):
                 encoded_hdc_id = incoming[ multirun_key ]
                 hdc_id = self.app.security.decode_id( encoded_hdc_id )
                 hdc = trans.sa_session.query( model.HistoryDatasetCollectionAssociation ).get( hdc_id )
-                hdas = map( lambda dce: dce.hda, hdc.collection.elements )
+                hdas = hdc.collection.dataset_instances
                 matched_collections[ input_key ] = hdc
                 return input_classification.MATCHED, hdas
             else:

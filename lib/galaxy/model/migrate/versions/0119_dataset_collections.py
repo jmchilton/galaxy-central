@@ -45,12 +45,12 @@ LibraryDatasetCollectionAssociation_table = Table( "library_dataset_collection_a
 
 DatasetCollectionElement_table = Table( "dataset_collection_element", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True, nullable=False ),
     Column( "hda_id", Integer, ForeignKey( "history_dataset_association.id" ), index=True, nullable=True ),
     Column( "ldda_id", Integer, ForeignKey( "library_dataset_dataset_association.id" ), index=True, nullable=True ),
     Column( "child_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True, nullable=True ),
-    Column( "element_index", Integer ),
-    Column( "element_identifier", Integer ),
+    Column( "element_index", Integer, nullable=False ),
+    Column( "element_identifier", Unicode(255), nullable=False ),
 )
 
 DatasetCollectionAnnotationAssociation_table = Table( "dataset_collection_annotation_association", metadata,

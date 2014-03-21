@@ -589,7 +589,7 @@ model.DatasetCollectionElement.table = Table( "dataset_collection_element", meta
     Column( "child_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True, nullable=True ),
     # Element index and identifier to define this parent-child relationship.
     Column( "element_index", Integer ),
-    Column( "element_identifier", Integer ),
+    Column( "element_identifier", Unicode(255), ),
 )
 
 model.Event.table = Table( "event", metadata,
