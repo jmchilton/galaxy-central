@@ -1977,7 +1977,9 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
         fields = {}
 
         history = self._get_history( trans )
-        fields[ "single_collection" ] = self._get_single_collection_field( trans, history=history, value=value, other_values=other_values )
+        fields[ "select_single_collection" ] = self._get_single_collection_field( trans=trans, history=history, value=value, other_values=other_values )
+        fields[ "select_collections" ] = self._get_select_dataset_collection_field( trans=trans, history=history, value=value, other_values=other_values )
+
         return self._switch_fields( fields, default_field=default_field )
 
     def _get_single_collection_field( self, trans, history, value, other_values ):
@@ -1998,6 +2000,26 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
                 hidden_text = " (hidden)"
             field.add_option( "%s:%s %s" % ( instance_id, hidden_text, instance_name ), dataset_collection_instance.id, selected )
         self._ensure_selection( field )
+        return field
+
+    def _get_select_dataset_collection_field( self, trans, history, multiple=False, suffix="|__collection_multirun__", value=None, other_values=None, value_modifier=lambda x: x ):
+        field_name = "%s%s" % ( self.name, suffix )
+        field = form_builder.SelectField( field_name, multiple, None, self.refresh_on_change, refresh_on_change_values=self.refresh_on_change_values )
+        dataset_matcher = DatasetMatcher( trans, self, value, other_values )
+        dataset_collection_matcher = DatasetCollectionMatcher( dataset_matcher )
+
+        for history_dataset_collection in history.dataset_collections:
+            if not self.history_query.can_map_over( history_dataset_collection ):
+                continue
+
+            if dataset_collection_matcher.hdca_match( history_dataset_collection ):
+                name = history_dataset_collection.name
+                hid = str( history_dataset_collection.hid )
+                hidden_text = ""  # TODO
+                id = value_modifier( dataset_matcher.trans.security.encode_id( history_dataset_collection.id ) )
+                text = "%s:%s %s" % ( hid, hidden_text, name )
+                field.add_option( text, id, False )
+
         return field
 
     def from_html( self, value, trans, other_values={} ):

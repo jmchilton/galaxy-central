@@ -20,3 +20,7 @@ class HistoryQuery( object ):
             return False
 
         return True
+
+    def can_map_over( self, hdca ):
+        # Can map a list:pair repeatedly over a pair parameter
+        return hdca.collection.collection_type.endswith( self.collection_type )
