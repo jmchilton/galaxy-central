@@ -227,10 +227,16 @@ class DatasetListWrapper( list, HasDatasets ):
 
 class DatasetCollectionWrapper( object, HasDatasets ):
 
-    def __init__( self, dataset_collection, dataset_paths=[], **kwargs ):
+    def __init__( self, has_collection, dataset_paths=[], **kwargs ):
         super(DatasetCollectionWrapper, self).__init__()
 
-        elements = dataset_collection.collection.elements
+        if hasattr( has_collection, "name" ):
+            # It is a historydatasetcollectionassociation
+            collection = has_collection.collection
+        else:
+            collection = has_collection.child_collection
+
+        elements = collection.elements
         dataset_instances = {}
 
         dataset_instances_list = []
