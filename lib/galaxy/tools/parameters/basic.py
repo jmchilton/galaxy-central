@@ -18,6 +18,7 @@ from galaxy.util.odict import odict
 from sanitize import ToolParameterSanitizer
 import validation
 import dynamic_options
+from galaxy.dataset_collections import history_query
 from .dataset_matcher import DatasetMatcher
 from .dataset_matcher import DatasetCollectionMatcher
 # For BaseURLToolParameter
@@ -1965,7 +1966,7 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
 
     def __init__( self, tool, elem, trans=None ):
         super(DataCollectionToolParameter, self).__init__( tool, elem, trans )
-        self.history_query = self.__build_history_query( trans, tool, elem )
+        self.history_query = history_query.HistoryQuery.from_parameter_elem( elem )
         self._parse_formats( trans, tool, elem )
         self.multiple = False  # Accessed on DataToolParameter a lot, may want in future
         self._parse_options( elem )  # TODO: Review and test.
@@ -2045,15 +2046,6 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
 
     def validate( self, value, history=None ):
         return True  # TODO
-
-    def __build_history_query( self, trans, tool, elem ):
-        """ Build a query object allowing dataset collection service to filter
-        history to match this query.
-        """
-        collection_type = elem.get( "collection_type", None )
-        return dict(
-            collection_type=collection_type,
-        )
 
 
 class HiddenDataToolParameter( HiddenToolParameter, DataToolParameter ):
