@@ -140,7 +140,7 @@ class DatasetCollectionMatcher( object ):
 
         child_collection = element.child_collection
         if child_collection:
-            return self._collection_match( child_collection )
+            return self.dataset_collection_match( child_collection )
 
         hda = element.hda
         if not hda:
