@@ -125,7 +125,7 @@ class DefaultToolAction( object ):
                     #if i == 0:
                     #    # Allow copying metadata to output, first item will be source.
                     #    input_datasets[ prefix + input.name ] = data.dataset_instance
-                    input_datasets[ prefix + input.name + str( i + 1 ) ] = data.dataset_instance
+                    input_datasets[ prefix + input.name + str( i + 1 ) ] = data
 
         tool.visit_inputs( param_values, visitor )
         return input_datasets
