@@ -1618,6 +1618,13 @@ class BaseDataToolParameter( ToolParameter ):
             self.options_filter_attribute = options.get(  'options_filter_attribute', None )
         self.is_dynamic = self.options is not None
 
+    def _switch_fields( self, fields, default_field ):
+        if len(fields) > 1:
+            field = form_builder.SwitchingSelectField( fields, default_field=default_field )
+        else:
+            field = fields.values()[0]
+        return field
+
 
 class DataToolParameter( BaseDataToolParameter ):
     # TODO, Nate: Make sure the following unit tests appropriately test the dataset security
@@ -1696,11 +1703,7 @@ class DataToolParameter( BaseDataToolParameter ):
                 collection_field = self._get_select_dataset_collection_fields( history, dataset_matcher, multiple=False )
                 fields[ "select_collection" ] = collection_field
 
-        if len(fields) > 1:
-            field = form_builder.SwitchingSelectField( fields, default_field=default_field )
-        else:
-            field = fields.values()[0]
-        return field
+        return self._switch_fields( fields, default_field=default_field )
 
     def _get_select_dataset_collection_fields( self, history, dataset_matcher, multiple=False, suffix="|__collection_multirun__", value_modifier=lambda x: x ):
         value = dataset_matcher.value
