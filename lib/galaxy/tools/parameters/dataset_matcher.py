@@ -149,9 +149,9 @@ class DatasetCollectionMatcher( object ):
         return hda_match and not hda_match.implicit_conversion
 
     def hdca_match( self, history_dataset_collection_association ):
-        return self._collection_match( history_dataset_collection_association.collection )
+        return self.dataset_collection_match( history_dataset_collection_association.collection )
 
-    def _collection_match( self, dataset_collection ):
+    def dataset_collection_match( self, dataset_collection ):
         valid = True
         for element in dataset_collection.elements:
             if not self.__valid_element( element ):
