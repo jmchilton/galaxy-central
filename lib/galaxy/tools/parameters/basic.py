@@ -1675,8 +1675,7 @@ class DataToolParameter( BaseDataToolParameter ):
             fields[ "multiselect_single" ] = multi_select
 
             if self.__display_multirun_option():
-                value_modifier = lambda value: "__collection_reduce__|%s" % value
-                collection_select = self._get_select_dataset_collection_fields( history, dataset_matcher, suffix="", value_modifier=value_modifier )
+                collection_select = self._get_select_dataset_collection_fields( history, dataset_matcher, suffix="", reduction=True )
                 if collection_select.get_selected(return_value=True):
                     default_field = "multiselect_collection"
                 fields[ "multiselect_collection" ] = collection_select
@@ -1705,7 +1704,12 @@ class DataToolParameter( BaseDataToolParameter ):
 
         return self._switch_fields( fields, default_field=default_field )
 
-    def _get_select_dataset_collection_fields( self, history, dataset_matcher, multiple=False, suffix="|__collection_multirun__", value_modifier=lambda x: x ):
+    def _get_select_dataset_collection_fields( self, history, dataset_matcher, multiple=False, suffix="|__collection_multirun__", reduction=False ):
+        if reduction:
+            value_modifier = lambda x: x
+        else:
+            value_modifier = lambda value: "__collection_reduce__|%s" % value
+
         value = dataset_matcher.value
         if value is not None:
             if type( value ) != list:
@@ -1717,7 +1721,7 @@ class DataToolParameter( BaseDataToolParameter ):
         dataset_collection_matcher = DatasetCollectionMatcher( dataset_matcher )
 
         for history_dataset_collection in history.dataset_collections:
-            if dataset_collection_matcher.hdca_match( history_dataset_collection ):
+            if dataset_collection_matcher.hdca_match( history_dataset_collection, reduction=reduction ):
                 name = history_dataset_collection.name
                 hid = str( history_dataset_collection.hid )
                 hidden_text = ""  # TODO
