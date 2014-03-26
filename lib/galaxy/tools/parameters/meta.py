@@ -51,7 +51,7 @@ def expand_meta_parameters( trans, incoming, inputs ):
             encoded_hdc_id, subcollection_type = incoming_val.split( "|", 1 )
             hdc_id = trans.app.security.decode_id( encoded_hdc_id )
             hdc = trans.sa_session.query( model.HistoryDatasetCollectionAssociation ).get( hdc_id )
-            collections_to_match.add( input_key, hdc )
+            collections_to_match.add( input_key, hdc, subcollection_type=subcollection_type )
             subcollection_elements = subcollections.split_dataset_collection_instance( hdc, subcollection_type )
             return permutations.input_classification.MATCHED, subcollection_elements
         else:
