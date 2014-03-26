@@ -1,5 +1,4 @@
 from .registry import DatasetCollectionTypesRegistry
-from .structure import get_structure
 from .matching import MatchingCollections
 
 from galaxy import model
@@ -12,7 +11,6 @@ from galaxy.web.base.controller import (
     UsesTagsMixin,
 )
 from galaxy.util import validation
-from galaxy.util.bunch import Bunch
 
 import logging
 log = logging.getLogger( __name__ )
