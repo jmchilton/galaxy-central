@@ -1969,7 +1969,8 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
 
     def __init__( self, tool, elem, trans=None ):
         super(DataCollectionToolParameter, self).__init__( tool, elem, trans )
-        self.history_query = history_query.HistoryQuery.from_parameter_elem( elem )
+        dataset_collection_type_descriptions = trans.app.dataset_collections_service.dataset_collection_type_descriptions
+        self.history_query = history_query.HistoryQuery.from_parameter_elem( elem, dataset_collection_type_descriptions )
         self._parse_formats( trans, tool, elem )
         self.multiple = False  # Accessed on DataToolParameter a lot, may want in future
         self._parse_options( elem )  # TODO: Review and test.
