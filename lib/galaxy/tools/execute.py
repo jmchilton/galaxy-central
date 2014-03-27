@@ -41,6 +41,7 @@ class ToolExecutionTracker( object ):
         self.execution_errors = []
         self.output_datasets = []
         self.output_datasets_by_output_name = collections.defaultdict(list)
+        self.created_collections = []
 
     def record_success( self, job, outputs ):
         self.successful_jobs.append( job )
@@ -111,6 +112,6 @@ class ToolExecutionTracker( object ):
                 implicit_collection_info=implicit_collection_info,
             )
             collections[ output_name ] = collection
-        return collections
+        self.created_collections = collections
 
 __all__ = [ execute ]
