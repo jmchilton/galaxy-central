@@ -21,6 +21,10 @@ from .steps import (
     order_workflow_steps_with_levels
 )
 
+import logging
+log = logging.getLogger( __name__ )
+
+
 WARNING_SOME_DATASETS_NOT_READY = "Some datasets still queued or running were ignored"
 
 
@@ -71,7 +75,7 @@ def extract_steps( trans, history=None, job_ids=None, dataset_ids=None, dataset_
     dataset_collection_ids = [ int( id ) for id in dataset_collection_ids ]
     # Find each job, for security we (implicately) check that they are
     # associated witha job in the current history.
-    jobs, warnings, hid_map, implicit_map_jobs = summarize( trans, include_implicit_mapping=True )
+    jobs, warnings, hid_map, implicit_map_jobs = summarize( trans, history=history, include_implicit_mapping=True )
     jobs_by_id = dict( ( job.id, job ) for job in jobs.keys() )
     steps = []
     steps_by_job_id = {}
