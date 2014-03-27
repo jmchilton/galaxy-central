@@ -2,6 +2,8 @@ from galaxy import model
 from galaxy import exceptions
 from galaxy import util
 
+from galaxy.dataset_collections import matching
+
 from galaxy.jobs.actions.post import ActionBox
 
 from galaxy.tools.parameters.basic import DataToolParameter
@@ -10,6 +12,9 @@ from galaxy.tools.parameters import visit_input_values
 from galaxy.tools.parameters.wrapped import make_dict_copy
 from galaxy.tools.execute import execute
 from galaxy.util.odict import odict
+
+import logging
+log = logging.getLogger( __name__ )
 
 
 def invoke( trans, workflow, target_history, replacement_dict, copy_inputs_to_history=False, ds_map={} ):
@@ -72,16 +77,20 @@ class WorkflowInvoker( object ):
         tool = trans.app.toolbox.get_tool( step.tool_id )
         tool_state = step.state
 
-        matched_collections = self._find_matched_collections( tool, step )
+        collections_to_match = self._find_collections_to_match( tool, step )
         # Have implicit collections...
-        if matched_collections:
-            collection_info = self.trans.app.dataset_collections_service.match_collections( matched_collections )
+        if collections_to_match.has_collections():
+            collection_info = self.trans.app.dataset_collections_service.match_collections( collections_to_match )
         else:
             collection_info = None
 
         param_combinations = []
-        identifiers = ( [ None ] if not collection_info else collection_info.identifiers )
-        for identifier in identifiers:
+        if collection_info:
+            iteration_elements_iter = collection_info.slice_collections()
+        else:
+            iteration_elements_iter = [ None ]
+
+        for iteration_elements in iteration_elements_iter:
             execution_state = tool_state.copy()
             # TODO: Move next step into copy()
             execution_state.inputs = make_dict_copy( execution_state.inputs )
@@ -91,9 +100,8 @@ class WorkflowInvoker( object ):
                 replacement = None
                 if isinstance( input, DataToolParameter ) or isinstance( input, DataCollectionToolParameter ):
                     # TODO: Handle multiple differently...
-                    if identifier and isinstance( input, DataToolParameter ):
-                        collection = collection_info.collections[ prefixed_name ].collection
-                        replacement = collection[ identifier ].dataset_instance
+                    if iteration_elements and isinstance( input, DataToolParameter ) and prefixed_name in iteration_elements:
+                        replacement = iteration_elements[ prefixed_name ].dataset_instance
                     else:
                         replacement = self._replacement_for_input( input, prefixed_name, step )
                 return replacement
@@ -101,7 +109,9 @@ class WorkflowInvoker( object ):
                 # Replace DummyDatasets with historydatasetassociations
                 visit_input_values( tool.inputs, execution_state.inputs, callback )
             except KeyError, k:
-                raise exceptions.MessageException( "Error due to input mapping of '%s' in '%s'.  A common cause of this is conditional outputs that cannot be determined until runtime, please review your workflow." % (tool.name, k.message))
+                message_template = "Error due to input mapping of '%s' in '%s'.  A common cause of this is conditional outputs that cannot be determined until runtime, please review your workflow."
+                message = message_template % (tool.name, k.message)
+                raise exceptions.MessageException( message )
             param_combinations.append( execution_state.inputs )
 
         execution_tracker = execute(
@@ -112,8 +122,7 @@ class WorkflowInvoker( object ):
             collection_info=collection_info,
         )
         if collection_info:
-            output_collections = execution_tracker.create_output_collections( self.trans, self.target_history, param_combinations[ 0 ] )
-            outputs[ step.id ] = output_collections
+            outputs[ step.id ] = execution_tracker.created_collections
         else:
             outputs[ step.id ] = dict( execution_tracker.output_datasets )
 
@@ -122,18 +131,18 @@ class WorkflowInvoker( object ):
             self._handle_post_job_actions( step, job )
         return jobs
 
-    def _find_matched_collections( self, tool, step ):
-        matched_collections = {}
+    def _find_collections_to_match( self, tool, step ):
+        collections_to_match = matching.CollectionsToMatch()
 
         def callback( input, value, prefixed_name, prefixed_label ):
             is_data_param = isinstance( input, DataToolParameter )
             if is_data_param and not input.multiple:
                 data = self._replacement_for_input( input, prefixed_name, step )
                 if isinstance( data, model.HistoryDatasetCollectionAssociation ):
-                    matched_collections[ prefixed_name ] = data
+                    collections_to_match.add( prefixed_name, data )
 
         visit_input_values( tool.inputs, step.state.inputs, callback )
-        return matched_collections
+        return collections_to_match
 
     def _execute_input_step( self, step ):
         trans = self.trans
