@@ -1,3 +1,16 @@
+
+function CollectionTypeDescription( collection_type ) {
+    this.collection_type = collection_type;
+    this.is_collection = true;
+}
+
+$.extend( CollectionTypeDescription.prototype, {
+} );
+
+NULL_CONNECTION_TYPE_DESCRIPTION = {
+    is_collection: false,
+};
+
 function Terminal( element ) {
     this.element = element;
     this.connectors = [];
@@ -36,7 +49,7 @@ $.extend( Terminal.prototype, {
                 var terminal = this.node.output_terminals[ output_name ];
                 // Well this isn't really right if there are multiple input
                 // connectors. Refactor to check more inside here...
-                terminal.set_multirun(this.terminal_mapping.map_over );
+                terminal.set_multirun( this.terminal_mapping.map_over );
             }
             this.update_multirun_element();            
         }
@@ -48,7 +61,11 @@ $.extend( Terminal.prototype, {
         }
     },
     map_over: function( ) {
-        return this.terminal_mapping && this.terminal_mapping.map_over;
+        if (! this.terminal_mapping ) {
+            return NULL_CONNECTION_TYPE_DESCRIPTION;
+        } else {
+            return this.terminal_mapping.map_over;
+        }
     }
 });
 
@@ -71,13 +88,13 @@ InputTerminal.prototype = new Terminal();
 function InputTerminalMapping( terminal ) {
     var terminal_mapping = this;
     this.terminal = terminal;
-    this.map_over = null;
+    this.map_over = NULL_CONNECTION_TYPE_DESCRIPTION;
     this.element = $("<div>");
     this.element.click( function( e ) {
-        if( terminal_mapping.map_over == null ) {
-            terminal.set_multirun( true );    
+        if( ! terminal_mapping.map_over.is_collection ) {
+            terminal.set_multirun( new CollectionTypeDescription( "list" ) );
         } else {
-            terminal.set_multirun( null );
+            terminal.set_multirun( NULL_CONNECTION_TYPE_DESCRIPTION );
         }
     });
     terminal.terminal_mapping = terminal_mapping;
@@ -86,7 +103,7 @@ function InputTerminalMapping( terminal ) {
 
 $.extend( InputTerminalMapping.prototype, {
     redraw: function() {
-        if( this.map_over ) {
+        if( this.map_over.is_collection ) {
             this.element.removeClass( "fa-icon-button fa fa-file-o" );
             this.element.addClass( "fa-icon-button fa fa-folder-o" );
         } else {
@@ -98,7 +115,7 @@ $.extend( InputTerminalMapping.prototype, {
 
 function OutputTerminalMapping( terminal ) {
     this.terminal = terminal;
-    this.map_over = null;
+    this.map_over = NULL_CONNECTION_TYPE_DESCRIPTION;
     this.element = $("<div>");
     terminal.terminal_mapping = this;
     this.redraw();
@@ -106,7 +123,7 @@ function OutputTerminalMapping( terminal ) {
 
 $.extend( OutputTerminalMapping.prototype, {
     redraw: function() {
-        if( this.map_over ) {
+        if( this.map_over.is_collection ) {
             this.element.removeClass( "fa-icon-button fa fa-file-o" );
             this.element.addClass( "fa-icon-button fa fa-folder-o" );
         } else {
@@ -125,7 +142,7 @@ $.extend( InputTerminal.prototype, {
                 input_filled = false;
             } else {
                 var first_output = this.connectors[ 0 ].handle1;
-                if( first_output && first_output.map_over() || first_output.datatypes.indexOf( "dataset_collection" ) > 0 ) {
+                if( first_output && first_output.map_over().is_collection || first_output.datatypes.indexOf( "dataset_collection" ) > 0 ) {
                     input_filled = true;
                 } else {
                     input_filled = false
@@ -135,8 +152,8 @@ $.extend( InputTerminal.prototype, {
             input_filled = this.connectors.length > 0;
         }
         if ( !input_filled ) {
-            var other_is_collection = other.map_over() || other.datatypes.indexOf( "input_collection" ) >= 0;
-            if( this.map_over() ) {
+            var other_is_collection = other.map_over().is_collection || other.datatypes.indexOf( "input_collection" ) >= 0;
+            if( this.map_over().is_collection ) {
                 if ( other_is_collection ) {
                     if( this.multiple ) {
                         // TODO: Handle implicit reduce...
@@ -192,7 +209,7 @@ $.extend( InputCollectionTerminal.prototype, {
             if ( cat_outputs[ 0 ] == "input_collection" ) {
                 return true;
             }
-            if( other.map_over() ) {
+            if( other.map_over().is_collection ) {
                 return true;
             }
         }
@@ -283,13 +300,13 @@ $.extend( Connector.prototype, {
             start_offsets = null,
             end_offsets = null;
         var num_offsets = 1;
-        if ( this.handle1 && this.handle1.map_over() ) {
+        if ( this.handle1 && this.handle1.map_over().is_collection ) {
             var start_offsets = [ -6, -3, 0, 3, 6 ];
             num_offsets = 5;
         } else {
             var start_offsets = [ 0 ];
         }
-        if ( this.handle2 && this.handle2.map_over() ) {
+        if ( this.handle2 && this.handle2.map_over().is_collection ) {
             var end_offsets = [ -6, -3, 0, 3, 6 ];
             num_offsets = 5;
         } else {
@@ -852,8 +869,8 @@ $.extend( Workflow.prototype, {
                 if( input_terminal.connectors && input_terminal.connectors.length == 1 && single_input ) {
                     var output_terminal = input_terminal.connectors[ 0 ].handle1;
                     if( output_terminal ) {
-                        if( output_terminal.map_over() || ( output_terminal.datatypes && output_terminal.datatypes.indexOf( "input_collection" ) >= 0 ) ) {
-                            input_terminal.set_multirun( true );
+                        if( output_terminal.map_over().is_collection || ( output_terminal.datatypes && output_terminal.datatypes.indexOf( "input_collection" ) >= 0 ) ) {
+                            input_terminal.set_multirun( new CollectionTypeDescription( "list" ) );
                         }
                     }
                 }
