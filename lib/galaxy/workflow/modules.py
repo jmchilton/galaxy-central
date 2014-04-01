@@ -197,13 +197,59 @@ class InputDataModule( InputModule ):
 
 
 class InputDataCollectionModule( InputModule ):
+    default_name = "Input Dataset Collection"
+    default_collection_type = "list"
     type = "data_collection_input"
     name = "Input dataset collection"
-    default_name = "Input Dataset Collection"
+    collection_type = default_collection_type
+
+    @classmethod
+    def new( Class, trans, tool_id=None ):
+        module = Class( trans )
+        module.state = dict( name=Class.default_name, collection_type=Class.default_collection_type )
+        return module
+
+    @classmethod
+    def from_dict( Class, trans, d, secure=True ):
+        module = Class( trans )
+        state = from_json_string( d["tool_state"] )
+        module.state = dict(
+            name=state.get( "name", Class.default_name ),
+            collection_type=state.get( "collection_type", Class.default_collection_type )
+        )
+        return module
+
+    @classmethod
+    def from_workflow_step( Class, trans, step ):
+        module = Class( trans )
+        module.state = dict(
+            name=Class.default_name,
+            collection_type=Class.default_collection_type
+        )
+        for key in [ "name", "collection_type" ]:
+            if step.tool_inputs and key in step.tool_inputs:
+                module.state[ key ] = step.tool_inputs[ key ]
+        return module
 
     def get_runtime_inputs( self, filter_set=['data'] ):
         label = self.state.get( "name", self.default_name )
-        return dict( input=DataCollectionToolParameter( None, Element( "param", name="input", label=label, type="data_collection"), self.trans ) )
+        input_element = Element( "param", name="input", label=label, type="data_collection")
+        return dict( input=DataCollectionToolParameter( None, input_element, self.trans ) )
+
+    def get_config_form( self ):
+        form = web.FormBuilder(
+            title=self.name
+        ).add_text(
+            "name", "Name", value=self.state['name']
+        ).add_text(
+            "collection_type", "Collection Type", value=self.state[ "collection_type" ]
+        )
+        return self.trans.fill_template( "workflow/editor_generic_form.mako",
+                                         module=self, form=form )
+
+    def update_state( self, incoming ):
+        self.state[ 'name' ] = incoming.get( 'name', self.default_collection_type )
+        self.state[ 'collection_type' ] = incoming.get( 'name', self.collection_type )
 
     def get_data_outputs( self ):
         return [ dict( name='output', extensions=['input_collection'] ) ]
