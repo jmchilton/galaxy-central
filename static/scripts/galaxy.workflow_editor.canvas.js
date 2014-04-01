@@ -1,8 +1,6 @@
 function Terminal( element ) {
     this.element = element;
     this.connectors = [];
-    this.multirun = false;
-    this.multirun_element = null;
 }
 $.extend( Terminal.prototype, {
     connect: function ( connector ) {
@@ -27,44 +25,30 @@ $.extend( Terminal.prototype, {
             c.destroy();
         });
     },
-    init_multirun_element : function( user_modifiable ) {
-        this.multirun = false;
-        this.multirun_user_modifiable = user_modifiable;
-        this.multirun_element = $("<div>").addClass( "fa-icon-button fa fa-files-o" );
-        var terminal = this;
-        if( user_modifiable ) {
-            this.multirun_element.click( function( e ) {
-                terminal.toggle_multirun( );
-            });
-        }
-        this.update_multirun_element();
-        return this.multirun_element;
-    },
     set_multirun : function( val ) {
         if( this.multiple ) {
             return; // Cannot set this to be multirun...
         }
-        if( this.multirun != val ) {
-            this.multirun = val;
+
+        if( this.terminal_mapping.map_over != val ) {
+            this.terminal_mapping.map_over = val;
             for( output_name in this.node.output_terminals ) {
                 var terminal = this.node.output_terminals[ output_name ];
                 // Well this isn't really right if there are multiple input
                 // connectors. Refactor to check more inside here...
-                terminal.set_multirun( this.multirun );
+                terminal.set_multirun(this.terminal_mapping.map_over );
             }
             this.update_multirun_element();            
         }
     },
-    toggle_multirun : function( ) {
-        this.set_multirun( ! this.multirun );
-    },
     update_multirun_element : function( ) {
         this.redraw();
-        if( this.multirun ) {
-            this.multirun_element.css( "color", "black" );
-        } else {
-            this.multirun_element.css( "color", this.multirun_user_modifiable ? "Gray" : "white"  );
+        if( this.terminal_mapping ) {
+            this.terminal_mapping.redraw();
         }
+    },
+    map_over: function( ) {
+        return this.terminal_mapping && this.terminal_mapping.map_over;
     }
 });
 
@@ -84,6 +68,55 @@ function InputTerminal( element, datatypes, multiple ) {
 
 InputTerminal.prototype = new Terminal();
 
+function InputTerminalMapping( terminal ) {
+    var terminal_mapping = this;
+    this.terminal = terminal;
+    this.map_over = null;
+    this.element = $("<div>");
+    this.element.click( function( e ) {
+        if( terminal_mapping.map_over == null ) {
+            terminal.set_multirun( true );    
+        } else {
+            terminal.set_multirun( null );
+        }
+    });
+    terminal.terminal_mapping = terminal_mapping;
+    this.redraw();
+}
+
+$.extend( InputTerminalMapping.prototype, {
+    redraw: function() {
+        if( this.map_over ) {
+            this.element.removeClass( "fa-icon-button fa fa-file-o" );
+            this.element.addClass( "fa-icon-button fa fa-folder-o" );
+        } else {
+            this.element.removeClass( "fa-icon-button fa fa-folder-o" );            
+            this.element.addClass( "fa-icon-button fa fa-file-o" );
+        }
+    },
+} );
+
+function OutputTerminalMapping( terminal ) {
+    this.terminal = terminal;
+    this.map_over = null;
+    this.element = $("<div>");
+    terminal.terminal_mapping = this;
+    this.redraw();
+}
+
+$.extend( OutputTerminalMapping.prototype, {
+    redraw: function() {
+        if( this.map_over ) {
+            this.element.removeClass( "fa-icon-button fa fa-file-o" );
+            this.element.addClass( "fa-icon-button fa fa-folder-o" );
+        } else {
+            this.element.removeClass( "fa-icon-button fa fa-folder-o" );            
+            this.element.addClass( "fa-icon-button fa fa-file-o" );
+        }
+    },
+} );
+
+
 $.extend( InputTerminal.prototype, {
     can_accept: function ( other ) {
         var input_filled;
@@ -92,7 +125,7 @@ $.extend( InputTerminal.prototype, {
                 input_filled = false;
             } else {
                 var first_output = this.connectors[ 0 ].handle1;
-                if( first_output && first_output.multirun || first_output.datatypes.indexOf( "dataset_collection" ) > 0 ) {
+                if( first_output && first_output.map_over() || first_output.datatypes.indexOf( "dataset_collection" ) > 0 ) {
                     input_filled = true;
                 } else {
                     input_filled = false
@@ -102,8 +135,8 @@ $.extend( InputTerminal.prototype, {
             input_filled = this.connectors.length > 0;
         }
         if ( !input_filled ) {
-            var other_is_collection = other.multirun || other.datatypes.indexOf( "input_collection" ) >= 0;
-            if( this.multirun ) {
+            var other_is_collection = other.map_over() || other.datatypes.indexOf( "input_collection" ) >= 0;
+            if( this.map_over() ) {
                 if ( other_is_collection ) {
                     if( this.multiple ) {
                         // TODO: Handle implicit reduce...
@@ -116,7 +149,7 @@ $.extend( InputTerminal.prototype, {
                 }
             }
             if( other_is_collection ) {
-                // this.multirun must be true to connect...
+                // this.map_over() must be non-null to connect...
                 return this.multiple && this.connectors.length == 0;
             }
             for ( var t in this.datatypes ) {
@@ -159,7 +192,7 @@ $.extend( InputCollectionTerminal.prototype, {
             if ( cat_outputs[ 0 ] == "input_collection" ) {
                 return true;
             }
-            if( other.multirun ) {
+            if( other.map_over() ) {
                 return true;
             }
         }
@@ -250,13 +283,13 @@ $.extend( Connector.prototype, {
             start_offsets = null,
             end_offsets = null;
         var num_offsets = 1;
-        if ( this.handle1 && this.handle1.multirun ) {
+        if ( this.handle1 && this.handle1.map_over() ) {
             var start_offsets = [ -6, -3, 0, 3, 6 ];
             num_offsets = 5;
         } else {
             var start_offsets = [ 0 ];
         }
-        if ( this.handle2 && this.handle2.multirun ) {
+        if ( this.handle2 && this.handle2.map_over() ) {
             var end_offsets = [ -6, -3, 0, 3, 6 ];
             num_offsets = 5;
         } else {
@@ -462,7 +495,6 @@ $.extend( Node.prototype, {
             var terminal = node.input_terminals[ input.name ];
             var multiple = terminal.multiple;
             if( !multiple ) {
-                var multirun_element = terminal.init_multirun_element( true );
             }
             var ib = $("<div class='form-row dataRow input-data-row' name='" + input.name + "'>" + input.label + "</div>" );
             ib.css({  position:'absolute',
@@ -478,6 +510,8 @@ $.extend( Node.prototype, {
             ib.remove();
             ibox.append( ib.prepend( t ) );
             if( !multiple ) {
+                var terminal_mapping = new InputTerminalMapping( terminal );
+                var multirun_element = terminal_mapping.element;
                 ibox.append( ib.prepend( t, multirun_element ) );
             }
         });
@@ -488,7 +522,8 @@ $.extend( Node.prototype, {
             var t = $( "<div class='terminal output-terminal'></div>" );
             node.enable_output_terminal( t, output.name, output.extensions );
             var terminal = node.output_terminals[ output.name ];
-            var multirun_element = terminal.init_multirun_element( false );
+            var terminal_mapping = new OutputTerminalMapping( terminal );
+            var multirun_element = terminal_mapping.element;
             var label = output.name;
             var isInput = output.extensions.indexOf( 'input' ) >= 0 || output.extensions.indexOf( 'input_collection' ) >= 0;
             if ( ! isInput ) {
@@ -547,7 +582,6 @@ $.extend( Node.prototype, {
                        top:'',
                        display:'' });
             r.detach();
-
             b.append( r.append( multirun_element, t ) );
         });
         f.css( "width", Math.min(250, Math.max(f.width(), output_width )));
@@ -818,7 +852,7 @@ $.extend( Workflow.prototype, {
                 if( input_terminal.connectors && input_terminal.connectors.length == 1 && single_input ) {
                     var output_terminal = input_terminal.connectors[ 0 ].handle1;
                     if( output_terminal ) {
-                        if( output_terminal.multirun || ( output_terminal.datatypes && output_terminal.datatypes.indexOf( "input_collection" ) >= 0 ) ) {
+                        if( output_terminal.map_over() || ( output_terminal.datatypes && output_terminal.datatypes.indexOf( "input_collection" ) >= 0 ) ) {
                             input_terminal.set_multirun( true );
                         }
                     }
