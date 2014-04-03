@@ -248,11 +248,11 @@ class InputDataCollectionModule( InputModule ):
                                          module=self, form=form )
 
     def update_state( self, incoming ):
-        self.state[ 'name' ] = incoming.get( 'name', self.default_collection_type )
-        self.state[ 'collection_type' ] = incoming.get( 'name', self.collection_type )
+        self.state[ 'name' ] = incoming.get( 'name', self.default_name )
+        self.state[ 'collection_type' ] = incoming.get( 'collection_type', self.collection_type )
 
     def get_data_outputs( self ):
-        return [ dict( name='output', extensions=['input_collection'] ) ]
+        return [ dict( name='output', extensions=['input_collection'], collection_type=self.state[ 'collection_type' ] ) ]
 
 
 class ToolModule( WorkflowModule ):
@@ -392,6 +392,7 @@ class ToolModule( WorkflowModule ):
                     label=prefixed_label,
                     multiple=input.multiple,
                     input_type="dataset_collection",
+                    collection_type=input.collection_type,
                     ) )
 
         visit_input_values( self.tool.inputs, self.state.inputs, callback )

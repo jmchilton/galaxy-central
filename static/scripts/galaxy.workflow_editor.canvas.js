@@ -1,14 +1,27 @@
-
+/** TODO: Tooltip doesn't die properly.
+  * Mapping over collections...
+  * Update dataset collection inputs collection_type...
+  * 
+  */
 function CollectionTypeDescription( collection_type ) {
     this.collection_type = collection_type;
     this.is_collection = true;
 }
 
 $.extend( CollectionTypeDescription.prototype, {
+    can_match: function( other_collection_type_description ) {
+        return other_collection_type_description === ANY_COLLECTION_TYPE_DESCRIPTION || other_collection_type_description.collection_type == this.collection_type;
+    }
 } );
 
 NULL_CONNECTION_TYPE_DESCRIPTION = {
     is_collection: false,
+    can_match: function( other ) { return false; },
+};
+
+ANY_COLLECTION_TYPE_DESCRIPTION = {
+    is_collection: true,
+    can_match: function( other ) { return true; },
 };
 
 function Terminal( element ) {
@@ -26,6 +39,7 @@ $.extend( Terminal.prototype, {
         this.connectors.splice( $.inArray( connector, this.connectors ), 1 );
         if ( this.node ) {
             this.node.changed();
+            this.reset_mapping_if_needed();
         }
     },
     redraw: function () {
@@ -66,15 +80,40 @@ $.extend( Terminal.prototype, {
         } else {
             return this.terminal_mapping.map_over;
         }
-    }
+    },
+    reset_mapping: function() {
+        this.set_multirun( NULL_CONNECTION_TYPE_DESCRIPTION );
+    },
+
+    reset_mapping_if_needed: function( ) {}, // Subclasses should override this...
 });
 
 function OutputTerminal( element, datatypes ) {
     Terminal.call( this, element );
     this.datatypes = datatypes;
+    this.is_data_input = false;
+
+    if( datatypes ) {
+        var first_datatype = datatypes[ 0 ];
+        if( first_datatype == "input" ) {
+            this.is_data_input = true;
+        }
+    }
 }
 
 OutputTerminal.prototype = new Terminal();
+
+
+$.extend( OutputTerminal.prototype, {
+
+    reset_mapping_if_needed: function( ) {
+        if( this.node.connected_mapped_output_terminals().length == 0 ) {
+            // Can revert...
+            this.reset_mapping();
+        }
+    },
+
+});
 
 function InputTerminal( element, datatypes, multiple ) {
     Terminal.call( this, element );
@@ -85,11 +124,34 @@ function InputTerminal( element, datatypes, multiple ) {
 
 InputTerminal.prototype = new Terminal();
 
-function InputTerminalMapping( terminal ) {
+function TerminalMapping( ) {
+}
+
+$.extend( TerminalMapping.prototype, {
+    init_mapping: function(terminal, connection_type ) {
+        var terminal_mapping = this;
+        this.terminal = terminal;
+        var map_over = NULL_CONNECTION_TYPE_DESCRIPTION;
+        if( connection_type ) {
+            map_over = new CollectionTypeDescription( collection_type );
+        }
+        this.map_over = map_over;
+        this.element = $("<div>");
+        this.icon_element = this.element.append( $("<div>") );
+        this.disable_mapping_element = this.element.append( $("<div>") );
+        terminal.terminal_mapping = terminal_mapping;
+        this.redraw();
+    },
+    reset_icon_element: function() {
+        this.icon_element.removeClass( "fa-icon-button fa fa-file-o" );
+        this.icon_element.removeClass( "fa-icon-button fa fa-folder-o" );
+        this.icon_element.tooltip('destroy');
+    },
+});
+
+function InputTerminalMapping( terminal, collection_type ) {
+    this.init_mapping( terminal, collection_type )
     var terminal_mapping = this;
-    this.terminal = terminal;
-    this.map_over = NULL_CONNECTION_TYPE_DESCRIPTION;
-    this.element = $("<div>");
     this.element.click( function( e ) {
         if( ! terminal_mapping.map_over.is_collection ) {
             terminal.set_multirun( new CollectionTypeDescription( "list" ) );
@@ -97,44 +159,111 @@ function InputTerminalMapping( terminal ) {
             terminal.set_multirun( NULL_CONNECTION_TYPE_DESCRIPTION );
         }
     });
-    terminal.terminal_mapping = terminal_mapping;
-    this.redraw();
+    this.disable_mapping_element = this.element.append( $("<div>") );
 }
+
+InputTerminalMapping.prototype = new TerminalMapping();
 
 $.extend( InputTerminalMapping.prototype, {
     redraw: function() {
+        this.reset_icon_element();
         if( this.map_over.is_collection ) {
-            this.element.removeClass( "fa-icon-button fa fa-file-o" );
-            this.element.addClass( "fa-icon-button fa fa-folder-o" );
+            this.icon_element.addClass( "fa-icon-button fa fa-folder-o" );
+            var map_text = "Run tool in parallel over " + this.map_over.collection_type;
+            this.icon_element.tooltip({delay: 500, title: map_text });
         } else {
-            this.element.removeClass( "fa-icon-button fa fa-folder-o" );            
-            this.element.addClass( "fa-icon-button fa fa-file-o" );
+            this.icon_element.addClass( "fa-icon-button fa fa-file-o" );
         }
     },
 } );
 
-function OutputTerminalMapping( terminal ) {
-    this.terminal = terminal;
-    this.map_over = NULL_CONNECTION_TYPE_DESCRIPTION;
-    this.element = $("<div>");
-    terminal.terminal_mapping = this;
-    this.redraw();
+function OutputTerminalMapping( terminal, collection_type ) {
+    this.init_mapping( terminal, collection_type );
 }
+
+OutputTerminalMapping.prototype = new TerminalMapping();
+
 
 $.extend( OutputTerminalMapping.prototype, {
     redraw: function() {
+        this.reset_icon_element();
         if( this.map_over.is_collection ) {
-            this.element.removeClass( "fa-icon-button fa fa-file-o" );
-            this.element.addClass( "fa-icon-button fa fa-folder-o" );
+            this.icon_element.addClass( "fa-icon-button fa fa-folder-o" );
+            var map_text = "Run tool in parallel over " + this.map_over.collection_type;
+            this.icon_element.tooltip({delay: 500, title: map_text });
         } else {
-            this.element.removeClass( "fa-icon-button fa fa-folder-o" );            
-            this.element.addClass( "fa-icon-button fa fa-file-o" );
+            this.icon_element.addClass( "fa-icon-button fa fa-file-o" );
         }
     },
 } );
 
 
 $.extend( InputTerminal.prototype, {
+    connect: function( connector ) {
+        Terminal.prototype.connect.call( this, connector );
+        var other_output = connector.handle1;
+        if( ! other_output ) {
+            return;
+        }
+        var other_collection_type = this._other_collection_type( other_output );
+        if( other_collection_type.is_collection ) {
+            console.log( "other_collection_type ");
+            console.log( other_collection_type );
+            this.set_multirun( other_collection_type );
+        }
+    },
+    mapping_contraints: function( ) {
+        // If this is a disconnected terminal, return list of collection types
+        // other terminals connected to node are constraining mapping to.
+        if( ! this.node ) {
+            return [];
+        }
+        var map_over = this.map_over();
+        if( map_over.is_collection ) {
+            return [ map_over ];
+        }
+        var mapped_outputs = this.node.connected_mapped_output_terminals();
+        if( mapped_outputs.length > 0 ) {
+            return $.map( function( terminal) { return terminal.map_over() }, mapped_outputs );
+        }
+        return [];
+    },
+    reset_mapping_if_needed: function( ) {
+        var map_over = this.map_over();
+        if( ! map_over.is_collection ) {
+            return;
+        }
+        if( this.node.connected_mapped_output_terminals().length == 0 ) {
+            // Can revert...
+            this.reset_mapping();
+            $.each( this.node.input_terminals, function( _, t ) {
+                t.reset_mapping();
+            } );
+        }
+    },
+    mapped_over_collection_types: function( ) {
+        var node = this.node;
+        var collection_types = [];
+        $.each( node.input_terminals, function( _, t ) {
+            var map_over = t.map_over();
+            if( map_over.is_collection ) {
+                collection_type.append( t.terminal_mapping.collection_type );
+            }
+        } );
+        return collection_types;
+    },
+    _other_collection_type: function( other ) {
+        var other_collection_type = NULL_CONNECTION_TYPE_DESCRIPTION;
+        if( other.is_data_collection_input ) {
+            other_collection_type = other.collection_type;
+        } else {
+            var other_map_over = other.map_over();
+            if( other_map_over.is_collection ) {
+                other_collection_type = other_map_over;
+            }
+        }
+        return other_collection_type;
+    },
     can_accept: function ( other ) {
         var input_filled;
         if( this.multiple ) {
@@ -142,7 +271,7 @@ $.extend( InputTerminal.prototype, {
                 input_filled = false;
             } else {
                 var first_output = this.connectors[ 0 ].handle1;
-                if( first_output && first_output.map_over().is_collection || first_output.datatypes.indexOf( "dataset_collection" ) > 0 ) {
+                if( first_output && first_output.map_over().is_collection || first_output.datatypes.indexOf( "input_collection" ) > 0 ) {
                     input_filled = true;
                 } else {
                     input_filled = false
@@ -152,23 +281,27 @@ $.extend( InputTerminal.prototype, {
             input_filled = this.connectors.length > 0;
         }
         if ( !input_filled ) {
-            var other_is_collection = other.map_over().is_collection || other.datatypes.indexOf( "input_collection" ) >= 0;
-            if( this.map_over().is_collection ) {
-                if ( other_is_collection ) {
-                    if( this.multiple ) {
-                        // TODO: Handle implicit reduce...
+            var other_collection_type = this._other_collection_type( other );
+            var this_map_over = this.map_over();
+            if( other_collection_type.is_collection ) {
+                // TODO: Handle if this multiple....
+                if( this_map_over.is_collection ) {
+                    return this_map_over.can_match( other_collection_type );
+                } else {
+                    //  Need to check if this would break constraints...
+                    var mapping_contraints = this.mapping_contraints();
+                    if( mapping_contraints.every( other_collection_type.can_match ) ) {
+                        return true;
+                    } else {
                         return false;
                     }
-                    // TODO: Make more specific
-                    return true;
-                } else {
-                    return false;
                 }
+            } else if( this_map_over.is_collection ) {
+                // Attempting to match a non-collection output to an
+                // explicitly collection input.
+                return false;
             }
-            if( other_is_collection ) {
-                // this.map_over() must be non-null to connect...
-                return this.multiple && this.connectors.length == 0;
-            }
+            // other is a non-collection output...
             for ( var t in this.datatypes ) {
                 var cat_outputs = new Array();
                 cat_outputs = cat_outputs.concat(other.datatypes);
@@ -193,10 +326,15 @@ $.extend( InputTerminal.prototype, {
 });
 
 
-function InputCollectionTerminal( element ) {
+function InputCollectionTerminal( element, collection_type ) {
     Terminal.call( this, element );
     this.multiple = false;
     this.collection = true;
+    if( collection_type ) {
+        this.collection_type = new CollectionTypeDescription( collection_type );
+    } else {
+        this.collection_type = ANY_COLLECTION_TYPE_DESCRIPTION;
+    }
 }
 
 InputCollectionTerminal.prototype = new Terminal();
@@ -205,17 +343,27 @@ $.extend( InputCollectionTerminal.prototype, {
     can_accept: function ( other ) {
         var cat_outputs = new Array();
         cat_outputs = cat_outputs.concat( other.datatypes );
-        if ( this.connectors.length < 1 ) {
-            if ( cat_outputs[ 0 ] == "input_collection" ) {
-                return true;
-            }
-            if( other.map_over().is_collection ) {
-                return true;
-            }
+        // These can only have input...
+        if ( this.connectors.length >= 1 ) {
+            return false;
+        }
+        if ( other.is_data_collection_input ) {
+            return this.collection_type.can_match( other.collection_type );
+        }
+        if( other.map_over().is_collection ) {
+            return this.collection_type.can_match( other.map_over().collection_type );
         }
         return false;
     }
 });
+
+function OutputCollectionTerminal( element, datatypes, collection_type ) {
+    Terminal.call( this, element );
+    this.collection_type = new CollectionTypeDescription( collection_type );
+    this.is_data_collection_input = true;
+}
+
+OutputCollectionTerminal.prototype = new Terminal();
 
 function Connector( handle1, handle2 ) {
     this.canvas = null;
@@ -353,16 +501,34 @@ function Node( element ) {
 }
 
 $.extend( Node.prototype, {
+    connected_mapped_output_terminals: function() {
+        return this._connected_mapped_terminals( this.output_terminals );
+    },
+    connected_mapped_input_terminals: function() {
+        return this._connected_mapped_terminals( this.input_terminals );
+    },
+    _connected_mapped_terminals: function( all_terminals ) {
+        var mapped_outputs = [];
+        $.each( all_terminals, function( _, t ) {
+            var map_over = t.map_over();
+            if( map_over.is_collection ) {
+                if( t.connectors.length > 0 ) {
+                    mapped_outputs.push( t );
+                }
+            }
+        });
+        return mapped_outputs;
+    },
     new_input_terminal : function( input ) {
         var t = $("<div class='terminal input-terminal'></div>");
-        this.enable_input_terminal( t, input.name, input.extensions, input.multiple, input.input_type );
+        this.enable_input_terminal( t, input.name, input.extensions, input.multiple, input.input_type, input.collection_type );
         return t;
     },
-    enable_input_terminal : function( elements, name, types, multiple, input_type ) {
+    enable_input_terminal : function( elements, name, types, multiple, input_type, collection_type ) {
         var node = this;
         $(elements).each( function() {
             if( input_type == "dataset_collection" ) {
-                var terminal = this.terminal = new InputCollectionTerminal( this );
+                var terminal = this.terminal = new InputCollectionTerminal( this, collection_type );
             } else {
                 var terminal = this.terminal = new InputTerminal( this, types, multiple );
             }
@@ -413,11 +579,15 @@ $.extend( Node.prototype, {
             node.input_terminals[name] = terminal;
         });
     },
-    enable_output_terminal : function( elements, name, type ) {
+    enable_output_terminal : function( elements, name, type, collection_type ) {
         var node = this;
         $(elements).each( function() {
             var terminal_element = this;
-            var terminal = this.terminal = new OutputTerminal( this, type );
+            if( collection_type ) {
+                var terminal = this.terminal = new OutputCollectionTerminal( this, type, collection_type );
+            } else {
+                var terminal = this.terminal = new OutputTerminal( this, type );
+            }
             terminal.node = node;
             terminal.name = name;
             $(this).bind( "dragstart", function( e, d ) { 
@@ -511,8 +681,6 @@ $.extend( Node.prototype, {
             var t = node.new_input_terminal( input );
             var terminal = node.input_terminals[ input.name ];
             var multiple = terminal.multiple;
-            if( !multiple ) {
-            }
             var ib = $("<div class='form-row dataRow input-data-row' name='" + input.name + "'>" + input.label + "</div>" );
             ib.css({  position:'absolute',
                         left: -1000,
@@ -537,7 +705,7 @@ $.extend( Node.prototype, {
         }
         $.each( data.data_outputs, function( i, output ) {
             var t = $( "<div class='terminal output-terminal'></div>" );
-            node.enable_output_terminal( t, output.name, output.extensions );
+            node.enable_output_terminal( t, output.name, output.extensions, output.collection_type );
             var terminal = node.output_terminals[ output.name ];
             var terminal_mapping = new OutputTerminalMapping( terminal );
             var multirun_element = terminal_mapping.element;
@@ -547,7 +715,7 @@ $.extend( Node.prototype, {
                 label = label + " (" + output.extensions.join(", ") + ")";
             }
             var r = $("<div class='form-row dataRow'>" + label + "</div>" );
-            if (node.type == 'tool'){
+            if (node.type == 'tool') {
                 var callout = $("<div class='callout "+label+"'></div>")
                     .css( { display: 'none' } )
                     .append(
@@ -657,7 +825,7 @@ $.extend( Node.prototype, {
     },
     changed: function() {
         workflow.node_changed( this );
-    }
+    },
 } );
 
 function Workflow( canvas_container ) {
@@ -861,6 +1029,7 @@ $.extend( Workflow.prototype, {
             }
         });
         // Third pass, implicit map/reduce handling...
+        /*
         $.each( data.steps, function( id, step ) {
             var node = wf.nodes[id];
             for( input_name in node.input_terminals ) {
@@ -869,13 +1038,21 @@ $.extend( Workflow.prototype, {
                 if( input_terminal.connectors && input_terminal.connectors.length == 1 && single_input ) {
                     var output_terminal = input_terminal.connectors[ 0 ].handle1;
                     if( output_terminal ) {
-                        if( output_terminal.map_over().is_collection || ( output_terminal.datatypes && output_terminal.datatypes.indexOf( "input_collection" ) >= 0 ) ) {
-                            input_terminal.set_multirun( new CollectionTypeDescription( "list" ) );
+                        var map_over = output_terminal.map_over();
+                        if( map_over.is_collection || output_terminal.is_data_collection_input ) {
+                            var collection_type;
+                            if( map_over.is_collection ) {
+                                collection_type = map_over.collection_type;
+                            } else {
+                                collection_type = output_terminal.collection_type;
+                            }
+                            input_terminal.set_multirun( collection_type );
                         }
                     }
                 }
             }
         });
+        */
     },
     check_changes_in_active_form : function() {
         // If active form has changed, save it

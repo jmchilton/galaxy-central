@@ -1974,6 +1974,10 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
         self.multiple = False  # Accessed on DataToolParameter a lot, may want in future
         self._parse_options( elem )  # TODO: Review and test.
 
+    @property
+    def collection_type( self ):
+        return self.elem.get( "collection_type", None )
+
     def _history_query( self, trans ):
         dataset_collection_type_descriptions = trans.app.dataset_collections_service.collection_type_descriptions
         return history_query.HistoryQuery.from_parameter_elem( self.elem, dataset_collection_type_descriptions )
