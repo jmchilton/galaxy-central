@@ -72,6 +72,7 @@ class DatasetCollectionsService(
             )
         else:
             message = "Internal logic error - create called with unknown parent type %s" % type( parent )
+            log.exception( message )
             raise MessageException( message )
 
         return self.__persist( dataset_collection_instance )

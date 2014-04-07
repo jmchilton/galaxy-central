@@ -117,7 +117,8 @@ class HistoryContentsController( BaseAPIController, UsesHistoryDatasetAssociatio
                     rval.append( self._detailed_hda_dict( trans, content ) )
                 else:
                     rval.append( self._summary_hda_dict( trans, history_id, content ) )
-
+            elif isinstance(content, trans.app.model.HistoryDatasetCollectionAssociation):
+                rval.append( self.__collection_dict( trans, content ) )
         return rval
 
     #TODO: move to model or Mixin
