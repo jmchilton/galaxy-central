@@ -10,6 +10,8 @@ from galaxy.web.base.controller import (
     UsesLibraryMixinItems,
     UsesTagsMixin,
 )
+from galaxy.managers import hdas  # TODO: Refactor all mixin use into managers.
+
 from galaxy.util import validation
 
 import logging
@@ -34,6 +36,7 @@ class DatasetCollectionsService(
         self.type_registry = DatasetCollectionTypesRegistry( app )
         self.model = app.model
         self.security = app.security
+        self.hda_manager = hdas.HDAManager()
 
     def create(
         self,
@@ -213,12 +216,13 @@ class DatasetCollectionsService(
             raise RequestParameterInvalidException( "Problem decoding element identifier %s" % element_identifier )
 
         if src_type == 'hda':
-            element = self.get_dataset( trans, encoded_id, check_ownership=True )
+            decoded_id = int( trans.app.security.decode_id( encoded_id ) )
+            element = self.hda_manager.get( trans, decoded_id, check_ownership=False )
         elif src_type == 'ldda':
             element = self.get_library_dataset_dataset_association( trans, encoded_id )
         elif src_type == 'hdca':
             # TODO: Option to copy? Force copy? Copy or allow if not owned?
-            element = self.__get_history_collection_instance( trans, encoded_id, check_ownership=True ).collection
+            element = self.__get_history_collection_instance( trans, encoded_id ).collection
         # TODO: ldca.
         elif src_type == "dc":
             # TODO: Force only used internally during nested creation so no
