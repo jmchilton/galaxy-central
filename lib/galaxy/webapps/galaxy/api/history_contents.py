@@ -216,7 +216,7 @@ class HistoryContentsController( BaseAPIController, UsesHistoryDatasetAssociatio
         return hda_dict
 
     #TODO: allow anon users to copy hdas, ldas
-    @expose_api
+    @expose_api_anonymous
     def create( self, trans, history_id, payload, **kwd ):
         """
         create( self, trans, history_id, payload, **kwd )
@@ -241,9 +241,14 @@ class HistoryContentsController( BaseAPIController, UsesHistoryDatasetAssociatio
         :rtype:     dict
         :returns:   dictionary containing detailed information for the new HDA
         """
-        #TODO: convert existing, accessible hda - model.DatasetInstance(or hda.datatype).get_converter_types
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
-            check_ownership=True, check_accessible=False )
+        # get the history, if anon user and requesting current history - allow it
+        if( ( trans.user == None )
+        and ( history_id == trans.security.encode_id( trans.history.id ) ) ):
+            history = trans.history
+        # otherwise, check permissions for the history first
+        else:
+            history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+                check_ownership=True, check_accessible=True )
 
         type = payload.get('type', 'dataset')
         if type == 'dataset':
