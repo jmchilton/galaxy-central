@@ -28,26 +28,13 @@ def instantiate_with_objects( clazz, objects ):
 
 
 def __instantiate_classes( component_classes, all_objects ):
-    to_instantiate = component_classes[ : ]
-    dependencies = {}
     for component_class in component_classes:
-        dependencies[ component_class ] = __class_dependencies( component_class )
-
-    while to_instantiate:
-        instantiated_this_iteration = {}
-        to_remove = []
-
-        for component_class in to_instantiate:
-            component_dependencies = dependencies[ component_class ]
-            if component_dependencies.issubset( all_objects.keys() ):
-                component = __instantiate_class( component_class, component_dependencies, all_objects )
-                instantiated_this_iteration[ component_class._component_name ] = component
-                to_remove.append( component_class )
-        if not instantiated_this_iteration:
-            raise Exception( "Exception initialization object graph - following components have unmet dependencies %s" % to_instantiate )
-        all_objects.update( instantiated_this_iteration )
-        for component_class in to_remove:
-            to_instantiate.remove( component_class )
+        dependencies = __class_dependencies( component_class )
+        for dependency in dependencies:
+            if dependency not in all_objects:
+                __instantiate_classes( [ c for c in component_classes if c._component_name == dependency ], all_objects )
+            component = __instantiate_class( component_class, dependencies, all_objects )
+            all_objects[ component_class._component_name ] = component
 
 
 def __instantiate_class( component_class, dependencies, objects ):
