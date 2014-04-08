@@ -491,6 +491,7 @@ class GalaxyWebTransaction( base.DefaultWebTransaction ):
 
     def __init__( self, environ, app, webapp, session_cookie=None):
         self.app = app
+        self.app.trans_proxy.set_thread_trans( self )
         self.webapp = webapp
         self.security = webapp.security
         base.DefaultWebTransaction.__init__( self, environ )

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import sys
 import os
 
+from galaxy.web.framework import trans_proxy
 from galaxy import config, jobs
 from galaxy.util import di
 import galaxy.model
@@ -137,12 +138,17 @@ class UniverseApplication( object, config.ConfiguresGalaxyMixin ):
         self.external_service_types = external_service_types.ExternalServiceTypesCollection( self.config.external_service_type_config_file, self.config.external_service_type_path, self )
         self.model.engine.dispose()
 
+        trans = trans_proxy.TransProxy()
         di_objects = dict(
             app=self,
             config=self.config,
             toolbox=self.toolbox,
-            object_store=self.object_store
+            object_store=self.object_store,
+            trans=trans,
+            event_logger=trans,
+            user_context=trans,
         )
+        self.trans_proxy = trans
         self.di_objects = di.object_graph( objects=di_objects, modules=[ galaxy.daos ] )
 
     def provide( self, clazz ):
