@@ -45,7 +45,7 @@ class HistoryDatasetsDAO( object ):
         if trans.user_is_admin():
             return hda
         # check for ownership of the containing history and accessibility of the underlying dataset
-        if( self.histories_dao.is_owner( trans, hda.history )
+        if( self.histories_dao.is_owner( hda.history )
         and self.can_access_dataset( trans, hda ) ):
             return hda
         raise exceptions.ItemOwnershipException(
@@ -55,7 +55,7 @@ class HistoryDatasetsDAO( object ):
         if trans.user and trans.user_is_admin():
             return hda
         # check for access of the containing history...
-        self.histories_dao.check_accessible( trans, hda.history )
+        self.histories_dao.check_accessible( hda.history )
         # ...then the underlying dataset
         if self.can_access_dataset( trans, hda ):
             return hda

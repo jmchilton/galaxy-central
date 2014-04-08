@@ -66,7 +66,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         rval = []
         deleted = string_as_bool( deleted )
 
-        histories = self.mgrs.histories.by_user( trans, user=trans.user, only_deleted=deleted )
+        histories = self.mgrs.histories.by_user( user=trans.user, only_deleted=deleted )
         for history in histories:
             item = history.to_dict( value_mapper={ 'id': trans.security.encode_id } )
             item['url'] = url_for( 'history', id=trans.security.encode_id( history.id ) )
@@ -111,7 +111,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
             history = trans.get_history( create=True )
 
         else:
-            history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+            history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
                                                check_ownership=False, check_accessible=True, deleted=deleted )
 
         history_data = self.get_history_dict( trans, history )
@@ -135,7 +135,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         # added as a non-ATOM API call to support the notion of a 'current/working' history
         #   - unique to the history resource
         history_id = id
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+        history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
             check_ownership=True, check_accessible=True )
         trans.history = history
         history_data = self.get_history_dict( trans, history )
@@ -177,7 +177,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         new_history = None
         # if a history id was passed, copy that history
         if copy_this_history_id:
-            original_history = self.mgrs.histories.get( trans, self._decode_id( trans, copy_this_history_id ),
+            original_history = self.mgrs.histories.get( self._decode_id( trans, copy_this_history_id ),
                 check_ownership=False, check_accessible=True )
             hist_name = hist_name or ( "Copy of '%s'" % original_history.name )
             new_history = original_history.copy( name=hist_name, target_user=trans.user )
@@ -225,7 +225,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
             purge = string_as_bool( kwd['payload'].get( 'purge', False ) )
 
         rval = { 'id' : history_id }
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+        history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
             check_ownership=True, check_accessible=False )
         history.deleted = True
         if purge:
@@ -272,7 +272,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         :returns:   'OK' if the history was undeleted
         """
         history_id = id
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+        history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
             check_ownership=True, check_accessible=False, deleted=True )
         history.deleted = False
         trans.sa_session.add( history )
@@ -301,7 +301,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         #TODO: PUT /api/histories/{encoded_history_id} payload = { rating: rating } (w/ no security checks)
         history_id = id
 
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+        history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
             check_ownership=True, check_accessible=True )
         # validation handled here and some parsing, processing, and conversion
         payload = self._validate_and_parse_update_payload( payload )
@@ -327,7 +327,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         # PUT instead of POST because multiple requests should just result
         # in one object being created.
         history_id = id
-        history = self.mgrs.histories.get( trans, self._decode_id( trans, history_id ),
+        history = self.mgrs.histories.get( self._decode_id( trans, history_id ),
             check_ownership=False, check_accessible=True )
         jeha = history.latest_export
         up_to_date = jeha and jeha.up_to_date
@@ -360,7 +360,7 @@ class HistoriesController( BaseAPIController, UsesHistoryMixin, UsesTagsMixin,
         # Seems silly to put jeha_id in here, but want GET to be immuatable?
         # and this is being accomplished this way.
         history_id = id
-        history = self.mgrs.histories.get( trans, trans.security.decode_id( history_id ),
+        history = self.mgrs.histories.get( trans.security.decode_id( history_id ),
             check_ownership=False, check_accessible=True )
         matching_exports = filter( lambda e: trans.security.encode_id( e.id ) == jeha_id, history.exports )
         if not matching_exports:
