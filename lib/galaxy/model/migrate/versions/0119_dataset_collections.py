@@ -53,23 +53,47 @@ DatasetCollectionElement_table = Table( "dataset_collection_element", metadata,
     Column( "element_identifier", Unicode(255), nullable=False ),
 )
 
-DatasetCollectionAnnotationAssociation_table = Table( "dataset_collection_annotation_association", metadata,
+HistoryDatasetCollectionAnnotationAssociation_table = Table( "history_dataset_collection_annotation_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "annotation", TEXT )
 )
 
-DatasetCollectionRatingAssociation_table = Table( "dataset_collection_rating_association", metadata,
+LibraryDatasetCollectionAnnotationAssociation_table = Table( "library_dataset_collection_annotation_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "annotation", TEXT )
+)
+
+HistoryDatasetCollectionRatingAssociation_table = Table( "history_dataset_collection_rating_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "rating", Integer, index=True)
 )
 
-DatasetCollectionTagAssociation_table = Table( "dataset_collection_tag_association", metadata,
+LibraryDatasetCollectionRatingAssociation_table = Table( "library_dataset_collection_rating_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "rating", Integer, index=True)
+)
+
+HistoryDatasetCollectionTagAssociation_table = Table( "history_dataset_collection_tag_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
+    Column( "tag_id", Integer, ForeignKey( "tag.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "user_tname", Unicode(255), index=True),
+    Column( "value", Unicode(255), index=True),
+    Column( "user_value", Unicode(255), index=True)
+)
+
+LibraryDatasetCollectionTagAssociation_table = Table( "library_dataset_collection_tag_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
     Column( "tag_id", Integer, ForeignKey( "tag.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "user_tname", Unicode(255), index=True),
@@ -106,12 +130,15 @@ TABLES = [
     HistoryDatasetCollectionAssociation_table,
     LibraryDatasetCollectionAssociation_table,
     DatasetCollectionElement_table,
-    DatasetCollectionAnnotationAssociation_table,
-    DatasetCollectionRatingAssociation_table,
-    DatasetCollectionTagAssociation_table,
     JobToInputDatasetCollectionAssociation_table,
     JobToOutputDatasetCollectionAssociation_table,
     ImplicitlyCreatedDatasetCollectionInput_table,
+    HistoryDatasetCollectionAnnotationAssociation_table,
+    HistoryDatasetCollectionRatingAssociation_table,
+    HistoryDatasetCollectionTagAssociation_table,
+    LibraryDatasetCollectionAnnotationAssociation_table,
+    LibraryDatasetCollectionRatingAssociation_table,
+    LibraryDatasetCollectionTagAssociation_table,
 ]
 
 

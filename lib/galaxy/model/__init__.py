@@ -3819,7 +3819,11 @@ class VisualizationTagAssociation ( ItemTagAssociation ):
     pass
 
 
-class DatasetCollectionTagAssociation( ItemTagAssociation ):
+class HistoryDatasetCollectionTagAssociation( ItemTagAssociation ):
+    pass
+
+
+class LibraryDatasetCollectionTagAssociation( ItemTagAssociation ):
     pass
 
 
@@ -3854,7 +3858,11 @@ class VisualizationAnnotationAssociation( object ):
     pass
 
 
-class DatasetCollectionAnnotationAssociation( object ):
+class HistoryDatasetCollectionAnnotationAssociation( object ):
+    pass
+
+
+class LibraryDatasetCollectionAnnotationAssociation( object ):
     pass
 
 
@@ -3892,7 +3900,12 @@ class VisualizationRatingAssociation( ItemRatingAssociation ):
         self.visualization = visualization
 
 
-class DatasetCollectionRatingAssociation( ItemRatingAssociation ):
+class HistoryDatasetCollectionRatingAssociation( ItemRatingAssociation ):
+    def set_item( self, dataset_collection ):
+        self.dataset_collection = dataset_collection
+
+
+class LibraryDatasetCollectionRatingAssociation( ItemRatingAssociation ):
     def set_item( self, dataset_collection ):
         self.dataset_collection = dataset_collection
 

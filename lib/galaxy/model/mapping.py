@@ -1011,9 +1011,18 @@ model.VisualizationTagAssociation.table = Table( "visualization_tag_association"
     Column( "value", TrimmedString(255), index=True),
     Column( "user_value", TrimmedString(255), index=True) )
 
-model.DatasetCollectionTagAssociation.table = Table( "dataset_collection_tag_association", metadata,
+model.HistoryDatasetCollectionTagAssociation.table = Table( "history_dataset_collection_tag_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
+    Column( "tag_id", Integer, ForeignKey( "tag.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "user_tname", TrimmedString(255), index=True),
+    Column( "value", TrimmedString(255), index=True),
+    Column( "user_value", TrimmedString(255), index=True) )
+
+model.LibraryDatasetCollectionTagAssociation.table = Table( "library_dataset_collection_tag_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
     Column( "tag_id", Integer, ForeignKey( "tag.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "user_tname", TrimmedString(255), index=True),
@@ -1067,9 +1076,15 @@ model.VisualizationAnnotationAssociation.table = Table( "visualization_annotatio
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "annotation", TEXT, index=True) )
 
-model.DatasetCollectionAnnotationAssociation.table = Table( "dataset_collection_annotation_association", metadata,
+model.HistoryDatasetCollectionAnnotationAssociation.table = Table( "history_dataset_collection_annotation_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "annotation", TEXT, index=True) )
+
+model.LibraryDatasetCollectionAnnotationAssociation.table = Table( "library_dataset_collection_annotation_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "annotation", TEXT, index=True) )
 
@@ -1104,9 +1119,15 @@ model.VisualizationRatingAssociation.table = Table( "visualization_rating_associ
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "rating", Integer, index=True) )
 
-model.DatasetCollectionRatingAssociation.table = Table( "dataset_collection_rating_association", metadata,
+model.HistoryDatasetCollectionRatingAssociation.table = Table( "history_dataset_collection_rating_association", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "dataset_collection_id", Integer, ForeignKey( "dataset_collection.id" ), index=True ),
+    Column( "history_dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
+    Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
+    Column( "rating", Integer, index=True) )
+
+model.LibraryDatasetCollectionRatingAssociation.table = Table( "library_dataset_collection_rating_association", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "library_dataset_collection_id", Integer, ForeignKey( "library_dataset_collection_association.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
     Column( "rating", Integer, index=True) )
 
@@ -1762,9 +1783,6 @@ simple_mapping( model.DatasetCollection,
         backref="collection",
         order_by=model.DatasetCollectionElement.table.c.element_index,
     ),
-    tags=relation( model.DatasetCollectionTagAssociation, order_by=model.DatasetCollectionTagAssociation.table.c.id, backref='dataset_collections' ),
-    annotations=relation( model.DatasetCollectionAnnotationAssociation, order_by=model.DatasetCollectionAnnotationAssociation.table.c.id, backref="dataset_collections" ),
-    ratings=relation( model.DatasetCollectionRatingAssociation, order_by=model.DatasetCollectionRatingAssociation.table.c.id, backref="dataset_collections" ),
 )
 
 simple_mapping( model.HistoryDatasetCollectionAssociation,
@@ -1782,12 +1800,18 @@ simple_mapping( model.HistoryDatasetCollectionAssociation,
         model.ImplicitlyCreatedDatasetCollectionInput,
         primaryjoin=( ( model.HistoryDatasetCollectionAssociation.table.c.id == model.ImplicitlyCreatedDatasetCollectionInput.table.c.dataset_collection_id ) ),
         backref="dataset_collection",
-    )
+    ),
+    tags=relation( model.HistoryDatasetCollectionTagAssociation, order_by=model.HistoryDatasetCollectionTagAssociation.table.c.id, backref='dataset_collections' ),
+    annotations=relation( model.HistoryDatasetCollectionAnnotationAssociation, order_by=model.HistoryDatasetCollectionAnnotationAssociation.table.c.id, backref="dataset_collections" ),
+    ratings=relation( model.HistoryDatasetCollectionRatingAssociation, order_by=model.HistoryDatasetCollectionRatingAssociation.table.c.id, backref="dataset_collections" ),
 )
 
 simple_mapping( model.LibraryDatasetCollectionAssociation,
     collection=relation( model.DatasetCollection ),
     folder=relation( model.LibraryFolder, backref='dataset_collections' ),
+    tags=relation( model.LibraryDatasetCollectionTagAssociation, order_by=model.LibraryDatasetCollectionTagAssociation.table.c.id, backref='dataset_collections' ),
+    annotations=relation( model.LibraryDatasetCollectionAnnotationAssociation, order_by=model.LibraryDatasetCollectionAnnotationAssociation.table.c.id, backref="dataset_collections" ),
+    ratings=relation( model.LibraryDatasetCollectionRatingAssociation, order_by=model.LibraryDatasetCollectionRatingAssociation.table.c.id, backref="dataset_collections" ),
 )
 
 simple_mapping( model.DatasetCollectionElement,
@@ -1965,7 +1989,9 @@ tag_mapping( model.WorkflowStepTagAssociation, "tagged_workflow_steps" )
 
 tag_mapping( model.VisualizationTagAssociation, "tagged_visualizations" )
 
-tag_mapping( model.DatasetCollectionTagAssociation, "tagged_dataset_collections" )
+tag_mapping( model.HistoryDatasetCollectionTagAssociation, "tagged_history_dataset_collections" )
+
+tag_mapping( model.LibraryDatasetCollectionTagAssociation, "tagged_library_dataset_collections" )
 
 tag_mapping( model.ToolTagAssociation, "tagged_tools" )
 
@@ -1987,7 +2013,9 @@ annotation_mapping( model.PageAnnotationAssociation, page=model.Page )
 
 annotation_mapping( model.VisualizationAnnotationAssociation, visualization=model.Visualization )
 
-annotation_mapping( model.DatasetCollectionAnnotationAssociation, dataset_collection=model.DatasetCollection )
+annotation_mapping( model.HistoryDatasetCollectionAnnotationAssociation, history_dataset_collection=model.HistoryDatasetCollectionAssociation )
+
+annotation_mapping( model.LibraryDatasetCollectionAnnotationAssociation, library_dataset_collection=model.LibraryDatasetCollectionAssociation )
 
 
 # Rating tables.
@@ -2005,7 +2033,9 @@ rating_mapping( model.PageRatingAssociation, page=model.Page )
 
 rating_mapping( model.VisualizationRatingAssociation, visualizaiton=model.Visualization )
 
-rating_mapping( model.DatasetCollectionRatingAssociation, dataset_collection=model.DatasetCollection )
+rating_mapping( model.HistoryDatasetCollectionRatingAssociation, history_dataset_collection=model.HistoryDatasetCollectionAssociation )
+
+rating_mapping( model.LibraryDatasetCollectionRatingAssociation, libary_dataset_collection=model.LibraryDatasetCollectionAssociation )
 
 #Data Manager tables
 mapper( model.DataManagerHistoryAssociation, model.DataManagerHistoryAssociation.table,
