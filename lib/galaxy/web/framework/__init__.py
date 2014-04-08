@@ -446,7 +446,11 @@ class WebApplication( base.WebApplication ):
                 for key in dir( module ):
                     T = getattr( module, key )
                     if inspect.isclass( T ) and T is not BaseUIController and issubclass( T, BaseUIController ):
-                        self.add_ui_controller( name, T( app ) )
+                        if hasattr( app, "provide" ):
+                            controller = app.provide( T )
+                        else:
+                            controller = T( app )
+                        self.add_ui_controller( name, controller )
 
     def add_api_controllers( self, package_name, app ):
         """
@@ -472,7 +476,11 @@ class WebApplication( base.WebApplication ):
                     if inspect.isclass( T ) and not key.startswith("Base") and issubclass( T, BaseAPIController ):
                         # By default use module_name, but allow controller to override name
                         controller_name = getattr( T, "controller_name", name )
-                        self.add_api_controller( controller_name, T( app ) )
+                        if hasattr( app, "provide" ):
+                            controller = app.provide( T )
+                        else:
+                            controller = T( app )
+                        self.add_api_controller( controller_name, controller )
 
 
 class GalaxyWebTransaction( base.DefaultWebTransaction ):

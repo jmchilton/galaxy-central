@@ -3,7 +3,9 @@ import sys
 import os
 
 from galaxy import config, jobs
+from galaxy.util import di
 import galaxy.model
+import galaxy.daos
 import galaxy.security
 import galaxy.quota
 from galaxy.tags.tag_handler import GalaxyTagHandler
@@ -134,6 +136,17 @@ class UniverseApplication( object, config.ConfiguresGalaxyMixin ):
         # Initialize the external service types
         self.external_service_types = external_service_types.ExternalServiceTypesCollection( self.config.external_service_type_config_file, self.config.external_service_type_path, self )
         self.model.engine.dispose()
+
+        di_objects = dict(
+            app=self,
+            config=self.config,
+            toolbox=self.toolbox,
+            object_store=self.object_store
+        )
+        self.di_objects = di.object_graph( objects=di_objects, modules=[ galaxy.daos ] )
+
+    def provide( self, clazz ):
+        return di.instantiate_with_objects( clazz, self.di_objects )
 
     def shutdown( self ):
         self.job_manager.shutdown()
