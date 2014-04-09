@@ -88,7 +88,16 @@ var NodeView = Backbone.View.extend( {
         this.$( ".inputs" ).append( ib.prepend( terminalElement ) );
     },
 
-    addDataOutput: function( outputView ) {
+    addDataOutput: function( output ) {
+        var terminalView = new OutputTerminalView( {
+            node: this.node,
+            output: output
+        } );
+        var outputView = new DataOutputView( {
+            "output": output,
+            "terminalElement": terminalView.el,
+            "nodeView": this,
+        } );
         this.tool_body.append( outputView.$el.append( outputView.terminalElement ) );
     }
 
@@ -543,16 +552,8 @@ $.extend( Node.prototype, {
             nodeView.addRule();
         }
         $.each( data.data_outputs, function( i, output ) {
-            var terminalView = new OutputTerminalView( {
-                node: node,
-                output: output
-            } );
-            nodeView.addDataOutput( new DataOutputView( {
-                "output": output,
-                "terminalElement": terminalView.el,
-                "nodeView": nodeView,
-            } ) );
-        });
+            nodeView.addDataOutput( output );
+        } );
         nodeView.render();
         workflow.node_changed( this );
     },
