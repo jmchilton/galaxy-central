@@ -1,3 +1,133 @@
+/** TODO:
+  * Mapping over collections...
+  * On update node - collection mapping GUI goes away
+  */
+function CollectionTypeDescription( collection_type ) {
+    this.collection_type = collection_type;
+    this.is_collection = true;
+}
+
+
+$.extend( CollectionTypeDescription.prototype, {
+    canMatch: function( other_collection_type_description ) {
+        if( other_collection_type_description === NULL_CONNECTION_TYPE_DESCRIPTION ) {
+            return false;
+        }
+        if( other_collection_type_description === ANY_COLLECTION_TYPE_DESCRIPTION ) {
+            return true;
+        }
+        return other_collection_type_description.collection_type == this.collection_type;
+    },
+    canMapOver: function( other_collection_type_description ) {
+        if( other_collection_type_description === NULL_CONNECTION_TYPE_DESCRIPTION ) {
+            return false;
+        }
+        if( other_collection_type_description === ANY_COLLECTION_TYPE_DESCRIPTION ) {
+            return false;
+        }
+        return this._endsWith( this.collection_type, other_collection_type_description.collection_type );
+    },
+    effectiveMapOver: function( other_collection_type_description ) {
+        var other_collection_type = other_collection_type_description.collection_type;
+        var effective_collection_type = this.collection_type.substring( 0, this.collection_type.length - other_collection_type.length - 1 );
+        return new CollectionTypeDescription( effective_collection_type );
+    },
+    toString: function() {
+        return "CollectionType[" + this.collection_type + "]";
+    },
+    _endsWith: function( str, suffix ) {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    }
+} );
+
+NULL_CONNECTION_TYPE_DESCRIPTION = {
+    is_collection: false,
+    canMatch: function( other ) { return false; },
+    canMapOver: function( other_collection_type ) {
+        return false;
+    },
+    toString: function() {
+        return "NullCollectionType[]";
+    },
+};
+
+ANY_COLLECTION_TYPE_DESCRIPTION = {
+    is_collection: true,
+    canMatch: function( other ) { return NULL_CONNECTION_TYPE_DESCRIPTION !== other; },
+    canMapOver: function( other_collection_type ) {
+        return false;
+    },
+    toString: function() {
+        return "AnyCollectionType[]";
+    },
+};
+
+var TerminalMapping = Backbone.Model.extend( {
+    initialize: function( attr ) {
+        this.mapOver = attr.mapOver || NULL_CONNECTION_TYPE_DESCRIPTION;
+        this.terminal = attr.terminal;
+        this.terminal.terminal_mapping = this;
+    },
+    disableMapOver: function() {
+        this.mapOver = NULL_CONNECTION_TYPE_DESCRIPTION;
+        this.trigger("change");
+    },
+    forceDisableMapOver: function() {
+        this.mapOver = NULL_CONNECTION_TYPE_DESCRIPTION;
+        this.trigger("change");
+    }
+} );
+
+var TerminalMappingView = Backbone.View.extend( {
+    tagName: "div",
+    className: "fa-icon-button fa fa-folder-o",
+
+    initialize: function( options ) {
+        var map_text = "Run tool in parallel over collection";
+        this.$el.tooltip({delay: 500, title: map_text });
+        this.model.bind("change", _.bind(this.render, this));
+    },
+
+    render: function() {
+        if( this.model.mapOver.is_collection ) {
+            this.$el.show();
+        } else {
+            this.$el.hide();
+        }
+    },
+
+} );
+
+var InputTerminalMappingView = TerminalMappingView.extend( {
+    events: {
+        "click": "onClick",
+    },
+    onClick: function( e ) {
+        if( this.model.mapOver.is_collection ) {
+            // TODO: Prompt.
+            this.model.forceDisableMapOver();
+            this.model.terminal.node.forceDisconnectOutputs();
+        }
+    },
+    redraw: function() {
+        this.reset_icon_element();
+        if( this.mapOver.is_collection ) {
+            this.icon_element.addClass( "fa-icon-button fa fa-folder-o" );
+            var map_text = "Run tool in parallel over " + this.mapOver.collection_type;
+            this.icon_element.tooltip({delay: 500, title: map_text });
+        } else {
+            this.icon_element.addClass( "fa-icon-button fa fa-file-o" );
+        }
+    },
+
+} );
+
+var InputTerminalMapping = TerminalMapping;
+var InputCollectionTerminalMapping = TerminalMapping;
+var OutputTerminalMapping = TerminalMapping;
+var OutputTerminalMappingView = TerminalMappingView;
+var InputCollectionTerminalMappingView = InputTerminalMappingView;
+
 function Terminal( element ) {
     this.element = element;
     this.connectors = [];
@@ -13,6 +143,7 @@ $.extend( Terminal.prototype, {
         this.connectors.splice( $.inArray( connector, this.connectors ), 1 );
         if ( this.node ) {
             this.node.changed();
+            this.resetMappingIfNeeded();
         }
     },
     redraw: function () {
@@ -24,49 +155,285 @@ $.extend( Terminal.prototype, {
         $.each( this.connectors.slice(), function( _, c ) {
             c.destroy();
         });
-    }
+    },
+    setMapOver : function( val ) {
+        if( this.multiple ) {
+            return; // Cannot set this to be multirun...
+        }
+
+        if( this.terminal_mapping.mapOver != val ) {
+            this.terminal_mapping.mapOver = val;
+            this.terminal_mapping.trigger("change");
+            for( var output_name in this.node.output_terminals ) {
+                var terminal = this.node.output_terminals[ output_name ];
+                terminal.setMapOver( val );
+            }
+        }
+    },
+    mapOver: function( ) {
+        if (! this.terminal_mapping ) {
+            return NULL_CONNECTION_TYPE_DESCRIPTION;
+        } else {
+            return this.terminal_mapping.mapOver;
+        }
+    },
+    resetMapping: function() {
+        this.terminal_mapping.disableMapOver();
+    },
+
+    resetMappingIfNeeded: function( ) {}, // Subclasses should override this...
+
 });
 
 function OutputTerminal( element, datatypes ) {
     Terminal.call( this, element );
     this.datatypes = datatypes;
+    this.is_data_input = false;
+
+    if( datatypes ) {
+        var first_datatype = datatypes[ 0 ];
+        if( first_datatype == "input" ) {
+            this.is_data_input = true;
+        }
+    }
 }
 
 OutputTerminal.prototype = new Terminal();
 
-function InputTerminal( element, datatypes, multiple ) {
+
+$.extend( OutputTerminal.prototype, {
+
+    resetMappingIfNeeded: function( ) {
+        if( !this.node.hasMappedOverInputTerminals() ) {
+            this.terminal_mapping.disableMapOver();
+        }
+    },
+
+    disconnectAll: function( ) {
+        _.each( this.connectors, function( connector ) {
+            connector.destroy();
+        } );
+    }
+
+});
+
+
+// Base class for input terminals and input collection terminals...
+function BaseInputTerminal( element ) {
     Terminal.call( this, element );
-    this.datatypes = datatypes;
-    this.multiple = multiple
 }
 
-InputTerminal.prototype = new Terminal();
+BaseInputTerminal.prototype = new Terminal();
 
-$.extend( InputTerminal.prototype, {
+$.extend( BaseInputTerminal.prototype, {
     can_accept: function ( other ) {
-        if ( this.connectors.length < 1 || this.multiple) {
-            for ( var t in this.datatypes ) {
-                var cat_outputs = new Array();
-                cat_outputs = cat_outputs.concat(other.datatypes);
-                if (other.node.post_job_actions){
-                    for (var pja_i in other.node.post_job_actions){
-                        var pja = other.node.post_job_actions[pja_i];
-                        if (pja.action_type == "ChangeDatatypeAction" && (pja.output_name == '' || pja.output_name == other.name) && pja.action_arguments){
-                            cat_outputs.push(pja.action_arguments['newtype']);
-                        }
-                    }
-                }
-                // FIXME: No idea what to do about case when datatype is 'input'
-                for ( var other_datatype_i in cat_outputs ) {
-                    if ( cat_outputs[other_datatype_i] == "input" || issubtype( cat_outputs[other_datatype_i], this.datatypes[t] ) ) {
-                        return true;
+        var inputFilled = this.inputFilled();
+        if( inputFilled ) {
+            return false;
+        }
+        return this.canAttach( other );
+    },
+    inputFilled: function() {
+        var input_filled;
+        if( this.multiple ) {
+            if( this.connectors.length === 0 ) {
+                input_filled = false;
+            } else {
+                var first_output = this.connectors[ 0 ].handle1;
+                if( first_output === null ){
+                    input_filled = false;
+                } else {
+                    if( first_output.is_data_collection_input || first_output.mapOver().is_collection || first_output.datatypes.indexOf( "input_collection" ) > 0 ) {
+                        input_filled = true;
+                    } else {
+                        input_filled = false;
                     }
                 }
             }
+        } else {
+            input_filled = this.connectors.length > 0;
+        }
+        return input_filled;
+    },
+    _otherCollectionType: function( other ) {
+        var other_collection_type = NULL_CONNECTION_TYPE_DESCRIPTION;
+        if( other.is_data_collection_input ) {
+            other_collection_type = other.collection_type;
+        } else {
+            var otherMapOver = other.mapOver();
+            if( otherMapOver.is_collection ) {
+                other_collection_type = otherMapOver;
+            }
+        }
+        return other_collection_type;
+    },
+} );
+
+
+function InputTerminal( element, datatypes, multiple ) {
+    BaseInputTerminal.call( this, element );
+    this.datatypes = datatypes;
+    this.multiple = multiple
+    this.collection = false;
+}
+
+InputTerminal.prototype = new BaseInputTerminal();
+
+$.extend( InputTerminal.prototype, {
+    connect: function( connector ) {
+        Terminal.prototype.connect.call( this, connector );
+        var other_output = connector.handle1;
+        if( ! other_output ) {
+            return;
+        }
+        var other_collection_type = this._otherCollectionType( other_output );
+        if( other_collection_type.is_collection ) {
+            this.setMapOver( other_collection_type );
+        }
+    },
+    mapping_constraints: function( ) {
+        // If this is a disconnected terminal, return list of collection types
+        // other terminals connected to node are constraining mapping to.
+        if( ! this.node ) {
+            return [];
+        }
+        var mapOver = this.mapOver();
+        if( mapOver.is_collection ) {
+            return [ mapOver ];
+        }
+        var connected_outputs = this.node.connectedOutputTerminals();
+        var constraints = [];
+        _.each( connected_outputs, function( terminal ) {
+            console.log( terminal );
+            if( ! terminal.mapOver().is_collection ) {
+                constraints.push( NULL_CONNECTION_TYPE_DESCRIPTION );
+            }
+        } );
+        if( constraints.length > 0 ) {
+            return constraints;
+        }
+        var mapped_inputs = this.node.connectedMappedInputTerminals();
+        if( mapped_inputs.length > 0 ) {
+            return $.map( function( terminal) { return terminal.mapOver(); }, mapped_inputs );
+        }
+        return [];
+    },
+    resetMapping: function() {
+        console.log( "Reset mapping on input terminal");
+        this.terminal_mapping.disableMapOver();
+        if( ! this.node.hasMappedOverInputTerminals() ) {
+            _.each( this.node.output_terminals, function( terminal) {
+                // This shouldn't be called if there are mapped over
+                // outputs.
+                terminal.resetMapping();
+            } );
+        }
+    },
+    resetMappingIfNeeded: function( ) {
+        var mapOver = this.mapOver();
+        if( ! mapOver.is_collection ) {
+            return;
+        }
+        if( this.node.hasConnectedMappedInputTerminals() ) {
+            // No output terminals are counting on this being mapped
+            // over...
+            this.resetMapping();
+        }
+        if( ! this.node.hasConnectedOutputTerminals() ) {
+            // No downstream ramifications of unmapping this
+            console.log( "Has not connected output terminals...");
+            this.resetMapping();
+        }
+    },
+    canAttach: function( other ) {
+        var other_collection_type = this._otherCollectionType( other );
+        var thisMapOver = this.mapOver();
+        if( other_collection_type.is_collection ) {
+            // TODO: Handle if this multiple....
+            if( thisMapOver.is_collection ) {
+                return thisMapOver.canMatch( other_collection_type );
+            } else {
+                //  Need to check if this would break constraints...
+                var mapping_constraints = this.mapping_constraints();
+                if( mapping_constraints.every( other_collection_type.canMatch ) ) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        } else if( thisMapOver.is_collection ) {
+            // Attempting to match a non-collection output to an
+            // explicitly collection input.
+            return false;
+        }
+        // other is a non-collection output...
+        for ( var t in this.datatypes ) {
+            var cat_outputs = new Array();
+            cat_outputs = cat_outputs.concat(other.datatypes);
+            if (other.node.post_job_actions){
+                for (var pja_i in other.node.post_job_actions){
+                    var pja = other.node.post_job_actions[pja_i];
+                    if (pja.action_type == "ChangeDatatypeAction" && (pja.output_name == '' || pja.output_name == other.name) && pja.action_arguments){
+                        cat_outputs.push(pja.action_arguments['newtype']);
+                    }
+                }
+            }
+            // FIXME: No idea what to do about case when datatype is 'input'
+            for ( var other_datatype_i in cat_outputs ) {
+                if ( cat_outputs[other_datatype_i] == "input" || issubtype( cat_outputs[other_datatype_i], this.datatypes[t] ) ) {
+                    return true;
+                }
+            }
+        }
+    }
+});
+
+
+function InputCollectionTerminal( element, collection_type ) {
+    BaseInputTerminal.call( this, element );
+    this.multiple = false;
+    this.collection = true;
+    if( collection_type ) {
+        this.collection_type = new CollectionTypeDescription( collection_type );
+    } else {
+        this.collection_type = ANY_COLLECTION_TYPE_DESCRIPTION;
+    }
+}
+
+InputCollectionTerminal.prototype = new BaseInputTerminal();
+
+$.extend( InputCollectionTerminal.prototype, {
+    connect: function( connector ) {
+        Terminal.prototype.connect.call( this, connector );
+        var other_output = connector.handle1;
+        if( ! other_output ) {
+            return;
+        }
+        var collectionType = this.collection_type;
+        var otherCollectionType = this._otherCollectionType( other_output );
+        if( ! collectionType.canMatch( otherCollectionType ) ) {
+            this.setMapOver( otherCollectionType.effectiveMapOver( collectionType ) );
+        }
+    },
+    canAttach: function ( other ) {
+        var cat_outputs = [];
+        cat_outputs = cat_outputs.concat( other.datatypes );
+        var collectionType = this.collection_type;
+        var otherCollectionType = this._otherCollectionType( other );
+        if ( otherCollectionType.is_collection ) {
+            return collectionType.canMatch( otherCollectionType ) || otherCollectionType.canMapOver( collectionType );
         }
         return false;
     }
 });
+
+function OutputCollectionTerminal( element, datatypes, collection_type ) {
+    Terminal.call( this, element );
+    this.collection_type = new CollectionTypeDescription( collection_type );
+    this.is_data_collection_input = true;
+}
+
+OutputCollectionTerminal.prototype = new Terminal();
 
 function Connector( handle1, handle2 ) {
     this.canvas = null;
@@ -146,20 +513,52 @@ $.extend( Connector.prototype, {
         end_x -= canvas_left;
         end_y -= canvas_top;
         // Draw the line
+
+        var c = this.canvas.getContext("2d"),
+            start_offsets = null,
+            end_offsets = null;
+        var num_offsets = 1;
+        if ( this.handle1 && this.handle1.mapOver().is_collection ) {
+            var start_offsets = [ -6, -3, 0, 3, 6 ];
+            num_offsets = 5;
+        } else {
+            var start_offsets = [ 0 ];
+        }
+        if ( this.handle2 && this.handle2.mapOver().is_collection ) {
+            var end_offsets = [ -6, -3, 0, 3, 6 ];
+            num_offsets = 5;
+        } else {
+            var end_offsets = [ 0 ];
+        }
+        var connector = this;
+        for( var i = 0; i < num_offsets; i++ ) {
+            var inner_width = 5,
+                outer_width = 7;
+            if( start_offsets.length > 1 || end_offsets.length > 1 ) {
+                // We have a multi-run, using many lines, make them small.
+                inner_width = 1;
+                outer_width = 3;
+            }
+            connector.draw_outlined_curve( start_x, start_y, end_x, end_y, cp_shift, inner_width, outer_width, start_offsets[ i % start_offsets.length ], end_offsets[ i % end_offsets.length ] ); 
+        }
+    },
+    draw_outlined_curve : function( start_x, start_y, end_x, end_y, cp_shift, inner_width, outer_width, offset_start, offset_end ) {
+        var offset_start = offset_start || 0;
+        var offset_end = offset_end || 0;
         var c = this.canvas.getContext("2d");
         c.lineCap = "round";
         c.strokeStyle = this.outer_color;
-        c.lineWidth = 7;
+        c.lineWidth = outer_width;
         c.beginPath();
-        c.moveTo( start_x, start_y );
-        c.bezierCurveTo( start_x + cp_shift, start_y, end_x - cp_shift, end_y, end_x, end_y );
+        c.moveTo( start_x, start_y + offset_start );
+        c.bezierCurveTo( start_x + cp_shift, start_y + offset_start, end_x - cp_shift, end_y + offset_end, end_x, end_y + offset_end);
         c.stroke();
         // Inner line
         c.strokeStyle = this.inner_color;
-        c.lineWidth = 5;
+        c.lineWidth = inner_width;
         c.beginPath();
-        c.moveTo( start_x, start_y );
-        c.bezierCurveTo( start_x + cp_shift, start_y, end_x - cp_shift, end_y, end_x, end_y );
+        c.moveTo( start_x, start_y + offset_start );
+        c.bezierCurveTo( start_x + cp_shift, start_y + offset_start, end_x - cp_shift, end_y + offset_end, end_x, end_y + offset_end );
         c.stroke();
     }
 } );
@@ -170,16 +569,83 @@ function Node( element ) {
     this.output_terminals = {};
     this.tool_errors = {};
 }
+
 $.extend( Node.prototype, {
+    connectedOutputTerminals: function() {
+        var connected_outputs = [];
+        $.each( this.output_terminals, function( _, t ) {
+            if( t.connectors.length > 0 ) {
+                connected_outputs.push( t );
+            }
+        } );
+        return connected_outputs;
+    },
+    hasConnectedOutputTerminals: function() {
+        return this.connectedOutputTerminals().length > 0; // TODO: Optimize
+    },
+    connectedMappedOutputTerminals: function() { // Unused
+        return this._connectedMappedTerminals( this.output_terminals );
+    },
+    connectedMappedInputTerminals: function() {
+        return this._connectedMappedTerminals( this.input_terminals );
+    },
+    hasConnectedMappedInputTerminals: function() {
+        return this.connectedMappedInputTerminals().length > 0;
+    },
+    _connectedMappedTerminals: function( all_terminals ) {
+        var mapped_outputs = [];
+        $.each( all_terminals, function( _, t ) {
+            var mapOver = t.mapOver();
+            if( mapOver.is_collection ) {
+                if( t.connectors.length > 0 ) {
+                    mapped_outputs.push( t );
+                }
+            }
+        });
+        return mapped_outputs;
+    },
+    hasMappedOverInputTerminals: function() {
+        var found = false;
+        _.each( this.input_terminals, function( t ) {
+            var mapOver = t.mapOver();
+            if( mapOver.is_collection ) {
+                found = true;
+            }
+        } );
+        return found;
+    },
+    forceDisconnectOutputs: function() {
+        _.each( this.output_terminals, function( terminal ) {
+            terminal.disconnectAll();
+        } );
+    },
     new_input_terminal : function( input ) {
         var t = $("<div class='terminal input-terminal'></div>")[ 0 ];
-        this.enable_input_terminal( t, input.name, input.extensions, input.multiple );
+        this.enable_input_terminal( t, input.name, input.extensions, input.multiple, input.input_type, input.collection_type );
         return t;
     },
-    enable_input_terminal : function( element, name, types, multiple ) {
+    enable_input_terminal : function( element, name, types, multiple, input_type, collection_type ) {
         var node = this;
+        var terminal = null;
+        if( input_type == "dataset_collection" ) {
+            terminal = element.terminal = new InputCollectionTerminal( element, collection_type );
+            var terminal_mapping = new InputCollectionTerminalMapping( { terminal: terminal } );
+            var terminal_mapping_view = new InputCollectionTerminalMappingView( { model: terminal_mapping } );
+            terminal_mapping_view.render();
+            terminal.terminal_mapping_view = terminal_mapping_view;
+        } else {
+            terminal = element.terminal = new InputTerminal( element, types, multiple );
+            if( !multiple ) {
+                // Uber hacks ahead - move all of this to different layers when rebasing against
+                // 263.
+                var terminal_mapping = new InputTerminalMapping( { terminal: terminal } );
+                var terminal_mapping_view = new InputTerminalMappingView( { model: terminal_mapping } );
+                terminal_mapping_view.render();
+                terminal.terminal_mapping_view = terminal_mapping_view;
+            }
+        }
 
-        var terminal = element.terminal = new InputTerminal( element, types, multiple );
+        element.terminal = terminal;
         terminal.node = node;
         terminal.name = name;
         $(element).bind( "dropinit", function( e, d ) {
@@ -226,10 +692,16 @@ $.extend( Node.prototype, {
         });
         node.input_terminals[name] = terminal;
     },
-    enable_output_terminal : function( element, name, type ) {
+    enable_output_terminal : function( element, name, type, collection_type ) {
         var node = this;
         var terminal_element = element;
-        var terminal = element.terminal = new OutputTerminal( element, type );
+        var terminal = null;
+        if( collection_type ) {
+            terminal = new OutputCollectionTerminal( element, type, collection_type );
+        } else {
+            terminal = new OutputTerminal( element, type );
+        }
+        element.terminal = terminal;
         terminal.node = node;
         terminal.name = name;
         $(element).bind( "dragstart", function( e, d ) { 
@@ -320,6 +792,8 @@ $.extend( Node.prototype, {
         var ibox = $("<div class='inputs'></div>").appendTo( b );
         $.each( data.data_inputs, function( i, input ) {
             var t = node.new_input_terminal( input );
+            var terminal = node.input_terminals[ input.name ];
+            var multiple = terminal.multiple;
             var ib = $("<div class='form-row dataRow input-data-row' name='" + input.name + "'>" + input.label + "</div>" );
             ib.css({  position:'absolute',
                         left: -1000,
@@ -332,20 +806,29 @@ $.extend( Node.prototype, {
                        top:'',
                        display:'' });
             ib.remove();
-            ibox.append( ib.prepend( t ) );
+            if( terminal.terminal_mapping_view ) {
+                ibox.append( ib.prepend( t, terminal.terminal_mapping_view.el ) );
+            } else {
+                ibox.append( ib.prepend( t ) );
+            }
         });
         if ( ( data.data_inputs.length > 0 ) && ( data.data_outputs.length > 0 ) ) {
             b.append( $( "<div class='rule'></div>" ) );
         }
         $.each( data.data_outputs, function( i, output ) {
             var t = $( "<div class='terminal output-terminal'></div>" );
-            node.enable_output_terminal( t[ 0 ], output.name, output.extensions );
+            node.enable_output_terminal( t[ 0 ], output.name, output.extensions, output.collection_type );
+            var terminal = node.output_terminals[ output.name ];
+            var terminal_mapping = new OutputTerminalMapping( { terminal: terminal } );
+            var terminal_mapping_view = new OutputTerminalMappingView( { model: terminal_mapping } );
+            terminal_mapping_view.render();
             var label = output.name;
-            if ( output.extensions.indexOf( 'input' ) < 0 ) {
+            var isInput = output.extensions.indexOf( 'input' ) >= 0 || output.extensions.indexOf( 'input_collection' ) >= 0;
+            if ( ! isInput ) {
                 label = label + " (" + output.extensions.join(", ") + ")";
             }
             var r = $("<div class='form-row dataRow'>" + label + "</div>" );
-            if (node.type == 'tool'){
+            if (node.type == 'tool') {
                 var callout = $("<div class='callout "+label+"'></div>")
                     .css( { display: 'none' } )
                     .append(
@@ -397,7 +880,7 @@ $.extend( Node.prototype, {
                        top:'',
                        display:'' });
             r.detach();
-            b.append( r.append( t ) );
+            b.append( r.append( terminal_mapping_view.el, t ) );
         });
         f.css( "width", Math.min(250, Math.max(f.width(), output_width )));
         workflow.node_changed( this );
@@ -421,6 +904,7 @@ $.extend( Node.prototype, {
         var new_body = $("<div class='inputs'></div>");
         $.each( data.data_inputs, function( i, input ) {
             var t = node.new_input_terminal( input );
+            var terminal = node.input_terminals[ input.name ];
             // If already connected save old connection
             old_body.find( "div[name='" + input.name + "']" ).each( function() {
                 $(this).find( ".input-terminal" ).each( function() {
@@ -433,7 +917,16 @@ $.extend( Node.prototype, {
                 $(this).remove();
             });
             // Append to new body
-            new_body.append( $("<div class='form-row dataRow input-data-row' name='" + input.name + "'>" + input.label + "</div>" ).prepend( t ) );
+            var ib = $("<div class='form-row dataRow input-data-row' name='" + input.name + "'>" + input.label + "</div>" );
+            if( ! terminal.multiple ) {
+                var terminal_mapping = new InputTerminalMapping( { terminal: terminal } );
+                var terminal_mapping_view = new InputTerminalMappingView( { model: terminal_mapping } );
+                terminal_mapping_view.render();
+                var multirun_element = terminal_mapping.element;
+                new_body.append( ib.prepend( t, multirun_element ) );
+            } else {
+                new_body.append( ib.prepend( t ) );
+            }
         });
         old_body.replaceWith( new_body );
         // Cleanup any leftover terminals
@@ -454,7 +947,7 @@ $.extend( Node.prototype, {
     },
     changed: function() {
         workflow.node_changed( this );
-    }
+    },
 } );
 
 function Workflow( canvas_container ) {
@@ -1138,3 +1631,23 @@ $.extend( CanvasManager.prototype, {
         this.update_viewport_overlay();
     }
 });
+
+
+
+/**
+
+Ditched Code...
+
+
+    mapped_over_input_terminals: function() {
+        var mapped_input_terminals = [];
+        _.each( this.node.input_terminals, function( t ) {
+            var mapOver = t.mapOver();
+            if( mapOver.is_collection ) {
+                mapped_input_terminals.push( t );
+            }
+        } );
+        return mapped_input_terminals;
+    },
+
+**/

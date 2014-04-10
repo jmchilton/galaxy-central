@@ -3,10 +3,12 @@
 define([
     "galaxy.workflow_editor.canvas",
     "jquery",
+    "libs/bootstrap",  // Required by galaxy.workflow_editor.canvas
     "sinon-qunit"
 ], function(
     workflowEditor,
     $,
+    bootstrap,
     sinon
 ){
     "use strict";
@@ -76,6 +78,7 @@ define([
         },
         test_accept: function( other ) {
             other = other || { node: {}, datatypes: [ "txt" ] };
+            other.mapOver = function() { return NULL_CONNECTION_TYPE_DESCRIPTION; };
             return this.input_terminal.can_accept( other );
         }
     } );
@@ -187,8 +190,8 @@ define([
 
     test( "initial redraw", function() {
         with_canvas_container( function( canvas_container ) {
-            var input = { connect: sinon.spy(), element: $("<div>") };
-            var output = { connect: sinon.spy(), element: $("<div>") };
+            var input = { connect: sinon.spy(), element: $("<div>"), mapOver: function() { return NULL_CONNECTION_TYPE_DESCRIPTION; } };
+            var output = { connect: sinon.spy(), element: $("<div>"), mapOver: function() { return NULL_CONNECTION_TYPE_DESCRIPTION; } };
             var connector = new Connector( input, output );
 
             connector.redraw();
@@ -375,5 +378,25 @@ define([
             ok( add_node_spy.calledWith( node ) );
         } );
     } );
+
+    module( "collection map/reduce helpers on node", {
+        _connectInput: function( node ) {
+            var ie = $("<div><div class='toolFormBody'></div></div>");
+            var inputTerminal = new InputTerminal( ie );
+        }
+    } );
+
+    test( "has_mapped_inputs", function() {
+        var element = $("<div><div class='toolFormBody'></div></div>");
+        var node = new Node( element );
+        ok( ! node.hasMappedOverInputTerminals() );
+
+        var outputTerminal = new OutputTerminal();
+
+
+
+
+    } );
+
 
 });
