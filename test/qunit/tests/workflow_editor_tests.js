@@ -416,12 +416,22 @@ define([
     /* global NodeView */
     module( "Node view ", {
        setup: function() {
-            this.set_for_node( {} );
+            this.set_for_node( { input_terminals: {}, output_terminals: {}, markChanged: function() {} } );
         },
         set_for_node: function( node ) {
-            var element = $("<div>");
+            var element = $("<div><div class='toolFormBody'></div></div>");
             this.view = new NodeView( { node: node, el: element[ 0 ] } );
         },
+        connectAttachedTerminal: function( inputType, outputType ) {
+            this.view.addDataInput( { name: "TestName", extensions: [ inputType ] } );
+            var terminal = this.view.node.input_terminals[ "TestName" ];
+
+            var outputTerminal = new OutputTerminal( { name: "TestOuptut", datatypes: [ outputType ] } );
+            outputTerminal.node = { markChanged: function() {}, post_job_actions: [] };
+            var c = new Connector( outputTerminal, terminal );
+
+            return c;
+        }
     } );
 
     test( "tool error styling", function() {
@@ -448,6 +458,14 @@ define([
         this.view.render();
         equal( this.view.$el.width(), 250 );
 
+    } );
+
+    test( "replacing terminal on data input update preserves connections", function() {
+        var connector = this.connectAttachedTerminal( "txt", "txt" );
+        var newElement = $("<div class='inputs'></div>");
+        this.view.replaceDataInput( { name: "TestName", extensions: ["txt"] }, newElement );
+        var terminal = newElement.find(".input-terminal")[ 0 ].terminal;
+        ok( connector.handle2 === terminal );
     } );
 
     /* global InputTerminalView */
