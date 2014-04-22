@@ -244,8 +244,7 @@ class DatasetCollectionWrapper( object, HasDatasets ):
         else:
             # It is a DatasetCollectionElement instance referencing another collection
             collection = has_collection.child_collection
-            self.name = kwargs[ "element_identifier" ]
-            del kwargs[ "element_identifier" ]
+            self.name = has_collection.element_identifier
 
         elements = collection.elements
         element_instances = odict.odict()
@@ -256,7 +255,7 @@ class DatasetCollectionWrapper( object, HasDatasets ):
             element_identifier = dataset_collection_element.element_identifier
 
             if dataset_collection_element.is_collection:
-                element_wrapper = DatasetCollectionWrapper( dataset_collection_element, dataset_paths, element_identifier=element_identifier, **kwargs )
+                element_wrapper = DatasetCollectionWrapper( dataset_collection_element, dataset_paths, **kwargs )
             else:
                 element_wrapper = self._dataset_wrapper( element_object, dataset_paths, **kwargs)
 
