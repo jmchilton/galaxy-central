@@ -55,6 +55,11 @@ class CollectionTypeDescription( object ):
         collection_type = self.collection_type
         return collection_type.endswith( other_collection_type ) and collection_type != other_collection_type
 
+    def is_subcollection_of_type( self, other_collection_type ):
+        if not hasattr( other_collection_type, 'collection_type' ):
+            other_collection_type = self.collection_type_description_factory.for_collection_type( other_collection_type )
+        return other_collection_type.has_subcollections_of_type( self )
+
     def can_match_type( self, other_collection_type ):
         if hasattr( other_collection_type, 'collection_type' ):
             other_collection_type = other_collection_type.collection_type
@@ -79,3 +84,6 @@ class CollectionTypeDescription( object ):
 
     def rank_type_plugin( self ):
         return self.collection_type_description_factory.type_registry.get( self.rank_collection_type() )
+
+    def __str__( self ):
+        return "CollectionTypeDescription[%s]" % self.collection_type

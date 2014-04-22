@@ -24,7 +24,7 @@ class HistoryQuery( object ):
 
     def direct_match( self, hdca ):
         collection_type_description = self.collection_type_description
-        if collection_type_description and not collection_type_description.can_match( hdca.collection.collection_type ):
+        if collection_type_description and not collection_type_description.can_match_type( hdca.collection.collection_type ):
             return False
 
         return True
@@ -35,4 +35,4 @@ class HistoryQuery( object ):
             return False
 
         hdca_collection_type = hdca.collection.collection_type
-        return collection_type_description.has_subcollections_of_type( hdca_collection_type )
+        return collection_type_description.is_subcollection_of_type( hdca_collection_type )
