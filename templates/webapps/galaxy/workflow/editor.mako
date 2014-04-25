@@ -240,6 +240,10 @@
         border-right: solid gray 1px;
     }
 
+    .glow {
+        box-shadow: 0px 0px 5px 2px #BBFFBB;
+    }
+
     </style>
 </%def>
 

@@ -989,6 +989,7 @@ var InputTerminalView = Backbone.View.extend( {
         "dropend": "onDropEnd",
         "drop": "onDrop",
         "hover": "onHover",
+        "dblclick": "onDoubleClick",
     },
 
     onDropInit: function( e, d ) {
@@ -1047,9 +1048,33 @@ var InputTerminalView = Backbone.View.extend( {
         }
     },
 
+    onDoubleClick: function( e ) {
+        console.log( "in here" );
+        var terminal = this.el.terminal;
+        if( inFocusOutputTerminalView ) {
+            console.log( inFocusOutputTerminalView.el.terminal );
+            new Connector( inFocusOutputTerminalView.el.terminal, terminal ).redraw();
+        }
+    }
+
 } );
 
 
+
+var inFocusOutputTerminalView = null;
+
+var focusOutputTerminalView = function( view ) {
+    var set = inFocusOutputTerminalView !== view
+    if( inFocusOutputTerminalView ) {
+        inFocusOutputTerminalView.$el.removeClass( "glow" );
+    }
+    if( set ) {
+        inFocusOutputTerminalView = view;
+        inFocusOutputTerminalView.$el.addClass( "glow" );
+    } else {
+        inFocusOutputTerminalView = null;
+    }
+}
 
 var OutputTerminalView = Backbone.View.extend( {
     className: "terminal output-terminal",
@@ -1072,6 +1097,7 @@ var OutputTerminalView = Backbone.View.extend( {
         "drag": "onDrag",
         "dragstart": "onDragStart",
         "dragend": "onDragEnd",
+        "dblclick": "onDoubleClick",
     },
 
     onDrag: function ( e, d ) {
@@ -1108,6 +1134,10 @@ var OutputTerminalView = Backbone.View.extend( {
         $(d.proxy).remove();
         $( d.available ).removeClass( "input-terminal-active" );
         $("#canvas-container").get(0).scroll_panel.stop();
+    },
+
+    onDoubleClick: function( e ) {
+        focusOutputTerminalView( this );
     }
 
 } );
