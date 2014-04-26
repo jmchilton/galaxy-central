@@ -3,44 +3,81 @@ import json
 from .helpers import DatasetPopulator
 
 
+# TODO: Move into helpers with rest of populators
 class DatasetCollectionPopulator( object ):
 
     def __init__( self, galaxy_interactor ):
         self.galaxy_interactor = galaxy_interactor
         self.dataset_populator = DatasetPopulator( galaxy_interactor )
 
+    def create_pair_in_history( self, history_id, **kwds ):
+        payload = self.create_pair_payload(
+            history_id,
+            instance_type="history",
+            **kwds
+        )
+        return self.__create( payload )
+
+    def create_list_in_history( self, history_id, **kwds ):
+        payload = self.create_list_payload(
+            history_id,
+            instance_type="history",
+            **kwds
+        )
+        return self.__create( payload )
+
+    def create_list_payload( self, history_id, **kwds ):
+        return self.__create_payload( history_id, identifiers_func=self.list_identifiers, collection_type="list", **kwds )
+
     def create_pair_payload( self, history_id, **kwds ):
+        return self.__create_payload( history_id, identifiers_func=self.pair_identifiers, collection_type="paired", **kwds )
+
+    def __create_payload( self, history_id, identifiers_func, collection_type, **kwds ):
+        contents = None
+        if "contents" in kwds:
+            contents = kwds[ "contents" ]
+            del kwds[ "contents" ]
 
         if "element_identifiers" not in kwds:
-            kwds[ "element_identifiers" ] = json.dumps( self.pair_identifiers( history_id ) )
+            kwds[ "element_identifiers" ] = json.dumps( identifiers_func( history_id, contents=contents ) )
 
         payload = dict(
             history_id=history_id,
-            collection_type="paired",
+            collection_type=collection_type,
             **kwds
         )
         return payload
 
-    def pair_identifiers( self, history_id ):
-        hda1 = self.dataset_populator.new_dataset( history_id )
-        hda2 = self.dataset_populator.new_dataset( history_id )
+    def pair_identifiers( self, history_id, contents=None ):
+        hda1, hda2 = self.__datasets( history_id, count=2, contents=contents )
+
         element_identifiers = dict(
             left=dict( src="hda", id=hda1[ "id" ] ),
             right=dict( src="hda", id=hda2[ "id" ] ),
         )
         return element_identifiers
 
-    def list_identifiers( self, history_id ):
-        hda1 = self.dataset_populator.new_dataset( history_id )
-        hda2 = self.dataset_populator.new_dataset( history_id )
-        hda3 = self.dataset_populator.new_dataset( history_id )
-
+    def list_identifiers( self, history_id, contents=None ):
+        hda1, hda2, hda3 = self.__datasets( history_id, count=3, contents=contents )
         element_identifiers = dict(
             data1=dict( src="hda", id=hda1[ "id" ] ),
             data2=dict( src="hda", id=hda2[ "id" ] ),
             data3=dict( src="hda", id=hda3[ "id" ] ),
         )
         return element_identifiers
+
+    def __create( self, payload ):
+        create_response = self.galaxy_interactor.post( "dataset_collections", data=payload )
+        return create_response
+
+    def __datasets( self, history_id, count, contents=None ):
+        datasets = []
+        for i in xrange( count ):
+            new_kwds = {}
+            if contents:
+                new_kwds[ "content" ] = contents[ i ]
+            datasets.append( self.dataset_populator.new_dataset( history_id, **new_kwds ) )
+        return datasets
 
 
 class DatasetCollectionApiTestCase( api.ApiTestCase ):
