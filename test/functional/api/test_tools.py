@@ -202,6 +202,17 @@ class ToolsTestCase( api.ApiTestCase ):
         # on server.
         assert run_response.status_code >= 400
 
+    def test_reduce_collections( self ):
+        self.__skip_without_tool( "multi_data_param" )
+        history_id = self.dataset_populator.new_history()
+        hdca1_id = self.__build_pair( history_id, [ "123", "456" ] )
+        hdca2_id = self.dataset_collection_populator.create_list_in_history( history_id  ).json()[ "id" ]
+        inputs = {
+            "f1": { "src": "hdca", id: hdca1_id },
+            "f2": { "src": "hdca", id: hdca2_id },
+        }
+        self._cat1_outputs( history_id, inputs=inputs )
+
     def _cat1_outputs( self, history_id, inputs ):
         return self._run_outputs( self._run_cat1( history_id, inputs ) )
 
