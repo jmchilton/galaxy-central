@@ -260,6 +260,11 @@ class ToolsTestCase( api.ApiTestCase ):
         if tool_id not in self.__tool_ids( ):
             raise SkipTest( )
 
+    def __build_pair( self, history_id, contents ):
+        create_response = self.dataset_collection_populator.create_pair_in_history( history_id, contents=contents )
+        hdca_id = create_response.json()[ "id" ]
+        return hdca_id
+
 
 def dataset_to_param( dataset ):
     return dict(
