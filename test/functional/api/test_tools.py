@@ -208,10 +208,18 @@ class ToolsTestCase( api.ApiTestCase ):
         hdca1_id = self.__build_pair( history_id, [ "123", "456" ] )
         hdca2_id = self.dataset_collection_populator.create_list_in_history( history_id  ).json()[ "id" ]
         inputs = {
-            "f1": { "src": "hdca", id: hdca1_id },
-            "f2": { "src": "hdca", id: hdca2_id },
+            "f1": "__collection_reduce__|%s" % hdca1_id,
+            "f2": "__collection_reduce__|%s" % hdca2_id,
         }
-        self._cat1_outputs( history_id, inputs=inputs )
+        outputs = self._run_and_get_outputs( "multi_data_param", history_id, inputs )
+        assert len( outputs ) == 2
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        output1 = outputs[ 0 ]
+        output2 = outputs[ 1 ]
+        output1_content = self._get_content( history_id, dataset=output1 )
+        output2_content = self._get_content( history_id, dataset=output2 )
+        assert output1_content.strip() == "123\n456"
+        assert len( output2_content.strip().split("\n") ) == 3, output2_content
 
     def _cat1_outputs( self, history_id, inputs ):
         return self._run_outputs( self._run_cat1( history_id, inputs ) )
