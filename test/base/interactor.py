@@ -181,16 +181,21 @@ class GalaxyInteractorApi( object ):
         return self._post( "dataset_collections", data=create_payload ).json()[ "id" ]
 
     def _element_identifiers( self, collection_def ):
-        element_identifiers = {}
+        element_identifiers = []
         for ( element_identifier, element ) in collection_def.elements:
             if isinstance( element, test.TestCollectionDef ):
                 subelement_identifiers = self._element_identifiers( element )
-                element_name = element.name
-                element = dict( src="new_collection", collection_type=element.collection_type, element_identifiers=subelement_identifiers )
+                element = dict(
+                    name=element_identifier,
+                    src="new_collection",
+                    collection_type=element.collection_type,
+                    element_identifiers=subelement_identifiers
+                )
             else:
                 element_name = element[ 0 ]
-                element = self.uploads[ element[ 1 ] ]
-            element_identifiers[ element_name ] = element
+                element = self.uploads[ element[ 1 ] ].copy()
+                element[ "name" ] = element_name
+            element_identifiers.append( element )
         return element_identifiers
 
     def __dictify_outputs( self, datasets_object ):

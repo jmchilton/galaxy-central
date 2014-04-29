@@ -14,6 +14,7 @@ from galaxy.web.base.controller import (
 from galaxy.managers import hdas  # TODO: Refactor all mixin use into managers.
 
 from galaxy.util import validation
+from galaxy.util import odict
 
 import logging
 log = logging.getLogger( __name__ )
@@ -103,6 +104,7 @@ class DatasetCollectionsService(
                 # Nested collection - recursively create collections and update identifiers.
                 self.__recursively_create_collections( trans, element_identifiers )
             elements = self.__load_elements( trans, element_identifiers )
+        # else if elements is set, it better be an ordered dict!
 
         type_plugin = collection_type_description.rank_type_plugin()
         dataset_collection = type_plugin.build_collection( elements )
@@ -173,8 +175,7 @@ class DatasetCollectionsService(
 
     def __recursively_create_collections( self, trans, element_identifiers ):
         # TODO: Optimize - don't recheck parent, reload created model, just use as is.
-        new_elements = dict()
-        for key, element_identifier in element_identifiers.iteritems():
+        for index, element_identifier in enumerate( element_identifiers ):
             try:
                 if not element_identifier[ "src" ] == "new_collection":
                     # not a new collection, keep moving...
@@ -193,16 +194,16 @@ class DatasetCollectionsService(
                 element_identifiers=element_identifier[ "element_identifiers" ],
             )
             self.__persist( collection )
-            new_elements[ key ] = dict(
-                src="dc",
-                id=trans.security.encode_id( collection.id ),
-            )
-        element_identifiers.update( new_elements )
+            element_identifier[ "src" ] = "dc"
+            element_identifier[ "id" ] = trans.security.encode_id( collection.id )
+
         return element_identifiers
 
     def __load_elements( self, trans, element_identifiers ):
-        load_element = lambda element_identifier: self.__load_element( trans, element_identifier )
-        return dict( [ ( k, load_element( i ) ) for k, i in element_identifiers.iteritems() ] )
+        elements = odict.odict()
+        for element_identifier in element_identifiers:
+            elements[ element_identifier[ "name" ] ] = self.__load_element( trans, element_identifier )
+        return elements
 
     def __load_element( self, trans, element_identifier ):
         #if not isinstance( element_identifier, dict ):

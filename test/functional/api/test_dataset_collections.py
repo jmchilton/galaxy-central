@@ -11,12 +11,13 @@ class DatasetCollectionPopulator( object ):
         self.dataset_populator = DatasetPopulator( galaxy_interactor )
 
     def create_list_from_pairs( self, history_id, pairs ):
-        element_identifiers = {}
+        element_identifiers = []
         for i, pair in enumerate( pairs ):
-            element_identifiers[ "test%d" % i ] = dict(
+            element_identifiers.append( dict(
+                name="test%d" % i,
                 src="hdca",
                 id=pair
-            )
+            ) )
 
         payload = dict(
             instance_type="history",
@@ -67,19 +68,19 @@ class DatasetCollectionPopulator( object ):
     def pair_identifiers( self, history_id, contents=None ):
         hda1, hda2 = self.__datasets( history_id, count=2, contents=contents )
 
-        element_identifiers = dict(
-            left=dict( src="hda", id=hda1[ "id" ] ),
-            right=dict( src="hda", id=hda2[ "id" ] ),
-        )
+        element_identifiers = [
+            dict( name="left", src="hda", id=hda1[ "id" ] ),
+            dict( name="right", src="hda", id=hda2[ "id" ] ),
+        ]
         return element_identifiers
 
     def list_identifiers( self, history_id, contents=None ):
         hda1, hda2, hda3 = self.__datasets( history_id, count=3, contents=contents )
-        element_identifiers = dict(
-            data1=dict( src="hda", id=hda1[ "id" ] ),
-            data2=dict( src="hda", id=hda2[ "id" ] ),
-            data3=dict( src="hda", id=hda3[ "id" ] ),
-        )
+        element_identifiers = [
+            dict( name="data1", src="hda", id=hda1[ "id" ] ),
+            dict( name="data2", src="hda", id=hda2[ "id" ] ),
+            dict( name="data3", src="hda", id=hda3[ "id" ] ),
+        ]
         return element_identifiers
 
     def __create( self, payload ):
@@ -138,9 +139,9 @@ class DatasetCollectionApiTestCase( api.ApiTestCase ):
         dataset_collection = self._check_create_response( pair_create_response )
         hdca_id = dataset_collection[ "id" ]
 
-        element_identifiers = dict(
-            test1=dict( src="hdca", id=hdca_id )
-        )
+        element_identifiers = [
+            dict( name="test1", src="hdca", id=hdca_id )
+        ]
 
         payload = dict(
             instance_type="history",
@@ -155,14 +156,12 @@ class DatasetCollectionApiTestCase( api.ApiTestCase ):
 
     def test_create_list_of_new_pairs( self ):
         pair_identifiers = self.dataset_collection_populator.pair_identifiers( self.history_id )
-        element_identifiers = dict(
-            test_pair=dict(
-                src="new_collection",
-                name="test_pair",
-                collection_type="paired",
-                element_identifiers=pair_identifiers,
-            )
-        )
+        element_identifiers = [ dict(
+            src="new_collection",
+            name="test_pair",
+            collection_type="paired",
+            element_identifiers=pair_identifiers,
+        ) ]
         payload = dict(
             collection_type="list:paired",
             instance_type="history",
@@ -198,7 +197,7 @@ class DatasetCollectionApiTestCase( api.ApiTestCase ):
             )
 
             create_response = self._post( "dataset_collections", payload )
-            self._assert_status_code_is( create_response, 400 )  # TODO: Really should be 403, but would change a lot?
+            self._assert_status_code_is( create_response, 403 )
 
     def _check_create_response( self, create_response ):
         self._assert_status_code_is( create_response, 200 )

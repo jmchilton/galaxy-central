@@ -81,12 +81,15 @@ class Tree( object ):
         return sum( [ len( c[ 1 ] ) for c in self.children ] )
 
     def element_identifiers_for_datasets( self, trans, datasets ):
-        element_identifiers = odict.odict()
+        element_identifiers = []
         for identifier, child in self.children:
             if isinstance( child, Tree ):
-                element_identifiers[ identifier ] = child.element_identifiers_for_datasets( trans, datasets[ 0:len( child ) ] )
+                child_identifiers = child.element_identifiers_for_datasets( trans, datasets[ 0:len( child ) ] )
+                child_identifiers[ "name" ] = identifier
+                element_identifiers.append( child_identifiers )
             else:
-                element_identifiers[ identifier ] = dict( src="hda", id=trans.security.encode_id( datasets[ 0 ].id ) )
+                element_identifiers.append( dict( name=identifier, src="hda", id=trans.security.encode_id( datasets[ 0 ].id ) ) )
+
             datasets = datasets[ len( child ): ]
 
         return dict(

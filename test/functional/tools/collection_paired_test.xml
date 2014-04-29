@@ -7,7 +7,6 @@
   </inputs>
   <outputs>
     <data format="txt" name="out1" />
-    <data format="txt" name="out2" />
   </outputs>
   <tests>
     <test>

@@ -241,6 +241,7 @@ class ToolsTestCase( api.ApiTestCase ):
         self.dataset_populator.wait_for_history( history_id, assert_ok=True )
         output1 = outputs[ 0 ]
         output2 = outputs[ 1 ]
+        print output2
         output1_content = self._get_content( history_id, dataset=output1 )
         output2_content = self._get_content( history_id, dataset=output2 )
         assert output1_content.strip() == "123\n456", output1_content
@@ -306,6 +307,7 @@ class ToolsTestCase( api.ApiTestCase ):
 
     def __build_pair( self, history_id, contents ):
         create_response = self.dataset_collection_populator.create_pair_in_history( history_id, contents=contents )
+        self._assert_status_code_is( create_response, 200 )
         hdca_id = create_response.json()[ "id" ]
         return hdca_id
 
