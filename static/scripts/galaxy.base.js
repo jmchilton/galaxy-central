@@ -171,7 +171,7 @@ function make_popup_menus( parent ) {
             } else {
                 options[ link.text() ] = {
                     url: href,
-                    action: function() {
+                    action: function( e ) {
 
                         // if theres confirm text, send the dialog
                         if ( !confirmtext || confirm( confirmtext ) ) {
@@ -185,6 +185,10 @@ function make_popup_menus( parent ) {
                             else {
                                 link.click();
                             }
+                        } else {
+                            // confirm above not respected without the
+                            // following line.
+                            e.preventDefault();
                         }
                     }
                 };
