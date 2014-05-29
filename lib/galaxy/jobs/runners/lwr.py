@@ -45,23 +45,21 @@ class LwrJobRunner( AsynchronousJobRunner ):
         """Start the job runner """
         super( LwrJobRunner, self ).__init__( app, nworkers )
         self._init_worker_threads()
-        amqp_connect_ssl_args = {}
-        amqp_consumer_timeout = False
-        for kwd in kwds.keys():
-            if kwd.startswith('amqp_connect_ssl_'):
-                amqp_connect_ssl_args[kwd] = kwds[kwd]
         client_manager_kwargs = {
             'transport_type': transport,
             'cache': string_as_bool_or_none(cache),
             "url": url,
-            'amqp_connect_ssl_args': amqp_connect_ssl_args or None,
             'manager': kwds.get("manager", None),
         }
-        if 'amqp_consumer_timeout' in kwds:
-            if kwds['amqp_consumer_timeout'] == 'None':
-                client_manager_kwargs['amqp_consumer_timeout'] = None
-            else:
-                client_manager_kwargs['amqp_consumer_timeout'] = float(kwds['amqp_consumer_timeout'])
+        for kwd in kwds.keys():
+            if kwd.startswith('amqp_'):
+                client_manager_kwargs[kwd] = kwds[kwd]
+        for numeric_key in ['amqp_consumer_timeout', 'amqp_heartbeat']:
+            if numeric_key in kwds:
+                if kwds[numeric_key] == 'None':
+                    client_manager_kwargs[numeric_key] = None
+                else:
+                    client_manager_kwargs[numeric_key] = float(kwds[numeric_key])
         self.galaxy_url = galaxy_url
         self.client_manager = build_client_manager(**client_manager_kwargs)
         if url:

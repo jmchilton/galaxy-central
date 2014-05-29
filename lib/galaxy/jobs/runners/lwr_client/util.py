@@ -81,6 +81,13 @@ def parse_amqp_connect_ssl_params(params):
     return rval
 
 
+def parse_publish_kwds(params):
+    params = filter_destination_params(params, "amqp_publish_")
+    if "retry" in params:
+        params["retry"] = bool(params["retry"])
+    return params
+
+
 def filter_destination_params(destination_params, prefix):
     destination_params = destination_params or {}
     return dict([(key[len(prefix):], destination_params[key])

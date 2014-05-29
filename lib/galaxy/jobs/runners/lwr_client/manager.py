@@ -14,6 +14,7 @@ from .object_client import ObjectStoreClient
 from .transport import get_transport
 from .util import TransferEventManager
 from .util import parse_amqp_connect_ssl_params
+from .util import parse_publish_kwds
 from .destination import url_to_destination_params
 from .amqp_exchange import LwrExchange
 
@@ -77,12 +78,19 @@ class MessageQueueClientManager(object):
     def __init__(self, **kwds):
         self.url = kwds.get('url')
         self.manager_name = kwds.get("manager", None) or "_default_"
-        self.connect_ssl = parse_amqp_connect_ssl_params(kwds.get('amqp_connect_ssl_args', None))
+        self.connect_ssl = parse_amqp_connect_ssl_params(kwds)
+        exchange_kwds = dict(
+            manager_name=self.manager_name,
+            connect_ssl=self.connect_ssl,
+            publish_kwds=parse_publish_kwds(kwds),
+        )
         timeout = kwds.get('amqp_consumer_timeout', False)
-        if timeout is False:
-            self.exchange = LwrExchange(self.url, self.manager_name, self.connect_ssl)
-        else:
-            self.exchange = LwrExchange(self.url, self.manager_name, self.connect_ssl, timeout=timeout)
+        if timeout is not False:
+            exchange_kwds["timeout"] = timeout
+        if "amqp_heartbeat" in kwds:
+            exchange_kwds["heartbeat"] = kwds["amqp_heartbeat"]
+        self.exchange = LwrExchange(self.url, **exchange_kwds)
+
         self.status_cache = {}
         self.callback_lock = threading.Lock()
         self.callback_thread = None
