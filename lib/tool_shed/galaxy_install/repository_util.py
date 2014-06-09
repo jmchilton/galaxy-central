@@ -739,7 +739,7 @@ def order_components_for_installation( trans, tsr_ids, repo_info_dicts, tool_pan
     # Create a dictionary whose keys are the received tsr_ids and whose values are a list of tsr_ids, each of which is
     # contained in the received list of tsr_ids and whose associated repository must be installed prior to the repository
     # associated with the tsr_id key.
-    prior_install_required_dict = suc.get_prior_import_or_install_required_dict( trans, tsr_ids, repo_info_dicts )
+    prior_install_required_dict = suc.get_prior_import_or_install_required_dict( app, tsr_ids, repo_info_dicts )
     processed_tsr_ids = []
     while len( processed_tsr_ids ) != len( prior_install_required_dict.keys() ):
         tsr_id = suc.get_next_prior_import_or_install_required_dict_entry( prior_install_required_dict, processed_tsr_ids )

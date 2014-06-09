@@ -616,13 +616,12 @@ def get_ordered_metadata_changeset_revisions( repository, repo, downloadable=Tru
     sorted_changeset_revisions = [ str( changeset_tup[ 1 ] ) for changeset_tup in sorted_changeset_tups ]
     return sorted_changeset_revisions
 
-def get_prior_import_or_install_required_dict( trans, tsr_ids, repo_info_dicts ):
+def get_prior_import_or_install_required_dict( app, tsr_ids, repo_info_dicts ):
     """
     This method is used in the Tool Shed when exporting a repository and its dependencies, and in Galaxy when a repository and its dependencies
     are being installed.  Return a dictionary whose keys are the received tsr_ids and whose values are a list of tsr_ids, each of which is contained
     in the received list of tsr_ids and whose associated repository must be imported or installed prior to the repository associated with the tsr_id key.
     """
-    app = trans.app
     # Initialize the dictionary.
     prior_import_or_install_required_dict = {}
     for tsr_id in tsr_ids:
