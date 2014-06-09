@@ -16,13 +16,12 @@ from tool_shed.util import tool_util
 
 log = logging.getLogger( __name__ )
 
-def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed_repositories ):
+def build_repository_dependency_relationships( app, repo_info_dicts, tool_shed_repositories ):
     """
     Build relationships between installed tool shed repositories and other installed tool shed repositories upon which they depend.  These
     relationships are defined in the repository_dependencies entry for each dictionary in the received list of repo_info_dicts.  Each of
     these dictionaries is associated with a repository in the received tool_shed_repositories list.
     """
-    app = trans.app
     install_model = app.install_model
     log.debug( "Building repository dependency relationships..." )
     for repo_info_dict in repo_info_dicts:
@@ -220,7 +219,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                             tool_panel_section_keys.append( tool_panel_section_key )
                             filtered_repo_info_dicts.append( repo_info_dict )
     # Build repository dependency relationships even if the user chose to not install repository dependencies.
-    build_repository_dependency_relationships( trans, all_repo_info_dicts, all_created_or_updated_tool_shed_repositories )
+    build_repository_dependency_relationships( trans.app, all_repo_info_dicts, all_created_or_updated_tool_shed_repositories )
     return created_or_updated_tool_shed_repositories, tool_panel_section_keys, all_repo_info_dicts, filtered_repo_info_dicts
 
 def generate_message_for_invalid_repository_dependencies( metadata_dict, error_from_tuple=False ):
