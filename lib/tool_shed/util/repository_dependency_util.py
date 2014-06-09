@@ -185,7 +185,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                     # to see where it was previously located in the tool panel.
                     if repository_db_record and repository_db_record.metadata:
                         tool_section, tool_panel_section_key = \
-                            tool_util.handle_tool_panel_selection( trans=trans,
+                            tool_util.handle_tool_panel_selection( toolbox=trans.app.toolbox,
                                                                    metadata=repository_db_record.metadata,
                                                                    no_changes_checked=no_changes_checked,
                                                                    tool_panel_section_id=tool_panel_section_id,

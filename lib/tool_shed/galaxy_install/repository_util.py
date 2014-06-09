@@ -836,7 +836,7 @@ def repair_tool_shed_repository( trans, repository, repo_info_dict ):
         # Reset the repository attributes to the New state for installation.
         if metadata:
             tool_section, tool_panel_section_key = \
-                tool_util.handle_tool_panel_selection( trans,
+                tool_util.handle_tool_panel_selection( trans.app.toolbox,
                                                        metadata,
                                                        no_changes_checked=True,
                                                        tool_panel_section_id=None,

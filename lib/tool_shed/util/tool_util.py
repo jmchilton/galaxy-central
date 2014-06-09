@@ -669,7 +669,7 @@ def handle_sample_tool_data_table_conf_file( app, filename, persist=False ):
         error = True
     return error, message
 
-def handle_tool_panel_selection( trans, metadata, no_changes_checked, tool_panel_section_id, new_tool_panel_section_label ):
+def handle_tool_panel_selection( toolbox, metadata, no_changes_checked, tool_panel_section_id, new_tool_panel_section_label ):
     """
     Handle the selected tool panel location for loading tools included in tool shed repositories when installing
     or reinstalling them.
@@ -697,12 +697,12 @@ def handle_tool_panel_selection( trans, metadata, no_changes_checked, tool_panel
                 original_section_name = tool_section_dict[ 'name' ]
                 if original_section_id:
                     tool_panel_section_key, tool_section = \
-                        get_or_create_tool_section( trans.app.toolbox,
+                        get_or_create_tool_section( toolbox,
                                                     tool_panel_section_id=original_section_id,
                                                     new_tool_panel_section_label=new_tool_panel_section_label )
         else:
             # The user elected to change the tool panel section to contain the tools.
-            tool_panel_section_key, tool_section = handle_tool_panel_section( trans.app.toolbox,
+            tool_panel_section_key, tool_section = handle_tool_panel_section( toolbox,
                                                                               tool_panel_section_id=tool_panel_section_id,
                                                                               new_tool_panel_section_label=new_tool_panel_section_label )
     return tool_section, tool_panel_section_key

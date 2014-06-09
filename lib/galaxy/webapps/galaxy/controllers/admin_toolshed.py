@@ -1287,7 +1287,7 @@ class AdminToolshed( AdminGalaxy ):
         if tool_shed_repository.includes_tools_for_display_in_tool_panel:
             # Handle the selected tool panel location for loading tools included in the tool shed repository.
             tool_section, tool_panel_section_key = \
-                tool_util.handle_tool_panel_selection( trans=trans,
+                tool_util.handle_tool_panel_selection( toolbox=trans.app.toolbox,
                                                        metadata=metadata,
                                                        no_changes_checked=no_changes_checked,
                                                        tool_panel_section_id=tool_panel_section_id,
