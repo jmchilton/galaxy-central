@@ -386,6 +386,7 @@ def get_required_repo_info_dicts( trans, tool_shed_url, repo_info_dicts ):
     all required repositories, so only one pass through this method is required to retrieve all repository
     dependencies.
     """
+    app = trans.app
     all_required_repo_info_dict = {}
     all_repo_info_dicts = []
     if repo_info_dicts:
@@ -443,9 +444,9 @@ def get_required_repo_info_dicts( trans, tool_shed_url, repo_info_dicts ):
                     encoded_required_repository_tups.append( encoding_util.encoding_sep.join( required_repository_tup ) )
                 encoded_required_repository_str = encoding_util.encoding_sep2.join( encoded_required_repository_tups )
                 encoded_required_repository_str = encoding_util.tool_shed_encode( encoded_required_repository_str )
-                if trans.webapp.name == 'galaxy':
+                if suc.is_tool_shed_client( app ):
                     # Handle secure / insecure Tool Shed URL protocol changes and port changes.
-                    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( trans.app, tool_shed_url )
+                    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, tool_shed_url )
                 url = common_util.url_join( tool_shed_url, '/repository/get_required_repo_info_dict' )
                 # Fix for handling 307 redirect not being handled nicely by urllib2.urlopen when the urllib2.Request has data provided
                 url = urllib2.urlopen( urllib2.Request( url ) ).geturl()
