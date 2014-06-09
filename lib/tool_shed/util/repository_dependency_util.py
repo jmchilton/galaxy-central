@@ -22,6 +22,8 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
     relationships are defined in the repository_dependencies entry for each dictionary in the received list of repo_info_dicts.  Each of
     these dictionaries is associated with a repository in the received tool_shed_repositories list.
     """
+    app = trans.app
+    install_model = app.install_model
     log.debug( "Building repository dependency relationships..." )
     for repo_info_dict in repo_info_dicts:
         for name, repo_info_tuple in repo_info_dict.items():
@@ -45,7 +47,7 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                             break
                     if d_repository is None:
                         # The dependent repository is not in the received list so look in the database.
-                        d_repository = suc.get_or_create_tool_shed_repository( trans.app, d_toolshed, d_name, d_owner, d_changeset_revision )
+                        d_repository = suc.get_or_create_tool_shed_repository( app, d_toolshed, d_name, d_owner, d_changeset_revision )
                     # Process each repository_dependency defined for the current dependent repository.
                     for repository_dependency_components_list in val:
                         required_repository = None
@@ -60,7 +62,7 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                                 break
                         if required_repository is None:
                             # The required repository is not in the received list so look in the database.
-                            required_repository = suc.get_or_create_tool_shed_repository( trans.app,
+                            required_repository = suc.get_or_create_tool_shed_repository( app,
                                                                                           rd_toolshed,
                                                                                           rd_name,
                                                                                           rd_owner,
@@ -73,16 +75,16 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                                 break
                         if not rrda:
                             # Make sure required_repository is in the repository_dependency table.
-                            repository_dependency = get_repository_dependency_by_repository_id( trans.install_model, required_repository.id )
+                            repository_dependency = get_repository_dependency_by_repository_id( install_model, required_repository.id )
                             if not repository_dependency:
-                                repository_dependency = trans.install_model.RepositoryDependency( tool_shed_repository_id=required_repository.id )
-                                trans.install_model.context.add( repository_dependency )
-                                trans.install_model.context.flush()
+                                repository_dependency = install_model.RepositoryDependency( tool_shed_repository_id=required_repository.id )
+                                install_model.context.add( repository_dependency )
+                                install_model.context.flush()
                             # Build the relationship between the d_repository and the required_repository.
-                            rrda = trans.install_model.RepositoryRepositoryDependencyAssociation( tool_shed_repository_id=d_repository.id,
+                            rrda = install_model.RepositoryRepositoryDependencyAssociation( tool_shed_repository_id=d_repository.id,
                                                                                           repository_dependency_id=repository_dependency.id )
-                            trans.install_model.context.add( rrda )
-                            trans.install_model.context.flush()
+                            install_model.context.add( rrda )
+                            install_model.context.flush()
 
 def can_add_to_key_rd_dicts( key_rd_dict, key_rd_dicts ):
     """Handle the case where an update to the changeset revision was done."""
