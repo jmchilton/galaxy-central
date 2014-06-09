@@ -73,7 +73,7 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                                 break
                         if not rrda:
                             # Make sure required_repository is in the repository_dependency table.
-                            repository_dependency = get_repository_dependency_by_repository_id( trans, required_repository.id )
+                            repository_dependency = get_repository_dependency_by_repository_id( trans.install_model, required_repository.id )
                             if not repository_dependency:
                                 repository_dependency = trans.install_model.RepositoryDependency( tool_shed_repository_id=required_repository.id )
                                 trans.install_model.context.add( repository_dependency )
@@ -340,9 +340,9 @@ def get_repository_dependency_as_key( repository_dependency ):
                                                                                prior_installation_required,
                                                                                only_if_compiling_contained_td )
 
-def get_repository_dependency_by_repository_id( trans, decoded_repository_id ):
-    return trans.install_model.context.query( trans.install_model.RepositoryDependency ) \
-                           .filter( trans.install_model.RepositoryDependency.table.c.tool_shed_repository_id == decoded_repository_id ) \
+def get_repository_dependency_by_repository_id( install_model, decoded_repository_id ):
+    return install_model.context.query( install_model.RepositoryDependency ) \
+                           .filter( install_model.RepositoryDependency.table.c.tool_shed_repository_id == decoded_repository_id ) \
                            .first()
 
 def get_repository_dependencies_for_installed_tool_shed_repository( trans, repository ):
