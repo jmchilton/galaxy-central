@@ -622,19 +622,20 @@ def get_prior_import_or_install_required_dict( trans, tsr_ids, repo_info_dicts )
     are being installed.  Return a dictionary whose keys are the received tsr_ids and whose values are a list of tsr_ids, each of which is contained
     in the received list of tsr_ids and whose associated repository must be imported or installed prior to the repository associated with the tsr_id key.
     """
+    app = trans.app
     # Initialize the dictionary.
     prior_import_or_install_required_dict = {}
     for tsr_id in tsr_ids:
         prior_import_or_install_required_dict[ tsr_id ] = []
     # Inspect the repository dependencies for each repository about to be installed and populate the dictionary.
     for repo_info_dict in repo_info_dicts:
-        repository, repository_dependencies = get_repository_and_repository_dependencies_from_repo_info_dict( trans.app, repo_info_dict )
+        repository, repository_dependencies = get_repository_and_repository_dependencies_from_repo_info_dict( app, repo_info_dict )
         if repository:
-            encoded_repository_id = trans.security.encode_id( repository.id )
+            encoded_repository_id = app.security.encode_id( repository.id )
             if encoded_repository_id in tsr_ids:
                 # We've located the database table record for one of the repositories we're about to install, so find out if it has any repository
                 # dependencies that require prior installation.
-                prior_import_or_install_ids = get_repository_ids_requiring_prior_import_or_install( trans.app, tsr_ids, repository_dependencies )
+                prior_import_or_install_ids = get_repository_ids_requiring_prior_import_or_install( app, tsr_ids, repository_dependencies )
                 prior_import_or_install_required_dict[ encoded_repository_id ] = prior_import_or_install_ids
     return prior_import_or_install_required_dict
 
