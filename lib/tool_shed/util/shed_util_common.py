@@ -890,6 +890,7 @@ def get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, reposi
     of encoded repository ids, each of which is contained in the received list of tsr_ids, and whose associated repositories must be imported / installed
     prior to the dependent repository associated with the received repository_dependencies.
     """
+    app = trans.app
     prior_tsr_ids = []
     if repository_dependencies:
         for key, rd_tups in repository_dependencies.items():
@@ -906,14 +907,14 @@ def get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, reposi
                 # dependency.
                 if not asbool( only_if_compiling_contained_td ):
                     if asbool( prior_installation_required ):
-                        if is_tool_shed_client( trans.app ):
+                        if is_tool_shed_client( app ):
                             # We store the port, if one exists, in the database.
                             tool_shed = common_util.remove_protocol_from_tool_shed_url( tool_shed )
-                            repository = get_repository_for_dependency_relationship( trans.app, tool_shed, name, owner, changeset_revision )
+                            repository = get_repository_for_dependency_relationship( app, tool_shed, name, owner, changeset_revision )
                         else:
-                            repository = get_repository_by_name_and_owner( trans.app, name, owner )
+                            repository = get_repository_by_name_and_owner( app, name, owner )
                         if repository:
-                            encoded_repository_id = trans.security.encode_id( repository.id )
+                            encoded_repository_id = app.security.encode_id( repository.id )
                             if encoded_repository_id in tsr_ids:
                                 prior_tsr_ids.append( encoded_repository_id )
     return prior_tsr_ids
