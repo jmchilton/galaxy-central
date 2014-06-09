@@ -172,7 +172,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                             # Set changeset_revision here so suc.create_or_update_tool_shed_repository will find the previously installed
                             # and uninstalled repository instead of creating a new record.
                             changeset_revision = repository_db_record.installed_changeset_revision
-                            suc.reset_previously_installed_repository( trans, repository_db_record )
+                            suc.reset_previously_installed_repository( trans.install_model, repository_db_record )
                             can_update_db_record = True
                 else:
                     # No record exists in the database for the repository currently being processed.

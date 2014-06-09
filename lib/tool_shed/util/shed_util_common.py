@@ -1402,7 +1402,7 @@ def repository_was_previously_installed( app, tool_shed_url, repository_name, re
                 return tool_shed_repository, previous_changeset_revision
     return None, None
 
-def reset_previously_installed_repository( trans, repository ):
+def reset_previously_installed_repository( install_model, repository ):
     """
     Reset the atrributes of a tool_shed_repository that was previsouly installed.  The repository will be in some state other than INSTALLED,
     so all atributes will be set to the default NEW state.  This will enable the repository to be freshly installed.
@@ -1418,10 +1418,10 @@ def reset_previously_installed_repository( trans, repository ):
     repository.deleted = False
     repository.tool_shed_status = None
     repository.uninstalled = False
-    repository.status = trans.install_model.ToolShedRepository.installation_status.NEW
+    repository.status = install_model.ToolShedRepository.installation_status.NEW
     repository.error_message = None
-    trans.install_model.context.add( repository )
-    trans.install_model.context.flush()
+    install_model.context.add( repository )
+    install_model.context.flush()
 
 def set_image_paths( app, encoded_repository_id, text ):
     """
