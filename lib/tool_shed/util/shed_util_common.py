@@ -1369,12 +1369,13 @@ def repository_was_previously_installed( trans, tool_shed_url, repository_name, 
     updating the one that was previously installed.  We'll look in the database instead of on disk since
     the repository may be currently uninstalled.
     """
-    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( trans.app, tool_shed_url )
+    app = trans.app
+    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, tool_shed_url )
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = \
         get_repo_info_tuple_contents( repo_info_tuple )
     tool_shed = get_tool_shed_from_clone_url( repository_clone_url )
     # See if we can locate the repository using the value of changeset_revision.
-    tool_shed_repository = get_tool_shed_repository_by_shed_name_owner_installed_changeset_revision( trans.app,
+    tool_shed_repository = get_tool_shed_repository_by_shed_name_owner_installed_changeset_revision( app,
                                                                                                      tool_shed,
                                                                                                      repository_name,
                                                                                                      repository_owner,
@@ -1389,11 +1390,11 @@ def repository_was_previously_installed( trans, tool_shed_url, repository_name, 
                                                                          changeset_revision )
     url = common_util.url_join( tool_shed_url,
                                 'repository/previous_changeset_revisions%s' % params )
-    text = common_util.tool_shed_get( trans.app, tool_shed_url, url )
+    text = common_util.tool_shed_get( app, tool_shed_url, url )
     if text:
         changeset_revisions = util.listify( text )
         for previous_changeset_revision in changeset_revisions:
-            tool_shed_repository = get_tool_shed_repository_by_shed_name_owner_installed_changeset_revision( trans.app,
+            tool_shed_repository = get_tool_shed_repository_by_shed_name_owner_installed_changeset_revision( app,
                                                                                                              tool_shed,
                                                                                                              repository_name,
                                                                                                              repository_owner,
