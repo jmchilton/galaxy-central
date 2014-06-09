@@ -193,7 +193,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                     else:
                         # We're installing a new tool shed repository that does not yet have a database record.
                         tool_panel_section_key, tool_section = \
-                            tool_util.handle_tool_panel_section( trans,
+                            tool_util.handle_tool_panel_section( trans.app.toolbox,
                                                                  tool_panel_section_id=tool_panel_section_id,
                                                                  new_tool_panel_section_label=new_tool_panel_section_label )
                     tool_shed_repository = \

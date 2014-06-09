@@ -512,7 +512,7 @@ def initiate_repository_installation( trans, installation_dict ):
     # Handle contained tools.
     if includes_tools_for_display_in_tool_panel and ( new_tool_panel_section_label or tool_panel_section_id ):
         tool_panel_section_key, tool_section = \
-            tool_util.handle_tool_panel_section( trans,
+            tool_util.handle_tool_panel_section( trans.app.toolbox,
                                                  tool_panel_section_id=tool_panel_section_id,
                                                  new_tool_panel_section_label=new_tool_panel_section_label )
     else:

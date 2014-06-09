@@ -702,12 +702,12 @@ def handle_tool_panel_selection( trans, metadata, no_changes_checked, tool_panel
                                                     new_tool_panel_section_label=new_tool_panel_section_label )
         else:
             # The user elected to change the tool panel section to contain the tools.
-            tool_panel_section_key, tool_section = handle_tool_panel_section( trans,
+            tool_panel_section_key, tool_section = handle_tool_panel_section( trans.app.toolbox,
                                                                               tool_panel_section_id=tool_panel_section_id,
                                                                               new_tool_panel_section_label=new_tool_panel_section_label )
     return tool_section, tool_panel_section_key
 
-def handle_tool_panel_section( trans, tool_panel_section_id=None, new_tool_panel_section_label=None ):
+def handle_tool_panel_section( toolbox, tool_panel_section_id=None, new_tool_panel_section_label=None ):
     """Return a ToolSection object retrieved from the current in-memory tool_panel."""
     # If tool_panel_section_id is received, the section exists in the tool panel.  In this case, the value of the
     # received tool_panel_section_id must be the id retrieved from a tool panel config (e.g., tool_conf.xml, which
@@ -715,12 +715,12 @@ def handle_tool_panel_section( trans, tool_panel_section_id=None, new_tool_panel
     if new_tool_panel_section_label:
         section_id = str( new_tool_panel_section_label.lower().replace( ' ', '_' ) )
         tool_panel_section_key, tool_section = \
-            get_or_create_tool_section( trans.app.toolbox,
+            get_or_create_tool_section( toolbox,
                                         tool_panel_section_id=section_id,
                                         new_tool_panel_section_label=new_tool_panel_section_label )
     elif tool_panel_section_id:
         tool_panel_section_key = str( tool_panel_section_id )
-        tool_section = trans.app.toolbox.tool_panel[ tool_panel_section_key ]
+        tool_section = toolbox.tool_panel[ tool_panel_section_key ]
     else:
         return None, None
     return tool_panel_section_key, tool_section
