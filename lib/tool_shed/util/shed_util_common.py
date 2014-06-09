@@ -1331,7 +1331,7 @@ def is_tool_shed_client( app ):
     method should determine if the app performing the action is the tool shed
     or a client of the tool shed.
     """
-    return not hasattr( app, "install_model" )
+    return hasattr( app, "install_model" )
 
 
 def open_repository_files_folder( trans, folder_path ):
