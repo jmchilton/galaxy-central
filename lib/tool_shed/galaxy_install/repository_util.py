@@ -264,7 +264,7 @@ def get_repo_info_dict_for_repair( trans, repository ):
             tool_panel_section_name = section_dict[ 'name' ]
             if tool_panel_section_id:
                 tool_panel_section_key, tool_panel_section = \
-                    tool_util.get_or_create_tool_section( trans,
+                    tool_util.get_or_create_tool_section( trans.app.toolbox,
                                                           tool_panel_section_id=tool_panel_section_id,
                                                           new_tool_panel_section_label=tool_panel_section_name )
     else:
