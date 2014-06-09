@@ -24,16 +24,18 @@ log = logging.getLogger( __name__ )
 
 def activate_repository( trans, repository ):
     """Activate an installed tool shed repository that has been marked as deactivated."""
-    repository_clone_url = common_util.generate_clone_url_for_installed_repository( trans.app, repository )
-    shed_tool_conf, tool_path, relative_install_dir = suc.get_tool_panel_config_tool_path_install_dir( trans.app, repository )
+    app = trans.app
+    install_model = app.install_model
+    repository_clone_url = common_util.generate_clone_url_for_installed_repository( app, repository )
+    shed_tool_conf, tool_path, relative_install_dir = suc.get_tool_panel_config_tool_path_install_dir( app, repository )
     repository.deleted = False
-    repository.status = trans.install_model.ToolShedRepository.installation_status.INSTALLED
+    repository.status = install_model.ToolShedRepository.installation_status.INSTALLED
     if repository.includes_tools_for_display_in_tool_panel:
         metadata = repository.metadata
-        repository_tools_tups = suc.get_repository_tools_tups( trans.app, metadata )
+        repository_tools_tups = suc.get_repository_tools_tups( app, metadata )
         # Reload tools into the appropriate tool panel section.
         tool_panel_dict = repository.metadata[ 'tool_panel_section' ]
-        tool_util.add_to_tool_panel( trans.app,
+        tool_util.add_to_tool_panel( app,
                                      repository.name,
                                      repository_clone_url,
                                      repository.installed_changeset_revision,
@@ -43,32 +45,32 @@ def activate_repository( trans, repository ):
                                      tool_panel_dict,
                                      new_install=False )
         if repository.includes_data_managers:
-            tp, data_manager_relative_install_dir = repository.get_tool_relative_path( trans.app )
+            tp, data_manager_relative_install_dir = repository.get_tool_relative_path( app )
             # Hack to add repository.name here, which is actually the root of the installed repository
             data_manager_relative_install_dir = os.path.join( data_manager_relative_install_dir, repository.name )
-            new_data_managers = data_manager_util.install_data_managers( trans.app,
-                                                                         trans.app.config.shed_data_manager_config_file,
+            new_data_managers = data_manager_util.install_data_managers( app,
+                                                                         app.config.shed_data_manager_config_file,
                                                                          metadata,
-                                                                         repository.get_shed_config_dict( trans.app ),
+                                                                         repository.get_shed_config_dict( app ),
                                                                          data_manager_relative_install_dir,
                                                                          repository,
                                                                          repository_tools_tups )
-    trans.install_model.context.add( repository )
-    trans.install_model.context.flush()
+    install_model.context.add( repository )
+    install_model.context.flush()
     if repository.includes_datatypes:
         if tool_path:
             repository_install_dir = os.path.abspath( os.path.join( tool_path, relative_install_dir ) )
         else:
             repository_install_dir = os.path.abspath( relative_install_dir )
         # Activate proprietary datatypes.
-        installed_repository_dict = datatype_util.load_installed_datatypes( trans.app, repository, repository_install_dir, deactivate=False )
+        installed_repository_dict = datatype_util.load_installed_datatypes( app, repository, repository_install_dir, deactivate=False )
         if installed_repository_dict:
             converter_path = installed_repository_dict.get( 'converter_path' )
             if converter_path is not None:
-                datatype_util.load_installed_datatype_converters( trans.app, installed_repository_dict, deactivate=False )
+                datatype_util.load_installed_datatype_converters( app, installed_repository_dict, deactivate=False )
             display_path = installed_repository_dict.get( 'display_path' )
             if display_path is not None:
-                datatype_util.load_installed_display_applications( trans.app, installed_repository_dict, deactivate=False )
+                datatype_util.load_installed_display_applications( app, installed_repository_dict, deactivate=False )
 
 def get_dependencies_for_repository( trans, tool_shed_url, repo_info_dict, includes_tool_dependencies, updating=False ):
     """
