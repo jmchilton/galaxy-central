@@ -724,7 +724,7 @@ def get_repository_and_repository_dependencies_from_repo_info_dict( app, repo_in
 
 def get_repository_by_id( trans, id ):
     """Get a repository from the database via id."""
-    if trans.webapp.name == 'galaxy':
+    if is_tool_shed_client( trans.app ):
         return trans.install_model.context.query( trans.install_model.ToolShedRepository ).get( trans.security.decode_id( id ) )
     else:
         return trans.sa_session.query( trans.model.Repository ).get( trans.security.decode_id( id ) )
@@ -732,15 +732,12 @@ def get_repository_by_id( trans, id ):
 def get_repository_by_name( app, name ):
     """Get a repository from the database via name."""
     repository_query = get_repository_query( app )
-    if app.name == 'galaxy':
-        return repository_query.filter_by( name=name ).first()
-    else:
-        return repository_query.filter_by( name=name ).first()
+    return repository_query.filter_by( name=name ).first()
 
 def get_repository_by_name_and_owner( app, name, owner ):
     """Get a repository from the database via name and owner"""
     repository_query = get_repository_query( app )
-    if app.name == 'galaxy':
+    if is_tool_shed_client( app ):
         return repository_query \
                          .filter( and_( app.install_model.ToolShedRepository.table.c.name == name,
                                         app.install_model.ToolShedRepository.table.c.owner == owner ) ) \
@@ -909,7 +906,7 @@ def get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, reposi
                 # dependency.
                 if not asbool( only_if_compiling_contained_td ):
                     if asbool( prior_installation_required ):
-                        if trans.webapp.name == 'galaxy':
+                        if is_tool_shed_client( trans.app ):
                             # We store the port, if one exists, in the database.
                             tool_shed = common_util.remove_protocol_from_tool_shed_url( tool_shed )
                             repository = get_repository_for_dependency_relationship( trans.app, tool_shed, name, owner, changeset_revision )
@@ -964,7 +961,7 @@ def get_repository_owner_from_clone_url( repository_clone_url ):
     return get_repository_owner( tmp_url )
 
 def get_repository_query( app ):
-    if app.name == "galaxy":
+    if is_tool_shed_client( app ):
         query = app.install_model.context.query( app.install_model.ToolShedRepository )
     else:
         query = app.model.context.query( app.model.Repository )
@@ -1327,6 +1324,16 @@ def have_shed_tool_conf_for_install( trans ):
             return True
     return False
 
+
+def is_tool_shed_client( app ):
+    """ The tool shed and clients to the tool (i.e. Galaxy) require a lot
+    of similar functionality in this file but with small differences. This
+    method should determine if the app performing the action is the tool shed
+    or a client of the tool shed.
+    """
+    return not hasattr( app, "install_model" )
+
+
 def open_repository_files_folder( trans, folder_path ):
     """
     Return a list of dictionaries, each of which contains information for a file or directory contained
@@ -1423,7 +1430,7 @@ def set_image_paths( app, encoded_repository_id, text ):
     the caller to open the file.
     """
     if text:
-        if app.name == 'galaxy':
+        if is_tool_shed_client( app ):
             route_to_images = 'admin_toolshed/static/images/%s' % encoded_repository_id
         else:
             # We're in the tool shed.
