@@ -1713,7 +1713,7 @@ class AdminToolshed( AdminGalaxy ):
         """An error occurred while cloning the repository, so reset everything necessary to enable another attempt."""
         repository = suc.get_installed_tool_shed_repository( trans, kwd[ 'id' ] )
         if kwd.get( 'reset_repository', False ):
-            repository_util.set_repository_attributes( trans,
+            repository_util.set_repository_attributes( trans.app,
                                                        repository,
                                                        status=trans.install_model.ToolShedRepository.installation_status.NEW,
                                                        error_message=None,

@@ -637,7 +637,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
             trans.app.installed_repository_manager.handle_repository_install( tool_shed_repository )
     else:
         # An error occurred while cloning the repository, so reset everything necessary to enable another attempt.
-        set_repository_attributes( trans,
+        set_repository_attributes( trans.app,
                                    tool_shed_repository,
                                    status=trans.install_model.ToolShedRepository.installation_status.ERROR,
                                    error_message=error_message,
@@ -843,7 +843,7 @@ def repair_tool_shed_repository( trans, repository, repo_info_dict ):
         else:
             # The tools will be loaded outside of any sections in the tool panel.
             tool_panel_section_key = None
-        set_repository_attributes( trans,
+        set_repository_attributes( trans.app,
                                    repository,
                                    status=trans.install_model.ToolShedRepository.installation_status.NEW,
                                    error_message=None,
@@ -893,9 +893,9 @@ def repair_tool_shed_repository( trans, repository, repo_info_dict ):
         suc.update_tool_shed_repository_status( trans.app, repository, trans.install_model.ToolShedRepository.installation_status.INSTALLED )
     return repair_dict
 
-def set_repository_attributes( trans, repository, status, error_message, deleted, uninstalled, remove_from_disk=False ):
+def set_repository_attributes( app, repository, status, error_message, deleted, uninstalled, remove_from_disk=False ):
     if remove_from_disk:
-        relative_install_dir = repository.repo_path( trans.app )
+        relative_install_dir = repository.repo_path( app )
         if relative_install_dir:
             clone_dir = os.path.abspath( relative_install_dir )
             try:
@@ -907,8 +907,8 @@ def set_repository_attributes( trans, repository, status, error_message, deleted
     repository.status = status
     repository.deleted = deleted
     repository.uninstalled = uninstalled
-    trans.install_model.context.add( repository )
-    trans.install_model.context.flush()
+    app.install_model.context.add( repository )
+    app.install_model.context.flush()
 
 def update_repository_record( trans, repository, updated_metadata_dict, updated_changeset_revision, updated_ctx_rev ):
     """
