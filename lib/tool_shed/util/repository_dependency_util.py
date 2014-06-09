@@ -45,7 +45,7 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                             break
                     if d_repository is None:
                         # The dependent repository is not in the received list so look in the database.
-                        d_repository = suc.get_or_create_tool_shed_repository( trans, d_toolshed, d_name, d_owner, d_changeset_revision )
+                        d_repository = suc.get_or_create_tool_shed_repository( trans.app, d_toolshed, d_name, d_owner, d_changeset_revision )
                     # Process each repository_dependency defined for the current dependent repository.
                     for repository_dependency_components_list in val:
                         required_repository = None
@@ -60,7 +60,7 @@ def build_repository_dependency_relationships( trans, repo_info_dicts, tool_shed
                                 break
                         if required_repository is None:
                             # The required repository is not in the received list so look in the database.
-                            required_repository = suc.get_or_create_tool_shed_repository( trans,
+                            required_repository = suc.get_or_create_tool_shed_repository( trans.app,
                                                                                           rd_toolshed,
                                                                                           rd_name,
                                                                                           rd_owner,

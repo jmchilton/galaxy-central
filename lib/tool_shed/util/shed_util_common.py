@@ -571,27 +571,28 @@ def get_next_prior_import_or_install_required_dict_entry( prior_required_dict, p
             continue
         return key
 
-def get_or_create_tool_shed_repository( trans, tool_shed, name, owner, changeset_revision ):
+def get_or_create_tool_shed_repository( app, tool_shed, name, owner, changeset_revision ):
     """
     Return a tool shed repository database record defined by the combination of tool shed, repository name, repository owner and changeset_revision
     or installed_changeset_revision.  A new tool shed repository record will be created if one is not located.
     """
+    install_model = app.install_model
     # We store the port in the database.
     tool_shed = common_util.remove_protocol_from_tool_shed_url( tool_shed )
     # This method is used only in Galaxy, not the tool shed.
-    repository = get_repository_for_dependency_relationship( trans.app, tool_shed, name, owner, changeset_revision )
+    repository = get_repository_for_dependency_relationship( app, tool_shed, name, owner, changeset_revision )
     if not repository:
-        tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( trans.app, tool_shed )
+        tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, tool_shed )
         repository_clone_url = os.path.join( tool_shed_url, 'repos', owner, name )
-        ctx_rev = get_ctx_rev( trans.app, tool_shed_url, name, owner, changeset_revision )
-        repository = create_or_update_tool_shed_repository( app=trans.app,
+        ctx_rev = get_ctx_rev( app, tool_shed_url, name, owner, changeset_revision )
+        repository = create_or_update_tool_shed_repository( app=app,
                                                             name=name,
                                                             description=None,
                                                             installed_changeset_revision=changeset_revision,
                                                             ctx_rev=ctx_rev,
                                                             repository_clone_url=repository_clone_url,
                                                             metadata_dict={},
-                                                            status=trans.install_model.ToolShedRepository.installation_status.NEW,
+                                                            status=install_model.ToolShedRepository.installation_status.NEW,
                                                             current_changeset_revision=None,
                                                             owner=owner,
                                                             dist_to_shed=False )
