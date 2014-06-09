@@ -360,13 +360,12 @@ def get_update_to_changeset_revision_and_ctx_rev( app, repository ):
         changeset_revision_dict[ 'ctx_rev' ] = None
     return changeset_revision_dict
 
-def handle_repository_contents( trans, tool_shed_repository, tool_path, repository_clone_url, relative_install_dir,
+def handle_repository_contents( app, tool_shed_repository, tool_path, repository_clone_url, relative_install_dir,
                                 tool_shed=None, tool_section=None, shed_tool_conf=None, reinstalling=False ):
     """
     Generate the metadata for the installed tool shed repository, among other things.  This method is called from Galaxy
     (never the tool shed) when an administrator is installing a new repository or reinstalling an uninstalled repository.
     """
-    app = trans.app
     install_model = app.install_model
     shed_config_dict = app.toolbox.get_shed_config_dict_by_filename( shed_tool_conf )
     metadata_dict, invalid_file_tups = \
@@ -585,7 +584,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
                                                         create=False )
                 pull_repository( repo, repository_clone_url, current_changeset_revision )
                 hg_util.update_repository( repo, ctx_rev=current_ctx_rev )
-        handle_repository_contents( trans,
+        handle_repository_contents( app,
                                     tool_shed_repository=tool_shed_repository,
                                     tool_path=tool_path,
                                     repository_clone_url=repository_clone_url,
