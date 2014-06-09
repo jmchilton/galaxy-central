@@ -174,7 +174,7 @@ def get_repair_dict( trans, repository ):
         tool_panel_section_keys.append( tool_panel_section_key )
         repo_info_dicts.append( repo_info_dict )
     ordered_tsr_ids, ordered_repo_info_dicts, ordered_tool_panel_section_keys = \
-        order_components_for_installation( trans,
+        order_components_for_installation( trans.app,
                                            tsr_ids,
                                            repo_info_dicts,
                                            tool_panel_section_keys=tool_panel_section_keys )
@@ -724,7 +724,7 @@ def merge_containers_dicts_for_new_install( containers_dicts ):
             lock.release()
     return new_containers_dict
 
-def order_components_for_installation( trans, tsr_ids, repo_info_dicts, tool_panel_section_keys ):
+def order_components_for_installation( app, tsr_ids, repo_info_dicts, tool_panel_section_keys ):
     """
     Some repositories may have repository dependencies that are required to be installed before the dependent repository. 
     This method will inspect the list of repositories about to be installed and make sure to order them appropriately.

@@ -375,7 +375,7 @@ class ToolShedRepositoriesController( BaseAPIController ):
             # order the list of tsr_ids to ensure all repositories install in the required order.
             tsr_ids = [ trans.security.encode_id( tool_shed_repository.id ) for tool_shed_repository in tool_shed_repositories ]
             ordered_tsr_ids, ordered_repo_info_dicts, ordered_tool_panel_section_keys = \
-                repository_util.order_components_for_installation( trans, tsr_ids, repo_info_dicts, tool_panel_section_keys=tool_panel_section_keys )
+                repository_util.order_components_for_installation( trans.app, tsr_ids, repo_info_dicts, tool_panel_section_keys=tool_panel_section_keys )
             # Install the repositories, keeping track of each one for later display.
             for index, tsr_id in enumerate( ordered_tsr_ids ):
                 tool_shed_repository = trans.install_model.context.query( trans.install_model.ToolShedRepository ).get( trans.security.decode_id( tsr_id ) )

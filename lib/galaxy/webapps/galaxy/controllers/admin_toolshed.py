@@ -692,7 +692,7 @@ class AdminToolshed( AdminGalaxy ):
                 # dependent repository, so we'll order the list of tsr_ids to ensure all repositories install in the
                 # required order.
                 ordered_tsr_ids, ordered_repo_info_dicts, ordered_tool_panel_section_keys = \
-                    repository_util.order_components_for_installation( trans,
+                    repository_util.order_components_for_installation( trans.app,
                                                                        tsr_ids,
                                                                        repo_info_dicts,
                                                                        tool_panel_section_keys=tool_panel_section_keys )
