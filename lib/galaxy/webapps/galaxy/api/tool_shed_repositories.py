@@ -370,7 +370,7 @@ class ToolShedRepositoriesController( BaseAPIController ):
             # changeset_revision, there may be multiple repositories for installation at this point because repository dependencies may have added
             # additional repositories for installation along with the single specified repository.
             encoded_kwd, query, tool_shed_repositories, encoded_repository_ids = \
-                repository_util.initiate_repository_installation( trans, installation_dict )
+                repository_util.initiate_repository_installation( trans.app, installation_dict )
             # Some repositories may have repository dependencies that are required to be installed before the dependent repository, so we'll
             # order the list of tsr_ids to ensure all repositories install in the required order.
             tsr_ids = [ trans.security.encode_id( tool_shed_repository.id ) for tool_shed_repository in tool_shed_repositories ]

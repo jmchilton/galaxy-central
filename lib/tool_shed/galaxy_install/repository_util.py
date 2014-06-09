@@ -491,8 +491,7 @@ def handle_tool_shed_repositories( trans, installation_dict, using_api=False ):
                                                                          new_tool_panel_section_label=new_tool_panel_section_label )
     return created_or_updated_tool_shed_repositories, tool_panel_section_keys, repo_info_dicts, filtered_repo_info_dicts
 
-def initiate_repository_installation( trans, installation_dict ):
-    app = trans.app
+def initiate_repository_installation( app, installation_dict ):
     install_model = app.install_model
     # The following installation_dict entries are all required.
     created_or_updated_tool_shed_repositories = installation_dict[ 'created_or_updated_tool_shed_repositories' ]

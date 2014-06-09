@@ -1089,7 +1089,7 @@ class AdminToolshed( AdminGalaxy ):
                                           tool_path=tool_path,
                                           tool_shed_url=tool_shed_url )
                 encoded_kwd, query, tool_shed_repositories, encoded_repository_ids = \
-                    repository_util.initiate_repository_installation( trans, installation_dict )
+                    repository_util.initiate_repository_installation( trans.app, installation_dict )
                 return trans.fill_template( 'admin/tool_shed_repository/initiate_repository_installation.mako',
                                             encoded_kwd=encoded_kwd,
                                             query=query,
