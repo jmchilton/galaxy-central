@@ -709,16 +709,18 @@ def get_repo_info_tuple_contents( repo_info_tuple ):
 
 def get_repository_and_repository_dependencies_from_repo_info_dict( trans, repo_info_dict ):
     """Return a tool_shed_repository or repository record defined by the information in the received repo_info_dict."""
+    app = trans.app
     repository_name = repo_info_dict.keys()[ 0 ]
     repo_info_tuple = repo_info_dict[ repository_name ]
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = \
         get_repo_info_tuple_contents( repo_info_tuple )
-    if trans.webapp.name == 'galaxy':
+    if hasattr( app, "install_model" ):
+        # In a tool shed client (Galaxy, or something install repositories like Galaxy)
         tool_shed = get_tool_shed_from_clone_url( repository_clone_url )
-        repository = get_repository_for_dependency_relationship( trans.app, tool_shed, repository_name, repository_owner, changeset_revision )
+        repository = get_repository_for_dependency_relationship( app, tool_shed, repository_name, repository_owner, changeset_revision )
     else:
         # We're in the tool shed.
-        repository = get_repository_by_name_and_owner( trans.app, repository_name, repository_owner )
+        repository = get_repository_by_name_and_owner( app, repository_name, repository_owner )
     return repository, repository_dependencies
 
 def get_repository_by_id( trans, id ):
