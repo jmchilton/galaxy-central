@@ -545,9 +545,8 @@ def initiate_repository_installation( trans, installation_dict ):
     query = trans.install_model.context.query( trans.install_model.ToolShedRepository ).filter( or_( *clause_list ) )
     return encoded_kwd, query, tool_shed_repositories, encoded_repository_ids
 
-def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, tool_panel_section_key, shed_tool_conf, tool_path,
+def install_tool_shed_repository( app, tool_shed_repository, repo_info_dict, tool_panel_section_key, shed_tool_conf, tool_path,
                                   install_tool_dependencies, reinstalling=False ):
-    app = trans.app
     install_model = app.install_model
     if tool_panel_section_key:
         try:
@@ -852,7 +851,7 @@ def repair_tool_shed_repository( trans, repository, repo_info_dict ):
                                    deleted=False,
                                    uninstalled=False,
                                    remove_from_disk=True )
-        install_tool_shed_repository( trans,
+        install_tool_shed_repository( trans.app,
                                       repository,
                                       repo_info_dict,
                                       tool_panel_section_key,

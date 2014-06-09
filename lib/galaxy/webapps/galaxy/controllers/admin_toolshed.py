@@ -629,7 +629,7 @@ class AdminToolshed( AdminGalaxy ):
         for index, tool_shed_repository in enumerate( tool_shed_repositories ):
             repo_info_dict = repo_info_dicts[ index ]
             tool_panel_section_key = tool_panel_section_keys[ index ]
-            repository_util.install_tool_shed_repository( trans,
+            repository_util.install_tool_shed_repository( trans.app,
                                                           tool_shed_repository,
                                                           repo_info_dict,
                                                           tool_panel_section_key,

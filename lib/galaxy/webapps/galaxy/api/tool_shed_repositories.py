@@ -384,7 +384,7 @@ class ToolShedRepositoriesController( BaseAPIController ):
 
                     repo_info_dict = ordered_repo_info_dicts[ index ]
                     tool_panel_section_key = ordered_tool_panel_section_keys[ index ]
-                    repository_util.install_tool_shed_repository( trans,
+                    repository_util.install_tool_shed_repository( trans.app,
                                                                   tool_shed_repository,
                                                                   repo_info_dict,
                                                                   tool_panel_section_key,
