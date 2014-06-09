@@ -98,7 +98,7 @@ def can_add_to_key_rd_dicts( key_rd_dict, key_rd_dicts ):
                 return False
     return True
 
-def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_info_dicts, install_repository_dependencies=False,
+def create_repository_dependency_objects( app, tool_path, tool_shed_url, repo_info_dicts, install_repository_dependencies=False,
                                           no_changes_checked=False, tool_panel_section_id=None, new_tool_panel_section_label=None ):
     """
     Discover all repository dependencies and make sure all tool_shed_repository and associated repository_dependency
@@ -107,7 +107,6 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
     in the all_repo_info_dicts list will be processed.  However, if repository dependencies are not to be installed,
     only those items contained in the received repo_info_dicts list will be processed.
     """
-    app = trans.app
     install_model = app.install_model
     log.debug( "Creating repository dependency objects..." )
     # The following list will be maintained within this method to contain all created or updated tool shed repositories,

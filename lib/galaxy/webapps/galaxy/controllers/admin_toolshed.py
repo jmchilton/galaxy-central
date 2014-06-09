@@ -1345,7 +1345,7 @@ class AdminToolshed( AdminGalaxy ):
             repo_info_dicts.append( repo_info_dict )
         # Make sure all tool_shed_repository records exist.
         created_or_updated_tool_shed_repositories, tool_panel_section_keys, repo_info_dicts, filtered_repo_info_dicts = \
-            repository_dependency_util.create_repository_dependency_objects( trans=trans,
+            repository_dependency_util.create_repository_dependency_objects( app=trans.app,
                                                                              tool_path=tool_path,
                                                                              tool_shed_url=tool_shed_url,
                                                                              repo_info_dicts=repo_info_dicts,
