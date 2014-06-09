@@ -827,7 +827,7 @@ def repair_tool_shed_repository( trans, repository, repo_info_dict ):
     repair_dict = {}
     if repository.status in [ trans.install_model.ToolShedRepository.installation_status.DEACTIVATED ]:
         try:
-            common_install_util.activate_repository( trans, repository )
+            common_install_util.activate_repository( trans.app, repository )
         except Exception, e:
             error_message = "Error activating repository %s: %s" % ( repository.name, str( e ) )
             log.debug( error_message )

@@ -165,7 +165,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                         elif repository_db_record.status in [ trans.install_model.ToolShedRepository.installation_status.DEACTIVATED ]:
                             # The current tool shed repository is deactivated, so updating its database record is not necessary - just activate it.
                             log.debug( "Reactivating deactivated tool_shed_repository '%s'." % str( repository_db_record.name ) )
-                            common_install_util.activate_repository( trans, repository_db_record )
+                            common_install_util.activate_repository( trans.app, repository_db_record )
                             # No additional updates to the database record are necessary.
                             can_update_db_record = False
                         elif repository_db_record.status not in [ trans.install_model.ToolShedRepository.installation_status.NEW ]:

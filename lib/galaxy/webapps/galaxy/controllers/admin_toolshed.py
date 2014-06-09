@@ -47,7 +47,7 @@ class AdminToolshed( AdminGalaxy ):
         repository_id = kwd[ 'id' ]
         repository = suc.get_installed_tool_shed_repository( trans, repository_id )
         try:
-            common_install_util.activate_repository( trans, repository )
+            common_install_util.activate_repository( trans.app, repository )
         except Exception, e:
             error_message = "Error activating repository %s: %s" % ( repository.name, str( e ) )
             log.exception( error_message )

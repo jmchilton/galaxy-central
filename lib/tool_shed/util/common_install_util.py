@@ -22,9 +22,8 @@ from tool_shed.galaxy_install.tool_dependencies.recipe.recipe_manager import Tag
 
 log = logging.getLogger( __name__ )
 
-def activate_repository( trans, repository ):
+def activate_repository( app, repository ):
     """Activate an installed tool shed repository that has been marked as deactivated."""
-    app = trans.app
     install_model = app.install_model
     repository_clone_url = common_util.generate_clone_url_for_installed_repository( app, repository )
     shed_tool_conf, tool_path, relative_install_dir = suc.get_tool_panel_config_tool_path_install_dir( app, repository )
