@@ -566,7 +566,6 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = repo_info_tuple
     relative_clone_dir = suc.generate_tool_shed_repository_install_dir( repository_clone_url,
                                                                         tool_shed_repository.installed_changeset_revision )
-    clone_dir = os.path.join( tool_path, relative_clone_dir )
     relative_install_dir = os.path.join( relative_clone_dir, tool_shed_repository.name )
     install_dir = os.path.join( tool_path, relative_install_dir )
     cloned_ok, error_message = hg_util.clone_repository( repository_clone_url, os.path.abspath( install_dir ), ctx_rev )
