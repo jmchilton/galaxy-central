@@ -347,7 +347,7 @@ class ToolShedRepositoriesController( BaseAPIController ):
                                   tool_shed_url=tool_shed_url )
         # Create the tool_shed_repository database records and gather additional information for repository installation.
         created_or_updated_tool_shed_repositories, tool_panel_section_keys, repo_info_dicts, filtered_repo_info_dicts = \
-            repository_util.handle_tool_shed_repositories( trans, installation_dict, using_api=True )
+            repository_util.handle_tool_shed_repositories( trans.app, installation_dict, using_api=True )
         if created_or_updated_tool_shed_repositories:
             # Build the dictionary of information necessary for installing the repositories.
             installation_dict = dict( created_or_updated_tool_shed_repositories=created_or_updated_tool_shed_repositories,

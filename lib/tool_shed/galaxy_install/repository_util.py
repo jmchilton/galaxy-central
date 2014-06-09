@@ -471,7 +471,7 @@ def handle_repository_contents( app, tool_shed_repository, tool_path, repository
             # Load proprietary datatype display applications
             app.datatypes_registry.load_display_applications( installed_repository_dict=repository_dict )
 
-def handle_tool_shed_repositories( trans, installation_dict, using_api=False ):
+def handle_tool_shed_repositories( app, installation_dict, using_api=False ):
     # The following installation_dict entries are all required.
     install_repository_dependencies = installation_dict[ 'install_repository_dependencies' ]
     new_tool_panel_section_label = installation_dict[ 'new_tool_panel_section_label' ]
@@ -481,7 +481,7 @@ def handle_tool_shed_repositories( trans, installation_dict, using_api=False ):
     tool_path = installation_dict[ 'tool_path' ]
     tool_shed_url = installation_dict[ 'tool_shed_url' ]
     created_or_updated_tool_shed_repositories, tool_panel_section_keys, repo_info_dicts, filtered_repo_info_dicts = \
-        repository_dependency_util.create_repository_dependency_objects( app=trans.app,
+        repository_dependency_util.create_repository_dependency_objects( app=app,
                                                                          tool_path=tool_path,
                                                                          tool_shed_url=tool_shed_url,
                                                                          repo_info_dicts=repo_info_dicts,
