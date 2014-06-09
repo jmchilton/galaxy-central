@@ -634,7 +634,7 @@ def get_prior_import_or_install_required_dict( trans, tsr_ids, repo_info_dicts )
             if encoded_repository_id in tsr_ids:
                 # We've located the database table record for one of the repositories we're about to install, so find out if it has any repository
                 # dependencies that require prior installation.
-                prior_import_or_install_ids = get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, repository_dependencies )
+                prior_import_or_install_ids = get_repository_ids_requiring_prior_import_or_install( trans.app, tsr_ids, repository_dependencies )
                 prior_import_or_install_required_dict[ encoded_repository_id ] = prior_import_or_install_ids
     return prior_import_or_install_required_dict
 
@@ -882,7 +882,7 @@ def get_repository_from_refresh_on_change( trans, **kwd ):
     # This should never be reached - raise an exception?
     return v, None
 
-def get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, repository_dependencies ):
+def get_repository_ids_requiring_prior_import_or_install( app, tsr_ids, repository_dependencies ):
     """
     This method is used in the Tool Shed when exporting a repository and its dependencies, and in Galaxy when a repository and its dependencies
     are being installed.  Inspect the received repository_dependencies and determine if the encoded id of each required repository is in the received
@@ -890,7 +890,6 @@ def get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, reposi
     of encoded repository ids, each of which is contained in the received list of tsr_ids, and whose associated repositories must be imported / installed
     prior to the dependent repository associated with the received repository_dependencies.
     """
-    app = trans.app
     prior_tsr_ids = []
     if repository_dependencies:
         for key, rd_tups in repository_dependencies.items():

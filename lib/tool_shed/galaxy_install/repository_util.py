@@ -141,7 +141,7 @@ def get_prior_install_required_dict( trans, tsr_ids, repo_info_dicts ):
             if encoded_repository_id in tsr_ids:
                 # We've located the database table record for one of the repositories we're about to install, so find out if it has any repository
                 # dependencies that require prior installation.
-                prior_install_ids = suc.get_repository_ids_requiring_prior_import_or_install( trans, tsr_ids, repository_dependencies )
+                prior_install_ids = suc.get_repository_ids_requiring_prior_import_or_install( trans.app, tsr_ids, repository_dependencies )
                 prior_install_required_dict[ encoded_repository_id ] = prior_install_ids
     return prior_install_required_dict
 
