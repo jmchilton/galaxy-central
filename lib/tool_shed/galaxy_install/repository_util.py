@@ -492,6 +492,8 @@ def handle_tool_shed_repositories( trans, installation_dict, using_api=False ):
     return created_or_updated_tool_shed_repositories, tool_panel_section_keys, repo_info_dicts, filtered_repo_info_dicts
 
 def initiate_repository_installation( trans, installation_dict ):
+    app = trans.app
+    install_model = app.install_model
     # The following installation_dict entries are all required.
     created_or_updated_tool_shed_repositories = installation_dict[ 'created_or_updated_tool_shed_repositories' ]
     filtered_repo_info_dicts = installation_dict[ 'filtered_repo_info_dicts' ]
@@ -512,13 +514,13 @@ def initiate_repository_installation( trans, installation_dict ):
     # Handle contained tools.
     if includes_tools_for_display_in_tool_panel and ( new_tool_panel_section_label or tool_panel_section_id ):
         tool_panel_section_key, tool_section = \
-            tool_util.handle_tool_panel_section( trans.app.toolbox,
+            tool_util.handle_tool_panel_section( app.toolbox,
                                                  tool_panel_section_id=tool_panel_section_id,
                                                  new_tool_panel_section_label=new_tool_panel_section_label )
     else:
         tool_panel_section_key = None
         tool_section = None
-    encoded_repository_ids = [ trans.security.encode_id( tsr.id ) for tsr in created_or_updated_tool_shed_repositories ]
+    encoded_repository_ids = [ app.security.encode_id( tsr.id ) for tsr in created_or_updated_tool_shed_repositories ]
     new_kwd = dict( includes_tools=includes_tools,
                     includes_tools_for_display_in_tool_panel=includes_tools_for_display_in_tool_panel,
                     has_repository_dependencies=has_repository_dependencies,
@@ -537,12 +539,12 @@ def initiate_repository_installation( trans, installation_dict ):
     tsr_ids = [ r.id  for r in created_or_updated_tool_shed_repositories  ]
     tool_shed_repositories = []
     for tsr_id in tsr_ids:
-        tsr = trans.install_model.context.query( trans.install_model.ToolShedRepository ).get( tsr_id )
+        tsr = install_model.context.query( install_model.ToolShedRepository ).get( tsr_id )
         tool_shed_repositories.append( tsr )
     clause_list = []
     for tsr_id in tsr_ids:
-        clause_list.append( trans.install_model.ToolShedRepository.table.c.id == tsr_id )
-    query = trans.install_model.context.query( trans.install_model.ToolShedRepository ).filter( or_( *clause_list ) )
+        clause_list.append( install_model.ToolShedRepository.table.c.id == tsr_id )
+    query = install_model.context.query( install_model.ToolShedRepository ).filter( or_( *clause_list ) )
     return encoded_kwd, query, tool_shed_repositories, encoded_repository_ids
 
 def install_tool_shed_repository( app, tool_shed_repository, repo_info_dict, tool_panel_section_key, shed_tool_conf, tool_path,
