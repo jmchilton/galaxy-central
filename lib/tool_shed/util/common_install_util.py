@@ -261,7 +261,7 @@ def get_installed_and_missing_repository_dependencies_for_new_or_updated_install
                 #                     repository_dependencies, installed_td )
                 tmp_clone_url = common_util.generate_clone_url_from_repo_info_tup( trans, rd_tup )
                 tmp_repo_info_tuple = ( None, tmp_clone_url, changeset_revision, None, owner, None, None )
-                repository, installed_changeset_revision = suc.repository_was_previously_installed( trans,
+                repository, installed_changeset_revision = suc.repository_was_previously_installed( trans.app,
                                                                                                     tool_shed,
                                                                                                     name,
                                                                                                     tmp_repo_info_tuple )

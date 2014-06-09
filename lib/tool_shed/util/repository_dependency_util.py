@@ -138,7 +138,7 @@ def create_repository_dependency_objects( trans, tool_path, tool_shed_url, repo_
                     suc.get_repo_info_tuple_contents( repo_info_tuple )
                 # See if the repository has an existing record in the database.
                 repository_db_record, installed_changeset_revision = \
-                    suc.repository_was_previously_installed( trans, tool_shed_url, name, repo_info_tuple )
+                    suc.repository_was_previously_installed( trans.app, tool_shed_url, name, repo_info_tuple )
                 if repository_db_record:
                     if repository_db_record.status in [ trans.install_model.ToolShedRepository.installation_status.INSTALLED,
                                                         trans.install_model.ToolShedRepository.installation_status.CLONING,

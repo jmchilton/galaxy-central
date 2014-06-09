@@ -517,7 +517,7 @@ class AdminToolshed( AdminGalaxy ):
                     tmp_clone_url = common_util.url_join( tool_shed_url, 'repos', owner, name )
                     tmp_repo_info_tuple = ( None, tmp_clone_url, latest_downloadable_revision, None, owner, None, None )
                     installed_repository, installed_changeset_revision = \
-                        suc.repository_was_previously_installed( trans, tool_shed_url, name, tmp_repo_info_tuple )
+                        suc.repository_was_previously_installed( trans.app, tool_shed_url, name, tmp_repo_info_tuple )
                     if installed_repository:
                         current_changeset_revision = str( installed_repository.changeset_revision )
                         message = 'Revision <b>%s</b> of repository <b>%s</b> owned by <b>%s</b> has already been installed.' % \

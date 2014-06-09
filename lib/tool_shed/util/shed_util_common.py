@@ -1360,7 +1360,7 @@ def open_repository_files_folder( trans, folder_path ):
             folder_contents.append( node )
     return folder_contents
 
-def repository_was_previously_installed( trans, tool_shed_url, repository_name, repo_info_tuple ):
+def repository_was_previously_installed( app, tool_shed_url, repository_name, repo_info_tuple ):
     """
     Find out if a repository is already installed into Galaxy - there are several scenarios where this
     is necessary.  For example, this method will handle the case where the repository was previously
@@ -1369,7 +1369,6 @@ def repository_was_previously_installed( trans, tool_shed_url, repository_name, 
     updating the one that was previously installed.  We'll look in the database instead of on disk since
     the repository may be currently uninstalled.
     """
-    app = trans.app
     tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, tool_shed_url )
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = \
         get_repo_info_tuple_contents( repo_info_tuple )
