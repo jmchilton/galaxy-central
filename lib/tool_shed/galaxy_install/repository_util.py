@@ -314,16 +314,16 @@ def get_tool_shed_repository_ids( as_string=False, **kwd ):
         ''
     return []
 
-def get_update_to_changeset_revision_and_ctx_rev( trans, repository ):
+def get_update_to_changeset_revision_and_ctx_rev( app, repository ):
     """Return the changeset revision hash to which the repository can be updated."""
     changeset_revision_dict = {}
-    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( trans.app, str( repository.tool_shed ) )
+    tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, str( repository.tool_shed ) )
     params = '?name=%s&owner=%s&changeset_revision=%s' % ( str( repository.name ),
                                                            str( repository.owner ),
                                                            str( repository.installed_changeset_revision ) )
     url = common_util.url_join( tool_shed_url, 'repository/get_changeset_revision_and_ctx_rev%s' % params )
     try:
-        encoded_update_dict = common_util.tool_shed_get( trans.app, tool_shed_url, url )
+        encoded_update_dict = common_util.tool_shed_get( app, tool_shed_url, url )
         if encoded_update_dict:
             update_dict = encoding_util.tool_shed_decode( encoded_update_dict )
             includes_data_managers = update_dict.get( 'includes_data_managers', False )
@@ -573,7 +573,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
     if cloned_ok:
         if reinstalling:
             # Since we're reinstalling the repository we need to find the latest changeset revision to which it can be updated.
-            changeset_revision_dict = get_update_to_changeset_revision_and_ctx_rev( trans, tool_shed_repository )
+            changeset_revision_dict = get_update_to_changeset_revision_and_ctx_rev( app, tool_shed_repository )
             current_changeset_revision = changeset_revision_dict.get( 'changeset_revision', None )
             current_ctx_rev = changeset_revision_dict.get( 'ctx_rev', None )
             if current_ctx_rev != ctx_rev:

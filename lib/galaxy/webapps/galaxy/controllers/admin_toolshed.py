@@ -107,7 +107,7 @@ class AdminToolshed( AdminGalaxy ):
                     # repository dependencies and tool dependencies will be current.  Only allow selecting a different section
                     # in the tool panel if the repository was uninstalled and it contained tools that should be displayed in
                     # the tool panel.
-                    changeset_revision_dict = repository_util.get_update_to_changeset_revision_and_ctx_rev( trans, repository )
+                    changeset_revision_dict = repository_util.get_update_to_changeset_revision_and_ctx_rev( trans.app, repository )
                     current_changeset_revision = changeset_revision_dict.get( 'changeset_revision', None )
                     current_ctx_rev = changeset_revision_dict.get( 'ctx_rev', None )
                     if current_changeset_revision and current_ctx_rev:
