@@ -135,7 +135,7 @@ def get_prior_install_required_dict( trans, tsr_ids, repo_info_dicts ):
         prior_install_required_dict[ tsr_id ] = []
     # Inspect the repository dependencies for each repository about to be installed and populate the dictionary.
     for repo_info_dict in repo_info_dicts:
-        repository, repository_dependencies = suc.get_repository_and_repository_dependencies_from_repo_info_dict( trans, repo_info_dict )
+        repository, repository_dependencies = suc.get_repository_and_repository_dependencies_from_repo_info_dict( trans.app, repo_info_dict )
         if repository:
             encoded_repository_id = trans.security.encode_id( repository.id )
             if encoded_repository_id in tsr_ids:

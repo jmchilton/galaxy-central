@@ -628,7 +628,7 @@ def get_prior_import_or_install_required_dict( trans, tsr_ids, repo_info_dicts )
         prior_import_or_install_required_dict[ tsr_id ] = []
     # Inspect the repository dependencies for each repository about to be installed and populate the dictionary.
     for repo_info_dict in repo_info_dicts:
-        repository, repository_dependencies = get_repository_and_repository_dependencies_from_repo_info_dict( trans, repo_info_dict )
+        repository, repository_dependencies = get_repository_and_repository_dependencies_from_repo_info_dict( trans.app, repo_info_dict )
         if repository:
             encoded_repository_id = trans.security.encode_id( repository.id )
             if encoded_repository_id in tsr_ids:
@@ -707,9 +707,8 @@ def get_repo_info_tuple_contents( repo_info_tuple ):
         description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = repo_info_tuple
     return description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies
 
-def get_repository_and_repository_dependencies_from_repo_info_dict( trans, repo_info_dict ):
+def get_repository_and_repository_dependencies_from_repo_info_dict( app, repo_info_dict ):
     """Return a tool_shed_repository or repository record defined by the information in the received repo_info_dict."""
-    app = trans.app
     repository_name = repo_info_dict.keys()[ 0 ]
     repo_info_tuple = repo_info_dict[ repository_name ]
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = \
