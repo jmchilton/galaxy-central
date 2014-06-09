@@ -547,6 +547,7 @@ def initiate_repository_installation( trans, installation_dict ):
 def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, tool_panel_section_key, shed_tool_conf, tool_path,
                                   install_tool_dependencies, reinstalling=False ):
     app = trans.app
+    install_model = app.install_model
     if tool_panel_section_key:
         try:
             tool_section = app.toolbox.tool_panel[ tool_panel_section_key ]
@@ -561,7 +562,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
     # Clone each repository to the configured location.
     suc.update_tool_shed_repository_status( app,
                                             tool_shed_repository,
-                                            trans.install_model.ToolShedRepository.installation_status.CLONING )
+                                            install_model.ToolShedRepository.installation_status.CLONING )
     repo_info_tuple = repo_info_dict[ tool_shed_repository.name ]
     description, repository_clone_url, changeset_revision, ctx_rev, repository_owner, repository_dependencies, tool_dependencies = repo_info_tuple
     relative_clone_dir = suc.generate_tool_shed_repository_install_dir( repository_clone_url,
@@ -591,13 +592,13 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
                                     tool_section=tool_section,
                                     shed_tool_conf=shed_tool_conf,
                                     reinstalling=reinstalling )
-        trans.install_model.context.refresh( tool_shed_repository )
+        install_model.context.refresh( tool_shed_repository )
         metadata = tool_shed_repository.metadata
         if 'tools' in metadata:
             # Get the tool_versions from the tool shed for each tool in the installed change set.
             suc.update_tool_shed_repository_status( app,
                                                     tool_shed_repository,
-                                                    trans.install_model.ToolShedRepository.installation_status.SETTING_TOOL_VERSIONS )
+                                                    install_model.ToolShedRepository.installation_status.SETTING_TOOL_VERSIONS )
             tool_shed_url = common_util.get_tool_shed_url_from_tool_shed_registry( app, str( tool_shed_repository.tool_shed ) )
             params = '?name=%s&owner=%s&changeset_revision=%s' % ( str( tool_shed_repository.name ),
                                                                    str( tool_shed_repository.owner ),
@@ -619,7 +620,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
             # Install tool dependencies.
             suc.update_tool_shed_repository_status( app,
                                                     tool_shed_repository,
-                                                    trans.install_model.ToolShedRepository.installation_status.INSTALLING_TOOL_DEPENDENCIES )
+                                                    install_model.ToolShedRepository.installation_status.INSTALLING_TOOL_DEPENDENCIES )
             # Get the tool_dependencies.xml file from the repository.
             tool_dependencies_config = hg_util.get_config_from_disk( 'tool_dependencies.xml', install_dir )
             installed_tool_dependencies = \
@@ -631,7 +632,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
             basic_util.remove_dir( work_dir )
         suc.update_tool_shed_repository_status( app,
                                                 tool_shed_repository,
-                                                trans.install_model.ToolShedRepository.installation_status.INSTALLED )
+                                                install_model.ToolShedRepository.installation_status.INSTALLED )
         if app.config.manage_dependency_relationships:
             # Add the installed repository and any tool dependencies to the in-memory dictionaries in the installed_repository_manager.
             app.installed_repository_manager.handle_repository_install( tool_shed_repository )
@@ -639,7 +640,7 @@ def install_tool_shed_repository( trans, tool_shed_repository, repo_info_dict, t
         # An error occurred while cloning the repository, so reset everything necessary to enable another attempt.
         set_repository_attributes( app,
                                    tool_shed_repository,
-                                   status=trans.install_model.ToolShedRepository.installation_status.ERROR,
+                                   status=install_model.ToolShedRepository.installation_status.ERROR,
                                    error_message=error_message,
                                    deleted=False,
                                    uninstalled=False,
