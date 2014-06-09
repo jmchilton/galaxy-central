@@ -107,7 +107,7 @@ def get_dependencies_for_repository( trans, tool_shed_url, repo_info_dict, inclu
             installed_rd, missing_rd = \
                 get_installed_and_missing_repository_dependencies_for_new_or_updated_install( trans, repo_info_tuple )
         # Discover all repository dependencies and retrieve information for installing them.
-        all_repo_info_dict = get_required_repo_info_dicts( trans, tool_shed_url, util.listify( repo_info_dict ) )
+        all_repo_info_dict = get_required_repo_info_dicts( trans.app, tool_shed_url, util.listify( repo_info_dict ) )
         has_repository_dependencies = all_repo_info_dict.get( 'has_repository_dependencies', False )
         has_repository_dependencies_only_if_compiling_contained_td = \
             all_repo_info_dict.get( 'has_repository_dependencies_only_if_compiling_contained_td', False )
@@ -145,7 +145,7 @@ def get_dependencies_for_repository( trans, tool_shed_url, repo_info_dict, inclu
                             missing_td[ td_key ] = td_dict
     else:
         # We have a single repository with (possibly) no defined repository dependencies.
-        all_repo_info_dict = get_required_repo_info_dicts( trans, tool_shed_url, util.listify( repo_info_dict ) )
+        all_repo_info_dict = get_required_repo_info_dicts( trans.app, tool_shed_url, util.listify( repo_info_dict ) )
         has_repository_dependencies = all_repo_info_dict.get( 'has_repository_dependencies', False )
         has_repository_dependencies_only_if_compiling_contained_td = \
             all_repo_info_dict.get( 'has_repository_dependencies_only_if_compiling_contained_td', False )
@@ -379,14 +379,13 @@ def get_installed_and_missing_tool_dependencies_for_repository( trans, tool_depe
                 missing_tool_dependencies[ td_key ] = val
     return installed_tool_dependencies, missing_tool_dependencies
 
-def get_required_repo_info_dicts( trans, tool_shed_url, repo_info_dicts ):
+def get_required_repo_info_dicts( app, tool_shed_url, repo_info_dicts ):
     """
     Inspect the list of repo_info_dicts for repository dependencies and append a repo_info_dict for each of
     them to the list.  All repository_dependencies entries in each of the received repo_info_dicts includes
     all required repositories, so only one pass through this method is required to retrieve all repository
     dependencies.
     """
-    app = trans.app
     all_required_repo_info_dict = {}
     all_repo_info_dicts = []
     if repo_info_dicts:
