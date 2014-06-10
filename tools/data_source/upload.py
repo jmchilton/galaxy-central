@@ -44,6 +44,13 @@ DEFAULT_IN_PLACE = True
 DEFAULT_LINK_DATA_ONLY = 'copy_files'
 
 
+def move_file( src, dst ):
+    """ Extension point for modifying how upload.py moves files. shutil.move
+    is insufficient for some deployments.
+    """
+    shutil.move( src, dst )
+
+
 def file_err( msg, dataset, json_file ):
     json_file.write( to_json_string( dict( type='dataset',
                                            ext='data',
@@ -217,9 +224,9 @@ def add_file( dataset, registry, json_file, output_path ):
                 # corrupting the content of those files.
                 if dataset.to_posix_lines:
                     if dataset.space_to_tab:
-                        line_count, converted_path = sniff.convert_newlines_sep2tabs( dataset.path, in_place=in_place )
+                        line_count, converted_path = sniff.convert_newlines_sep2tabs( dataset.path, in_place=in_place, move_file=move_file )
                     else:
-                        line_count, converted_path = sniff.convert_newlines( dataset.path, in_place=in_place )
+                        line_count, converted_path = sniff.convert_newlines( dataset.path, in_place=in_place, move_file=move_file )
             if dataset.file_type == 'auto':
                 ext = sniff.guess_ext( dataset.path, registry.sniff_order )
             else:
@@ -250,7 +257,7 @@ def add_file( dataset, registry, json_file, output_path ):
             # This should not happen, but it's here just in case
             shutil.copy( dataset.path, output_path )
     elif link_data_only == 'copy_files':
-        shutil.move( dataset.path, output_path )
+        move_file( dataset.path, output_path )
     # Write the job info
     stdout = stdout or 'uploaded %s file' % data_type
     info = dict( type='dataset',
@@ -292,9 +299,9 @@ def add_composite_file( dataset, registry, json_file, output_path, files_path ):
                         sniff.convert_newlines_sep2tabs( dp )
                     else:
                         sniff.convert_newlines( dp )
-                shutil.move( dp, os.path.join( files_path, name ) )
+                move_file( dp, os.path.join( files_path, name ) )
     # Move the dataset to its "real" path
-    shutil.move( dataset.primary_file, output_path )
+    move_file( dataset.primary_file, output_path )
     # Write the job info
     info = dict( type='dataset',
                  dataset_id=dataset.dataset_id,
@@ -308,7 +315,7 @@ def __restore_uncompressed_data( dataset, uncompressed ):
     if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
         dataset.path = uncompressed
     else:
-        shutil.move( uncompressed, dataset.path )
+        move_file( uncompressed, dataset.path )
     os.chmod( dataset.path, 0644 )
 
 

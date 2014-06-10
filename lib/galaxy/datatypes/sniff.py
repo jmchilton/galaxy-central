@@ -95,7 +95,7 @@ def check_newlines( fname, bytes_to_read=52428800 ):
     return False
 
 
-def convert_newlines( fname, in_place=True ):
+def convert_newlines( fname, in_place=True, move_file=shutil.move ):
     """
     Converts in place a file from universal line endings
     to Posix line endings.
@@ -118,7 +118,7 @@ def convert_newlines( fname, in_place=True ):
     else:
         i += 1
     if in_place:
-        shutil.move( temp_name, fname )
+        move_file( temp_name, fname )
         # Return number of lines in file.
         return ( i, None )
     else:
@@ -158,7 +158,7 @@ def sep2tabs( fname, in_place=True, patt="\\s+" ):
         return ( i, temp_name )
 
 
-def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+" ):
+def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+", move_file=shutil.move ):
     """
     Combines above methods: convert_newlines() and sep2tabs()
     so that files do not need to be read twice
@@ -179,7 +179,7 @@ def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+" ):
         fp.write( "%s\n" % '\t'.join( elems ) )
     fp.close()
     if in_place:
-        shutil.move( temp_name, fname )
+        move_file( temp_name, fname )
         # Return number of lines in file.
         return ( i + 1, None )
     else:
