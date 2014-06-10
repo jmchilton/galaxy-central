@@ -145,11 +145,7 @@ def add_file( dataset, registry, json_file, output_path ):
                 gzipped_file = gzip.GzipFile( dataset.path, 'rb' )
                 __copy_compressed_stream( gzipped_file, fd, uncompressed, "gzipped" )
                 # Replace the gzipped file with the decompressed file if it's safe to do so
-                if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
-                    dataset.path = uncompressed
-                else:
-                    shutil.move( uncompressed, dataset.path )
-                os.chmod(dataset.path, 0644)
+                __restore_uncompressed_data( dataset, uncompressed )
             dataset.name = dataset.name.rstrip( '.gz' )
             data_type = 'gzip'
         if not data_type and bz2 is not None:
@@ -164,12 +160,7 @@ def add_file( dataset, registry, json_file, output_path ):
                     fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_bunzip2_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                     bzipped_file = bz2.BZ2File( dataset.path, 'rb' )
                     __copy_compressed_stream( bzipped_file, fd, uncompressed, "bz2 compressed" )
-                    # Replace the bzipped file with the decompressed file if it's safe to do so
-                    if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
-                        dataset.path = uncompressed
-                    else:
-                        shutil.move( uncompressed, dataset.path )
-                    os.chmod(dataset.path, 0644)
+                    __restore_uncompressed_data( dataset, uncompressed )
                 dataset.name = dataset.name.rstrip( '.bz2' )
                 data_type = 'bz2'
         if not data_type:
@@ -195,11 +186,7 @@ def add_file( dataset, registry, json_file, output_path ):
                     z.close()
                     # Replace the zipped file with the decompressed file if it's safe to do so
                     if uncompressed is not None:
-                        if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
-                            dataset.path = uncompressed
-                        else:
-                            shutil.move( uncompressed, dataset.path )
-                        os.chmod(dataset.path, 0644)
+                        __restore_uncompressed_data( dataset, uncompressed )
                         dataset.name = uncompressed_name
                 data_type = 'zip'
         if not data_type:
@@ -318,6 +305,16 @@ def add_composite_file( dataset, registry, json_file, output_path, files_path ):
                  dataset_id=dataset.dataset_id,
                  stdout='uploaded %s file' % dataset.file_type )
     json_file.write( to_json_string( info ) + "\n" )
+
+
+def __restore_uncompressed_data( dataset, uncompressed ):
+    in_place = dataset.get( 'in_place', DEFAULT_IN_PLACE )
+
+    if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
+        dataset.path = uncompressed
+    else:
+        shutil.move( uncompressed, dataset.path )
+    os.chmod( dataset.path, 0644 )
 
 
 CHUNK_SIZE = 2 ** 20  # 1M
