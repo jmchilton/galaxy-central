@@ -141,11 +141,8 @@ def add_file( dataset, registry, json_file, output_path ):
         elif is_gzipped and is_valid:
             if link_data_only == 'copy_files':
                 # We need to uncompress the temp_name file, but BAM files must remain compressed in the BGZF format
-                fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_gunzip_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                 gzipped_file = gzip.GzipFile( dataset.path, 'rb' )
-                __copy_compressed_stream( gzipped_file, fd, uncompressed, "gzipped" )
-                # Replace the gzipped file with the decompressed file if it's safe to do so
-                __restore_uncompressed_data( dataset, uncompressed )
+                uncompressed = __decompress( gzipped_file, dataset, output_path, 'gzipped', restore=True )
             dataset.name = dataset.name.rstrip( '.gz' )
             data_type = 'gzip'
         if not data_type and bz2 is not None:
@@ -157,10 +154,8 @@ def add_file( dataset, registry, json_file, output_path ):
             elif is_bzipped and is_valid:
                 if link_data_only == 'copy_files':
                     # We need to uncompress the temp_name file
-                    fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_bunzip2_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                     bzipped_file = bz2.BZ2File( dataset.path, 'rb' )
-                    __copy_compressed_stream( bzipped_file, fd, uncompressed, "bz2 compressed" )
-                    __restore_uncompressed_data( dataset, uncompressed )
+                    uncompressed = __decompress( bzipped_file, dataset, output_path, 'bz2', restore=True )
                 dataset.name = dataset.name.rstrip( '.bz2' )
                 data_type = 'bz2'
         if not data_type:
@@ -178,9 +173,9 @@ def add_file( dataset, registry, json_file, output_path ):
                         if unzipped:
                             stdout = 'ZIP file contained more than one file, only the first file was added to Galaxy.'
                             break
-                        fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_zip_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                         zipped_file = z.open( name )
-                        __copy_compressed_stream( zipped_file, fd, uncompressed, 'zipped' )
+                        uncompressed = __decompress( zipped_file, dataset, output_path, 'zipped' )
+                        # Wait until close zip file to restore...
                         uncompressed_name = name
                         unzipped = True
                     z.close()
@@ -315,6 +310,14 @@ def __restore_uncompressed_data( dataset, uncompressed ):
     else:
         shutil.move( uncompressed, dataset.path )
     os.chmod( dataset.path, 0644 )
+
+
+def __decompress( stream, dataset, output_path, stream_type, restore=False ):
+    fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_%s_' % ( dataset.dataset_id, stream_type ), dir=os.path.dirname( output_path ), text=False )
+    __copy_compressed_stream( stream, fd, uncompressed, stream_type )
+    if restore:
+        __restore_uncompressed_data( dataset, uncompressed )
+    return uncompressed
 
 
 CHUNK_SIZE = 2 ** 20  # 1M
