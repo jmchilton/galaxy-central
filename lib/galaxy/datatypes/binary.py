@@ -143,7 +143,7 @@ class Bam( Binary ):
         # find returns -1 if string is not found
         return output.find( "SO:coordinate" ) != -1 or output.find( "SO:sorted" ) != -1
 
-    def dataset_content_needs_grooming( self, file_name ):
+    def dataset_content_needs_grooming( self, file_name, tmpdir=None ):
         """See if file_name is a sorted BAM file"""
         version = self._get_samtools_version()
         if version < '0.1.13':
@@ -164,8 +164,8 @@ class Bam( Binary ):
             # seconds to index with samtools, and 45 minutes to sort, so indexing is relatively inexpensive.
             if self._is_coordinate_sorted( file_name ):
                 return False
-            index_name = tempfile.NamedTemporaryFile( prefix = "bam_index" ).name
-            stderr_name = tempfile.NamedTemporaryFile( prefix = "bam_index_stderr" ).name
+            index_name = tempfile.NamedTemporaryFile( prefix = "bam_index", dir=tmpdir ).name
+            stderr_name = tempfile.NamedTemporaryFile( prefix = "bam_index_stderr", dir=tmpdir ).name
             command = 'samtools index %s %s' % ( file_name, index_name )
             proc = subprocess.Popen( args=command, shell=True, stderr=open( stderr_name, 'wb' ) )
             exit_code = proc.wait()

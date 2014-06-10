@@ -51,6 +51,13 @@ def move_file( src, dst ):
     shutil.move( src, dst )
 
 
+def upload_tmpdir( output_path ):
+    """ Extension point for determining where upload.py creates temp files. Return
+    None to use system temp directory.
+    """
+    return os.path.dirname( output_path )
+
+
 def file_err( msg, dataset, json_file ):
     json_file.write( to_json_string( dict( type='dataset',
                                            ext='data',
@@ -223,10 +230,11 @@ def add_file( dataset, registry, json_file, output_path ):
                 # so that is becomes possible to upload gzip, bz2 or zip files with binary data without
                 # corrupting the content of those files.
                 if dataset.to_posix_lines:
+                    tmpdir = upload_tmpdir( output_path )
                     if dataset.space_to_tab:
-                        line_count, converted_path = sniff.convert_newlines_sep2tabs( dataset.path, in_place=in_place, move_file=move_file )
+                        line_count, converted_path = sniff.convert_newlines_sep2tabs( dataset.path, in_place=in_place, move_file=move_file, tmpdir=tmpdir )
                     else:
-                        line_count, converted_path = sniff.convert_newlines( dataset.path, in_place=in_place, move_file=move_file )
+                        line_count, converted_path = sniff.convert_newlines( dataset.path, in_place=in_place, move_file=move_file, tmpdir=tmpdir )
             if dataset.file_type == 'auto':
                 ext = sniff.guess_ext( dataset.path, registry.sniff_order )
             else:
@@ -271,8 +279,9 @@ def add_file( dataset, registry, json_file, output_path ):
     json_file.write( to_json_string( info ) + "\n" )
 
     if link_data_only == 'copy_files' and datatype.dataset_content_needs_grooming( output_path ):
+        tmpdir = upload_tmpdir( output_path )
         # Groom the dataset content if necessary
-        datatype.groom_dataset_content( output_path )
+        datatype.groom_dataset_content( output_path, tmpdir=tmpdir )
 
 
 def add_composite_file( dataset, registry, json_file, output_path, files_path ):
@@ -320,7 +329,7 @@ def __restore_uncompressed_data( dataset, uncompressed ):
 
 
 def __decompress( stream, dataset, output_path, stream_type, restore=False ):
-    fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_%s_' % ( dataset.dataset_id, stream_type ), dir=os.path.dirname( output_path ), text=False )
+    fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_%s_' % ( dataset.dataset_id, stream_type ), dir=upload_tmpdir( output_path ), text=False )
     __copy_compressed_stream( stream, fd, uncompressed, stream_type )
     if restore:
         __restore_uncompressed_data( dataset, uncompressed )

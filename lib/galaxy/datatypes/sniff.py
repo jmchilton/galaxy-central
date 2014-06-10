@@ -95,7 +95,7 @@ def check_newlines( fname, bytes_to_read=52428800 ):
     return False
 
 
-def convert_newlines( fname, in_place=True, move_file=shutil.move ):
+def convert_newlines( fname, in_place=True, move_file=shutil.move, tmpdir=None ):
     """
     Converts in place a file from universal line endings
     to Posix line endings.
@@ -107,7 +107,7 @@ def convert_newlines( fname, in_place=True, move_file=shutil.move ):
     >>> file(fname).read()
     '1 2\\n3 4\\n'
     """
-    fd, temp_name = tempfile.mkstemp()
+    fd, temp_name = tempfile.mkstemp( dir=tmpdir )
     fp = os.fdopen( fd, "wt" )
     i = None
     for i, line in enumerate( file( fname, "U" ) ):
@@ -158,7 +158,7 @@ def sep2tabs( fname, in_place=True, patt="\\s+" ):
         return ( i, temp_name )
 
 
-def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+", move_file=shutil.move ):
+def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+", move_file=shutil.move, tmpdir=None ):
     """
     Combines above methods: convert_newlines() and sep2tabs()
     so that files do not need to be read twice
@@ -171,7 +171,7 @@ def convert_newlines_sep2tabs( fname, in_place=True, patt="\\s+", move_file=shut
     '1\\t2\\n3\\t4\\n'
     """
     regexp = re.compile( patt )
-    fd, temp_name = tempfile.mkstemp()
+    fd, temp_name = tempfile.mkstemp( dir=tmpdir )
     fp = os.fdopen( fd, "wt" )
     for i, line in enumerate( file( fname, "U" ) ):
         line = line.rstrip( '\r\n' )
