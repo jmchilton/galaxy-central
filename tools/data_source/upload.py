@@ -41,11 +41,6 @@ except:
 assert sys.version_info[:2] >= ( 2, 4 )
 
 
-def stop_err( msg, ret=1 ):
-    sys.stderr.write( msg )
-    sys.exit( ret )
-
-
 def file_err( msg, dataset, json_file ):
     json_file.write( to_json_string( dict( type='dataset',
                                            ext='data',
@@ -171,7 +166,7 @@ def add_file( dataset, registry, json_file, output_path ):
             # See if we have a bz2 file, much like gzip
             is_bzipped, is_valid = check_bz2( dataset.path )
             if is_bzipped and not is_valid:
-                file_err( 'The gzipped uploaded file contains inappropriate content', dataset, json_file )
+                file_err( 'The bzipped uploaded file contains inappropriate content', dataset, json_file )
                 return
             elif is_bzipped and is_valid:
                 if link_data_only == 'copy_files':
@@ -217,36 +212,22 @@ def add_file( dataset, registry, json_file, output_path ):
                             stdout = 'ZIP file contained more than one file, only the first file was added to Galaxy.'
                             break
                         fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_zip_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
-                        if sys.version_info[:2] >= ( 2, 6 ):
-                            zipped_file = z.open( name )
-                            while 1:
-                                try:
-                                    chunk = zipped_file.read( CHUNK_SIZE )
-                                except IOError:
-                                    os.close( fd )
-                                    os.remove( uncompressed )
-                                    file_err( 'Problem decompressing zipped data', dataset, json_file )
-                                    return
-                                if not chunk:
-                                    break
-                                os.write( fd, chunk )
-                            os.close( fd )
-                            zipped_file.close()
-                            uncompressed_name = name
-                            unzipped = True
-                        else:
-                            # python < 2.5 doesn't have a way to read members in chunks(!)
+                        zipped_file = z.open( name )
+                        while 1:
                             try:
-                                outfile = open( uncompressed, 'wb' )
-                                outfile.write( z.read( name ) )
-                                outfile.close()
-                                uncompressed_name = name
-                                unzipped = True
+                                chunk = zipped_file.read( CHUNK_SIZE )
                             except IOError:
                                 os.close( fd )
                                 os.remove( uncompressed )
                                 file_err( 'Problem decompressing zipped data', dataset, json_file )
                                 return
+                            if not chunk:
+                                break
+                            os.write( fd, chunk )
+                        os.close( fd )
+                        zipped_file.close()
+                        uncompressed_name = name
+                        unzipped = True
                     z.close()
                     # Replace the zipped file with the decompressed file if it's safe to do so
                     if uncompressed is not None:
