@@ -50,7 +50,7 @@ def file_err( msg, dataset, json_file ):
                                            dataset_id=dataset.dataset_id,
                                            stderr=msg ) ) + "\n" )
     # never remove a server-side upload
-    if dataset.type in ( 'server_dir', 'path_paste' ):
+    if __immutable_source( dataset ):
         return
     try:
         os.remove( dataset.path )
@@ -210,7 +210,7 @@ def add_file( dataset, registry, json_file, output_path ):
                 return
         if data_type != 'binary':
             if link_data_only == 'copy_files':
-                if dataset.type in ( 'server_dir', 'path_paste' ) and data_type not in [ 'gzip', 'bz2', 'zip' ]:
+                if __immutable_source( dataset ) and data_type not in [ 'gzip', 'bz2', 'zip' ]:
                     in_place = False
                 # Convert universal line endings to Posix line endings, but allow the user to turn it off,
                 # so that is becomes possible to upload gzip, bz2 or zip files with binary data without
@@ -231,14 +231,14 @@ def add_file( dataset, registry, json_file, output_path ):
     if ext == 'auto':
         ext = 'data'
     datatype = registry.get_datatype_by_extension( ext )
-    if dataset.type in ( 'server_dir', 'path_paste' ) and link_data_only == 'link_to_files':
+    if __immutable_source( dataset ) and link_data_only == 'link_to_files':
         # Never alter a file that will not be copied to Galaxy's local file store.
         if datatype.dataset_content_needs_grooming( dataset.path ):
             err_msg = 'The uploaded files need grooming, so change your <b>Copy data into Galaxy?</b> selection to be ' + \
                 '<b>Copy files into Galaxy</b> instead of <b>Link to files without copying into Galaxy</b> so grooming can be performed.'
             file_err( err_msg, dataset, json_file )
             return
-    if link_data_only == 'copy_files' and dataset.type in ( 'server_dir', 'path_paste' ) and data_type not in [ 'gzip', 'bz2', 'zip' ]:
+    if link_data_only == 'copy_files' and __immutable_source( dataset ) and data_type not in [ 'gzip', 'bz2', 'zip' ]:
         # Move the dataset to its "real" path
         if converted_path is not None:
             shutil.copy( converted_path, output_path )
@@ -339,6 +339,13 @@ def __copy_compressed_stream( stream, fd, uncompressed, stream_type ):
     finally:
         os.close( fd )
         stream.close()
+
+
+def __immutable_source( dataset ):
+    """ For these kinds of uploads, we don't want to remove the source
+    datasets.
+    """
+    return dataset.type in ( 'server_dir', 'path_paste' )
 
 
 def __main__():
