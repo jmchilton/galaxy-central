@@ -138,22 +138,9 @@ def add_file( dataset, registry, json_file, output_path ):
         elif is_gzipped and is_valid:
             if link_data_only == 'copy_files':
                 # We need to uncompress the temp_name file, but BAM files must remain compressed in the BGZF format
-                CHUNK_SIZE = 2 ** 20  # 1Mb
                 fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_gunzip_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                 gzipped_file = gzip.GzipFile( dataset.path, 'rb' )
-                while 1:
-                    try:
-                        chunk = gzipped_file.read( CHUNK_SIZE )
-                    except IOError:
-                        os.close( fd )
-                        os.remove( uncompressed )
-                        file_err( 'Problem decompressing gzipped data', dataset, json_file )
-                        return
-                    if not chunk:
-                        break
-                    os.write( fd, chunk )
-                os.close( fd )
-                gzipped_file.close()
+                __copy_compressed_stream( gzipped_file, fd, uncompressed, "gzipped" )
                 # Replace the gzipped file with the decompressed file if it's safe to do so
                 if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
                     dataset.path = uncompressed
@@ -171,22 +158,9 @@ def add_file( dataset, registry, json_file, output_path ):
             elif is_bzipped and is_valid:
                 if link_data_only == 'copy_files':
                     # We need to uncompress the temp_name file
-                    CHUNK_SIZE = 2 ** 20  # 1Mb
                     fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_bunzip2_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                     bzipped_file = bz2.BZ2File( dataset.path, 'rb' )
-                    while 1:
-                        try:
-                            chunk = bzipped_file.read( CHUNK_SIZE )
-                        except IOError:
-                            os.close( fd )
-                            os.remove( uncompressed )
-                            file_err( 'Problem decompressing bz2 compressed data', dataset, json_file )
-                            return
-                        if not chunk:
-                            break
-                        os.write( fd, chunk )
-                    os.close( fd )
-                    bzipped_file.close()
+                    __copy_compressed_stream( bzipped_file, fd, uncompressed, "bz2 compressed" )
                     # Replace the bzipped file with the decompressed file if it's safe to do so
                     if dataset.type in ( 'server_dir', 'path_paste' ) or not in_place:
                         dataset.path = uncompressed
@@ -200,7 +174,6 @@ def add_file( dataset, registry, json_file, output_path ):
             is_zipped = check_zip( dataset.path )
             if is_zipped:
                 if link_data_only == 'copy_files':
-                    CHUNK_SIZE = 2 ** 20  # 1Mb
                     uncompressed = None
                     uncompressed_name = None
                     unzipped = False
@@ -213,19 +186,7 @@ def add_file( dataset, registry, json_file, output_path ):
                             break
                         fd, uncompressed = tempfile.mkstemp( prefix='data_id_%s_upload_zip_' % dataset.dataset_id, dir=os.path.dirname( output_path ), text=False )
                         zipped_file = z.open( name )
-                        while 1:
-                            try:
-                                chunk = zipped_file.read( CHUNK_SIZE )
-                            except IOError:
-                                os.close( fd )
-                                os.remove( uncompressed )
-                                file_err( 'Problem decompressing zipped data', dataset, json_file )
-                                return
-                            if not chunk:
-                                break
-                            os.write( fd, chunk )
-                        os.close( fd )
-                        zipped_file.close()
+                        __copy_compressed_stream( zipped_file, fd, uncompressed, 'zipped' )
                         uncompressed_name = name
                         unzipped = True
                     z.close()
@@ -354,6 +315,27 @@ def add_composite_file( dataset, registry, json_file, output_path, files_path ):
                  dataset_id=dataset.dataset_id,
                  stdout='uploaded %s file' % dataset.file_type )
     json_file.write( to_json_string( info ) + "\n" )
+
+
+CHUNK_SIZE = 2 ** 20  # 1M
+
+
+def __copy_compressed_stream( stream, fd, uncompressed, stream_type ):
+    try:
+        while True:
+            try:
+                chunk = stream.read( CHUNK_SIZE )
+            except IOError:
+                os.close( fd )
+                os.remove( uncompressed )
+                file_err( 'Problem decompressing %s data' % stream_type, dataset, json_file )
+                return
+            if not chunk:
+                break
+            os.write( fd, chunk )
+    finally:
+        os.close( fd )
+        stream.close()
 
 
 def __main__():
