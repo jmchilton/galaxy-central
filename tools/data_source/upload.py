@@ -40,6 +40,9 @@ except:
 
 assert sys.version_info[:2] >= ( 2, 4 )
 
+DEFAULT_IN_PLACE = True
+DEFAULT_LINK_DATA_ONLY = 'copy_files'
+
 
 def file_err( msg, dataset, json_file ):
     json_file.write( to_json_string( dict( type='dataset',
@@ -81,8 +84,8 @@ def add_file( dataset, registry, json_file, output_path ):
     line_count = None
     converted_path = None
     stdout = None
-    link_data_only = dataset.get( 'link_data_only', 'copy_files' )
-    in_place = dataset.get( 'in_place', True )
+    link_data_only = dataset.get( 'link_data_only', DEFAULT_LINK_DATA_ONLY )
+    in_place = dataset.get( 'in_place', DEFAULT_IN_PLACE )
 
     try:
         ext = dataset.file_type
