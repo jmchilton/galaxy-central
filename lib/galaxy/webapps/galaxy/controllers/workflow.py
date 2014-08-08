@@ -1275,86 +1275,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                 # If kwargs were provided, the states for each step should have
                 # been POSTed
                 # List to gather values for the template
-                invocations = []
-                for (kwargs, multi_input_keys) in _expand_multiple_inputs(kwargs):
-                    for step in workflow.steps:
-                        step.upgrade_messages = {}
-                        # Connections by input name
-                        input_connections_by_name = {}
-                        for conn in step.input_connections:
-                            input_name = conn.input_name
-                            if not input_name in input_connections_by_name:
-                                input_connections_by_name[input_name] = []
-                            input_connections_by_name[input_name].append(conn)
-                        step.input_connections_by_name = input_connections_by_name
-                        # Extract just the arguments for this step by prefix
-                        p = "%s|" % step.id
-                        l = len(p)
-                        step_args = dict( ( k[l:], v ) for ( k, v ) in kwargs.iteritems() if k.startswith( p ) )
-                        step_errors = None
-                        if step.type == 'tool' or step.type is None:
-                            module = module_factory.from_workflow_step( trans, step )
-                            # Fix any missing parameters
-                            step.upgrade_messages = module.check_and_update_state()
-                            if step.upgrade_messages:
-                                has_upgrade_messages = True
-                            # Any connected input needs to have value DummyDataset (these
-                            # are not persisted so we need to do it every time)
-                            module.add_dummy_datasets( connections=step.input_connections )
-                            # Get the tool
-                            tool = module.tool
-                            # Get the state
-                            step.state = state = module.state
-                            # Get old errors
-                            old_errors = state.inputs.pop( "__errors__", {} )
-                            # Update the state
-                            step_errors = tool.update_state( trans, tool.inputs, step.state.inputs, step_args,
-                                                             update_only=True, old_errors=old_errors )
-                        else:
-                            # Fix this for multiple inputs
-                            module = step.module = module_factory.from_workflow_step( trans, step )
-                            state = step.state = module.decode_runtime_state( trans, step_args.pop( "tool_state" ) )
-                            step_errors = module.update_runtime_state( trans, state, step_args )
-                        if step_errors:
-                            errors[step.id] = state.inputs["__errors__"] = step_errors
-                    if 'run_workflow' in kwargs and not errors:
-                        new_history = None
-                        if 'new_history' in kwargs:
-                            if 'new_history_name' in kwargs and kwargs['new_history_name'] != '':
-                                nh_name = kwargs['new_history_name']
-                            else:
-                                nh_name = "History from %s workflow" % workflow.name
-                            instance_inputs = [kwargs[multi_input_key] for multi_input_key in multi_input_keys]
-                            instance_ds_names = [trans.sa_session.query( trans.app.model.HistoryDatasetAssociation ).get( instance_input ).name for instance_input in instance_inputs]
-                            nh_name = '%s%s' % (nh_name, _build_workflow_on_str( instance_ds_names ))
-                            new_history = trans.app.model.History( user=trans.user, name=nh_name )
-                            new_history.copy_tags_from(trans.user, trans.get_history())
-                            trans.sa_session.add( new_history )
-                            target_history = new_history
-                        else:
-                            target_history = trans.get_history()
-
-                        # Build replacement dict for this workflow execution.
-                        replacement_dict = {}
-                        for k, v in kwargs.iteritems():
-                            if k.startswith('wf_parm|'):
-                                replacement_dict[k[8:]] = v
-
-                        run_config = WorkflowRunConfig(
-                            target_history=target_history,
-                            replacement_dict=replacement_dict,
-                            copy_inputs_to_history=new_history is not None
-                        )
-
-                        outputs = invoke(
-                            trans=trans,
-                            workflow=workflow,
-                            workflow_run_config=run_config
-                        )
-
-                        invocations.append({'outputs': outputs,
-                                            'new_history': new_history})
-                        trans.sa_session.flush()
+                invocations, has_upgrade_messsages = _invoke_workflow( trans, errors, workflow, kwargs )
                 if invocations:
                     return trans.fill_template( "workflow/run_complete.mako",
                                                 workflow=stored,
@@ -1650,6 +1571,95 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
         canvas['viewBox'] = "0 0 %s %s" % (width, height)
 
         return canvas
+
+
+def _invoke_workflow(trans, errors, workflow, kwargs):
+    """ Invoke workflow with given args - update errors dict with any - and return
+    both invocations and has_upgrade_messages boolean to render response.
+    """
+    has_upgrade_messages = False
+
+    invocations = []
+    for (kwargs, multi_input_keys) in _expand_multiple_inputs(kwargs):
+        for step in workflow.steps:
+            step.upgrade_messages = {}
+            # Connections by input name
+            input_connections_by_name = {}
+            for conn in step.input_connections:
+                input_name = conn.input_name
+                if not input_name in input_connections_by_name:
+                    input_connections_by_name[input_name] = []
+                input_connections_by_name[input_name].append(conn)
+            step.input_connections_by_name = input_connections_by_name
+            # Extract just the arguments for this step by prefix
+            p = "%s|" % step.id
+            l = len(p)
+            step_args = dict( ( k[l:], v ) for ( k, v ) in kwargs.iteritems() if k.startswith( p ) )
+            step_errors = None
+            if step.type == 'tool' or step.type is None:
+                module = module_factory.from_workflow_step( trans, step )
+                # Fix any missing parameters
+                step.upgrade_messages = module.check_and_update_state()
+                if step.upgrade_messages:
+                    has_upgrade_messages = True
+                # Any connected input needs to have value DummyDataset (these
+                # are not persisted so we need to do it every time)
+                module.add_dummy_datasets( connections=step.input_connections )
+                # Get the tool
+                tool = module.tool
+                # Get the state
+                step.state = state = module.state
+                # Get old errors
+                old_errors = state.inputs.pop( "__errors__", {} )
+                # Update the state
+                step_errors = tool.update_state( trans, tool.inputs, step.state.inputs, step_args,
+                                                 update_only=True, old_errors=old_errors )
+            else:
+                # Fix this for multiple inputs
+                module = step.module = module_factory.from_workflow_step( trans, step )
+                state = step.state = module.decode_runtime_state( trans, step_args.pop( "tool_state" ) )
+                step_errors = module.update_runtime_state( trans, state, step_args )
+            if step_errors:
+                errors[step.id] = state.inputs["__errors__"] = step_errors
+        if 'run_workflow' in kwargs and not errors:
+            new_history = None
+            if 'new_history' in kwargs:
+                if 'new_history_name' in kwargs and kwargs['new_history_name'] != '':
+                    nh_name = kwargs['new_history_name']
+                else:
+                    nh_name = "History from %s workflow" % workflow.name
+                instance_inputs = [kwargs[multi_input_key] for multi_input_key in multi_input_keys]
+                instance_ds_names = [trans.sa_session.query( trans.app.model.HistoryDatasetAssociation ).get( instance_input ).name for instance_input in instance_inputs]
+                nh_name = '%s%s' % (nh_name, _build_workflow_on_str( instance_ds_names ))
+                new_history = trans.app.model.History( user=trans.user, name=nh_name )
+                new_history.copy_tags_from(trans.user, trans.get_history())
+                trans.sa_session.add( new_history )
+                target_history = new_history
+            else:
+                target_history = trans.get_history()
+
+            # Build replacement dict for this workflow execution.
+            replacement_dict = {}
+            for k, v in kwargs.iteritems():
+                if k.startswith('wf_parm|'):
+                    replacement_dict[k[8:]] = v
+
+            run_config = WorkflowRunConfig(
+                target_history=target_history,
+                replacement_dict=replacement_dict,
+                copy_inputs_to_history=new_history is not None
+            )
+
+            outputs = invoke(
+                trans=trans,
+                workflow=workflow,
+                workflow_run_config=run_config
+            )
+
+            invocations.append({'outputs': outputs,
+                                'new_history': new_history})
+            trans.sa_session.flush()
+    return invocations, has_upgrade_messages
 
 
 def _build_workflow_on_str(instance_ds_names):
