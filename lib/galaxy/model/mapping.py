@@ -710,6 +710,56 @@ model.WorkflowStep.table = Table( "workflow_step", metadata,
     ## Column( "input_connections", JSONType )
     )
 
+
+model.WorkflowRequest.table = Table(
+    "workflow_request",
+    metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "history_id", Integer, ForeignKey( "history.id" ), index=True ),
+    Column( "scheduer_id", String(255) ),
+)
+
+
+model.WorkflowRequestInputParameter.table = Table(
+    "workflow_request_input_parameters", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "workflow_request_id", Integer, ForeignKey("workflow_request.id", onupdate="CASCADE", ondelete="CASCADE" )),
+    Column( "name", Unicode(255) ),
+    Column( "value", TEXT ),
+    Column( "type", Unicode(255) ),
+)
+
+
+model.WorkflowRequestStepParameter.table = Table(
+    "workflow_request_step_parameters", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "workflow_request_id", Integer, ForeignKey("workflow_request.id", onupdate="CASCADE", ondelete="CASCADE" )),
+    Column( "workflow_step_id", Integer, ForeignKey("workflow_step.id" )),
+    Column( "name", Unicode(255) ),
+    Column( "value", TEXT ),
+)
+
+
+model.WorkflowRequestToInputDatasetAssociation.table = Table(
+    "workflow_request_to_input_dataset", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "name", String(255) ),
+    Column( "workflow_request_id", Integer, ForeignKey( "workflow_request.id" ), index=True ),
+    Column( "workflow_step_id", Integer, ForeignKey("workflow_step.id") ),
+    Column( "dataset_id", Integer, ForeignKey( "history_dataset_association.id" ), index=True ),
+)
+
+
+model.WorkflowRequestToInputDatasetCollectionAssociation.table = Table(
+    "workflow_request_to_input_collection_dataset", metadata,
+    Column( "id", Integer, primary_key=True ),
+    Column( "name", String(255) ),
+    Column( "workflow_request_id", Integer, ForeignKey( "workflow_request.id" ), index=True ),
+    Column( "workflow_step_id", Integer, ForeignKey("workflow_step.id") ),
+    Column( "dataset_collection_id", Integer, ForeignKey( "history_dataset_collection_association.id" ), index=True ),
+)
+
+
 model.WorkflowStepConnection.table = Table( "workflow_step_connection", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "output_step_id", Integer, ForeignKey( "workflow_step.id" ), index=True ),
@@ -728,8 +778,11 @@ model.WorkflowInvocation.table = Table( "workflow_invocation", metadata,
     Column( "id", Integer, primary_key=True ),
     Column( "create_time", DateTime, default=now ),
     Column( "update_time", DateTime, default=now, onupdate=now ),
-    Column( "workflow_id", Integer, ForeignKey( "workflow.id" ), index=True, nullable=False )
-    )
+    Column( "workflow_id", Integer, ForeignKey( "workflow.id" ), index=True, nullable=False ),
+    Column( "state", TrimmedString( 64 ), index=True ),
+    Column( "scheduler_id", String( 255 ) ),
+    Column( "workflow_request_id", Integer, ForeignKey("workflow_request.id") ),
+)
 
 model.WorkflowInvocationStep.table = Table( "workflow_invocation_step", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -737,8 +790,9 @@ model.WorkflowInvocationStep.table = Table( "workflow_invocation_step", metadata
     Column( "update_time", DateTime, default=now, onupdate=now ),
     Column( "workflow_invocation_id", Integer, ForeignKey( "workflow_invocation.id" ), index=True, nullable=False ),
     Column( "workflow_step_id",  Integer, ForeignKey( "workflow_step.id" ), index=True, nullable=False ),
-    Column( "job_id",  Integer, ForeignKey( "job.id" ), index=True, nullable=True )
-    )
+    Column( "job_id",  Integer, ForeignKey( "job.id" ), index=True, nullable=True ),
+    Column( "action", JSONType, nullable=True ),
+)
 
 model.StoredWorkflowUserShareAssociation.table = Table( "stored_workflow_user_share_connection", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -1085,6 +1139,7 @@ model.ToolTagAssociation.table = Table( "tool_tag_association", metadata,
     Column( "value", TrimmedString(255), index=True),
     Column( "user_value", TrimmedString(255), index=True) )
 
+
 # Annotation tables.
 
 model.HistoryAnnotationAssociation.table = Table( "history_annotation_association", metadata,
@@ -1202,8 +1257,6 @@ model.APIKeys.table = Table( "api_keys", metadata,
     Column( "key", TrimmedString( 32 ), index=True, unique=True ) )
 
 
-# With the tables defined we can define the mappers and setup the
-# relationships between the model objects.
 def simple_mapping( model, **kwds ):
     mapper( model, model.table, properties=kwds )
 
@@ -1968,6 +2021,7 @@ mapper( model.StoredWorkflowMenuEntry, model.StoredWorkflowMenuEntry.table,
 
 mapper( model.WorkflowInvocation, model.WorkflowInvocation.table,
     properties=dict(
+        request=relation( model.WorkflowRequest ),
         steps=relation( model.WorkflowInvocationStep, backref='workflow_invocation', lazy=False ),
         workflow=relation( model.Workflow ) ) )
 
@@ -1975,6 +2029,42 @@ mapper( model.WorkflowInvocationStep, model.WorkflowInvocationStep.table,
     properties=dict(
         workflow_step = relation( model.WorkflowStep ),
         job = relation( model.Job, backref=backref( 'workflow_invocation_step', uselist=False ) ) ) )
+
+simple_mapping(
+    model.WorkflowRequest,
+    history=relation( model.History ),
+    input_parameters=relation( model.WorkflowRequestInputParameter ),
+    step_parameters=relation( model.WorkflowRequestStepParameter ),
+    input_datasets=relation( model.WorkflowRequestToInputDatasetAssociation ),
+    input_dataset_collections=relation( model.WorkflowRequestToInputDatasetCollectionAssociation )
+)
+
+simple_mapping(
+    model.WorkflowRequestInputParameter,
+    workflow_request=relation( model.WorkflowRequest ),
+)
+
+simple_mapping(
+    model.WorkflowRequestStepParameter,
+    workflow_request=relation( model.WorkflowRequest ),
+    workflow_step=relation( model.WorkflowStep ),
+)
+
+simple_mapping(
+    model.WorkflowRequestToInputDatasetAssociation,
+    workflow_request=relation( model.WorkflowRequest ),
+    workflow_step=relation( model.WorkflowStep ),
+    dataset=relation( model.HistoryDatasetAssociation ),
+)
+
+
+simple_mapping(
+    model.WorkflowRequestToInputDatasetCollectionAssociation,
+    workflow_request=relation( model.WorkflowRequest ),
+    workflow_step=relation( model.WorkflowStep ),
+    dataset_collection=relation( model.HistoryDatasetCollectionAssociation ),
+)
+
 
 mapper( model.MetadataFile, model.MetadataFile.table,
     properties=dict( history_dataset=relation( model.HistoryDatasetAssociation ), library_dataset=relation( model.LibraryDatasetDatasetAssociation ) ) )

@@ -16,39 +16,59 @@ from galaxy.tools.execute import execute
 from galaxy.util.odict import odict
 from galaxy.workflow import modules
 from galaxy.workflow.run_request import WorkflowRunConfig
+from galaxy.workflow.run_request import workflow_run_config_to_request
 
 import logging
 log = logging.getLogger( __name__ )
 
 
-def invoke( trans, workflow, workflow_run_config ):
+def invoke( trans, workflow, workflow_run_config, workflow_invocation=None ):
     """ Run the supplied workflow in the supplied target_history.
     """
     return WorkflowInvoker(
         trans,
         workflow,
         workflow_run_config,
+        workflow_invocation=workflow_invocation,
     ).invoke()
+    if workflow_invocation:
+        # Be sure to update state of workflow_invocation.
+        trans.sa_session.flush()
+
+
+def queue_invoke( trans, workflow, workflow_run_config, request_params ):
+    workflow_request = workflow_run_config_to_request( trans, workflow_run_config )
+    workflow_invocation = model.WorkflowInvocation()
+    workflow_invocation.workflow = workflow
+    workflow_invocation.state = model.WorkflowInvocation.states.NEW
+    workflow_invocation.scheduler_id = request_params[ "scheduler_id" ]
+    workflow_invocation.request = workflow_request
+
+    trans.sa_session.add( workflow_invocation )
+    trans.sa_session.flush()
+
+    return workflow_invocation
 
 
 class WorkflowInvoker( object ):
 
-    def __init__( self, trans, workflow, workflow_run_config ):
+    def __init__( self, trans, workflow, workflow_run_config, workflow_invocation=None ):
         self.trans = trans
         self.workflow = workflow
+        if workflow_invocation is None:
+            workflow_invocation = model.WorkflowInvocation()
+            workflow_invocation.workflow = self.workflow
+            self.workflow_invocation = workflow_invocation
+        else:
+            self.workflow_invocation = workflow_invocation
         self.target_history = workflow_run_config.target_history
         self.replacement_dict = workflow_run_config.replacement_dict
         self.copy_inputs_to_history = workflow_run_config.copy_inputs_to_history
         self.inputs_by_step_id = workflow_run_config.inputs
 
-        workflow_invocation = model.WorkflowInvocation()
-        workflow_invocation.workflow = self.workflow
-
         param_map = workflow_run_config.param_map
         workflow_injector = ApiWorkflowModuleInjector( trans, param_map )
-        self.progress = WorkflowProgress( workflow_injector, workflow_invocation )
-
-        self.workflow_invocation = workflow_invocation
+        self.progress = WorkflowProgress( workflow_injector, self.workflow_invocation )
 
         # TODO: Attach to actual model object and persist someday...
         self.invocation_uuid = uuid.uuid1().hex

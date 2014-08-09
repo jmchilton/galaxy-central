@@ -1,4 +1,5 @@
 from galaxy import exceptions
+from galaxy import model
 
 from galaxy.managers import histories
 
@@ -229,6 +230,98 @@ def build_workflow_run_config( trans, workflow, payload ):
         param_map=param_map,
     )
     return run_config
+
+
+def workflow_run_config_to_request( trans, run_config ):
+    param_types = model.WorkflowRequestInputParameter.types
+
+    workflow_request = model.WorkflowRequest()
+    workflow_request.history = run_config.target_history
+
+    def add_parameter( name, value, type ):
+        parameter = model.WorkflowRequestInputParameter(
+            name=name,
+            value=value,
+            type=type,
+        )
+        workflow_request.input_parameters.append( parameter )
+
+    replacement_dict = run_config.replacement_dict
+    for name, value in replacement_dict.iteritems():
+        add_parameter(
+            name=name,
+            value=value,
+            type=param_types.REPLACEMENT_PARAMETERS,
+        )
+
+    param_map = run_config.param_map
+    for step_id in param_map.iterkeys():
+        step_param_dict = param_map.get( step_id ) or {}
+        for step_param_name, step_param_value in step_param_dict.iteritems():
+            step_parameter = model.WorkflowRequestStepParameter(
+                name=step_param_name,
+                value=step_param_value
+            )
+            step_parameter.workflow_step_id = step_id
+            workflow_request.step_parameters.append( step_parameter )
+
+    for step_id, content in run_config.inputs.iteritems():
+        if content.history_content_type == "dataset":
+            request_to_content = model.WorkflowRequestToInputDatasetAssociation()
+            request_to_content.dataset = content
+            request_to_content.workflow_step_id = step_id
+            workflow_request.input_datasets.append( request_to_content )
+        else:
+            request_to_content = model.WorkflowRequestToInputDatasetCollectionAssociation()
+            request_to_content.dataset_collection = content
+            request_to_content.workflow_step_id = step_id
+            workflow_request.input_dataset_collections.append( request_to_content )
+
+    add_parameter( "copy_inputs_to_history", "true" if run_config.copy_inputs_to_history else "false", param_types.META_PARAMETERS )
+    return workflow_request
+
+
+def workflow_request_to_run_config( work_request_context, workflow_request ):
+    param_types = model.WorkflowRequestInputParameter.types
+
+    history = workflow_request.history
+    replacement_dict = {}
+    inputs = {}
+    param_map = {}
+    copy_inputs_to_history = None
+
+    for parameter in workflow_request.input_parameters:
+        parameter_type = parameter.type
+
+        if parameter_type == param_types.REPLACEMENT_PARAMETERS:
+            replacement_dict[ parameter.name ] = parameter.value
+        elif parameter_type == param_types.META_PARAMETERS:
+            if parameter.name == "copy_inputs_to_history":
+                copy_inputs_to_history = (parameter.value == "true")
+
+    for parameter in workflow_request.step_parameters:
+        step_id = parameter.workflow_step_id
+        if step_id not in param_map:
+            param_map[ step_id ] = {}
+        param_map[ step_id ][ parameter.name ] = parameter.value
+
+    for input_association in workflow_request.input_datasets:
+        inputs[ input_association.workflow_step_id ] = input_association.dataset
+
+    for input_association in workflow_request.input_dataset_collections:
+        inputs[ input_association.workflow_step_id ] = input_association.dataset_collection
+
+    if copy_inputs_to_history is None:
+        raise exceptions.InconsistentDatabase("Failed to find copy_inputs_to_history parameter loading workflow_request from database.")
+
+    workflow_run_config = WorkflowRunConfig(
+        target_history=history,
+        replacement_dict=replacement_dict,
+        inputs=inputs,
+        param_map=param_map,
+        copy_inputs_to_history=copy_inputs_to_history,
+    )
+    return workflow_run_config
 
 
 def __decode_id( trans, workflow_id, model_type="workflow" ):

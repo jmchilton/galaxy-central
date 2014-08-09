@@ -16,7 +16,7 @@ from galaxy.web.base.controller import BaseAPIController, url_for, UsesStoredWor
 from galaxy.web.base.controller import UsesHistoryMixin
 from galaxy.web.base.controller import SharableMixin
 from galaxy.workflow.extract import extract_workflow
-from galaxy.workflow.run import invoke
+from galaxy.workflow.run import invoke, queue_invoke
 from galaxy.workflow.run_request import build_workflow_run_config
 
 log = logging.getLogger(__name__)
@@ -367,6 +367,30 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
         encoded_id = trans.security.encode_id(imported_workflow.id)
         item['url'] = url_for('workflow', id=encoded_id)
         return item
+
+    @expose_api
+    def workflow_request( self, trans, workflow_id, payload, **kwd ):
+        """
+        POST /api/workflows/{encoded_workflow_id}/request
+
+        Issue request to run the workflow specified by `workflow_id`.
+        """
+        # Get workflow + accessibility check.
+        stored_workflow = self.__get_stored_accessible_workflow( trans, workflow_id )
+        workflow = stored_workflow.latest_workflow
+
+        run_config = build_workflow_run_config( trans, workflow, payload )
+        workflow_scheduler_id = payload.get( "workflow_scheduler", self.app.workflow_scheduling_manager.default_scheduler_id )
+        # TODO: workflow scheduler hints?
+        work_request_params = dict( scheduler_id=workflow_scheduler_id )
+
+        workflow_invocation = queue_invoke(
+            trans=trans,
+            workflow=workflow,
+            workflow_run_config=run_config,
+            request_params=work_request_params
+        )
+        return self.encode_all_ids( trans, workflow_invocation.to_dict(), recursive=True )
 
     @expose_api
     def workflow_usage(self, trans, workflow_id, **kwd):

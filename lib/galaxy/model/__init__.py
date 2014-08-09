@@ -3077,6 +3077,12 @@ class StoredWorkflowMenuEntry( object ):
 class WorkflowInvocation( object, Dictifiable ):
     dict_collection_visible_keys = ( 'id', 'update_time', 'workflow_id' )
     dict_element_visible_keys = ( 'id', 'update_time', 'workflow_id' )
+    states = Bunch(
+        NEW='New',  # Brand new workflow invocation... maybe this should be same as READY
+        READY='Ready',  # Workflow ready for another iteration of scheduling.
+        RUNNING='Running',  # Workflow steps are running, no need to try to schedule - will be sent to READY when some job finishes.
+        SCHEDULED='Scheduled',  # Workflow has been scheduled.
+    )
 
     def to_dict( self, view='collection', value_mapper=None ):
         rval = super( WorkflowInvocation, self ).to_dict( view=view, value_mapper=value_mapper )
@@ -3109,6 +3115,67 @@ class WorkflowInvocationStep( object, Dictifiable ):
         rval = super( WorkflowInvocationStep, self ).to_dict( view=view, value_mapper=value_mapper )
         rval['order_index'] = self.workflow_step.order_index
         return rval
+
+
+class WorkflowRequest( object, Dictifiable ):
+    dict_collection_visible_keys = [ 'id', 'name', 'type', 'state', 'history_id', 'workflow_id' ]
+    dict_element_visible_keys = [ 'id', 'name', 'type', 'state', 'history_id', 'workflow_id' ]
+
+    def to_dict( self, view='collection', value_mapper=None ):
+        rval = super( WorkflowRequest, self ).to_dict( view=view, value_mapper=value_mapper )
+        return rval
+
+
+class WorkflowRequestInputParameter(object, Dictifiable):
+    """ Workflow-related parameters not tied to steps or inputs.
+    """
+    dict_collection_visible_keys = ['id', 'name', 'value', 'type']
+    types = Bunch(
+        REPLACEMENT_PARAMETERS='replacements',
+        META_PARAMETERS='meta',  #
+    )
+
+    def __init__( self, name=None, value=None, type=None ):
+        self.name = name
+        self.value = value
+        self.type = type
+
+
+class WorkflowRequestStepParameter(object, Dictifiable):
+    """ Workflow step value parameters.
+    """
+    dict_collection_visible_keys = ['id', 'name', 'value', 'workflow_step_id']
+
+    def __init__( self, workflow_step=None, name=None, value=None ):
+        self.workflow_step = workflow_step
+        self.name = name
+        self.value = value
+        self.type = type
+
+
+class WorkflowRequestToInputDatasetAssociation(object, Dictifiable):
+    """ Workflow step input dataset parameters.
+    """
+    dict_collection_visible_keys = ['id', 'workflow_request_id', 'workflow_step_id', 'dataset_id', "name" ]
+
+    #def __init__( self, workflow_request=None, workflow_step=None, dataset=None, name=None ):
+    #    self.workflow_request = workflow_request
+    #    self.workflow_step = workflow_step
+    #    self.dataset = dataset
+    #    self.name = name
+
+
+class WorkflowRequestToInputDatasetCollectionAssociation(object, Dictifiable):
+    """ Workflow step input dataset collection parameters.
+    """
+    dict_collection_visible_keys = ['id', 'workflow_request_id', 'workflow_step_id', 'dataset_collection_id', "name" ]
+
+    #def __init__( self, workflow_request, workflow_step, dataset_collection, name=None ):
+    #    self.workflow_request = workflow_request
+    #    self.workflow_step = workflow_step
+    #    self.dataset_collection = dataset_collection
+    #    self.name = name
+
 
 class MetadataFile( object ):
 
@@ -4016,6 +4083,18 @@ class ToolTagAssociation( ItemTagAssociation ):
         self.user_tname = user_tname
         self.value = None
         self.user_value = None
+
+
+class WorkRequestTagAssociation( ItemTagAssociation ):
+    def __init__( self, id=None, user=None, workflow_request_id=None, tag_id=None, user_tname=None, value=None ):
+        self.id = id
+        self.user = user
+        self.workflow_request_id = workflow_request_id
+        self.tag_id = tag_id
+        self.user_tname = user_tname
+        self.value = None
+        self.user_value = None
+
 
 # Item annotation classes.
 
