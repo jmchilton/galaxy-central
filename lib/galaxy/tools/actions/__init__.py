@@ -133,7 +133,7 @@ class DefaultToolAction( object ):
         tool.visit_inputs( param_values, visitor )
         return input_datasets
 
-    def collect_input_dataset_collections( self, tool, param_values, trans ):
+    def collect_input_dataset_collections( self, tool, param_values ):
         input_dataset_collections = dict()
 
         def visitor( prefix, input, value, parent=None ):
@@ -167,7 +167,7 @@ class DefaultToolAction( object ):
         out_data = odict()
         # Track input dataset collections - but replace with simply lists so collect
         # input datasets can process these normally.
-        inp_dataset_collections = self.collect_input_dataset_collections( tool, incoming, trans )
+        inp_dataset_collections = self.collect_input_dataset_collections( tool, incoming )
         # Collect any input datasets from the incoming parameters
         inp_data = self.collect_input_datasets( tool, incoming, trans )
 
