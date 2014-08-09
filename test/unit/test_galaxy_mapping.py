@@ -186,6 +186,10 @@ class MappingTests( unittest.TestCase ):
         library_dataset_collection = model.LibraryDatasetCollectionAssociation( collection=dataset_collection )
         tag_and_test( library_dataset_collection, model.LibraryDatasetCollectionTagAssociation, "tagged_library_dataset_collections" )
 
+        workflow_request = model.WorkflowRequest()
+        self.persist( workflow_request, flush=True )
+        tag_and_test( workflow_request, model.WorkRequestTagAssociation, "tagged_work_requests" )
+
     def test_collections_in_histories(self):
         model = self.model
 
@@ -357,6 +361,34 @@ class MappingTests( unittest.TestCase ):
         assert contents_iter_names( ids=[ d1.id, d2.id, d3.id, d4.id ], max_in_filter_length=1 ) == [ "1", "2", "3", "4" ]
 
         assert contents_iter_names( ids=[ d1.id, d3.id ] ) == [ "1", "3" ]
+
+    def test_workflows( self ):
+        model = self.model
+        user = model.User(
+            email="testworkflows@bx.psu.edu",
+            password="password"
+        )
+        stored_workflow = model.StoredWorkflow()
+        stored_workflow.user = user
+        workflow = model.Workflow()
+        workflow_step = model.WorkflowStep()
+        workflow.steps = [ workflow_step ]
+        workflow.stored_workflow = stored_workflow
+
+        self.persist( workflow )
+        assert workflow_step.id is not None
+
+        workflow_request = model.WorkflowRequest()
+        workflow_request.workflow = workflow
+
+        h1 = model.History( name="WorkflowHistory1", user=user)
+        d1 = self.new_hda( h1, name="1" )
+        workflow_request_dataset = model.WorkflowRequestToInputDatasetAssociation()
+        workflow_request_dataset.workflow_request = workflow_request,
+        workflow_request_dataset.workflow_step = workflow_step
+        workflow_request_dataset.dataset = d1
+        self.persist( workflow_request )
+        assert workflow_request_dataset is not None
 
     def new_hda( self, history, **kwds ):
         return history.add_dataset( self.model.HistoryDatasetAssociation( create_dataset=True, sa_session=self.model.session, **kwds ) )
