@@ -126,6 +126,19 @@ class WorkflowsApiTestCase( api.ApiTestCase ):
         self._assert_status_code_is( run_workflow_response, 200 )
         self.dataset_populator.wait_for_history( history_id, assert_ok=True )
 
+    def test_workflow_request( self ):
+        workflow = self.workflow_populator.load_workflow( name="test_for_queue" )
+        workflow_request, history_id = self._setup_workflow_run( workflow )
+        # TODO: This should really be a post to workflows/<workflow_id>/run or
+        # something like that.
+        url = "workflows/%s/request" % ( workflow_request[ "workflow_id" ] )
+        del workflow_request[ "workflow_id" ]
+        run_workflow_response = self._post( url, data=workflow_request )
+
+        self._assert_status_code_is( run_workflow_response, 200 )
+        time.sleep( 20 )
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+
     def test_cannot_run_inaccessible_workflow( self ):
         workflow = self.workflow_populator.load_workflow( name="test_for_run_cannot_access" )
         workflow_request, history_id = self._setup_workflow_run( workflow )

@@ -14,6 +14,7 @@ from galaxy.tools.execute import execute
 from galaxy.util.odict import odict
 from galaxy.workflow import modules
 from galaxy.workflow.run_request import WorkflowRunConfig
+from galaxy.workflow.run_request import workflow_run_config_to_request
 
 import logging
 log = logging.getLogger( __name__ )
@@ -27,6 +28,15 @@ def invoke( trans, workflow, workflow_run_config ):
         workflow,
         workflow_run_config,
     ).invoke()
+
+
+def queue_invoke( trans, workflow, workflow_run_config, request_params ):
+    workflow_request = workflow_run_config_to_request( trans, workflow_run_config )
+    workflow_request.reserve_handler_id = request_params[ "reserve_handler_id" ]
+    workflow_request.reserve_handler_hints = request_params[ "reserve_handler_hints" ]
+    workflow_request.workflow = workflow
+    trans.app.work_queue.add_request( workflow_request )
+    return workflow_request
 
 
 class WorkflowInvoker( object ):
