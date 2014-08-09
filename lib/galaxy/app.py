@@ -145,8 +145,11 @@ class UniverseApplication( object, config.ConfiguresGalaxyMixin ):
                                                 galaxy.queue_worker.control_message_to_task)
         self.control_worker.daemon = True
         self.control_worker.start()
+        from galaxy.workflow import scheduling_manager
+        self.workflow_scheduling_manager = scheduling_manager.WorkflowSchedulingManager( self )
 
     def shutdown( self ):
+        self.workflow_scheduling_manager.shutdown()
         self.job_manager.shutdown()
         self.object_store.shutdown()
         if self.heartbeat:
@@ -168,3 +171,6 @@ class UniverseApplication( object, config.ConfiguresGalaxyMixin ):
             self.trace_logger = FluentTraceLogger( 'galaxy', self.config.fluent_host, self.config.fluent_port )
         else:
             self.trace_logger = None
+
+    def is_job_handler( self ):
+        return (self.config.track_jobs_in_database and self.job_config.is_handler(self.config.server_name)) or not self.config.track_jobs_in_database

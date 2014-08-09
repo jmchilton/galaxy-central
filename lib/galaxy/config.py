@@ -149,6 +149,7 @@ class Configuration( object ):
         self.template_cache = resolve_path( kwargs.get( "template_cache_path", "database/compiled_templates" ), self.root )
         self.dependency_resolvers_config_file = resolve_path( kwargs.get( 'dependency_resolvers_config_file', 'dependency_resolvers_conf.xml' ), self.root )
         self.job_metrics_config_file = resolve_path( kwargs.get( 'job_metrics_config_file', 'job_metrics_conf.xml' ), self.root )
+        self.workflow_schedulers_config_file = resolve_path( kwargs.get( 'workflow_schedulers_config_file', 'workflow_schedulers_conf.xml' ), self.root )
         self.job_config_file = resolve_path( kwargs.get( 'job_config_file', 'job_conf.xml' ), self.root )
         self.job_resource_params_file = resolve_path( kwargs.get( 'job_resource_params_file', 'job_resource_params_conf.xml' ), self.root )
         self.local_job_queue_workers = int( kwargs.get( "local_job_queue_workers", "5" ) )

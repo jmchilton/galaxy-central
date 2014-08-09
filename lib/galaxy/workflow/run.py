@@ -8,6 +8,7 @@ from galaxy.dataset_collections import matching
 
 from galaxy.jobs.actions.post import ActionBox
 
+import galaxy.tools
 from galaxy.tools.parameters.basic import DataToolParameter
 from galaxy.tools.parameters.basic import DataCollectionToolParameter
 from galaxy.tools.parameters import visit_input_values
@@ -16,33 +17,65 @@ from galaxy.tools.execute import execute
 from galaxy.util.odict import odict
 from galaxy.workflow import modules
 from galaxy.workflow.run_request import WorkflowRunConfig
+from galaxy.workflow.run_request import workflow_run_config_to_request
 
 import logging
 log = logging.getLogger( __name__ )
 
 
-def invoke( trans, workflow, workflow_run_config, populate_state=False ):
+class DelayedWorkflowEvaluation(Exception):
+    pass
+
+
+def invoke( trans, workflow, workflow_run_config, workflow_invocation=None, populate_state=False ):
     """ Run the supplied workflow in the supplied target_history.
     """
     if populate_state:
         modules.populate_module_and_state( trans, workflow, workflow_run_config.param_map )
 
-    return WorkflowInvoker(
+    invoker = WorkflowInvoker(
         trans,
         workflow,
         workflow_run_config,
-    ).invoke()
+        workflow_invocation=workflow_invocation,
+    )
+    outputs = invoker.invoke()
+    if workflow_invocation:
+        # Be sure to update state of workflow_invocation.
+        trans.sa_session.flush()
+
+    return outputs, invoker.workflow_invocation
+
+
+def queue_invoke( trans, workflow, workflow_run_config, request_params ):
+    modules.populate_module_and_state( trans, workflow, workflow_run_config.param_map )
+    workflow_invocation = workflow_run_config_to_request( trans, workflow_run_config, workflow )
+    workflow_invocation.workflow = workflow
+    workflow_invocation.state = model.WorkflowInvocation.states.NEW
+    workflow_invocation.scheduler_id = request_params[ "scheduler_id" ]
+
+    trans.sa_session.add( workflow_invocation )
+    trans.sa_session.flush()
+
+    return workflow_invocation
 
 
 class WorkflowInvoker( object ):
 
-    def __init__( self, trans, workflow, workflow_run_config ):
+    def __init__( self, trans, workflow, workflow_run_config, workflow_invocation=None ):
         self.trans = trans
         self.workflow = workflow
+        if workflow_invocation is None:
+            workflow_invocation = model.WorkflowInvocation()
+            workflow_invocation.workflow = self.workflow
+            self.workflow_invocation = workflow_invocation
+        else:
+            self.workflow_invocation = workflow_invocation
         self.target_history = workflow_run_config.target_history
         self.replacement_dict = workflow_run_config.replacement_dict
         self.copy_inputs_to_history = workflow_run_config.copy_inputs_to_history
-        self.progress = WorkflowProgress( self.workflow_invocation, workflow_run_config.inputs )
+        module_injector = modules.WorkflowModuleInjector( trans )
+        self.progress = WorkflowProgress( self.workflow_invocation, workflow_run_config.inputs, module_injector )
 
         # TODO: Attach to actual model object and persist someday...
         self.invocation_uuid = uuid.uuid1().hex
@@ -50,34 +83,31 @@ class WorkflowInvoker( object ):
     def invoke( self ):
         workflow_invocation = self.workflow_invocation
         remaining_steps = self.progress.remaining_steps()
+        delayed_steps = False
         for step in remaining_steps:
-            jobs = self._invoke_step( step )
-            for job in util.listify( jobs ):
-                # Record invocation
-                workflow_invocation_step = model.WorkflowInvocationStep()
-                workflow_invocation_step.workflow_invocation = workflow_invocation
-                workflow_invocation_step.workflow_step = step
-                workflow_invocation_step.job = job
+            jobs = None
+            try:
+                jobs = self._invoke_step( step )
+                for job in (util.listify( jobs ) or [None]):
+                    # Record invocation
+                    workflow_invocation_step = model.WorkflowInvocationStep()
+                    workflow_invocation_step.workflow_invocation = workflow_invocation
+                    workflow_invocation_step.workflow_step = step
+                    workflow_invocation_step.job = job
+            except DelayedWorkflowEvaluation:
+                delayed_steps = True
+                self.progress.mark_step_outputs_delayed( step )
+
+        if delayed_steps:
+            state = model.WorkflowInvocation.states.READY
+        else:
+            state = model.WorkflowInvocation.states.SCHEDULED
+        workflow_invocation.state = state
 
         # All jobs ran successfully, so we can save now
         self.trans.sa_session.add( workflow_invocation )
-
-        # Not flushing in here, because web controller may create multiple
-        # invocations.
-        return self.progress.outputs
-
-    def _invoke_step( self, step ):
-        if step.type == 'tool' or step.type is None:
-            jobs = self._execute_tool_step( step )
-        else:
-            jobs = self._execute_input_step( step )
-
-        return jobs
-
-    def _execute_tool_step( self, step ):
-        trans = self.trans
-
-        tool = trans.app.toolbox.get_tool( step.tool_id )
+        # Not flushing in here, b
+        tool = self.trans.app.toolbox.get_tool( step.tool_id )
         tool_state = step.state
 
         collections_to_match = self._find_collections_to_match( tool, step )
@@ -194,17 +224,42 @@ class WorkflowInvoker( object ):
                 job.add_post_job_action( pja )
 
 
+STEP_OUTPUT_DELAYED = object()
+
+
 class WorkflowProgress( object ):
 
-    def __init__( self, workflow_invocation, inputs_by_step_id ):
+    def __init__( self, workflow_invocation, inputs_by_step_id, module_injector ):
         self.outputs = odict()
+        self.module_injector = module_injector
         self.workflow_invocation = workflow_invocation
         self.inputs_by_step_id = inputs_by_step_id
 
     def remaining_steps(self):
+        # Previously computed and persisted step states.
+        step_states = self.workflow_invocation.step_states_by_step_id()
         steps = self.workflow_invocation.workflow.steps
-
-        return steps
+        remaining_steps = []
+        step_invocations_by_id = self.workflow_invocation.step_invocations_by_step_id()
+        for step in steps:
+            if not hasattr( step, 'module' ):
+                self.module_injector.inject( step )
+                module = step.module
+                raw_state = step_states[ step.id ].value
+                state = galaxy.tools.DefaultToolState()
+                if hasattr( module, 'tool' ):
+                    app = self.module_injector.trans.app
+                    state.decode( raw_state, module.tool, app )
+                else:
+                    state.inputs = raw_state
+                step.state = state
+                step.module.state = state
+            invocation_steps = step_invocations_by_id.get( step.id, None )
+            if invocation_steps:
+                self._recover_mapping( step, invocation_steps )
+            else:
+                remaining_steps.append( step )
+        return remaining_steps
 
     def replacement_for_tool_input( self, step, input, prefixed_name ):
         """ For given workflow 'step' that has had input_connections_by_name
@@ -227,6 +282,8 @@ class WorkflowProgress( object ):
 
     def replacement_for_connection( self, connection ):
         step_outputs = self.outputs[ connection.output_step.id ]
+        if step_outputs is STEP_OUTPUT_DELAYED:
+            raise DelayedWorkflowEvaluation()
         return step_outputs[ connection.output_name ]
 
     def set_outputs_for_input( self, step, outputs={} ):
@@ -238,8 +295,26 @@ class WorkflowProgress( object ):
     def set_step_outputs(self, step, outputs):
         self.outputs[ step.id ] = outputs
 
+    def mark_step_outputs_delayed(self, step):
+        self.outputs[ step.id ] = STEP_OUTPUT_DELAYED
 
+    def _recover_mapping( self, step, invocation_steps ):
+        if step.type == 'tool' or step.type is None:
+            self._recover_tool_step( step, invocation_steps )
+        else:
+            self._recover_input_step( step )
 
+    def _recover_tool_step( self, step, invocation_steps ):
+        # TODO: Handle implicit collections...
+        job_0 = invocation_steps[ 0 ].job
+
+        outputs = {}
+        for job_output in job_0.output_datasets:
+            outputs[ job_output.name ] = job_output.dataset
+        self.set_step_outputs( step, outputs )
+
+    def _recover_input_step( self, step, invocation_steps ):
+        self.set_outputs_for_input( step )
 
 
 __all__ = [ invoke, WorkflowRunConfig ]

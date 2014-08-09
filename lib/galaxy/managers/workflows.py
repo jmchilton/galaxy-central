@@ -49,6 +49,27 @@ class WorkflowsManager( object ):
         self.check_security( trans, workflow_invocation, check_ownership=True, check_accessible=False )
         return workflow_invocation
 
+    def get_invocation_step( self, trans, decoded_workflow_invocation_step_id ):
+        try:
+            workflow_invocation_step = trans.sa_session.query(
+                model.WorkflowInvocationStep
+            ).get( decoded_workflow_invocation_step_id )
+        except Exception:
+            raise exceptions.ObjectNotFound()
+        self.check_security( trans, workflow_invocation_step.workflow_invocation, check_ownership=True, check_accessible=False )
+        return workflow_invocation_step
+
+    def update_invocation_step( self, trans, decoded_workflow_invocation_step_id, action ):
+        workflow_invocation_step = self.get_invocation_step( trans, decoded_workflow_invocation_step_id )
+        if action is None:
+            raise exceptions.RequestParameterMissingException( "Updating workflow invocation step requires an action parameter. " )
+        workflow_invocation_step.action = action
+        # TODO: have module pre-screen action. Ensure only active workflow
+        # invocations can have their steps updated.
+        trans.sa_session.add( workflow_invocation_step )
+        trans.sa_session.flush()
+        return workflow_invocation_step
+
     def build_invocations_query( self, trans, decoded_stored_workflow_id ):
         try:
             stored_workflow = trans.sa_session.query(

@@ -1317,7 +1317,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                             copy_inputs_to_history=new_history is not None
                         )
 
-                        outputs = invoke(
+                        outputs, invocation = invoke(
                             trans=trans,
                             workflow=workflow,
                             workflow_run_config=run_config

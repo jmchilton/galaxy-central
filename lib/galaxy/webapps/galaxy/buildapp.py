@@ -220,6 +220,10 @@ def populate_api_routes( webapp, app ):
     webapp.mapper.connect( 'workflow_usage', '/api/workflows/{workflow_id}/usage', controller='workflows', action='workflow_usage', conditions=dict(method=['GET']))
     webapp.mapper.connect( 'workflow_usage_contents', '/api/workflows/{workflow_id}/usage/{usage_id}', controller='workflows', action='workflow_usage_contents', conditions=dict(method=['GET']))
 
+    webapp.mapper.connect( 'workflow_invocation_step', '/api/workflows/{workflow_id}/usage/{usage_id}/steps/{step_id}', controller='workflows', action='workflow_invocation_step', conditions=dict(method=['GET']))
+    webapp.mapper.connect( 'workflow_invocation_step_update', '/api/workflows/{workflow_id}/usage/{usage_id}/steps/{step_id}', controller='workflows', action='workflow_invocation_step_update', conditions=dict(method=['PUT']))
+
+    webapp.mapper.connect( 'workflow_request', '/api/workflows/{workflow_id}/request', controller='workflows', action='workflow_request', conditions=dict( method=['POST'] ) )
     # ============================
     # ===== AUTHENTICATE API =====
     # ============================
