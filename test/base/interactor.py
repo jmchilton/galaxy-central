@@ -210,7 +210,7 @@ class GalaxyInteractorApi( object ):
         submit_response = self.__submit_tool( history_id, tool_id=testdef.tool.id, tool_input=inputs_tree )
         submit_response_object = submit_response.json()
         try:
-            return self.__dictify_outputs( submit_response_object ), submit_response_object[ 'jobs' ]
+            return self.__dictify_outputs( submit_response_object ), self.__dictify_output_collections( submit_response_object ), submit_response_object[ 'jobs' ]
         except KeyError:
             message = "Error creating a job for these tool inputs - %s" % submit_response_object[ 'message' ]
             raise Exception( message )
@@ -241,6 +241,12 @@ class GalaxyInteractorApi( object ):
                 element[ "name" ] = element_name
             element_identifiers.append( element )
         return element_identifiers
+
+    def __dictify_output_collections( self, submit_response ):
+        output_collections_dict = odict()
+        for output_collection in submit_response[ 'output_collections' ]:
+            output_collections_dict[ output_collection.get("output_name") ] = output_collection
+        return output_collections_dict
 
     def __dictify_outputs( self, datasets_object ):
         ## Convert outputs list to a dictionary that can be accessed by

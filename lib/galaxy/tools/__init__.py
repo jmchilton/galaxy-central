@@ -1185,7 +1185,18 @@ class DefaultToolState( object ):
         return new_state
 
 
-class ToolOutput( object, Dictifiable ):
+class ToolOutputBase( object, Dictifiable ):
+
+    def __init__( self, name, label=None, filters=None, hidden=False ):
+        super( ToolOutputBase, self ).__init__()
+        self.name = name
+        self.label = label
+        self.filters = filters or []
+        self.hidden = hidden
+        self.collection = False
+
+
+class ToolOutput( ToolOutputBase ):
     """
     Represents an output datasets produced by a tool. For backward
     compatibility this behaves as if it were the tuple::
@@ -1196,16 +1207,18 @@ class ToolOutput( object, Dictifiable ):
     dict_collection_visible_keys = ( 'name', 'format', 'label', 'hidden' )
 
     def __init__( self, name, format=None, format_source=None, metadata_source=None,
-                  parent=None, label=None, filters=None, actions=None, hidden=False ):
-        self.name = name
+                  parent=None, label=None, filters=None, actions=None, hidden=False,
+                  implicit=False ):
+        super( ToolOutput, self ).__init__( name, label=label, filters=filters, hidden=hidden )
         self.format = format
         self.format_source = format_source
         self.metadata_source = metadata_source
         self.parent = parent
-        self.label = label
-        self.filters = filters or []
         self.actions = actions
-        self.hidden = hidden
+
+        # Initialize default values
+        self.change_format = []
+        self.implicit = implicit
 
     # Tuple emulation
 
@@ -1224,6 +1237,80 @@ class ToolOutput( object, Dictifiable ):
 
     def __iter__( self ):
         return iter( ( self.format, self.metadata_source, self.parent ) )
+
+
+class ToolOutputCollection( ToolOutputBase ):
+    """
+    Represents a HistoryDatasetCollectionAssociation of  output datasets produced by a tool.
+    <outputs>
+      <dataset_collection type="list" label="${tool.name} on ${on_string} fasta">
+        <discover_datasets pattern="__name__" ext="fasta" visible="True" directory="outputFiles" />
+      </dataset_collection>
+      <dataset_collection type="paired" label="${tool.name} on ${on_string} paired reads">
+        <data name="forward" format="fastqsanger" />
+        <data name="reverse" format="fastqsanger"/>
+      </dataset_collection>
+    <outputs>
+    """
+
+    def __init__( self, name, structure, label=None, filters=None, hidden=False, default_format="data" ):
+        super( ToolOutputCollection, self ).__init__( name, label=label, filters=filters, hidden=hidden )
+        self.collection = True
+        self.default_format = default_format
+        self.structure = structure
+        self.outputs = odict()
+
+    def known_outputs( self, inputs ):
+        def to_part( ( element_identifier, output ) ):
+            return ToolOutputCollectionPart( self, element_identifier, output )
+
+        # This line is probably not right - should verify structured_like
+        # or have outputs and all outputs have name.
+        if not self.structure.structured_like and self.outputs:
+            outputs = self.outputs
+        else:
+            # TODO: Handle nested structures.
+            input_collection = inputs[ self.structure.structured_like ]
+            outputs = odict()
+            for element in input_collection.collection.elements:
+                name = element.element_identifier
+                output = ToolOutput( name, format=self.default_format, implicit=True )
+                outputs[ element.element_identifier ] = output
+
+        return map( to_part, outputs.items() )
+
+
+class ToolOutputCollectionStructure( object ):
+
+    def __init__( self, collection_type=None, structured_like=None ):
+        self.collection_type = collection_type
+        self.structured_like = structured_like
+        if collection_type is None and structured_like is None:
+            raise ValueError( "Output collection types must be specify type of structured_like" )
+
+
+class ToolOutputCollectionPart( object ):
+
+    def __init__( self, output_collection_def, element_identifier, output_def ):
+        self.output_collection_def = output_collection_def
+        self.element_identifier = element_identifier
+        self.output_def = output_def
+
+    @property
+    def effective_output_name( self ):
+        name = self.output_collection_def.name
+        part_name = self.element_identifier
+        effective_output_name = "%s|__part__|%s" % ( name, part_name )
+        return effective_output_name
+
+    @staticmethod
+    def is_named_collection_part_name( name ):
+        return "|__part__|" in name
+
+    @staticmethod
+    def split_output_name( name ):
+        assert ToolOutputCollectionPart.is_named_collection_part_name( name )
+        return name.split("|__part__|")
 
 
 class Tool( object, Dictifiable ):
@@ -1673,12 +1760,15 @@ class Tool( object, Dictifiable ):
         Parse <outputs> elements and fill in self.outputs (keyed by name)
         """
         self.outputs = odict()
+        self.output_collections = odict()
         out_elem = root.find("outputs")
         if not out_elem:
             return
-        for data_elem in out_elem.findall("data"):
+        data_dict = odict()
+
+        def handle_data_elem( data_elem, default_format="data" ):
             output = ToolOutput( data_elem.get("name") )
-            output.format = data_elem.get("format", "data")
+            output.format = data_elem.get("format", default_format)
             output.change_format = data_elem.findall("change_format")
             output.format_source = data_elem.get("format_source", None)
             output.metadata_source = data_elem.get("metadata_source", "")
@@ -1691,6 +1781,38 @@ class Tool( object, Dictifiable ):
             output.tool = self
             output.actions = ToolOutputActionGroup( output, data_elem.find( 'actions' ) )
             output.dataset_collectors = output_collect.dataset_collectors_from_elem( data_elem )
+            data_dict[output.name] = output
+
+        for data_elem in out_elem.findall("data"):
+            handle_data_elem( data_elem )
+
+        for collection_elem in out_elem.findall("collection"):
+            name = collection_elem.get( "name" )
+            default_format = collection_elem.get( "format", "data" )
+            collection_type = collection_elem.get( "type", None )
+            structured_like = collection_elem.get( "structured_like", None )
+            structure = ToolOutputCollectionStructure(
+                collection_type=collection_type,
+                structured_like=structured_like,
+            )
+            output_collection = ToolOutputCollection(
+                name,
+                structure,
+                default_format=default_format
+            )
+            self.outputs[output_collection.name] = output_collection
+
+            for data_elem in collection_elem.findall("data"):
+                handle_data_elem( data_elem, default_format=default_format )
+
+            for data_elem in collection_elem.findall("data"):
+                output_name = data_elem.get("name")
+                data = data_dict[output_name]
+                assert data
+                del data_dict[output_name]
+                output_collection.outputs[output_name] = data
+            self.output_collections[ name ] = output_collection
+        for output in data_dict.values():
             self.outputs[ output.name ] = output
 
     # TODO: Include the tool's name in any parsing warnings.
@@ -2040,6 +2162,19 @@ class Tool( object, Dictifiable ):
                 self.repository_owner = tool_shed_repository.owner
                 self.installed_changeset_revision = tool_shed_repository.installed_changeset_revision
 
+    def find_output_def( self, name ):
+        # name is JobToOutputDatasetAssociation name.
+        # TODO: to defensive, just throw IndexError and catch somewhere
+        # up that stack.
+        if ToolOutputCollectionPart.is_named_collection_part_name( name ):
+            collection_name, part = ToolOutputCollectionPart.split_output_name( name )
+            collection_def = self.output_collections.get( collection_name, None )
+            if not collection_def:
+                return None
+            return collection_def.outputs.get( part, None )
+        else:
+            return self.outputs.get( name, None )
+
     def check_workflow_compatible( self, root ):
         """
         Determine if a tool can be used in workflows. External tools and the
@@ -2216,6 +2351,7 @@ class Tool( object, Dictifiable ):
                         num_jobs=len( execution_tracker.successful_jobs ),
                         job_errors=execution_tracker.execution_errors,
                         jobs=execution_tracker.successful_jobs,
+                        output_collections=execution_tracker.output_collections,
                         implicit_collections=execution_tracker.implicit_collections,
                     )
                 else:
@@ -2229,14 +2365,14 @@ class Tool( object, Dictifiable ):
     def __should_refresh_state( self, incoming ):
         return not( 'runtool_btn' in incoming or 'URL' in incoming or 'ajax_upload' in incoming )
 
-    def handle_single_execution( self, trans, rerun_remap_job_id, params, history ):
+    def handle_single_execution( self, trans, rerun_remap_job_id, params, history, mapping_over_collection ):
         """
         Return a pair with whether execution is successful as well as either
         resulting output data or an error message indicating the problem.
         """
         try:
             params = self.__remove_meta_properties( params )
-            job, out_data = self.execute( trans, incoming=params, history=history, rerun_remap_job_id=rerun_remap_job_id )
+            job, out_data = self.execute( trans, incoming=params, history=history, rerun_remap_job_id=rerun_remap_job_id, mapping_over_collection=mapping_over_collection )
         except httpexceptions.HTTPFound, e:
             #if it's a paste redirect exception, pass it up the stack
             raise e
