@@ -1185,7 +1185,15 @@ class DefaultToolState( object ):
         return new_state
 
 
-class ToolOutput( object, Dictifiable ):
+class ToolOutputBase( object ):
+    def init( self, name, label=None, filters=None, hidden=False ):
+        self.name = name
+        self.label = label
+        self.filters = filters or []
+        self.hidden = hidden
+
+
+class ToolOutput( ToolOutputBase, Dictifiable ):
     """
     Represents an output datasets produced by a tool. For backward
     compatibility this behaves as if it were the tuple::
@@ -1197,15 +1205,12 @@ class ToolOutput( object, Dictifiable ):
 
     def __init__( self, name, format=None, format_source=None, metadata_source=None,
                   parent=None, label=None, filters=None, actions=None, hidden=False ):
-        self.name = name
+        super( ToolOutputBase, self ).__init__( name, label=label, filters=filters, hidden=hidden )
         self.format = format
         self.format_source = format_source
         self.metadata_source = metadata_source
         self.parent = parent
-        self.label = label
-        self.filters = filters or []
         self.actions = actions
-        self.hidden = hidden
 
     # Tuple emulation
 
@@ -1224,6 +1229,26 @@ class ToolOutput( object, Dictifiable ):
 
     def __iter__( self ):
         return iter( ( self.format, self.metadata_source, self.parent ) )
+
+
+class ToolOutputCollection( ToolOutputBase ):
+    """
+    Represents a HistoryDatasetCollectionAssociation of  output datasets produced by a tool.
+    <outputs>
+      <dataset_collection type="list" label="${tool.name} on ${on_string} fasta">
+        <discover_datasets pattern="__name__" ext="fasta" visible="True" directory="outputFiles" />
+      </dataset_collection>
+      <dataset_collection type="paired" label="${tool.name} on ${on_string} paired reads">
+        <data name="forward" format="fastqsanger" />
+        <data name="reverse" format="fastqsanger"/>
+      </dataset_collection>
+    <outputs>
+    """
+
+    def __init__( self, name, collection_type, label=None, filters=None, hidden=False ):
+        super( ToolOutputBase, self ).__init__( name, label=label, filters=filters, hidden=hidden )
+        self.collection_type = collection_type
+        self.outputs = odict()
 
 
 class Tool( object, Dictifiable ):
@@ -1673,9 +1698,11 @@ class Tool( object, Dictifiable ):
         Parse <outputs> elements and fill in self.outputs (keyed by name)
         """
         self.outputs = odict()
+        self.output_collections = odict()
         out_elem = root.find("outputs")
         if not out_elem:
             return
+        data_dict = odict()
         for data_elem in out_elem.findall("data"):
             output = ToolOutput( data_elem.get("name") )
             output.format = data_elem.get("format", "data")
@@ -1691,6 +1718,14 @@ class Tool( object, Dictifiable ):
             output.tool = self
             output.actions = ToolOutputActionGroup( output, data_elem.find( 'actions' ) )
             output.dataset_collectors = output_collect.dataset_collectors_from_elem( data_elem )
+            data_dict[output.name] = output
+        for collection_elem in out_elem.findall("data_collection"):
+            output_collection = ToolOutputCollection(collection_elem.get("name"), collection_elem.get("type"))
+            for data_elem in collection_elem.findall("data"):
+                output_name = data_elem.get("name")
+                output_collection.outputs[output_name] = data_dict.pop(output_name)
+            self.outputs[output_collection.name] = output_collection
+        for output in data_dict.values():
             self.outputs[ output.name ] = output
 
     # TODO: Include the tool's name in any parsing warnings.

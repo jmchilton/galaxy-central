@@ -268,6 +268,25 @@ class DefaultToolAction( object ):
         for name, output in tool.outputs.items():
             if not filter_output(output, incoming):
                 handle_output( name, output )
+            else:
+                if hasattr(output, 'collection_type'):
+                    """
+                    Add a HDCA to the History here
+                    data = trans.app.model.HistoryDatasetCollectionAssociation( sa_session=trans.sa_session )
+                    if output.hidden:
+                        data.visible = False
+                    # Commit the dataset immediately so it gets database assigned unique id
+                    trans.sa_session.add( data )
+                    trans.sa_session.flush()
+                    trans.app.security_agent.set_all_dataset_permissions( data.dataset, output_permissions )
+                    new_history.add_dataset_collection( new_hdca, set_hid=False )
+                    db_session.add( new_hdca )
+                    db_session.flush()
+
+                    """
+                    # TODO handle collection...
+                else:
+                    handle_output( name, output )
         # Add all the top-level (non-child) datasets to the history unless otherwise specified
         for name in out_data.keys():
             if name not in child_dataset_names and name not in incoming:  # don't add children; or already existing datasets, i.e. async created
