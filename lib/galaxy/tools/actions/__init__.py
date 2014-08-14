@@ -264,27 +264,38 @@ class DefaultToolAction( object ):
                 output.actions.apply_action( data, output_action_params )
             # Store all changes to database
             trans.sa_session.flush()
+            return data
 
         for name, output in tool.outputs.items():
             if not filter_output(output, incoming):
-                handle_output( name, output )
-            else:
-                if hasattr(output, 'collection_type'):
-                    """
-                    Add a HDCA to the History here
-                    data = trans.app.model.HistoryDatasetCollectionAssociation( sa_session=trans.sa_session )
-                    if output.hidden:
-                        data.visible = False
-                    # Commit the dataset immediately so it gets database assigned unique id
-                    trans.sa_session.add( data )
-                    trans.sa_session.flush()
-                    trans.app.security_agent.set_all_dataset_permissions( data.dataset, output_permissions )
-                    new_history.add_dataset_collection( new_hdca, set_hid=False )
-                    db_session.add( new_hdca )
-                    db_session.flush()
+                if output.collection:
+                    # As far as I can tell - this is always true - but just verify
+                    assert set_output_history, "Cannot create dataset collection for this kind of tool."
 
-                    """
-                    # TODO handle collection...
+                    elements = odict()
+                    for name, data_output in output.outputs.items():
+                        element = handle_output( name, data_output )
+                        # Following hack causes dataset to no be added to history...
+                        child_dataset_names.add( name )
+
+                        elements[ name ] = element
+
+                    name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
+
+                    # TODO: This should just be a DatasetCollection instead of
+                    # a HistoryDatasetCollectionAssociation and populated back
+                    # out into tool where all of the collections can be formed
+                    # into the correction HistoryDatasetCollectionAsccoation -
+                    # for instance if I map a "list" of interlaced files over
+                    # a de-interlacer tool I want just a list:pair not a bunch
+                    # of pairs in my history.
+                    trans.app.dataset_collections_service.create(
+                        trans,
+                        history,
+                        name=name,
+                        collection_type=output.collection_type,
+                        elements=elements,
+                    )
                 else:
                     handle_output( name, output )
         # Add all the top-level (non-child) datasets to the history unless otherwise specified
