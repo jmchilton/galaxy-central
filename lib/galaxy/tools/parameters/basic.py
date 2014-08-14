@@ -2054,7 +2054,6 @@ class DataToolParameter( BaseDataToolParameter ):
         for instance should I just be checking dynamic options).
         """
         allow = True
-        # TODO: allow should be false in some in cases...
         return allow
 
     def _options_filter_attribute( self, value ):

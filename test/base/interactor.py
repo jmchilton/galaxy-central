@@ -214,7 +214,7 @@ class GalaxyInteractorApi( object ):
         submit_response = self.__submit_tool( history_id, tool_id=testdef.tool.id, tool_input=inputs_tree )
         submit_response_object = submit_response.json()
         try:
-            return self.__dictify_outputs( submit_response_object ), submit_response_object[ 'jobs' ]
+            return self.__dictify_outputs( submit_response_object ), self.__dictify_output_collections( submit_response_object ), submit_response_object[ 'jobs' ]
         except KeyError:
             raise Exception( submit_response_object[ 'message' ] )
 
@@ -244,6 +244,12 @@ class GalaxyInteractorApi( object ):
                 element[ "name" ] = element_name
             element_identifiers.append( element )
         return element_identifiers
+
+    def __dictify_output_collections( self, submit_response ):
+        output_collections_dict = odict()
+        for output_collection in submit_response[ 'output_collections' ]:
+            output_collections_dict[ output_collection.get("output_name") ] = output_collection
+        return output_collections_dict
 
     def __dictify_outputs( self, datasets_object ):
         ## Convert outputs list to a dictionary that can be accessed by
@@ -495,7 +501,7 @@ class GalaxyInteractorTwill( object ):
             data_list = self.twill_test_case.get_history_as_data_list()
             if job_finish_by_output_count and len( testdef.outputs ) > ( len( data_list ) - job_finish_by_output_count ):
                 data_list = None
-        return data_list
+        return data_list, []
 
     def new_history( self ):
         # Start with a new history

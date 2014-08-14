@@ -1,3 +1,4 @@
+import contextlib
 import new
 import sys
 from base.twilltestcase import TwillTestCase
@@ -29,10 +30,10 @@ class ToolTestCase( TwillTestCase ):
 
         stage_data_in_history( galaxy_interactor, testdef.test_data(), test_history, shed_tool_id )
 
-        data_list, jobs = galaxy_interactor.run_tool( testdef, test_history )
-        self.assertTrue( data_list )
+        data_list, data_collection_list, jobs = galaxy_interactor.run_tool( testdef, test_history )
 
-        self._verify_outputs( testdef, test_history, jobs, shed_tool_id, data_list, galaxy_interactor )
+        # This definition is not longer compatible with twill interactor - that code should be deleted.
+        self._verify_outputs( testdef, test_history, jobs, shed_tool_id, data_list, data_collection_list, galaxy_interactor )
 
         galaxy_interactor.delete_history( test_history )
 
@@ -47,7 +48,7 @@ class ToolTestCase( TwillTestCase ):
             else:
                 raise Exception( "Test parse failure" )
 
-    def _verify_outputs( self, testdef, history, jobs, shed_tool_id, data_list, galaxy_interactor ):
+    def _verify_outputs( self, testdef, history, jobs, shed_tool_id, data_list, data_collection_list, galaxy_interactor ):
         maxseconds = testdef.maxseconds
         if testdef.num_outputs is not None:
             expected = testdef.num_outputs
@@ -71,15 +72,61 @@ class ToolTestCase( TwillTestCase ):
                 else:
                     output_data = data_list[ len(data_list) - len(testdef.outputs) + output_index ]
             self.assertTrue( output_data is not None )
-            try:
+            with self.display_of_jobs_on_error(jobs, galaxy_interactor):
                 galaxy_interactor.verify_output( history, jobs, output_data, output_testdef=output_testdef, shed_tool_id=shed_tool_id, maxseconds=maxseconds )
-            except Exception:
-                for job in jobs:
-                    job_stdio = galaxy_interactor.get_job_stdio( job[ 'id' ] )
-                    for stream in ['stdout', 'stderr']:
-                        if stream in job_stdio:
-                            print >>sys.stderr, self._format_stream( job_stdio[ stream ], stream=stream, format=True )
-                raise
+        if testdef.output_collections:
+            galaxy_interactor.wait_for_jobs( history, jobs, maxseconds )
+        for output_collection_def in testdef.output_collections:
+
+            with self.display_of_jobs_on_error(jobs, galaxy_interactor):
+                name = output_collection_def.name
+                # TODO: data_collection_list is clearly a bad name for dictionary.
+                if name not in data_collection_list:
+                    template = "Failed to find output [%s], tool outputs include [%s]"
+                    message = template % (name, ",".join(data_collection_list.keys()))
+                    raise AssertionError(message)
+
+                # Data collection returned from submission, elements may have been populated after
+                # the job completed so re-hit the API for more information.
+                data_collection_returned = data_collection_list[ name ]
+                data_collection = galaxy_interactor._get( "dataset_collections/%s" % data_collection_returned[ "id" ], data={"instance_type": "history"} ).json()
+                elements = data_collection[ "elements" ]
+                element_dict = dict( map(lambda e: (e["element_identifier"], e["object"]), elements) )
+
+                expected_collection_type = output_collection_def.collection_type
+                if expected_collection_type:
+                    collection_type = data_collection[ "collection_type"]
+                    if expected_collection_type != collection_type:
+                        template = "Expected output collection [%s] to be of type [%s], was of type [%s]."
+                        message = template % (name, expected_collection_type, collection_type)
+                        raise AssertionError(message)
+
+                for element_identifier, ( element_outfile, element_attrib ) in output_collection_def.element_tests.items():
+                    if element_identifier not in element_dict:
+                        template = "Failed to find identifier [%s] for testing, tool generated collection with identifiers [%s]"
+                        message = template % (element_identifier, ",".join(element_dict.keys()))
+                        raise AssertionError(message)
+                    hda = element_dict[ element_identifier ]
+
+                    galaxy_interactor.verify_output_dataset(
+                        history,
+                        hda_id=hda["id"],
+                        outfile=element_outfile,
+                        attributes=element_attrib,
+                        shed_tool_id=shed_tool_id
+                    )
+
+    @contextlib.contextmanager
+    def display_of_jobs_on_error(self, jobs, galaxy_interactor ):
+        try:
+            yield
+        except Exception:
+            for job in jobs:
+                job_stdio = galaxy_interactor.get_job_stdio( job[ 'id' ] )
+                for stream in ['stdout', 'stderr']:
+                    if stream in job_stdio:
+                        print >>sys.stderr, self._format_stream( job_stdio[ stream ], stream=stream, format=True )
+            raise
 
 
 def build_tests( app=None, testing_shed_tools=False, master_api_key=None, user_api_key=None ):
