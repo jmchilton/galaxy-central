@@ -1,0 +1,21 @@
+<tool id="collection_creates_pair" name="collection_creates_pair" version="0.1.0">
+  <command>
+    sed 'n;d' $input1 > $forward ;
+    sed -n 'g;n;p' $input1 > $reverse
+  </command>
+  <inputs>
+    <param name="input1" type="data" label="Input" help="Input to be split." />
+  </inputs>
+  <outputs>
+    <collection name="paired_output" type="paired" label="Split Pair">
+      <data name="forward" format="txt" />
+      <data name="reverse" format="txt" />
+    </collection>
+  </outputs>
+  <tests>
+    <test>
+      <output_dataset>
+      </output_dataset>
+    </test>
+  </tests>
+</tool>
