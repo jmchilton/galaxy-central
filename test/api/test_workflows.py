@@ -8,6 +8,8 @@ from .helpers import DatasetPopulator
 from .helpers import DatasetCollectionPopulator
 from .helpers import skip_without_tool
 
+from .yaml_to_workflow import yaml_to_workflow
+
 from requests import delete
 from requests import put
 
@@ -32,6 +34,17 @@ class BaseWorkflowsApiTestCase( api.ApiTestCase ):
         self._assert_status_code_is( index_response, 200 )
         names = map( lambda w: w[ "name" ], index_response.json() )
         return names
+
+    def _upload_yaml_workflow(self, has_yaml):
+        workflow = yaml_to_workflow(has_yaml)
+        workflow_str = dumps(workflow, indent=4)
+        data = {
+            'workflow': workflow_str
+        }
+        upload_response = self._post( "workflows", data=data )
+        self._assert_status_code_is( upload_response, 200 )
+        self._assert_user_has_workflow_with_name( "%s (imported from API)" % ( workflow[ "name" ] ) )
+        return upload_response.json()[ "id" ]
 
 
 # Workflow API TODO:
@@ -160,6 +173,57 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
 
         self._assert_status_code_is( run_workflow_response, 200 )
         self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+
+    def test_workflow_run_output_collections(self):
+        workflow_id = self._upload_yaml_workflow("""
+- label: text_input
+  type: input
+- label: split_up
+  tool_id: collection_creates_pair
+  state:
+    input1:
+      $link: text_input
+- tool_id: collection_paired_test
+  state:
+    f1:
+      $link: split_up#paired_output
+""")
+        history_id = self.dataset_populator.new_history()
+        hda1 = self.dataset_populator.new_dataset( history_id, content="a\nb\nc\nd\n" )
+        inputs = {
+            '0': self._ds_entry(hda1),
+        }
+        self.__invoke_workflow( history_id, workflow_id, inputs )
+        time.sleep( 5 )
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        self.assertEquals("a\nc\nb\nd\n", self.dataset_populator.get_history_dataset_content( history_id, hid=0 ) )
+
+    def test_workflow_run_output_collection_mapping(self):
+        workflow_id = self._upload_yaml_workflow("""
+- type: input_collection
+- tool_id: collection_creates_pair
+  state:
+    input1:
+      $link: 0
+- tool_id: collection_paired_test
+  state:
+    f1:
+      $link: 1#paired_output
+- tool_id: cat_list
+  state:
+    input1:
+      $link: 2#out1
+""")
+        history_id = self.dataset_populator.new_history()
+        hdca1 = self.dataset_collection_populator.create_list_in_history( history_id, contents=["a\nb\nc\nd\n", "e\nf\ng\nh\n"] ).json()
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        inputs = {
+            '0': self._ds_entry(hdca1),
+        }
+        self.__invoke_workflow( history_id, workflow_id, inputs )
+        time.sleep( 5 )
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        self.assertEquals("a\nc\nb\nd\ne\ng\nf\nh\n", self.dataset_populator.get_history_dataset_content( history_id, hid=0 ) )
 
     def test_workflow_request( self ):
         workflow = self.workflow_populator.load_workflow( name="test_for_queue" )
