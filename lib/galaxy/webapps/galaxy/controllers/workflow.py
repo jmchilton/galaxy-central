@@ -1290,7 +1290,7 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                         step_args = dict( ( k[l:], v ) for ( k, v ) in kwargs.iteritems() if k.startswith( p ) )
                         step_errors = None
                         if step.type == 'tool' or step.type is None:
-                            module = module_factory.from_workflow_step( trans, step )
+                            module = step.module = module_factory.from_workflow_step( trans, step )
                             # Fix any missing parameters
                             step.upgrade_messages = module.check_and_update_state()
                             if step.upgrade_messages:
