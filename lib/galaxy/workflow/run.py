@@ -83,6 +83,8 @@ class WorkflowInvoker( object ):
     def _invoke_step( self, step ):
         if step.type == 'tool' or step.type is None:
             jobs = self._execute_tool_step( step )
+        elif step.type == 'pause':
+            jobs = self._execute_pause_step( step )
         else:
             jobs = self._execute_input_step( step )
 
@@ -199,6 +201,14 @@ class WorkflowInvoker( object ):
             outputs[ step.id ][ 'output' ] = self.inputs_by_step_id[ step.id ]
 
         return job
+
+    def _execute_pause_step( self, step ):
+        outputs = self.outputs
+        log.info( step.input_connections_by_name )
+        connection = step.input_connections_by_name[ "input" ][ 0 ]
+        replacement = self._replacement_for_connection( connection )
+        outputs[ step.id ] = { 'output': replacement }
+        return None
 
     def _handle_post_job_actions( self, step, job ):
         # Create new PJA associations with the created job, to be run on completion.

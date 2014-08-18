@@ -125,7 +125,41 @@ class WorkflowModule( object ):
         raise TypeError( "Abstract method" )
 
 
-class InputModule( WorkflowModule ):
+class SimpleWorkflowModule( WorkflowModule ):
+
+    def save_to_step( self, step ):
+        step.type = self.type
+        step.tool_id = None
+        step.tool_inputs = self.state
+
+    def get_state( self, secure=True ):
+        return to_json_string( self.state )
+
+    def encode_runtime_state( self, trans, state ):
+        fake_tool = Bunch( inputs=self.get_runtime_inputs() )
+        return state.encode( fake_tool, trans.app )
+
+    def decode_runtime_state( self, trans, string ):
+        fake_tool = Bunch( inputs=self.get_runtime_inputs() )
+        state = galaxy.tools.DefaultToolState()
+        if string:
+            state.decode( string, fake_tool, trans.app )
+        return state
+
+    def add_dummy_datasets( self, connections=None):
+        pass
+
+    def update_runtime_state( self, trans, state, values ):
+        errors = {}
+        for name, param in self.get_runtime_inputs().iteritems():
+            value, error = check_param( trans, param, values.get( name, None ), values )
+            state.inputs[ name ] = value
+            if error:
+                errors[ name ] = error
+        return errors
+
+
+class InputModule( SimpleWorkflowModule ):
 
     @classmethod
     def new( Class, trans, tool_id=None ):
@@ -148,11 +182,6 @@ class InputModule( WorkflowModule ):
             module.state['name'] = step.tool_inputs[ 'name' ]
         return module
 
-    def save_to_step( self, step ):
-        step.type = self.type
-        step.tool_id = None
-        step.tool_inputs = self.state
-
     def get_data_inputs( self ):
         return []
 
@@ -165,9 +194,6 @@ class InputModule( WorkflowModule ):
         return self.trans.fill_template( "workflow/editor_generic_form.mako",
                                          module=self, form=form )
 
-    def get_state( self, secure=True ):
-        return to_json_string( self.state )
-
     def update_state( self, incoming ):
         self.state['name'] = incoming.get( 'name', 'Input Dataset' )
 
@@ -179,25 +205,6 @@ class InputModule( WorkflowModule ):
         state = galaxy.tools.DefaultToolState()
         state.inputs = dict( input=None )
         return state
-
-    def encode_runtime_state( self, trans, state ):
-        fake_tool = Bunch( inputs=self.get_runtime_inputs() )
-        return state.encode( fake_tool, trans.app )
-
-    def decode_runtime_state( self, trans, string ):
-        fake_tool = Bunch( inputs=self.get_runtime_inputs() )
-        state = galaxy.tools.DefaultToolState()
-        state.decode( string, fake_tool, trans.app )
-        return state
-
-    def update_runtime_state( self, trans, state, values ):
-        errors = {}
-        for name, param in self.get_runtime_inputs().iteritems():
-            value, error = check_param( trans, param, values.get( name, None ), values )
-            state.inputs[ name ] = value
-            if error:
-                errors[ name ] = error
-        return errors
 
     def execute( self, trans, state ):
         return None, dict( output=state.inputs['input'])
@@ -278,6 +285,71 @@ class InputDataCollectionModule( InputModule ):
 
     def get_data_outputs( self ):
         return [ dict( name='output', extensions=['input_collection'], collection_type=self.state[ 'collection_type' ] ) ]
+
+
+class PauseModule( SimpleWorkflowModule ):
+    """ Initially this module will unconditionally pause a workflow - will aim
+    to allow conditional pausing later on.
+    """
+    type = "pause"
+    name = "Pause for dataset review"
+    default_name = "Pause for Dataset Review"
+
+    ## ---- Creating modules from various representations ---------------------
+
+    @classmethod
+    def new( Class, trans, tool_id=None ):
+        module = Class( trans )
+        module.state = dict( name=Class.default_name )
+        return module
+
+    @classmethod
+    def from_dict( Class, trans, d, secure=True ):
+        module = Class( trans )
+        state = from_json_string( d["tool_state"] )
+        module.state = dict( name=state.get( "name", Class.default_name ) )
+        return module
+
+    @classmethod
+    def from_workflow_step( Class, trans, step ):
+        module = Class( trans )
+        module.state = dict( name=Class.default_name )
+        if step.tool_inputs and "name" in step.tool_inputs:
+            module.state['name'] = step.tool_inputs[ 'name' ]
+        return module
+
+    def get_data_inputs( self ):
+        input = dict(
+            name="input",
+            label="Dataset for Review",
+            multiple=False,
+            extensions='input',
+            input_type="dataset",
+        )
+        return [ input ]
+
+    def get_data_outputs( self ):
+        return [ dict( name="output", label="Reviewed Dataset", extensions=['input'] ) ]
+
+    def get_config_form( self ):
+        form = web.FormBuilder( title=self.name ) \
+            .add_text( "name", "Name", value=self.state['name'] )
+        return self.trans.fill_template( "workflow/editor_generic_form.mako",
+                                         module=self, form=form )
+
+    def update_state( self, incoming ):
+        self.state['name'] = incoming.get( 'name', "Pause for Dataset Review" )
+
+    def get_runtime_inputs( self, filter_set=['data'] ):
+        return dict( )
+
+    def get_runtime_state( self ):
+        state = galaxy.tools.DefaultToolState()
+        state.inputs = dict( input=None )
+        return state
+
+    def execute( self, trans, state ):
+        return None, dict( output=state.inputs['input'])
 
 
 class ToolModule( WorkflowModule ):
@@ -555,6 +627,7 @@ def is_tool_module_type( module_type ):
 
 module_types = dict(
     data_input=InputDataModule,
+    pause=PauseModule,
     data_collection_input=InputDataCollectionModule,
     tool=ToolModule,
 )

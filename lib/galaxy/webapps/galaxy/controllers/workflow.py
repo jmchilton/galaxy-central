@@ -1310,7 +1310,11 @@ class WorkflowController( BaseUIController, SharableMixin, UsesStoredWorkflowMix
                         else:
                             # Fix this for multiple inputs
                             module = step.module = module_factory.from_workflow_step( trans, step )
-                            state = step.state = module.decode_runtime_state( trans, step_args.pop( "tool_state" ) )
+                            tool_state = None
+                            if "tool_state" in step_args:
+                                tool_state = step_args.pop( "tool_state" )
+                            state = step.state = module.decode_runtime_state( trans, tool_state )
+                            module.add_dummy_datasets( connections=step.input_connections )
                             step_errors = module.update_runtime_state( trans, state, step_args )
                         if step_errors:
                             errors[step.id] = state.inputs["__errors__"] = step_errors
