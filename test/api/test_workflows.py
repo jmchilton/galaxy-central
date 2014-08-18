@@ -129,8 +129,6 @@ class WorkflowsApiTestCase( api.ApiTestCase ):
     def test_workflow_request( self ):
         workflow = self.workflow_populator.load_workflow( name="test_for_queue" )
         workflow_request, history_id = self._setup_workflow_run( workflow )
-        # TODO: This should really be a post to workflows/<workflow_id>/run or
-        # something like that.
         url = "workflows/%s/request" % ( workflow_request[ "workflow_id" ] )
         del workflow_request[ "workflow_id" ]
         run_workflow_response = self._post( url, data=workflow_request )
