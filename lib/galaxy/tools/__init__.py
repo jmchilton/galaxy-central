@@ -1248,11 +1248,32 @@ class ToolOutputCollection( ToolOutputBase ):
     <outputs>
     """
 
-    def __init__( self, name, collection_type, label=None, filters=None, hidden=False ):
+    def __init__( self, name, structure, label=None, filters=None, hidden=False, default_format="data" ):
         super( ToolOutputCollection, self ).__init__( name, label=label, filters=filters, hidden=hidden )
         self.collection = True
-        self.collection_type = collection_type
+        self.default_format = default_format
+        self.structure = structure
         self.outputs = odict()
+
+    def known_outputs( self, inputs ):
+        if self.structure.collection_type:
+            return self.outputs
+        else:
+            input_collection = inputs[ self.structure.structured_like ]
+            outputs = odict()
+            for element in input_collection.outputs.collection.elements:
+                name = element.element_identifier
+                output = ToolOutput( name, format=self.default_format )
+                outputs[ element.element_identifier ] = output
+
+
+class ToolOutputCollectionStructure( object ):
+
+    def __init__( self, collection_type=None, structured_like=None ):
+        self.collection_type = collection_type
+        self.structured_like = structured_like
+        if collection_type is None and structured_like is None:
+            raise ValueError( "Output collection types must be specify type of structured_like" )
 
 
 class Tool( object, Dictifiable ):
@@ -1712,9 +1733,9 @@ class Tool( object, Dictifiable ):
             return
         data_dict = odict()
 
-        def handle_data_elem( data_elem ):
+        def handle_data_elem( data_elem, default_format="data" ):
             output = ToolOutput( data_elem.get("name") )
-            output.format = data_elem.get("format", "data")
+            output.format = data_elem.get("format", default_format)
             output.change_format = data_elem.findall("change_format")
             output.format_source = data_elem.get("format_source", None)
             output.metadata_source = data_elem.get("metadata_source", "")
@@ -1737,15 +1758,29 @@ class Tool( object, Dictifiable ):
                 handle_data_elem( data_elem )
         for collection_elem in out_elem.findall("collection"):
             name = collection_elem.get( "name" )
-            collection_type = collection_elem.get( "type" )
-            output_collection = ToolOutputCollection( name, collection_type )
+            default_format = collection_elem.get( "format", "data" )
+            collection_type = collection_elem.get( "type", None )
+            structured_like = collection_elem.get( "structured_like", None )
+            structure = ToolOutputCollectionStructure(
+                collection_type=collection_type,
+                structured_like=structured_like
+            )
+            output_collection = ToolOutputCollection(
+                name,
+                structure,
+                default_format=default_format
+            )
+            self.outputs[output_collection.name] = output_collection
+
+            for data_elem in collection_elem.findall("data"):
+                handle_data_elem( data_elem, default_format=default_format )
+
             for data_elem in collection_elem.findall("data"):
                 output_name = data_elem.get("name")
                 data = data_dict[output_name]
                 assert data
                 del data_dict[output_name]
                 output_collection.outputs[output_name] = data
-            self.outputs[output_collection.name] = output_collection
         for output in data_dict.values():
             self.outputs[ output.name ] = output
 
