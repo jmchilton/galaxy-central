@@ -273,12 +273,12 @@ class DefaultToolAction( object ):
                     assert set_output_history, "Cannot create dataset collection for this kind of tool."
 
                     elements = odict()
-                    for name, data_output in output.outputs.items():
-                        element = handle_output( name, data_output )
+                    for part_name, data_output in output.known_outputs( inp_data ).items():
+                        element = handle_output( part_name, data_output )
                         # Following hack causes dataset to no be added to history...
-                        child_dataset_names.add( name )
+                        child_dataset_names.add( part_name )
 
-                        elements[ name ] = element
+                        elements[ part_name ] = element
 
                     name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
 
