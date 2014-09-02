@@ -275,10 +275,20 @@ class WorkflowProgress( object ):
         if not state_populated:
             self._populate_state( )
 
+        remaining_steps = []
+        step_invocations_by_id = self.workflow_invocation.step_invocations_by_step_id()
+        for step in steps:
+            invocation_steps = step_invocations_by_id[ step.id ]
+            if invocation_steps:
+                self._recover_mapping( step, invocation_steps )
+            else:
+                remaining_steps.append( step )
         return steps
 
     def replacement_for_connection( self, connection ):
         step_outputs = self.outputs[ connection.output_step.id ]
+        if step_outputs is STEP_OUTPUT_DELAYED:
+            raise DelayedWorkflowEvaluation()
         return step_outputs[ connection.output_name ]
 
     def set_outputs_for_input( self, step, outputs={} ):
@@ -289,6 +299,27 @@ class WorkflowProgress( object ):
 
     def set_step_outputs(self, step, outputs):
         self.outputs[ step.id ] = outputs
+
+    def mark_step_outputs_delayed(self, step):
+        self.outputs[ step.id ] = STEP_OUTPUT_DELAYED
+
+    def _recover_mapping( self, step, invocation_steps ):
+        if step.type == 'tool' or step.type is None:
+            self._recover_tool_step( step, invocation_steps )
+        else:
+            self._recover_input_step( step )
+
+    def _recover_tool_step( self, step, invocation_steps ):
+        # TODO: Handle implicit collections...
+        job_0 = invocation_steps[ 0 ].job
+
+        outputs = {}
+        for job_output in job_0.output_datasets:
+            outputs[ job_output.name ] = job_output.dataset
+        self.set_step_outputs( step, outputs )
+
+    def _recover_input_step( self, step, invocation_steps ):
+        self.set_outputs_for_input( step )
 
     def _populate_state( self ):
         for step in self.workflow_invocation.workflow.steps:

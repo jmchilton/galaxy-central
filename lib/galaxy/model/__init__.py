@@ -3084,6 +3084,15 @@ class WorkflowInvocation( object, Dictifiable ):
         SCHEDULED='Scheduled',  # Workflow has been scheduled.
     )
 
+    def step_invocations_by_step_id( self ):
+        step_invocations = {}
+        for invocation_step in self.steps:
+            step_id = invocation_step.workflow_step_id
+            if step_id not in step_invocations:
+                step_invocations[ step_id ] = {}
+            step_invocations[ step_id ].append( invocation_step )
+        return step_invocations
+
     def to_dict( self, view='collection', value_mapper=None ):
         rval = super( WorkflowInvocation, self ).to_dict( view=view, value_mapper=value_mapper )
         if view == 'element':
