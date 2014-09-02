@@ -22,6 +22,10 @@ import logging
 log = logging.getLogger( __name__ )
 
 
+class DelayedWorkflowEvaluation(Exception):
+    pass
+
+
 def invoke( trans, workflow, workflow_run_config, workflow_invocation=None ):
     """ Run the supplied workflow in the supplied target_history.
     """
@@ -76,14 +80,24 @@ class WorkflowInvoker( object ):
     def invoke( self ):
         workflow_invocation = self.workflow_invocation
         remaining_steps = self.progress.remaining_steps()
+        delayed_steps = False
         for step in remaining_steps:
-            jobs = self._invoke_step( step )
-            for job in util.listify( jobs ):
-                # Record invocation
-                workflow_invocation_step = model.WorkflowInvocationStep()
-                workflow_invocation_step.workflow_invocation = workflow_invocation
-                workflow_invocation_step.workflow_step = step
-                workflow_invocation_step.job = job
+            try:
+                jobs = self._invoke_step( step )
+                for job in util.listify( jobs ):
+                    # Record invocation
+                    workflow_invocation_step = model.WorkflowInvocationStep()
+                    workflow_invocation_step.workflow_invocation = workflow_invocation
+                    workflow_invocation_step.workflow_step = step
+                    workflow_invocation_step.job = job
+            except DelayedWorkflowEvaluation:
+                delayed_steps = True
+
+        if delayed_steps:
+            state = model.WorkflowInvocation.states.READY
+        else:
+            state = model.WorkflowInvocation.states.NEW
+        workflow_invocation.state = state
 
         # All jobs ran successfully, so we can save now
         self.trans.sa_session.add( workflow_invocation )
