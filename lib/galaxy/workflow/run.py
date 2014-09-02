@@ -68,11 +68,10 @@ class WorkflowInvoker( object ):
         self.target_history = workflow_run_config.target_history
         self.replacement_dict = workflow_run_config.replacement_dict
         self.copy_inputs_to_history = workflow_run_config.copy_inputs_to_history
-        self.inputs_by_step_id = workflow_run_config.inputs
 
         param_map = workflow_run_config.param_map
         workflow_injector = ApiWorkflowModuleInjector( trans, param_map )
-        self.progress = WorkflowProgress( workflow_injector, self.workflow_invocation )
+        self.progress = WorkflowProgress( workflow_injector, self.workflow_invocation, workflow_run_config.inputs )
 
         # TODO: Attach to actual model object and persist someday...
         self.invocation_uuid = uuid.uuid1().hex
@@ -220,10 +219,7 @@ class WorkflowInvoker( object ):
                     step_outputs[ 'input_ds_copy' ] = new_hdca
                 else:
                     raise Exception("Unknown history content encountered")
-        if self.inputs_by_step_id:
-            step_outputs[ 'output' ] = self.inputs_by_step_id[ step.id ]
-
-        self.progress.set_step_outputs( step, step_outputs )
+        self.progress.set_outputs_for_input( step, step_outputs )
         return job
 
     def _handle_post_job_actions( self, step, job ):
@@ -256,12 +252,16 @@ class WorkflowInvoker( object ):
         return replacement
 
 
+STEP_OUTPUT_DELAYED = object()
+
+
 class WorkflowProgress( object ):
 
-    def __init__( self, module_injector, workflow_invocation ):
+    def __init__( self, module_injector, workflow_invocation, inputs_by_step_id ):
         self.module_injector = module_injector
         self.outputs = odict()
         self.workflow_invocation = workflow_invocation
+        self.inputs_by_step_id = inputs_by_step_id
 
     def remaining_steps(self):
         steps = self.workflow_invocation.workflow.steps
@@ -280,6 +280,12 @@ class WorkflowProgress( object ):
     def replacement_for_connection( self, connection ):
         step_outputs = self.outputs[ connection.output_step.id ]
         return step_outputs[ connection.output_name ]
+
+    def set_outputs_for_input( self, step, outputs={} ):
+        if self.inputs_by_step_id:
+            outputs[ 'output' ] = self.inputs_by_step_id[ step.id ]
+
+        self.set_step_outputs( step, outputs )
 
     def set_step_outputs(self, step, outputs):
         self.outputs[ step.id ] = outputs
