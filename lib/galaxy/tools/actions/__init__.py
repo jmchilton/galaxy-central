@@ -160,6 +160,7 @@ class DefaultToolAction( object ):
             history = tool.get_default_history_by_trans( trans, create=True )
 
         out_data = odict()
+        out_collections = {}
         # Track input dataset collections - but replace with simply lists so collect
         # input datasets can process these normally.
         inp_dataset_collections = self.collect_input_dataset_collections( tool, incoming )
@@ -274,28 +275,20 @@ class DefaultToolAction( object ):
 
                     elements = odict()
                     for part_name, data_output in output.known_outputs( inp_data ).items():
-                        element = handle_output( part_name, data_output )
+                        effective_output_name = "%s|__part__|%s" % ( name, part_name )
+                        element = handle_output( effective_output_name, data_output )
                         # Following hack causes dataset to no be added to history...
-                        child_dataset_names.add( part_name )
+                        child_dataset_names.add( effective_output_name )
 
                         elements[ part_name ] = element
 
-                    name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
-
-                    # TODO: This should just be a DatasetCollection instead of
-                    # a HistoryDatasetCollectionAssociation and populated back
-                    # out into tool where all of the collections can be formed
-                    # into the correction HistoryDatasetCollectionAsccoation -
-                    # for instance if I map a "list" of interlaced files over
-                    # a de-interlacer tool I want just a list:pair not a bunch
-                    # of pairs in my history.
-                    trans.app.dataset_collections_service.create(
+                    # name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
+                    dc = trans.app.dataset_collections_service.create_dataset_collection(
                         trans,
-                        history,
-                        name=name,
-                        collection_type=output.collection_type,
+                        collection_type=output.structure.collection_type,
                         elements=elements,
                     )
+                    out_collections[ name ] = dc
                 else:
                     handle_output( name, output )
         # Add all the top-level (non-child) datasets to the history unless otherwise specified
@@ -352,6 +345,8 @@ class DefaultToolAction( object ):
                 job.add_input_dataset( name, None )
         for name, dataset in out_data.iteritems():
             job.add_output_dataset( name, dataset )
+        for name, dataset_collection in out_collections.iteritems():
+            job.add_implicit_output_dataset_collection( name, dataset_collection )
         job.object_store_id = object_store_populator.object_store_id
         if job_params:
             job.params = dumps( job_params )
