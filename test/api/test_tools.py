@@ -483,6 +483,22 @@ class ToolsTestCase( api.ApiTestCase ):
         self.assertEquals( len( response_object[ 'jobs' ] ), 2 )
         self.assertEquals( len( response_object[ 'implicit_collections' ] ), 1 )
 
+    @skip_without_tool( "collection_creates_pair" )
+    def test_map_over_collection_output( self ):
+        history_id = self.dataset_populator.new_history()
+        create_response = self.dataset_collection_populator.create_list_in_history( history_id, contents=["a\nb\nc\nd", "e\nf\ng\nh"] )
+        hdca_id = create_response.json()[ "id" ]
+        inputs = {
+            "input1|__collection_multirun__": hdca_id,
+        }
+        create = self._run( "collection_creates_pair", history_id, inputs, assert_ok=True )
+        jobs = create[ 'jobs' ]
+        implicit_collections = create[ 'implicit_collections' ]
+        self.assertEquals( len( jobs ), 2 )
+        self.assertEquals( len( implicit_collections ), 1 )
+        implicit_collection = implicit_collections[ 0 ]
+        assert implicit_collection[ "collection_type" ] == "list:paired", implicit_collection
+
     @skip_without_tool( "cat1" )
     def test_cannot_map_over_incompatible_collections( self ):
         history_id = self.dataset_populator.new_history()

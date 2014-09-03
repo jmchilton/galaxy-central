@@ -53,7 +53,13 @@ class ToolExecutionTracker( object ):
         self.successful_jobs.append( job )
         self.output_datasets.extend( outputs )
         for output_name, output_dataset in outputs:
+            if "|__part__|" in output_name:
+                # Skip known collection outputs, these will be covered by
+                # output collections.
+                continue
             self.outputs_by_output_name[ output_name ].append( output_dataset )
+        for job_output in job.output_dataset_collections:
+            self.outputs_by_output_name[ job_output.name ].append( job_output.dataset_collection )
 
     def record_error( self, error ):
         self.failed_jobs += 1
