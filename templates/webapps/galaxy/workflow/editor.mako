@@ -346,6 +346,9 @@
                     </div>
                 </div>
             </div>
+            <div class="toolTitle">
+                <a href="#" onclick="add_node_for_module( 'pause', 'Pause for Dataset Review' )">Pause for Review</a>
+            </div>
         </div>
     </div>
 

@@ -106,8 +106,25 @@ class WorkflowInvoker( object ):
 
         # All jobs ran successfully, so we can save now
         self.trans.sa_session.add( workflow_invocation )
-        # Not flushing in here, b
-        tool = self.trans.app.toolbox.get_tool( step.tool_id )
+
+        # Not flushing in here, because web controller may create multiple
+        # invocations.
+        return self.progress.outputs
+
+    def _invoke_step( self, step ):
+        if step.type == 'tool' or step.type is None:
+            jobs = self._execute_tool_step( step )
+        elif step.type == 'pause':
+            jobs = self._execute_pause_step( step )
+        else:
+            jobs = self._execute_input_step( step )
+
+        return jobs
+
+    def _execute_tool_step( self, step ):
+        trans = self.trans
+
+        tool = trans.app.toolbox.get_tool( step.tool_id )
         tool_state = step.state
 
         collections_to_match = self._find_collections_to_match( tool, step )
@@ -213,6 +230,10 @@ class WorkflowInvoker( object ):
         self.progress.set_outputs_for_input( step, step_outputs )
         return job
 
+    def _execute_pause_step( self, step ):
+        self.progress.mark_step_outputs_delayed( step )
+        return None
+
     def _handle_post_job_actions( self, step, job ):
         # Create new PJA associations with the created job, to be run on completion.
         # PJA Parameter Replacement (only applies to immediate actions-- rename specifically, for now)
@@ -298,23 +319,37 @@ class WorkflowProgress( object ):
     def mark_step_outputs_delayed(self, step):
         self.outputs[ step.id ] = STEP_OUTPUT_DELAYED
 
-    def _recover_mapping( self, step, invocation_steps ):
-        if step.type == 'tool' or step.type is None:
-            self._recover_tool_step( step, invocation_steps )
-        else:
-            self._recover_input_step( step )
+    def _recover_mapping( self, step, step_invocations ):
+        try:
+            if step.type == 'tool' or step.type is None:
+                self._recover_tool_step( step, step_invocations )
+            elif step.type == 'pause':
+                self._recover_pause_step( step, step_invocations )
+            else:
+                self._recover_input_step( step )
+        except DelayedWorkflowEvaluation:
+            self.mark_step_outputs_delayed( step )
 
-    def _recover_tool_step( self, step, invocation_steps ):
+    def _recover_tool_step( self, step, step_invocations ):
         # TODO: Handle implicit collections...
-        job_0 = invocation_steps[ 0 ].job
+        job_0 = step_invocations[ 0 ].job
 
         outputs = {}
         for job_output in job_0.output_datasets:
             outputs[ job_output.name ] = job_output.dataset
         self.set_step_outputs( step, outputs )
 
-    def _recover_input_step( self, step, invocation_steps ):
+    def _recover_input_step( self, step ):
         self.set_outputs_for_input( step )
 
+    def _recover_pause_step( self, step, step_invocations ):
+        if step_invocations:
+            step_invocation = step_invocations[0]
+            if step_invocation.action:
+                connection = step.input_connections_by_name[ "input" ][ 0 ]
+                replacement = self.replacement_for_connection( connection )
+                self.set_step_outputs( step, { 'output': replacement } )
+                return
+        raise DelayedWorkflowEvaluation()
 
 __all__ = [ invoke, WorkflowRunConfig ]
