@@ -282,13 +282,19 @@ class DefaultToolAction( object ):
             for data in datasets_to_persist:
                 trans.sa_session.add( data )
                 trans.sa_session.flush()
+
+        flushed = True
         # Add all the children to their parents
         for parent_name, child_name in parent_to_child_pairs:
             parent_dataset = out_data[ parent_name ]
             child_dataset = out_data[ child_name ]
             parent_dataset.children.append( child_dataset )
-        # Store data after custom code runs
-        trans.sa_session.flush()
+            flushed = False
+
+        if not flushed:
+            # Store data after custom code runs
+            trans.sa_session.flush()
+
         # Create the job object
         job = trans.app.model.Job()
 
