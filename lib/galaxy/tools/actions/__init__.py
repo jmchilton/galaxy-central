@@ -230,6 +230,8 @@ class DefaultToolAction( object ):
                 out_data[name] = data
             else:
                 ext = determine_output_format( output, wrapped_params.params, inp_data, input_ext )
+                # TOOLOPTIMIZE: create permisssion actions and hda at same time.
+                # TOOLOPTIMIZE (reach): run through method and then flush...
                 data = trans.app.model.HistoryDatasetAssociation( extension=ext, create_dataset=True, sa_session=trans.sa_session )
                 if output.hidden:
                     data.visible = False

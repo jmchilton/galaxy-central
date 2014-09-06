@@ -2009,6 +2009,7 @@ class HistoryDatasetAssociation( DatasetInstance, Dictifiable, UsesAnnotations, 
         # Gets an HDA and its children's disk usage, if the user does not already
         #   have an association of the same dataset
         if not self.dataset.library_associations and not self.purged and not self.dataset.purged:
+            # TOOLOPTIMIZE: Replace this with a db query.
             for hda in self.dataset.history_associations:
                 if hda.id == self.id:
                     continue
