@@ -942,6 +942,45 @@ class History( object, Dictifiable, UsesAnnotations, HasName ):
         self.datasets.append( dataset )
         return dataset
 
+    def add_datasets_and_flush( self, sa_session, datasets, parent_id=None, genome_build=None, set_hid=True, quota=True ):
+        """ Optimized version of add_dataset above that minimizes database
+        interactions when adding many datasets to history at once.
+        """
+        all_hdas = all( map( lambda d: isinstance( d, HistoryDatasetAssociation ), datasets ) )
+        optimize = len( datasets) > 1 and parent_id is None and all_hdas and set_hid
+        if optimize:
+            self.__add_datasets_optimized( datasets, genome_build=genome_build, quota=quota )
+            sa_session.add_all( datasets )
+            sa_session.flush()
+        else:
+            for dataset in datasets:
+                self.add_dataset( dataset, parent_id=parent_id, genome_build=genome_build, set_hid=set_hid, quota=quota )
+                sa_session.add( dataset )
+                sa_session.flush()
+
+    def __add_datasets_optimized( self, datasets, genome_build=None, quota=True ):
+        """ Optimized version of add_dataset above that minimizes database
+        interactions when adding many datasets to history at once under
+        certain cirucumstances.
+        """
+        n = len( datasets )
+
+        base_hid = self._next_hid( n=n )
+
+        quota = quota and self.user
+        total_disk_usage = self.user.total_disk_usage if quota else 0
+        for i, dataset in enumerate( datasets ):
+            dataset.hid = base_hid + i
+            if quota:
+                total_disk_usage += dataset.quota_amount( self.user )
+            dataset.history = self
+            if genome_build not in [None, '?']:
+                self.genome_build = genome_build
+        if quota:
+            self.user.total_disk_usage = total_disk_usage
+        self.datasets.extend( datasets )
+        return datasets
+
     def add_dataset_collection( self, history_dataset_collection, set_hid=True ):
         if set_hid:
             history_dataset_collection.hid = self._next_hid()

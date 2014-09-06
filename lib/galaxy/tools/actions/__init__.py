@@ -269,11 +269,15 @@ class DefaultToolAction( object ):
             if not filter_output(output, incoming):
                 handle_output( name, output )
         # Add all the top-level (non-child) datasets to the history unless otherwise specified
+        datasets_to_persist = []
         for name in out_data.keys():
             if name not in child_dataset_names and name not in incoming:  # don't add children; or already existing datasets, i.e. async created
-                data = out_data[ name ]
-                if set_output_history:
-                    history.add_dataset( data, set_hid=set_output_hid )
+                datasets_to_persist.append( out_data[ name ] )
+
+        if set_output_history:
+            history.add_datasets_and_flush( trans.sa_session, datasets_to_persist, set_hid=set_output_hid )
+        else:
+            for data in datasets_to_persist:
                 trans.sa_session.add( data )
                 trans.sa_session.flush()
         # Add all the children to their parents
