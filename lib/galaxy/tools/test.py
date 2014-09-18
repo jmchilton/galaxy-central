@@ -125,6 +125,7 @@ class ToolTestBuilder( object ):
             self.__parse_inputs_elems( test_elem, i )
 
             self.outputs = parse_output_elems( test_elem )
+            self.output_collections = parse_output_collection_elems( test_elem )
             num_outputs = test_elem.get( 'expect_num_outputs', None )
             if num_outputs:
                 num_outputs = int( num_outputs )
@@ -306,6 +307,14 @@ def parse_output_elems( test_elem ):
     return outputs
 
 
+def parse_output_collection_elems( test_elem ):
+    output_collections = []
+    for output_collection_elem in test_elem.findall( "output_collection" ):
+        output_collection_def = __parse_output_collection_elem( output_collection_elem )
+        output_collections.append( output_collection_def )
+    return output_collections
+
+
 def __parse_output_elem( output_elem ):
     attrib = dict( output_elem.attrib )
     name = attrib.pop( 'name', None )
@@ -322,6 +331,14 @@ def __parse_output_elem( output_elem ):
         primary_datasets[ designation ] = __parse_test_attributes( primary_elem, primary_attrib )
     attributes[ "primary_datasets" ] = primary_datasets
     return name, file, attributes
+
+
+def __parse_output_collection_elem( output_collection_elem ):
+    attrib = dict( output_collection_elem.attrib )
+    name = attrib.pop( 'name', None )
+    if name is None:
+        raise Exception( "Test output collection does not have a 'name'" )
+    return TestCollectionOutputDef( name, attrib )
 
 
 def __parse_test_attributes( output_elem, attrib ):
@@ -482,6 +499,13 @@ class TestCollectionDef( object ):
             else:
                 inputs.append( value )
         return inputs
+
+
+class TestCollectionOutputDef( object ):
+
+    def __init__( self, name, attrib ):
+        self.name = name
+        self.attrib = attrib
 
 
 def expand_input_elems( root_elem, prefix="" ):

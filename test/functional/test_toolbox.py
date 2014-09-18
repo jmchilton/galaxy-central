@@ -80,6 +80,8 @@ class ToolTestCase( TwillTestCase ):
                         if stream in job_stdio:
                             print >>sys.stderr, self._format_stream( job_stdio[ stream ], stream=stream, format=True )
                 raise
+        for output_collection_def in testdef.outputs:
+            pass
 
 
 def build_tests( app=None, testing_shed_tools=False, master_api_key=None, user_api_key=None ):

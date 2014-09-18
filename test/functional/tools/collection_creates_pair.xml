@@ -14,6 +14,7 @@
   </outputs>
   <tests>
     <test>
+      <param name="input1" value="simple_lines_interleaved.txt" />
       <output_dataset>
       </output_dataset>
     </test>
