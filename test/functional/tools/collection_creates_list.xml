@@ -1,0 +1,26 @@
+<tool id="collection_creates_list" name="collection_creates_list" version="0.1.0">
+  <command>
+    #for $i, $output in enumerate($list_output)#
+    echo "$i" > "$output";
+    #end for#
+  </command>
+  <inputs>
+    <param name="input1" type="data_collection" collection_type="list" label="Input" help="Input collection..." format="txt" />
+  </inputs>
+  <outputs>
+    <collection name="list_output" type="paired" label="Duplicate List" structured_like="input1" format="txt">
+    </collection>
+  </outputs>
+  <tests>
+    <test>
+      <param name="input1">
+        <collection type="list">
+          <element name="l11" value="simple_line.txt" />
+          <element name="l12" value="simple_line.txt" />
+        </collection>
+      </param>
+      <output_dataset>
+      </output_dataset>
+    </test>
+  </tests>
+</tool>
