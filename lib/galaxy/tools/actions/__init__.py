@@ -149,7 +149,7 @@ class DefaultToolAction( object ):
         tool.visit_inputs( param_values, visitor )
         return input_dataset_collections
 
-    def execute(self, tool, trans, incoming={}, return_job=False, set_output_hid=True, set_output_history=True, history=None, job_params=None, rerun_remap_job_id=None):
+    def execute(self, tool, trans, incoming={}, return_job=False, set_output_hid=True, set_output_history=True, history=None, job_params=None, rerun_remap_job_id=None, mapping_over_collection=False):
         """
         Executes a tool, creating job and tool outputs, associating them, and
         submitting the job to the job queue. If history is not specified, use
@@ -161,6 +161,7 @@ class DefaultToolAction( object ):
 
         out_data = odict()
         out_collections = {}
+        out_collection_instances = {}
         # Track input dataset collections - but replace with simply lists so collect
         # input datasets can process these normally.
         inp_dataset_collections = self.collect_input_dataset_collections( tool, incoming )
@@ -282,13 +283,24 @@ class DefaultToolAction( object ):
 
                         elements[ part_name ] = element
 
-                    # name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
-                    dc = trans.app.dataset_collections_service.create_dataset_collection(
-                        trans,
-                        collection_type=output.structure.collection_type,
-                        elements=elements,
-                    )
-                    out_collections[ name ] = dc
+                    if mapping_over_collection:
+                        # name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
+                        dc = trans.app.dataset_collections_service.create_dataset_collection(
+                            trans,
+                            collection_type=output.structure.collection_type,
+                            elements=elements,
+                        )
+                        out_collections[ name ] = dc
+                    else:
+                        name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
+                        hdca = trans.app.dataset_collections_service.create(
+                            trans,
+                            history,
+                            name=name,
+                            collection_type=output.structure.collection_type,
+                            elements=elements,
+                        )
+                        out_collection_instances[ name ] = hdca
                 else:
                     handle_output( name, output )
         # Add all the top-level (non-child) datasets to the history unless otherwise specified
@@ -347,6 +359,8 @@ class DefaultToolAction( object ):
             job.add_output_dataset( name, dataset )
         for name, dataset_collection in out_collections.iteritems():
             job.add_implicit_output_dataset_collection( name, dataset_collection )
+        for name, dataset_collection_instance in out_collection_instances.iteritems():
+            job.add_output_dataset_collection( name, dataset_collection_instance )
         job.object_store_id = object_store_populator.object_store_id
         if job_params:
             job.params = dumps( job_params )
