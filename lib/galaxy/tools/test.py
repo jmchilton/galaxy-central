@@ -505,6 +505,7 @@ class TestCollectionOutputDef( object ):
 
     def __init__( self, name, attrib ):
         self.name = name
+        self.collection_type = attrib[ "type" ]
         self.attrib = attrib
 
 
