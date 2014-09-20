@@ -12,6 +12,9 @@ import logging
 log = logging.getLogger(__name__)
 
 DEFAULT_CONTAINER_TYPE = "docker"
+# TODO: consider refactoring things to reuse login in jobs/instrumenters to
+# build this path.
+INSTRUMENT_JSON_FILE_NAME = "__instrument_docker_inspect.json"
 
 
 class ContainerFinder(object):
@@ -200,6 +203,9 @@ class DockerContainer(Container):
         )
 
         cache_command = docker_util.build_docker_cache_command(self.container_id, **docker_host_props)
+        inspect_command = docker_util.build_docker_inspect_command(self.container_id, **docker_host_props)
+        inspect_container_file = os.path.join(working_directory, INSTRUMENT_JSON_FILE_NAME)
+        record_inspection_command = "%s  > '%s' 2>&1" % (inspect_command, inspect_container_file)
         run_command = docker_util.build_docker_run_command(
             command,
             self.container_id,
@@ -210,7 +216,7 @@ class DockerContainer(Container):
             net=prop("net", "none"),  # By default, docker instance has networking disabled
             **docker_host_props
         )
-        return "%s\n%s" % (cache_command, run_command)
+        return "%s\n%s\n%s" % (cache_command, record_inspection_command, run_command)
 
     def __expand_str(self, value):
         if not value:
