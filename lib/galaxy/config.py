@@ -197,6 +197,15 @@ class Configuration( object ):
         # workflows built using these modules may not function in the
         # future.
         self.enable_beta_workflow_modules = string_as_bool( kwargs.get( 'enable_beta_workflow_modules', 'False' ) )
+
+        # Certain modules such as the pause module will automatically cause
+        # workflows to be scheduled in job handlers the way all workflows will
+        # be someday - the following two properties can also be used to force this
+        # behavior in under conditions - namely for workflows that have a minimum
+        # number of steps or that consume collections.
+        self.force_beta_workflow_scheduled_min_steps = int( kwargs.get( 'force_beta_workflow_scheduled_min_steps', '250' ) )
+        self.force_beta_workflow_scheduled_for_collections = string_as_bool( kwargs.get( 'force_beta_workflow_scheduled_for_collections', 'False' ) )
+
         # Per-user Job concurrency limitations
         self.cache_user_job_count = string_as_bool( kwargs.get( 'cache_user_job_count', False ) )
         self.user_job_limit = int( kwargs.get( 'user_job_limit', 0 ) )
