@@ -155,6 +155,7 @@ class Configuration( object ):
         self.admin_users_list = [u.strip() for u in self.admin_users.split(',') if u]
         self.reset_password_length = int( kwargs.get('reset_password_length', '15') )
         self.mailing_join_addr = kwargs.get('mailing_join_addr', 'galaxy-announce-join@bx.psu.edu')
+        self.no_reply_email_from = kwargs.get( 'no_reply_email_from', None )
         self.error_email_to = kwargs.get( 'error_email_to', None )
         self.activation_email = kwargs.get( 'activation_email', None )
         self.user_activation_on = string_as_bool( kwargs.get( 'user_activation_on', False ) )

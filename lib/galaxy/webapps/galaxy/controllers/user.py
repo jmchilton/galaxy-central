@@ -1115,7 +1115,9 @@ class User( BaseUIController, UsesFormDefinitionsMixin, CreatesUsersMixin, Creat
                         host = socket.getfqdn()
                     body = 'Your password on %s has been reset to:\n\n  %s\n' % ( host, new_pass )
                     to = email
-                    frm = 'galaxy-no-reply@' + host
+                    frm = getattr(trans.app.config, "no_reply_email_from", None)
+                    if not frm:
+                        frm = 'galaxy-no-reply@' + host
                     subject = 'Galaxy Password Reset'
                     try:
                         util.send_mail( frm, to, subject, body, trans.app.config )
