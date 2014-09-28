@@ -136,6 +136,7 @@ class JobConfiguration( object ):
             self.__parse_job_conf_legacy()
         except Exception as e:
             raise config_exception(e, job_config_file)
+        self.local_docker_destination = self.__find_local_docker_destination()
 
     def __parse_job_conf_xml(self, tree):
         """Loads the new-style job configuration from options in the job config file (by default, job_conf.xml).
@@ -365,6 +366,22 @@ class JobConfiguration( object ):
             fields = [ self.resource_parameters[ n ] for n in fields_names ]
 
         return fields
+
+    def __find_local_docker_destination( self ):
+        for destination_id, destination in self.destinations.iteritems():
+            if isinstance(destination, tuple):
+                destination = destination[0]
+            runner = destination.runner
+            if runner not in self.runner_plugins:
+                continue
+            runner_definition = self.runner_plugins[ runner ]
+            if 'local' not in runner_definition[ 'load' ]:
+                continue
+            if destination.legacy:
+                continue
+            if util.asbool( destination.params.get( "docker_enabled", False ) ):
+                return destination
+        return None
 
     def __parse_resource_parameters( self ):
         if not os.path.exists( self.app.config.job_resource_params_file ):
