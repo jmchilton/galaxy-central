@@ -28,6 +28,18 @@ DRMAA_jobTemplate_attributes = [ 'args', 'remoteCommand', 'outputPath', 'errorPa
                                  'jobName', 'email', 'project' ]
 
 
+class CoolComputeEnviornment(SharedComputeEnvironment):
+    # Define is a custom ComputeEnvironment for complete control.
+    def __init__(self, job_wrapper):
+        job = job_wrapper.get_job()
+        super(CoolComputeEnviornment, self).__init__(job_wrapper, job)
+        self._wrapper_input_paths = super(CoolComputeEnviornment, self).input_paths()
+
+    def input_paths(self):
+        # Override as you need to...
+        return self._wrapper_input_paths
+
+
 class DRMAAJobRunner( AsynchronousJobRunner ):
     """
     Job runner backed by a finite pool of worker threads. FIFO scheduling
@@ -113,8 +125,8 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         """Create job script and submit it to the DRM"""
         # prepare the job
 
-        job_wrapper.dataset_path_rewriter = TemplateDatasetPathRewriter(job_wrapper.dataset_path_rewriter)
-        if not self.prepare_job( job_wrapper, include_metadata=True ):
+        #job_wrapper.dataset_path_rewriter = TemplateDatasetPathRewriter(job_wrapper.dataset_path_rewriter)
+        if not self.prepare_job( job_wrapper, include_metadata=True, compute_environment=CoolComputeEnviornment( job_wrapper ) ):
             return
 
         # get configured job destination
