@@ -13,6 +13,7 @@ import time
 from galaxy import eggs
 from galaxy import model
 from galaxy.jobs import JobDestination
+from galaxy.jobs import SharedComputeEnvironment
 from galaxy.jobs.runners import AsynchronousJobState, AsynchronousJobRunner
 
 eggs.require( "drmaa" )
@@ -111,6 +112,8 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
     def queue_job( self, job_wrapper ):
         """Create job script and submit it to the DRM"""
         # prepare the job
+
+        job_wrapper.dataset_path_rewriter = TemplateDatasetPathRewriter(job_wrapper.dataset_path_rewriter)
         if not self.prepare_job( job_wrapper, include_metadata=True ):
             return
 
@@ -381,3 +384,15 @@ class DRMAAJobRunner( AsynchronousJobRunner ):
         return jobId
 
 
+class TemplateDatasetPathRewriter(object):
+
+    def __init__(self, app_dataset_path_rewriter):
+        self.app_dataset_path_rewriter = app_dataset_path_rewriter
+
+    def rewrite_dataset_path( self, dataset, dataset_type ):
+        """ Keep path the same.
+        """
+        if dataset_type == "input":
+            return "${dataset_%s}" % dataset.id
+        else:
+            return self.app_dataset_path_rewriter.rewrite_dataset_path( dataset, dataset_type )
