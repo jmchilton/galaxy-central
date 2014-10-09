@@ -86,7 +86,7 @@ class HomebrewDependency(Dependency):
         self.commands = commands
 
     def shell_commands(self, requirement):
-        return self.commands.replace("\n", ";") + "\n"
+        return self.commands
 
 
 def _string_as_bool( value ):
