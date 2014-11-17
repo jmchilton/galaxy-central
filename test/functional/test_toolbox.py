@@ -31,7 +31,7 @@ class ToolTestCase( TwillTestCase ):
 
         data_list, data_collection_list, jobs = galaxy_interactor.run_tool( testdef, test_history )
 
-        self._verify_outputs( testdef, test_history, shed_tool_id, data_list, data_collection_list, galaxy_interactor )
+        self._verify_outputs( testdef, test_history, jobs, shed_tool_id, data_list, data_collection_list, galaxy_interactor )
 
         galaxy_interactor.delete_history( test_history )
 
@@ -46,11 +46,7 @@ class ToolTestCase( TwillTestCase ):
             else:
                 raise Exception( "Test parse failure" )
 
-<<<<<<< HEAD
-    def _verify_outputs( self, testdef, history, jobs, shed_tool_id, data_list, galaxy_interactor ):
-=======
-    def _verify_outputs( self, testdef, history, shed_tool_id, data_list, data_collection_list, galaxy_interactor ):
->>>>>>> 2091b8e... WIP: Make collection and mapping over collections work at same time, progress on testing.
+    def _verify_outputs( self, testdef, history, jobs, shed_tool_id, data_list, data_collection_list, galaxy_interactor ):
         maxseconds = testdef.maxseconds
         if testdef.num_outputs is not None:
             expected = testdef.num_outputs
