@@ -8,7 +8,7 @@
     <param name="input1" type="data_collection" collection_type="list" label="Input" help="Input collection..." format="txt" />
   </inputs>
   <outputs>
-    <collection name="list_output" type="paired" label="Duplicate List" structured_like="input1" format="txt">
+    <collection name="list_output" type="list" label="Duplicate List" structured_like="input1" format="txt">
     </collection>
   </outputs>
   <tests>
@@ -19,8 +19,8 @@
           <element name="l12" value="simple_line.txt" />
         </collection>
       </param>
-      <output_dataset>
-      </output_dataset>
+      <output_collection>
+      </output_collection>
     </test>
   </tests>
 </tool>
