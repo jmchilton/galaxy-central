@@ -189,6 +189,20 @@ class ToolsTestCase( api.ApiTestCase ):
         contents = self.dataset_populator.get_history_dataset_content( history_id, hid=4 )
         assert contents.strip() == "123\n456", contents
 
+    @skip_without_tool( "collection_creates_pair" )
+    def test_paired_collection_output( self ):
+        history_id = self.dataset_populator.new_history()
+        new_dataset1 = self.dataset_populator.new_dataset( history_id, content='123\n456\n789\n0ab' )
+        inputs = {
+            "input1": new_dataset1["id"],
+        }
+        create = self._run( "collection_creates_pair", history_id, inputs, assert_ok=True )
+        jobs = create[ 'jobs' ]
+        implicit_collections = create[ 'implicit_collections' ]
+
+        self.assertEquals( len( jobs ), 1 )
+        self.assertEquals( len( implicit_collections ), 0 )
+
     @skip_without_tool( "cat1" )
     def test_run_cat1_with_two_inputs( self ):
         # Run tool with an multiple data parameter and grouping (repeat)
