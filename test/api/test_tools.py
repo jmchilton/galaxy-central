@@ -194,8 +194,10 @@ class ToolsTestCase( api.ApiTestCase ):
         history_id = self.dataset_populator.new_history()
         new_dataset1 = self.dataset_populator.new_dataset( history_id, content='123\n456\n789\n0ab' )
         inputs = {
-            "input1": new_dataset1["id"],
+            "input1": {"src": "hda", "id": new_dataset1["id"]},
         }
+        # TODO: shouldn't need this wait
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
         create = self._run( "collection_creates_pair", history_id, inputs, assert_ok=True )
         jobs = create[ 'jobs' ]
         implicit_collections = create[ 'implicit_collections' ]
@@ -211,7 +213,7 @@ class ToolsTestCase( api.ApiTestCase ):
         element0, element1 = elements
         assert element0[ "element_identifier" ] == "forward"
         assert element1[ "element_identifier" ] == "reverse"
-
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
         contents0 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element0["object"]["id"])
         assert contents0 == "123\n789\n", contents0
         contents1 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element1["object"]["id"])
@@ -225,6 +227,8 @@ class ToolsTestCase( api.ApiTestCase ):
         inputs = {
             "input1": { "src": "hdca", "id": hdca_id },
         }
+        # TODO: real problem here - shouldn't have to have this wait.
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
         create = self._run( "collection_creates_list", history_id, inputs, assert_ok=True )
         jobs = create[ 'jobs' ]
         implicit_collections = create[ 'implicit_collections' ]
@@ -240,6 +244,7 @@ class ToolsTestCase( api.ApiTestCase ):
         element0, element1 = elements
         assert element0[ "element_identifier" ] == "data1"
         assert element1[ "element_identifier" ] == "data2"
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
         contents0 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element0["object"]["id"])
         assert contents0 == "0\n", contents0
         contents1 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element1["object"]["id"])

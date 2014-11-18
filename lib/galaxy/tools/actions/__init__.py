@@ -277,13 +277,15 @@ class DefaultToolAction( object ):
                     elements = odict()
                     input_collections = dict( [ (k, v[0]) for k, v in inp_dataset_collections.iteritems() ] )
                     known_outputs = output.known_outputs( input_collections )
-                    for part_name, data_output in known_outputs.iteritems():
-                        effective_output_name = "%s|__part__|%s" % ( name, part_name )
-                        element = handle_output( effective_output_name, data_output )
+                    # Just to echo TODO elsewhere - this should be restructured to allow
+                    # nested collections.
+                    for output_part_def in known_outputs:
+                        effective_output_name = output_part_def.effective_output_name
+                        element = handle_output( effective_output_name, output_part_def.output_def )
                         # Following hack causes dataset to no be added to history...
                         child_dataset_names.add( effective_output_name )
 
-                        elements[ part_name ] = element
+                        elements[ output_part_def.element_identifier ] = element
 
                     if mapping_over_collection:
                         # name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )

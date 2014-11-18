@@ -1207,7 +1207,8 @@ class ToolOutput( ToolOutputBase ):
     dict_collection_visible_keys = ( 'name', 'format', 'label', 'hidden' )
 
     def __init__( self, name, format=None, format_source=None, metadata_source=None,
-                  parent=None, label=None, filters=None, actions=None, hidden=False ):
+                  parent=None, label=None, filters=None, actions=None, hidden=False,
+                  implicit=False ):
         super( ToolOutput, self ).__init__( name, label=label, filters=filters, hidden=hidden )
         self.format = format
         self.format_source = format_source
@@ -1217,6 +1218,7 @@ class ToolOutput( ToolOutputBase ):
 
         # Initialize default values
         self.change_format = []
+        self.implicit = implicit
 
     # Tuple emulation
 
@@ -1259,18 +1261,23 @@ class ToolOutputCollection( ToolOutputBase ):
         self.outputs = odict()
 
     def known_outputs( self, inputs ):
-        # This line is probably not right?
+        def to_part( ( element_identifier, output ) ):
+            return ToolOutputCollectionPart( self, element_identifier, output )
+
+        # This line is probably not right - should verify structured_like
+        # or have outputs and all outputs have name.
         if not self.structure.structured_like and self.outputs:
-            return self.outputs
+            outputs = self.outputs
         else:
             # TODO: Handle nested structures.
             input_collection = inputs[ self.structure.structured_like ]
             outputs = odict()
             for element in input_collection.collection.elements:
                 name = element.element_identifier
-                output = ToolOutput( name, format=self.default_format )
+                output = ToolOutput( name, format=self.default_format, implicit=True )
                 outputs[ element.element_identifier ] = output
-            return outputs
+
+        return map( to_part, outputs.items() )
 
 
 class ToolOutputCollectionStructure( object ):
@@ -1280,6 +1287,25 @@ class ToolOutputCollectionStructure( object ):
         self.structured_like = structured_like
         if collection_type is None and structured_like is None:
             raise ValueError( "Output collection types must be specify type of structured_like" )
+
+
+class ToolOutputCollectionPart( object ):
+
+    def __init__( self, output_collection_def, element_identifier, output_def ):
+        self.output_collection_def = output_collection_def
+        self.element_identifier = element_identifier
+        self.output_def = output_def
+
+    @property
+    def effective_output_name( self ):
+        name = self.output_collection_def.name
+        part_name = self.element_identifier
+        effective_output_name = "%s|__part__|%s" % ( name, part_name )
+        return effective_output_name
+
+    @staticmethod
+    def is_named_collection_part_name( self, name ):
+        return "|__part__|" in name
 
 
 class Tool( object, Dictifiable ):
@@ -1784,6 +1810,7 @@ class Tool( object, Dictifiable ):
                 assert data
                 del data_dict[output_name]
                 output_collection.outputs[output_name] = data
+            self.output_collections[ name ] = output_collection
         for output in data_dict.values():
             self.outputs[ output.name ] = output
 

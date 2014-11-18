@@ -271,12 +271,12 @@ class ToolEvaluator( object ):
 
     def __populate_output_collection_wrappers(self, param_dict, output_collections, output_paths, job_working_directory):
         output_dataset_paths = dataset_path_rewrites( output_paths )
-
+        tool = self.tool
         for name, out_collection in output_collections.items():
             wrapper_kwds = dict(
                 datatypes_registry=self.app.datatypes_registry,
                 dataset_paths=output_dataset_paths,
-                tool=self,
+                tool=tool,
                 name=name
             )
             wrapper = DatasetCollectionWrapper(
@@ -284,6 +284,17 @@ class ToolEvaluator( object ):
                 **wrapper_kwds
             )
             param_dict[ name ] = wrapper
+            if name not in tool.output_collections:
+                message_template = "Name [%s] not found in tool.output_collections %s"
+                message = message_template % ( name, tool.output_collections )
+                raise AssertionError( message )
+            # TODO: Handle nested collections...
+            output_def = tool.output_collections[ name ]
+            for element_identifier, output_def in output_def.outputs.items():
+                if not output_def.implicit:
+                    dataset_wrapper = wrapper[ element_identifier ]
+                    param_dict[ output_def.name ] = dataset_wrapper
+                    log.info("Updating param_dict for %s with %s" % (output_def.name, dataset_wrapper) )
 
     def __populate_output_dataset_wrappers(self, param_dict, output_datasets, output_paths, job_working_directory):
         output_dataset_paths = dataset_path_rewrites( output_paths )
