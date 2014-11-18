@@ -1760,9 +1760,6 @@ class Tool( object, Dictifiable ):
             handle_data_elem( data_elem )
 
         for collection_elem in out_elem.findall("collection"):
-            for data_elem in collection_elem.findall("data"):
-                handle_data_elem( data_elem )
-        for collection_elem in out_elem.findall("collection"):
             name = collection_elem.get( "name" )
             default_format = collection_elem.get( "format", "data" )
             collection_type = collection_elem.get( "type", None )
