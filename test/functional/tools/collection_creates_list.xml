@@ -3,6 +3,7 @@
     #for $i, $output in enumerate($list_output)#
     echo "$i" > "$output";
     #end for#
+    echo 'ensure not empty';
   </command>
   <inputs>
     <param name="input1" type="data_collection" collection_type="list" label="Input" help="Input collection..." format="txt" />
@@ -19,7 +20,12 @@
           <element name="l12" value="simple_line.txt" />
         </collection>
       </param>
-      <output_collection>
+      <output_collection name="list_output">
+        <data name="l11">
+          <assert_contents>
+            <has_line line="l11" />
+          </assert_contents>
+        </data>
       </output_collection>
     </test>
   </tests>

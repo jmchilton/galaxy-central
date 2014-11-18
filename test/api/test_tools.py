@@ -199,9 +199,51 @@ class ToolsTestCase( api.ApiTestCase ):
         create = self._run( "collection_creates_pair", history_id, inputs, assert_ok=True )
         jobs = create[ 'jobs' ]
         implicit_collections = create[ 'implicit_collections' ]
+        collections = create[ 'output_collections' ]
 
         self.assertEquals( len( jobs ), 1 )
         self.assertEquals( len( implicit_collections ), 0 )
+        self.assertEquals( len( collections ), 1 )
+
+        output_collection = collections[ 0 ]
+        elements = output_collection[ "elements" ]
+        assert len( elements ) == 2
+        element0, element1 = elements
+        assert element0[ "element_identifier" ] == "forward"
+        assert element1[ "element_identifier" ] == "reverse"
+
+        contents0 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element0["object"]["id"])
+        assert contents0 == "123\n789\n", contents0
+        contents1 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element1["object"]["id"])
+        assert contents1 == "456\n0ab\n", contents1
+
+    @skip_without_tool( "collection_creates_list" )
+    def test_list_collection_output( self ):
+        history_id = self.dataset_populator.new_history()
+        create_response = self.dataset_collection_populator.create_list_in_history( history_id, contents=["a\nb\nc\nd", "e\nf\ng\nh"] )
+        hdca_id = create_response.json()[ "id" ]
+        inputs = {
+            "input1": { "src": "hdca", "id": hdca_id },
+        }
+        create = self._run( "collection_creates_list", history_id, inputs, assert_ok=True )
+        jobs = create[ 'jobs' ]
+        implicit_collections = create[ 'implicit_collections' ]
+        collections = create[ 'output_collections' ]
+
+        self.assertEquals( len( jobs ), 1 )
+        self.assertEquals( len( implicit_collections ), 0 )
+        self.assertEquals( len( collections ), 1 )
+
+        output_collection = collections[ 0 ]
+        elements = output_collection[ "elements" ]
+        assert len( elements ) == 2
+        element0, element1 = elements
+        assert element0[ "element_identifier" ] == "data1"
+        assert element1[ "element_identifier" ] == "data2"
+        contents0 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element0["object"]["id"])
+        assert contents0 == "0\n", contents0
+        contents1 = self.dataset_populator.get_history_dataset_content( history_id, dataset_id=element1["object"]["id"])
+        assert contents1 == "1\n", contents1
 
     @skip_without_tool( "cat1" )
     def test_run_cat1_with_two_inputs( self ):
