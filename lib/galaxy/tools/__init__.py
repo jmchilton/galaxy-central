@@ -1215,6 +1215,9 @@ class ToolOutput( ToolOutputBase ):
         self.parent = parent
         self.actions = actions
 
+        # Initialize default values
+        self.change_format = []
+
     # Tuple emulation
 
     def __len__( self ):
