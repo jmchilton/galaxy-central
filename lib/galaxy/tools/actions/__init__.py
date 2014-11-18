@@ -294,14 +294,16 @@ class DefaultToolAction( object ):
                         )
                         out_collections[ name ] = dc
                     else:
-                        name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
+                        hdca_name = self.get_output_name( output, None, tool, on_text, trans, incoming, history, wrapped_params.params, job_params )
                         hdca = trans.app.dataset_collections_service.create(
                             trans,
                             history,
-                            name=name,
+                            name=hdca_name,
                             collection_type=output.structure.collection_type,
                             elements=elements,
                         )
+                        # name here is name of the output element - not name
+                        # of the hdca.
                         out_collection_instances[ name ] = hdca
                 else:
                     handle_output( name, output )
