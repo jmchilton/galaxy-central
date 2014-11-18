@@ -1259,15 +1259,18 @@ class ToolOutputCollection( ToolOutputBase ):
         self.outputs = odict()
 
     def known_outputs( self, inputs ):
-        if self.structure.collection_type:
+        # This line is probably not right?
+        if not self.structure.structured_like and self.outputs:
             return self.outputs
         else:
+            # TODO: Handle nested structures.
             input_collection = inputs[ self.structure.structured_like ]
             outputs = odict()
-            for element in input_collection.outputs.collection.elements:
+            for element in input_collection.collection.elements:
                 name = element.element_identifier
                 output = ToolOutput( name, format=self.default_format )
                 outputs[ element.element_identifier ] = output
+            return outputs
 
 
 class ToolOutputCollectionStructure( object ):
