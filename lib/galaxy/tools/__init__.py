@@ -1260,7 +1260,13 @@ class ToolOutputCollection( ToolOutputBase ):
         self.structure = structure
         self.outputs = odict()
 
+        # TODO:
+        self.metadata_source = None
+
     def known_outputs( self, inputs ):
+        if self.dynamic_structure:
+            return []
+
         def to_part( ( element_identifier, output ) ):
             return ToolOutputCollectionPart( self, element_identifier, output )
 
@@ -1279,14 +1285,33 @@ class ToolOutputCollection( ToolOutputBase ):
 
         return map( to_part, outputs.items() )
 
+    @property
+    def dynamic_structure(self):
+        return self.structure.dynamic
+
+    @property
+    def dataset_collectors(self):
+        if not self.dynamic_structure:
+            raise Exception("dataset_collectors called for output collection with static structure")
+        return self.structure.dataset_collectors
+
 
 class ToolOutputCollectionStructure( object ):
 
-    def __init__( self, collection_type=None, structured_like=None ):
+    def __init__(
+        self,
+        collection_type,
+        structured_like,
+        dataset_collectors,
+    ):
         self.collection_type = collection_type
         self.structured_like = structured_like
-        if collection_type is None and structured_like is None:
+        self.dataset_collectors = dataset_collectors
+        if collection_type is None and structured_like is None and dataset_collectors is None:
             raise ValueError( "Output collection types must be specify type of structured_like" )
+        if dataset_collectors and structured_like:
+            raise ValueError( "Cannot specify dynamic structure (discovered_datasets) and structured_like attribute." )
+        self.dynamic = dataset_collectors is not None
 
 
 class ToolOutputCollectionPart( object ):
@@ -1791,9 +1816,13 @@ class Tool( object, Dictifiable ):
             default_format = collection_elem.get( "format", "data" )
             collection_type = collection_elem.get( "type", None )
             structured_like = collection_elem.get( "structured_like", None )
+            dataset_collectors = None
+            if collection_elem.find( "discover_datasets" ) is not None:
+                dataset_collectors = output_collect.dataset_collectors_from_elem( collection_elem )
             structure = ToolOutputCollectionStructure(
                 collection_type=collection_type,
                 structured_like=structured_like,
+                dataset_collectors=dataset_collectors,
             )
             output_collection = ToolOutputCollection(
                 name,
@@ -3282,6 +3311,11 @@ class Tool( object, Dictifiable ):
         cases where number of outputs is not known in advance).
         """
         return output_collect.collect_primary_datasets( self, output, job_working_directory, input_ext )
+
+    def collect_dynamic_collections( self, output, **kwds ):
+        """ Find files corresponding to dynamically structured collections.
+        """
+        return output_collect.collect_dynamic_collections( self, output, **kwds )
 
     def to_dict( self, trans, link_details=False, io_details=False ):
         """ Returns dict of tool. """

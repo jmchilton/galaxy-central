@@ -34,6 +34,7 @@
   <tool file="collection_creates_pair.xml" />
   <tool file="collection_creates_list.xml" />
   <tool file="collection_optional_param.xml" />
+  <tool file="collection_split_on_column.xml" />
 
   <!-- Tools interesting only for building up test workflows. -->
 
