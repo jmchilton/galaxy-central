@@ -76,7 +76,10 @@ class DatasetPopulator( object ):
         return run_response.json()["outputs"][0]
 
     def wait_for_history( self, history_id, assert_ok=False, timeout=DEFAULT_HISTORY_TIMEOUT ):
-        wait_on_state( lambda: self.galaxy_interactor.get( "histories/%s" % history_id ), assert_ok=assert_ok, timeout=timeout )
+        return wait_on_state( lambda: self.galaxy_interactor.get( "histories/%s" % history_id ), assert_ok=assert_ok, timeout=timeout )
+
+    def wait_for_job( self, job_id, assert_ok=False, timeout=DEFAULT_HISTORY_TIMEOUT ):
+        return wait_on_state( lambda: self.galaxy_interactor.get( "jobs/%s" % job_id ), assert_ok=assert_ok, timeout=timeout )
 
     def new_history( self, **kwds ):
         name = kwds.get( "name", "API Test History" )
@@ -381,7 +384,7 @@ def wait_on_state( state_func, assert_ok=False, timeout=5 ):
             return state
         else:
             return None
-    wait_on( get_state, desc="state", timeout=timeout)
+    return wait_on( get_state, desc="state", timeout=timeout)
 
 
 def wait_on( function, desc, timeout=5 ):
