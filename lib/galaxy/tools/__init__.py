@@ -1253,15 +1253,30 @@ class ToolOutputCollection( ToolOutputBase ):
     <outputs>
     """
 
-    def __init__( self, name, structure, label=None, filters=None, hidden=False, default_format="data" ):
+    def __init__(
+        self,
+        name,
+        structure,
+        label=None,
+        filters=None,
+        hidden=False,
+        default_format="data",
+        default_format_source=None,
+        default_metadata_source=None,
+        inherit_format=False,
+        inherit_metadata=False
+    ):
         super( ToolOutputCollection, self ).__init__( name, label=label, filters=filters, hidden=hidden )
         self.collection = True
         self.default_format = default_format
         self.structure = structure
         self.outputs = odict()
 
-        # TODO:
-        self.metadata_source = None
+        self.inherit_format = inherit_format
+        self.inherit_metadata = inherit_metadata
+
+        self.metadata_source = default_metadata_source
+        self.format_source = default_format_source
 
     def known_outputs( self, inputs ):
         if self.dynamic_structure:
@@ -1280,7 +1295,19 @@ class ToolOutputCollection( ToolOutputBase ):
             outputs = odict()
             for element in input_collection.collection.elements:
                 name = element.element_identifier
-                output = ToolOutput( name, format=self.default_format, implicit=True )
+                format = self.default_format
+                if self.inherit_format:
+                    format = element.dataset_instance.ext
+                output = ToolOutput(
+                    name,
+                    format=format,
+                    format_source=self.format_source,
+                    metadata_source=self.metadata_source,
+                    implicit=True,
+                )
+                if self.inherit_metadata:
+                    output.metadata_source = element.dataset_instance
+
                 outputs[ element.element_identifier ] = output
 
         return map( to_part, outputs.items() )
@@ -1791,12 +1818,17 @@ class Tool( object, Dictifiable ):
             return
         data_dict = odict()
 
-        def handle_data_elem( data_elem, default_format="data" ):
+        def handle_data_elem(
+            data_elem,
+            default_format="data",
+            default_format_source=None,
+            default_metadata_source="",
+        ):
             output = ToolOutput( data_elem.get("name") )
             output.format = data_elem.get("format", default_format)
             output.change_format = data_elem.findall("change_format")
-            output.format_source = data_elem.get("format_source", None)
-            output.metadata_source = data_elem.get("metadata_source", "")
+            output.format_source = data_elem.get("format_source", default_format_source)
+            output.metadata_source = data_elem.get("metadata_source", default_metadata_source)
             output.parent = data_elem.get("parent", None)
             output.label = xml_text( data_elem, "label" )
             output.count = int( data_elem.get("count", 1) )
@@ -1816,6 +1848,15 @@ class Tool( object, Dictifiable ):
             default_format = collection_elem.get( "format", "data" )
             collection_type = collection_elem.get( "type", None )
             structured_like = collection_elem.get( "structured_like", None )
+            inherit_format = False
+            inherit_metadata = False
+            if structured_like:
+                inherit_format = string_as_bool( collection_elem.get( "inherit_format", None ) )
+                inherit_metadata = string_as_bool( collection_elem.get( "inherit_metadata", None ) )
+
+            default_format_source = collection_elem.get( "format_source", None )
+            default_metadata_source = collection_elem.get( "metadata_source", "" )
+
             dataset_collectors = None
             if collection_elem.find( "discover_datasets" ) is not None:
                 dataset_collectors = output_collect.dataset_collectors_from_elem( collection_elem )
@@ -1827,12 +1868,21 @@ class Tool( object, Dictifiable ):
             output_collection = ToolOutputCollection(
                 name,
                 structure,
-                default_format=default_format
+                default_format=default_format,
+                inherit_format=inherit_format,
+                inherit_metadata=inherit_metadata,
+                default_format_source=default_format_source,
+                default_metadata_source=default_metadata_source,
             )
             self.outputs[output_collection.name] = output_collection
 
             for data_elem in collection_elem.findall("data"):
-                handle_data_elem( data_elem, default_format=default_format )
+                handle_data_elem(
+                    data_elem,
+                    default_format=default_format,
+                    default_format_source=default_format_source,
+                    default_metadata_source=default_metadata_source,
+                )
 
             for data_elem in collection_elem.findall("data"):
                 output_name = data_elem.get("name")
