@@ -210,10 +210,7 @@ class WorkflowSummary( object ):
         dataset_collection = content
         hid = content.hid
         self.collection_types[ hid ] = content.collection.collection_type
-        if not content.implicit_output_name:
-            job = DatasetCollectionCreationJob( content )
-            self.jobs[ job ] = [ ( None, content ) ]
-        else:
+        if content.implicit_output_name:
             dataset_collection = content
             # TODO: Optimize db call
             dataset_instance = dataset_collection.collection.dataset_instances[ 0 ]
@@ -235,6 +232,16 @@ class WorkflowSummary( object ):
                     self.implicit_map_jobs.append( job )
                 else:
                     self.jobs[ job ].append( ( assoc.name, dataset_collection ) )
+        elif content.creating_job_associations:
+            for assoc in content.creating_job_associations:
+                job = assoc.job
+                if job not in self.jobs or self.jobs[ job ][ 0 ][ 1 ].history_content_type == "dataset":
+                    self.jobs[ job ] = [ ( assoc.name, dataset_collection ) ]
+                else:
+                    self.jobs[ job ].append( ( assoc.name, dataset_collection ) )
+        else:
+            job = DatasetCollectionCreationJob( content )
+            self.jobs[ job ] = [ ( None, content ) ]
 
     def __summarize_dataset( self, dataset ):
         if not self.__check_state( dataset ):
