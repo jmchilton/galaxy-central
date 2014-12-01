@@ -1,8 +1,11 @@
+import functools
 from json import dumps, loads
 import operator
 
 from .helpers import skip_without_tool
+from .helpers import wait_on_state
 from .test_workflows import BaseWorkflowsApiTestCase
+import yaml
 
 
 class WorkflowExtractionApiTestCase( BaseWorkflowsApiTestCase ):
@@ -130,6 +133,91 @@ class WorkflowExtractionApiTestCase( BaseWorkflowsApiTestCase ):
         collection_step = collection_steps[ 0 ]
         collection_step_state = loads( collection_step[ "tool_state" ] )
         self.assertEquals( collection_step_state[ "collection_type" ], u"paired" )
+
+    def test_extract_workflow_with_output_collections( self ):
+        history_id = self._run_jobs("""
+steps:
+  - label: text_input1
+    type: input
+  - label: text_input2
+    type: input
+  - label: cat_inputs
+    tool_id: cat1
+    state:
+      input1:
+        $link: text_input1
+      queries:
+        - input2:
+            $link: text_input2
+  - label: split_up
+    tool_id: collection_split_on_column
+    state:
+      input1:
+        $link: cat_inputs#out_file1
+  - tool_id: cat_list
+    state:
+      input1:
+        $link: split_up#split_output
+test_data:
+  text_input1: "samp1\t10.0\nsamp2\t20.0\n"
+  text_input2: "samp1\t30.0\nsamp2\t40.0\n"
+""")
+        jobs = self._history_jobs( history_id )
+        job_ids = map( functools.partial(self._job_id_for_tool, jobs ), [ "cat1", "collection_split_on_column", "cat_list" ] )
+        downloaded_workflow = self._extract_and_download_workflow(
+            dataset_ids=[ "1", "2" ],
+            job_ids=job_ids,
+        )
+        print downloaded_workflow
+        assert False
+
+    def _run_jobs( self, jobs_yaml ):
+        history_id = self.history_id
+        workflow_id = self._upload_yaml_workflow(
+            jobs_yaml
+        )
+        jobs_descriptions = yaml.load( jobs_yaml )
+        test_data = jobs_descriptions["test_data"]
+
+        label_map = {}
+        for key, value in test_data.items():
+            hda = self.dataset_populator.new_dataset( history_id, content=value )
+            workflow_request = dict(
+                history="hist_id=%s" % history_id,
+                workflow_id=workflow_id,
+            )
+            label_map[key] = self._ds_entry( hda )
+        workflow_request[ "inputs" ] = dumps( label_map )
+        workflow_request[ "inputs_by" ] = 'name'
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        url = "workflows/%s/usage" % ( workflow_id )
+        invocation_response = self._post( url, data=workflow_request )
+        self._assert_status_code_is( invocation_response, 200 )
+        invocation = invocation_response.json()
+        invocation_id = invocation[ "id" ]
+        # Wait for workflow to become fully scheduled and then for all jobs
+        # complete.
+        self.wait_for_invocation( workflow_id, invocation_id )
+        self.dataset_populator.wait_for_history( history_id, assert_ok=True )
+        return history_id
+
+    def wait_for_invocation( self, workflow_id, invocation_id ):
+        url = "workflows/%s/usage/%s" % ( workflow_id, invocation_id )
+        return wait_on_state( lambda: self._get( url )  )
+
+    def _history_jobs( self, history_id ):
+        return self._get("jobs", { "history_id": history_id } ).json()
+
+    def _job_id_for_tool( self, jobs, tool_id ):
+        return self._job_for_tool( jobs, tool_id )[ "id" ]
+
+    def _job_for_tool( self, jobs, tool_id ):
+        tool_jobs = filter( lambda j: j["tool_id"] == tool_id, jobs )
+        if not tool_jobs:
+            assert False, "Failed to find job for tool %s" % tool_id
+        if len( tool_jobs ) > 1:
+            assert False, "Found multiple jobs for tool %s" % tool_id
+        return tool_jobs[ 0 ]
 
     def __run_random_lines_mapped_over_pair( self, history_id ):
         hdca = self.dataset_collection_populator.create_pair_in_history( history_id, contents=["1 2 3\n4 5 6", "7 8 9\n10 11 10"] ).json()

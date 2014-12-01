@@ -89,6 +89,12 @@ class BaseWorkflowsApiTestCase( api.ApiTestCase ):
             src = 'hdca'
         return dict( src=src, id=hda[ "id" ] )
 
+    def _invocation_details( self, workflow_id, invocation_id ):
+        invocation_details_response = self._get( "workflows/%s/usage/%s" % ( workflow_id, invocation_id ) )
+        self._assert_status_code_is( invocation_details_response, 200 )
+        invocation_details = invocation_details_response.json()
+        return invocation_details
+
 
 # Workflow API TODO:
 # - Allow history_id as param to workflow run action. (hist_id)
@@ -612,12 +618,6 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
         step_response = self._get( "workflows/%s/usage/%s/steps/%s" % ( workflow_id, invocation_id, step_id ) )
         self._assert_status_code_is( step_response, 200 )
         self._assert_has_keys( step_response.json(), "id", "order_index" )
-
-    def _invocation_details( self, workflow_id, invocation_id ):
-        invocation_details_response = self._get( "workflows/%s/usage/%s" % ( workflow_id, invocation_id ) )
-        self._assert_status_code_is( invocation_details_response, 200 )
-        invocation_details = invocation_details_response.json()
-        return invocation_details
 
     def _invocation_step_details( self, workflow_id, invocation_id, step_id ):
         invocation_step_response = self._get( "workflows/%s/usage/%s/steps/%s" % ( workflow_id, invocation_id, step_id ) )
