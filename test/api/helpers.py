@@ -378,7 +378,7 @@ def wait_on_state( state_func, assert_ok=False, timeout=5 ):
         response = state_func()
         assert response.status_code == 200, "Failed to fetch state update while waiting."
         state = response.json()[ "state" ]
-        if state not in [ "running", "queued", "new" ]:
+        if state not in [ "running", "queued", "new", "ready" ]:
             if assert_ok:
                 assert state == "ok", "Final state - %s - not okay." % state
             return state
