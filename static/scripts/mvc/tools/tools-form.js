@@ -223,6 +223,9 @@ define(['utils/utils', 'utils/deferred', 'mvc/ui/ui-portlet', 'mvc/ui/ui-misc',
                                 case 'data':
                                     new_options = input.options;
                                     break;
+                                case 'data_collection':
+                                    new_options = input.options;
+                                    break;
                                 case 'drill_down':
                                     new_options = input.options;
                                     break;
