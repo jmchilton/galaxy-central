@@ -201,6 +201,8 @@ class Configuration( object ):
         # future.
         self.enable_beta_workflow_modules = string_as_bool( kwargs.get( 'enable_beta_workflow_modules', 'False' ) )
 
+        # Enable the tool form upgrade - will soon be the default so test tools now.
+        self.enable_beta_tool_form = string_as_bool( kwargs.get( "toolform_upgrade", 'False') )
         # Certain modules such as the pause module will automatically cause
         # workflows to be scheduled in job handlers the way all workflows will
         # be someday - the following two properties can also be used to force this
