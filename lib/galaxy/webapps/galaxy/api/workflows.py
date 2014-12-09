@@ -271,6 +271,32 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
         """
         return self.__api_import_new_workflow( trans, payload, **kwd )
 
+    @expose_api
+    def update( self, trans, id, payload ):
+        """
+        * PUT /api/workflows/{id}
+            updates the workflow stored with ``id``
+
+        :type   id:      str
+        :param  id:      the encoded id of the workflow to update
+        :type   payload: dict
+        :param  payload: a dictionary containing any or all the
+            * steps: if steps is present the workflow steps will be entirely
+                     replaced and new Workflow instance will be attached to the
+                     StoredWorkflow.
+
+        :rtype:     dict
+        :returns:   serialized version of the workflow
+        """
+        stored_workflow = self.__get_stored_workflow( trans, id )
+        workflow_contents_manager = workflows.WorkflowContentManager()
+        workflow, errors = workflow_contents_manager.update_workflow_from_dict(
+            trans,
+            stored_workflow,
+            payload,
+        )
+        return self.__encode_workflow( trans, stored_workflow, workflow )
+
     def __api_import_new_workflow( self, trans, payload, **kwd ):
         data = payload['workflow']
 
