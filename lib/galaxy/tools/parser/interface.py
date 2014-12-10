@@ -28,6 +28,13 @@ class ToolSource(object):
         """
         return None
 
+    def parse_action_module(self):
+        """ Load Tool class from a custom module. (Optional).
+
+        If not None, return pair containing module and class (as strings).
+        """
+        return None
+
     def parse_tool_type(self):
         """ Load simple tool type string (e.g. 'data_source', 'default').
         """

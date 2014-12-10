@@ -1514,12 +1514,11 @@ class Tool( object, Dictifiable ):
                 text = conf_elem.text
                 self.config_files.append( ( name, filename, text ) )
         # Action
-        action_elem = root.find( "action" )
-        if action_elem is None:
+        action = tool_source.parse_action_module()
+        if action is None:
             self.tool_action = self.default_tool_action()
         else:
-            module = action_elem.get( 'module' )
-            cls = action_elem.get( 'class' )
+            module, cls = action
             mod = __import__( module, globals(), locals(), [cls])
             self.tool_action = getattr( mod, cls )()
         # User interface hints

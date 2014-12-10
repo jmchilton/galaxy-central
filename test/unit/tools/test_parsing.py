@@ -94,6 +94,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_hidden(self):
         assert self._tool_source.parse_hidden()
 
+    def test_action(self):
+        assert self._tool_source.parse_action_module() is None
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -145,6 +148,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
     def test_hidden(self):
         assert not self._tool_source.parse_hidden()
+
+    def test_action(self):
+        assert self._tool_source.parse_action_module() is None
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
@@ -208,3 +214,8 @@ class SpecialToolLoaderTestCase(BaseLoaderTestCase):
     def test_version_command(self):
         assert self._tool_source.parse_version_command() is None
         assert self._tool_source.parse_version_command_interpreter() is None
+
+    def test_action(self):
+        action = self._tool_source.parse_action_module()
+        assert action[0] == "galaxy.tools.actions.history_imp_exp"
+        assert action[1] == "ExportHistoryToolAction"

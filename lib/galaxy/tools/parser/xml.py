@@ -25,6 +25,16 @@ class XmlToolSource(ToolSource):
 
         return None
 
+    def parse_action_module(self):
+        root = self.root
+        action_elem = root.find( "action" )
+        if action_elem is not None:
+            module = action_elem.get( 'module' )
+            cls = action_elem.get( 'class' )
+            return module, cls
+        else:
+            return None
+
     def parse_tool_type(self):
         root = self.root
         if root.get( 'tool_type', None ) is not None:
