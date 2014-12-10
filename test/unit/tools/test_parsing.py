@@ -62,6 +62,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_require_login(self):
         assert self._tool_source.parse_require_login(False)
 
+    def test_parse_request_param_translation_elem(self):
+        assert self._tool_source.parse_request_param_translation_elem() is None
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -91,6 +94,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
     def test_require_login(self):
         assert not self._tool_source.parse_require_login(False)
 
+    def test_parse_request_param_translation_elem(self):
+        assert self._tool_source.parse_request_param_translation_elem() is None
+
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "ds.xml"
@@ -118,6 +124,9 @@ class DataSourceLoaderTestCase(BaseLoaderTestCase):
 
     def test_tool_type(self):
         assert self._tool_source.parse_tool_type() == "data_source"
+
+    def test_parse_request_param_translation_elem(self):
+        assert self._tool_source.parse_request_param_translation_elem() is not None
 
 
 class SpecialToolLoaderTestCase(BaseLoaderTestCase):

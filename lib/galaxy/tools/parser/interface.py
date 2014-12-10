@@ -53,3 +53,12 @@ class ToolSource(object):
         """ Parse whether the tool requires login (as a bool).
         """
         return default
+
+    def parse_request_param_translation_elem(self):
+        """ Return an XML element describing require parameter translation.
+
+        If we wish to support this feature for non-XML based tools this should
+        be converted to return some sort of object interface instead of a RAW
+        XML element.
+        """
+        return None

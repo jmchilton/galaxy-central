@@ -1422,14 +1422,17 @@ class Tool( object, Dictifiable ):
 
         self.require_login = tool_source.parse_require_login( self.require_login )
 
+        request_param_translation_elem = tool_source.parse_request_param_translation_elem()
+        if request_param_translation_elem is not None:
+            # Load input translator, used by datasource tools to change names/values of incoming parameters
+            self.input_translator = ToolInputTranslator.from_element( request_param_translation_elem )
+        else:
+            self.input_translator = None
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Load input translator, used by datasource tools to change names/values of incoming parameters
-        self.input_translator = root.find( "request_param_translation" )
-        if self.input_translator:
-            self.input_translator = ToolInputTranslator.from_element( self.input_translator )
         # Command line (template). Optional for tools that do not invoke a local program
         command = root.find("command")
         if command is not None and command.text is not None:

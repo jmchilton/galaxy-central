@@ -42,6 +42,9 @@ class XmlToolSource(ToolSource):
     def parse_require_login(self, default):
         return self._get_attribute_as_bool( "require_login", default )
 
+    def parse_request_param_translation_elem(self):
+        return self.root.find( "request_param_translation" )
+
     def _get_attribute_as_bool( self, attribute, default, elem=None ):
         if elem is None:
             elem = self.root
