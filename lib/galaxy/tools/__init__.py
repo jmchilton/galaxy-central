@@ -1487,19 +1487,15 @@ class Tool( object, Dictifiable ):
 
         self.__parse_legacy_code_features(tool_source)
 
+        # Load any tool specific options (optional)
+        self.options = dict( sanitize=True, refresh=False )
+        self.__update_options_dict( tool_source )
+        self.options = Bunch(** self.options)
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Load any tool specific options (optional)
-        self.options = dict( sanitize=True, refresh=False )
-        for option_elem in root.findall("options"):
-            for option, value in self.options.copy().items():
-                if isinstance(value, type(False)):
-                    self.options[option] = string_as_bool(option_elem.get(option, str(value)))
-                else:
-                    self.options[option] = option_elem.get(option, str(value))
-        self.options = Bunch(** self.options)
         # Parse tool inputs (if there are any required)
         self.parse_inputs( root )
         # Parse tool help
@@ -1571,6 +1567,19 @@ class Tool( object, Dictifiable ):
             file_name = code_elem.get("file")
             code_path = os.path.join( self.tool_dir, file_name )
             execfile( code_path, self.code_namespace )
+
+    def __update_options_dict(self, tool_source):
+        # TODO: Move following logic into ToolSource abstraction.
+        if not hasattr(tool_source, 'root'):
+            return
+
+        root = tool_source.root
+        for option_elem in root.findall("options"):
+            for option, value in self.options.copy().items():
+                if isinstance(value, type(False)):
+                    self.options[option] = string_as_bool(option_elem.get(option, str(value)))
+                else:
+                    self.options[option] = option_elem.get(option, str(value))
 
     @property
     def tests( self ):
