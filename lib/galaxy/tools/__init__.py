@@ -1521,7 +1521,7 @@ class Tool( object, Dictifiable ):
         self.requirements = requirements
         self.containers = containers
 
-        self.citations = self._parse_citations( root )
+        self.citations = self._parse_citations( tool_source )
 
         # Determine if this tool can be used in workflows
         self.is_workflow_compatible = self.check_workflow_compatible(root)
@@ -1921,7 +1921,12 @@ class Tool( object, Dictifiable ):
                 trace_msg = repr( traceback.format_tb( trace ) )
                 log.error( "Traceback: %s" % trace_msg )
 
-    def _parse_citations( self, root ):
+    def _parse_citations( self, tool_source ):
+        # TODO: Move following logic into ToolSource abstraction.
+        if not hasattr(tool_source, 'root'):
+            return []
+
+        root = tool_source.root
         citations = []
         citations_elem = root.find("citations")
         if not citations_elem:
