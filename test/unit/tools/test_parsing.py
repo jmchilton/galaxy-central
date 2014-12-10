@@ -14,6 +14,10 @@ TOOL_XML_1 = """
     <version_command interpreter="python">bwa.py --version</version_command>
     <parallelism method="multi" split_inputs="input1" split_mode="to_size" split_size="1" merge_outputs="out_file1" />
     <command interpreter="python">bwa.py --arg1=42</command>
+    <requirements>
+        <container type="docker">mycool/bwa</container>
+        <requirement type="package" version="1.0">bwa</requirement>
+    </requirements>
 </tool>
 """
 
@@ -26,7 +30,13 @@ command: "bowtie_wrapper.pl --map-the-stuff"
 interpreter: "perl"
 runtime_version:
   command: "bowtie --version"
-
+requirements:
+  - type: package
+    name: bwa
+    version: 1.0.1
+containers:
+  - type: docker
+    identifier: "awesome/bowtie"
 """
 
 
@@ -97,6 +107,11 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_action(self):
         assert self._tool_source.parse_action_module() is None
 
+    def test_requirements(self):
+        requirements, containers = self._tool_source.parse_requirements_and_containers()
+        assert requirements[0].type == "package"
+        assert containers[0].identifier == "mycool/bwa"
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -151,6 +166,12 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
     def test_action(self):
         assert self._tool_source.parse_action_module() is None
+
+    def test_requirements(self):
+        requirements, containers = self._tool_source.parse_requirements_and_containers()
+        assert requirements[0].type == "package"
+        assert requirements[0].name == "bwa"
+        assert containers[0].identifier == "awesome/bowtie"
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):

@@ -1,4 +1,5 @@
 from .interface import ToolSource
+from galaxy.tools.deps import requirements
 
 
 class YamlToolSource(ToolSource):
@@ -38,3 +39,6 @@ class YamlToolSource(ToolSource):
 
     def parse_version_command_interpreter(self):
         return self.root_dict.get("runtime_version", {}).get("interpreter", None)
+
+    def parse_requirements_and_containers(self):
+        return requirements.parse_requirements_from_dict(self.root_dict)

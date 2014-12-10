@@ -44,7 +44,6 @@ from galaxy.tools.actions import DefaultToolAction
 from galaxy.tools.actions.data_source import DataSourceToolAction
 from galaxy.tools.actions.data_manager import DataManagerToolAction
 from galaxy.tools.deps import build_dependency_manager
-from galaxy.tools.deps.requirements import parse_requirements_from_xml
 from galaxy.tools.parameters import check_param, params_from_strings, params_to_strings
 from galaxy.tools.parameters import output_collect
 from galaxy.tools.parameters.basic import (BaseURLToolParameter,
@@ -1518,7 +1517,7 @@ class Tool( object, Dictifiable ):
         self.__parse_tests(tool_source)
 
         # Requirements (dependencies)
-        requirements, containers = parse_requirements_from_xml( root )
+        requirements, containers = tool_source.parse_requirements_and_containers()
         self.requirements = requirements
         self.containers = containers
 

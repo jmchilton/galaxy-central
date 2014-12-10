@@ -1,5 +1,6 @@
 from .interface import ToolSource
 from galaxy.util import string_as_bool, xml_text
+from galaxy.tools.deps import requirements
 
 
 class XmlToolSource(ToolSource):
@@ -106,3 +107,6 @@ class XmlToolSource(ToolSource):
         if elem is None:
             elem = self.root
         return string_as_bool( elem.get( attribute, default ) )
+
+    def parse_requirements_and_containers(self):
+        return requirements.parse_requirements_from_xml(self.root)

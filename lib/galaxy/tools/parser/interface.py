@@ -117,3 +117,7 @@ class ToolSource(object):
         """ Return boolean indicating whether tool should be hidden in the tool menu.
         """
         return False
+
+    @abstractmethod
+    def parse_requirements_and_containers(self):
+        """ Return pair of ToolRequirement and ContainerDescription lists. """
