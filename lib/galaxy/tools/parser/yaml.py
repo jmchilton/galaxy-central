@@ -23,3 +23,9 @@ class YamlToolSource(ToolSource):
 
     def parse_require_login(self, default):
         return self.root_dict.get('require_login', default)
+
+    def parse_command(self):
+        return self.root_dict.get("command")
+
+    def parse_interpreter(self):
+        return self.root_dict.get("interpreter")

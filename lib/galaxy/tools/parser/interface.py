@@ -62,3 +62,15 @@ class ToolSource(object):
         XML element.
         """
         return None
+
+    @abstractmethod
+    def parse_command(self):
+        """ Return string contianing command to run.
+        """
+
+    @abstractmethod
+    def parse_interpreter(self):
+        """ Return string containing the interpreter to prepend to the command
+        (for instance this might be 'python' to run a Python wrapper located
+        adjacent to the tool).
+        """

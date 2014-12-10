@@ -1429,19 +1429,20 @@ class Tool( object, Dictifiable ):
         else:
             self.input_translator = None
 
+        # Command line (template). Optional for tools that do not invoke a local program
+        command = tool_source.parse_command()
+        if command is not None:
+            self.command = command.lstrip()  # get rid of leading whitespace
+            # Must pre-pend this AFTER processing the cheetah command template
+            self.interpreter = tool_source.parse_interpreter()
+        else:
+            self.command = ''
+            self.interpreter = None
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Command line (template). Optional for tools that do not invoke a local program
-        command = root.find("command")
-        if command is not None and command.text is not None:
-            self.command = command.text.lstrip()  # get rid of leading whitespace
-            # Must pre-pend this AFTER processing the cheetah command template
-            self.interpreter = command.get( "interpreter", None )
-        else:
-            self.command = ''
-            self.interpreter = None
         # Parameters used to build URL for redirection to external app
         redirect_url_params = root.find( "redirect_url_params" )
         if redirect_url_params is not None and redirect_url_params.text is not None:

@@ -45,6 +45,18 @@ class XmlToolSource(ToolSource):
     def parse_request_param_translation_elem(self):
         return self.root.find( "request_param_translation" )
 
+    def parse_command(self):
+        command_el = self._command_el
+        return (command_el is not None) and command_el.text
+
+    def parse_interpreter(self):
+        command_el = self._command_el
+        return (command_el is not None) and command_el.get("interpreter", None)
+
+    @property
+    def _command_el(self):
+        return self.root.find("command")
+
     def _get_attribute_as_bool( self, attribute, default, elem=None ):
         if elem is None:
             elem = self.root
