@@ -1450,12 +1450,13 @@ class Tool( object, Dictifiable ):
         else:
             self.redirect_url_params = ''
 
+        # Short description of the tool
+        self.description = tool_source.parse_description()
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Short description of the tool
-        self.description = xml_text(root, "description")
         # Versioning for tools
         self.version_string_cmd = None
         version_cmd = root.find("version_command")

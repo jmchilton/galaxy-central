@@ -37,6 +37,10 @@ class ToolSource(object):
     def parse_name(self):
         """ Parse a short name for tool (required). """
 
+    @abstractmethod
+    def parse_description(self):
+        """ Parse a description for tool. Longer than name, shorted than help. """
+
     def parse_is_multi_byte(self):
         """ Parse is_multi_byte from tool - TODO: figure out what this is and
         document.

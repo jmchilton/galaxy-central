@@ -10,6 +10,7 @@ import unittest
 
 TOOL_XML_1 = """
 <tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true">
+    <description>The BWA Mapper</description>
     <command interpreter="python">bwa.py --arg1=42</command>
 </tool>
 """
@@ -18,6 +19,7 @@ TOOL_YAML_1 = """
 name: "Bowtie Mapper"
 id: bowtie
 version: 1.0.2
+description: "The Bowtie Mapper"
 command: "bowtie_wrapper.pl --map-the-stuff"
 interpreter: "perl"
 """
@@ -72,6 +74,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert self._tool_source.parse_command() == "bwa.py --arg1=42"
         assert self._tool_source.parse_interpreter() == "python"
 
+    def test_descripting_parsing(self):
+        assert self._tool_source.parse_description() == "The BWA Mapper"
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -110,6 +115,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
     def test_parse_redirect_url_params_elem(self):
         assert self._tool_source.parse_redirect_url_params_elem() is None
+
+    def test_descripting_parsing(self):
+        assert self._tool_source.parse_description() == "The Bowtie Mapper"
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
