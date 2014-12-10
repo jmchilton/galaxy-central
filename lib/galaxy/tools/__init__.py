@@ -1522,8 +1522,7 @@ class Tool( object, Dictifiable ):
             mod = __import__( module, globals(), locals(), [cls])
             self.tool_action = getattr( mod, cls )()
         # Tests
-        self.__tests_elem = root.find( "tests" )
-        self.__tests_populated = False
+        self.__parse_tests(tool_source)
 
         # Requirements (dependencies)
         requirements, containers = parse_requirements_from_xml( root )
@@ -1581,6 +1580,18 @@ class Tool( object, Dictifiable ):
                     self.options[option] = string_as_bool(option_elem.get(option, str(value)))
                 else:
                     self.options[option] = option_elem.get(option, str(value))
+
+    def __parse_tests(self, tool_source):
+        # Currently only available for tool XML.
+        # TODO: Abstract XML out of this logic.
+        if not hasattr(tool_source, 'root'):
+            self.__tests_elem = ElementTree.fromstring("<tests />")
+            self.__tests_populated = False
+        else:
+            root = tool_source.root
+            # Tests
+            self.__tests_elem = root.find( "tests" )
+            self.__tests_populated = False
 
     @property
     def tests( self ):
