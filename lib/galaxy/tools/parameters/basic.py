@@ -1147,29 +1147,24 @@ class ColumnListParameter( SelectToolParameter ):
     >>> print clp.name
     numerical_column
     """
-    def __init__( self, tool, elem ):
-        SelectToolParameter.__init__( self, tool, elem )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source( input_source )
+        SelectToolParameter.__init__( self, tool, input_source )
         self.tool = tool
-        self.numerical = string_as_bool( elem.get( "numerical", False ))
-        # Allow specifing force_select for backward compat., but probably
-        # should use optional going forward for consistency with other
-        # parameters.
-        if "force_select" in elem.attrib:
-            self.force_select = string_as_bool( elem.get( "force_select" ) )
-        else:
-            self.force_select = not string_as_bool( elem.get( "optional", False ) )
-        self.accept_default = string_as_bool( elem.get( "accept_default", False ))
-        self.data_ref = elem.get( "data_ref", None )
+        self.numerical = input_source.get_bool( "numerical", False )
+        self.force_select = not input_source.parse_optional( False )
+        self.accept_default = input_source.get_bool( "accept_default", False )
+        self.data_ref = input_source.get( "data_ref", None )
         self.ref_input = None
         # Legacy style default value specification...
-        self.default_value = elem.get( "default_value", None )
+        self.default_value = input_source.get( "default_value", None )
         if self.default_value is None:
             # Newer style... more in line with other parameters.
-            self.default_value = elem.get( "value", None )
+            self.default_value = input_source.get( "value", None )
         if self.default_value is not None:
             self.default_value = ColumnListParameter._strip_c( self.default_value )
         self.is_dynamic = True
-        self.usecolnames = string_as_bool( elem.get( "use_header_names", False ))
+        self.usecolnames = input_source.get_bool( "use_header_names", False )
 
     def from_html( self, value, trans=None, context={} ):
         """

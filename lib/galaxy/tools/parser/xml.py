@@ -394,9 +394,10 @@ class XmlInputSource(InputSource):
 
     def __init__(self, input_elem):
         self.input_elem = input_elem
+        self.input_type = self.input_elem.tag
 
     def parse_input_type(self):
-        return self.input_elem.tag
+        return self.input_type
 
     def elem(self):
         return self.input_elem
@@ -438,3 +439,20 @@ class XmlInputSource(InputSource):
             selected = string_as_bool( option.get( "selected", False ) )
             static_options.append( ( option.text or value, value, selected ) )
         return static_options
+
+    def parse_optional(self, default=None):
+        """ Return boolean indicating wheter parameter is optional. """
+        elem = self.input_elem
+        if self.get('type') == "data_column":
+            # Allow specifing force_select for backward compat., but probably
+            # should use optional going forward for consistency with other
+            # parameters.
+            if "force_select" in elem.attrib:
+                force_select = string_as_bool( elem.get( "force_select" ) )
+            else:
+                force_select = not string_as_bool( elem.get( "optional", False ) )
+            return not force_select
+
+        if default is None:
+            default = self.default_optional
+        return self.get_bool( "optional", default )
