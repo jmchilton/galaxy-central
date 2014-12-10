@@ -49,6 +49,11 @@ outputs:
   out1:
     format: bam
     from_work_dir: out1.bam
+inputs:
+  - name: input1
+    type: integer
+    min: 7
+    max: 8
 """
 
 
@@ -209,6 +214,15 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
         assert exit[1].range_start == 1
         assert isinf(exit[1].range_end)
+
+    def test_inputs(self):
+        input_pages = self._tool_source.parse_input_pages()
+        assert input_pages.inputs_defined
+        page_sources = input_pages.page_sources
+        assert len(page_sources) == 1
+        page_source = page_sources[0]
+        input_sources = page_source.parse_input_sources()
+        assert len(input_sources) == 1
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):

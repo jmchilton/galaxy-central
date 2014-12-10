@@ -1,5 +1,8 @@
 from .interface import ToolSource
 from .interface import PagesSource
+from .interface import PageSource
+from .interface import InputSource
+
 from galaxy.tools.deps import requirements
 from galaxy.tools.parameters import output_collect
 import galaxy.tools
@@ -47,7 +50,9 @@ class YamlToolSource(ToolSource):
         return requirements.parse_requirements_from_dict(self.root_dict)
 
     def parse_input_pages(self):
-        return PagesSource([])
+        # All YAML tools have only one page (feature is deprecated)
+        page_source = YamlPageSource(self.root_dict.get("inputs", {}))
+        return PagesSource([page_source])
 
     def parse_stdio(self):
         from galaxy.jobs.error_level import StdioErrorLevel
@@ -90,3 +95,24 @@ class YamlToolSource(ToolSource):
             discover_datasets_dicts = [ discover_datasets_dicts ]
         output.dataset_collectors = output_collect.dataset_collectors_from_list( discover_datasets_dicts )
         return output
+
+
+class YamlPageSource(PageSource):
+
+    def __init__(self, inputs_list):
+        self.inputs_list = inputs_list
+
+    def parse_input_sources(self):
+        return map(YamlInputSource, self.inputs_list)
+
+
+class YamlInputSource(InputSource):
+
+    def __init__(self, input_dict):
+        self.input_dict = input_dict
+
+    def get(self, key, default=None):
+        return self.input_dict.get(key, default)
+
+    def get_bool(self, key, default):
+        return self.input_dict.get(key, default)
