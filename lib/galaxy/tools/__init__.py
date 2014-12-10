@@ -1485,23 +1485,12 @@ class Tool( object, Dictifiable ):
         # Is this a 'hidden' tool (hidden in tool menu)
         self.hidden = tool_source.parse_hidden()
 
+        self.__parse_legacy_code_features(tool_source)
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Load any tool specific code (optional) Edit: INS 5/29/2007,
-        # allow code files to have access to the individual tool's
-        # "module" if it has one.  Allows us to reuse code files, etc.
-        self.code_namespace = dict()
-        self.hook_map = {}
-        for code_elem in root.findall("code"):
-            for hook_elem in code_elem.findall("hook"):
-                for key, value in hook_elem.items():
-                    # map hook to function
-                    self.hook_map[key] = value
-            file_name = code_elem.get("file")
-            code_path = os.path.join( self.tool_dir, file_name )
-            execfile( code_path, self.code_namespace )
         # Load any tool specific options (optional)
         self.options = dict( sanitize=True, refresh=False )
         for option_elem in root.findall("options"):
@@ -1562,6 +1551,26 @@ class Tool( object, Dictifiable ):
             self.trackster_conf = TracksterConfig.parse( trackster_conf )
         else:
             self.trackster_conf = None
+
+    def __parse_legacy_code_features(self, tool_source):
+        self.code_namespace = dict()
+        self.hook_map = {}
+        if not hasattr(tool_source, 'root'):
+            return
+
+        # TODO: Move following logic into XmlToolSource.
+        root = tool_source.root
+        # Load any tool specific code (optional) Edit: INS 5/29/2007,
+        # allow code files to have access to the individual tool's
+        # "module" if it has one.  Allows us to reuse code files, etc.
+        for code_elem in root.findall("code"):
+            for hook_elem in code_elem.findall("hook"):
+                for key, value in hook_elem.items():
+                    # map hook to function
+                    self.hook_map[key] = value
+            file_name = code_elem.get("file")
+            code_path = os.path.join( self.tool_dir, file_name )
+            execfile( code_path, self.code_namespace )
 
     @property
     def tests( self ):
