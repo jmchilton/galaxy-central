@@ -1491,12 +1491,13 @@ class Tool( object, Dictifiable ):
         self.__update_options_dict( tool_source )
         self.options = Bunch(** self.options)
 
+        # Parse tool inputs (if there are any required)
+        self.parse_inputs( tool_source )
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Parse tool inputs (if there are any required)
-        self.parse_inputs( root )
         # Parse tool help
         self.parse_help( root )
         # Description of outputs produced by an invocation of the tool
@@ -1618,38 +1619,39 @@ class Tool( object, Dictifiable ):
             self.__tests_populated = True
         return self.__tests
 
-    def parse_inputs( self, root ):
+    def parse_inputs( self, tool_source ):
         """
         Parse the "<inputs>" element and create appropriate `ToolParameter`s.
         This implementation supports multiple pages and grouping constructs.
         """
         # Load parameters (optional)
-        input_elem = root.find("inputs")
+        pages = tool_source.parse_input_pages()
         enctypes = set()
-        if input_elem is not None:
-            # Handle properties of the input form
-            self.check_values = string_as_bool( input_elem.get("check_values", self.check_values ) )
-            self.nginx_upload = string_as_bool( input_elem.get( "nginx_upload", self.nginx_upload ) )
-            self.action = input_elem.get( 'action', self.action )
-            # If we have an nginx upload, save the action as a tuple instead of
-            # a string. The actual action needs to get url_for run to add any
-            # prefixes, and we want to avoid adding the prefix to the
-            # nginx_upload_path. This logic is handled in the tool_form.mako
-            # template.
-            if self.nginx_upload and self.app.config.nginx_upload_path:
-                if '?' in urllib.unquote_plus( self.action ):
-                    raise Exception( 'URL parameters in a non-default tool action can not be used '
-                                     'in conjunction with nginx upload.  Please convert them to '
-                                     'hidden POST parameters' )
-                self.action = (self.app.config.nginx_upload_path + '?nginx_redir=',
-                               urllib.unquote_plus(self.action))
-            self.target = input_elem.get( "target", self.target )
-            self.method = input_elem.get( "method", self.method )
-            # Parse the actual parameters
-            # Handle multiple page case
-            pages = input_elem.findall( "page" )
-            for page in ( pages or [ input_elem ] ):
-                display, inputs = self.parse_input_page( page, enctypes )
+        if pages.inputs_defined:
+            if hasattr(pages, "input_elem"):
+                input_elem = pages.input_elem
+                # Handle properties of the input form
+                self.check_values = string_as_bool( input_elem.get("check_values", self.check_values ) )
+                self.nginx_upload = string_as_bool( input_elem.get( "nginx_upload", self.nginx_upload ) )
+                self.action = input_elem.get( 'action', self.action )
+                # If we have an nginx upload, save the action as a tuple instead of
+                # a string. The actual action needs to get url_for run to add any
+                # prefixes, and we want to avoid adding the prefix to the
+                # nginx_upload_path. This logic is handled in the tool_form.mako
+                # template.
+                if self.nginx_upload and self.app.config.nginx_upload_path:
+                    if '?' in urllib.unquote_plus( self.action ):
+                        raise Exception( 'URL parameters in a non-default tool action can not be used '
+                                         'in conjunction with nginx upload.  Please convert them to '
+                                         'hidden POST parameters' )
+                    self.action = (self.app.config.nginx_upload_path + '?nginx_redir=',
+                                   urllib.unquote_plus(self.action))
+                self.target = input_elem.get( "target", self.target )
+                self.method = input_elem.get( "method", self.method )
+                # Parse the actual parameters
+                # Handle multiple page case
+            for page_source in pages.page_sources:
+                display, inputs = self.parse_input_page( page_source, enctypes )
                 self.inputs_by_page.append( inputs )
                 self.inputs.update( inputs )
                 self.display_by_page.append( display )
@@ -1671,7 +1673,8 @@ class Tool( object, Dictifiable ):
         # thus hardcoded)  FIXME: hidden parameters aren't
         # parameters at all really, and should be passed in a different
         # way, making this check easier.
-        self.template_macro_params = template_macro_params(root)
+        if hasattr(tool_source, 'root'):
+            self.template_macro_params = template_macro_params(tool_source.root)
         for param in self.inputs.values():
             if not isinstance( param, ( HiddenToolParameter, BaseURLToolParameter ) ):
                 self.input_required = True
@@ -1967,19 +1970,18 @@ class Tool( object, Dictifiable ):
                 log.error( "Traceback: %s" % trace_msg )
         return return_level
 
-    def parse_input_page( self, input_elem, enctypes ):
+    def parse_input_page( self, page_source, enctypes ):
         """
         Parse a page of inputs. This basically just calls 'parse_input_elem',
         but it also deals with possible 'display' elements which are supported
         only at the top/page level (not in groups).
         """
-        inputs = self.parse_input_elem( input_elem, enctypes )
+        if not hasattr(page_source, "parent_elem"):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+
+        inputs = self.parse_input_elem( page_source.parent_elem, enctypes )
         # Display
-        display_elem = input_elem.find("display")
-        if display_elem is not None:
-            display = xml_to_string(display_elem)
-        else:
-            display = None
+        display = page_source.parse_display()
         return display, inputs
 
     def parse_input_elem( self, parent_elem, enctypes, context=None ):
@@ -3326,8 +3328,8 @@ class DataSourceTool( OutputParameterJSONTool ):
     def _build_GALAXY_URL_parameter( self ):
         return ToolParameter.build( self, ElementTree.XML( '<param name="GALAXY_URL" type="baseurl" value="/tool_runner?tool_id=%s" />' % self.id ) )
 
-    def parse_inputs( self, root ):
-        super( DataSourceTool, self ).parse_inputs( root )
+    def parse_inputs( self, tool_source ):
+        super( DataSourceTool, self ).parse_inputs( tool_source )
         if 'GALAXY_URL' not in self.inputs:
             self.inputs[ 'GALAXY_URL' ] = self._build_GALAXY_URL_parameter()
             self.inputs_by_page[0][ 'GALAXY_URL' ] = self.inputs[ 'GALAXY_URL' ]

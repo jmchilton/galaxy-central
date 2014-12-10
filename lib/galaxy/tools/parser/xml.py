@@ -1,5 +1,10 @@
-from .interface import ToolSource
-from galaxy.util import string_as_bool, xml_text
+from .interface import (
+    ToolSource,
+    PagesSource,
+    PageSource,
+    InputSource,
+)
+from galaxy.util import string_as_bool, xml_text, xml_to_string
 from galaxy.tools.deps import requirements
 
 
@@ -110,3 +115,45 @@ class XmlToolSource(ToolSource):
 
     def parse_requirements_and_containers(self):
         return requirements.parse_requirements_from_xml(self.root)
+
+    def parse_input_pages(self):
+        return XmlPagesSource(self.root)
+
+
+class XmlPagesSource(PagesSource):
+
+    def __init__(self, root):
+        self.input_elem = root.find("inputs")
+        page_sources = []
+        if self.input_elem:
+            pages_elem = self.input_elem.findall( "page" )
+            for page in ( pages_elem or [ self.input_elem ] ):
+                page_sources.append(XmlPageSource(page))
+        super(XmlPagesSource, self).__init__(page_sources)
+
+    @property
+    def inputs_defined(self):
+        return self.input_elem is not None
+
+
+class XmlPageSource(PageSource):
+
+    def __init__(self, parent_elem):
+        self.parent_elem = parent_elem
+
+    def parse_display(self):
+        display_elem = self.parent_elem.find("display")
+        if display_elem is not None:
+            display = xml_to_string(display_elem)
+        else:
+            display = None
+        return display
+
+    def parse_input_sources(self):
+        return map(XmlInputSource, self.parent_elem)
+
+
+class XmlInputSource(InputSource):
+
+    def __init__(self, input_elem):
+        self.input_elem = input_elem

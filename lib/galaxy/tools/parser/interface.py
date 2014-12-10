@@ -121,3 +121,36 @@ class ToolSource(object):
     @abstractmethod
     def parse_requirements_and_containers(self):
         """ Return pair of ToolRequirement and ContainerDescription lists. """
+
+    @abstractmethod
+    def parse_input_pages(self):
+        """ Return a PagesSource representing inputs by page for tool. """
+
+
+class PagesSource(object):
+    """ Contains a list of Pages - each a list of InputSources -
+    each item in the outer list representing a page of inputs.
+    Pages are deprecated so ideally this outer list will always
+    be exactly a singleton.
+    """
+    def __init__(self, page_sources):
+        self.page_sources = page_sources
+
+    @property
+    def inputs_defined(self):
+        return True
+
+
+class PageSource(object):
+    __metaclass__ = ABCMeta
+
+    def parse_display(self):
+        return None
+
+    @abstractmethod
+    def parse_input_sources(self):
+        """ Return a list of InputSource objects. """
+
+
+class InputSource(object):
+    pass

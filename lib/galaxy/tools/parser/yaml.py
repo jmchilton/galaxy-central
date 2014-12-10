@@ -1,4 +1,5 @@
 from .interface import ToolSource
+from .interface import PagesSource
 from galaxy.tools.deps import requirements
 
 
@@ -42,3 +43,6 @@ class YamlToolSource(ToolSource):
 
     def parse_requirements_and_containers(self):
         return requirements.parse_requirements_from_dict(self.root_dict)
+
+    def parse_input_pages(self):
+        return PagesSource([])
