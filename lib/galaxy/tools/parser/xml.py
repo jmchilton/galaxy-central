@@ -132,7 +132,7 @@ class XmlToolSource(ToolSource):
 
     def parse_outputs(self, tool):
         out_elem = self.root.find("outputs")
-        if not out_elem:
+        if out_elem is None:
             return []
 
         def _parse(data_elem):

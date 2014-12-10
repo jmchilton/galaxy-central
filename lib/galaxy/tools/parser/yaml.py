@@ -1,6 +1,8 @@
 from .interface import ToolSource
 from .interface import PagesSource
 from galaxy.tools.deps import requirements
+from galaxy.tools.parameters import output_collect
+import galaxy.tools
 
 
 class YamlToolSource(ToolSource):
@@ -51,4 +53,29 @@ class YamlToolSource(ToolSource):
         return [], []
 
     def parse_outputs(self, tool):
-        return []
+        outputs = self.root_dict.get("outputs", {})
+        output_defs = []
+        for name, output_dict in outputs.items():
+            output_defs.append(self._parse_output(tool, name, output_dict))
+        return output_defs
+
+    def _parse_output(self, tool, name, output_dict):
+        # TODO: handle filters, actions, change_format
+        output = galaxy.tools.ToolOutput( name )
+        output.format = output_dict.get("format", "data")
+        output.change_format = []
+        output.format_source = output_dict.get("format_source", None)
+        output.metadata_source = output_dict.get("metadata_source", "")
+        output.parent = output_dict.get("parent", None)
+        output.label = output_dict.get( "label", None )
+        output.count = output_dict.get("count", 1)
+        output.filters = []
+        output.tool = tool
+        output.from_work_dir = output_dict.get("from_work_dir", None)
+        output.hidden = output_dict.get("hidden", "")
+        output.actions = galaxy.tools.ToolOutputActionGroup( output, None )
+        discover_datasets_dicts = output_dict.get( "discover_datasets", [] )
+        if isinstance( discover_datasets_dicts, dict ):
+            discover_datasets_dicts = [ discover_datasets_dicts ]
+        output.dataset_collectors = output_collect.dataset_collectors_from_list( discover_datasets_dicts )
+        return output

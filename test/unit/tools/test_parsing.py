@@ -18,6 +18,9 @@ TOOL_XML_1 = """
         <container type="docker">mycool/bwa</container>
         <requirement type="package" version="1.0">bwa</requirement>
     </requirements>
+    <outputs>
+        <data name="out1" format="bam" from_work_dir="out1.bam" />
+    </outputs>
 </tool>
 """
 
@@ -37,6 +40,10 @@ requirements:
 containers:
   - type: docker
     identifier: "awesome/bowtie"
+outputs:
+  out1:
+    format: bam
+    from_work_dir: out1.bam
 """
 
 
@@ -112,6 +119,10 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert requirements[0].type == "package"
         assert containers[0].identifier == "mycool/bwa"
 
+    def test_outputs(self):
+        outputs = self._tool_source.parse_outputs(object())
+        assert len(outputs) == 1
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -172,6 +183,10 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         assert requirements[0].type == "package"
         assert requirements[0].name == "bwa"
         assert containers[0].identifier == "awesome/bowtie"
+
+    def test_outputs(self):
+        outputs = self._tool_source.parse_outputs(object())
+        assert len(outputs) == 1
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
