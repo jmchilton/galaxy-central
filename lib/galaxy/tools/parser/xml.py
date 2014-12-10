@@ -393,3 +393,6 @@ class XmlInputSource(InputSource):
 
     def __init__(self, input_elem):
         self.input_elem = input_elem
+
+    def parse_input_type(self):
+        return self.input_elem.tag

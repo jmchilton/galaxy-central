@@ -57,6 +57,7 @@ from galaxy.tools.parameters.validation import LateValidationError
 from galaxy.tools.filters import FilterFactory
 from galaxy.tools.test import parse_tests_elem
 from galaxy.tools.parser import get_tool_source
+from galaxy.tools.parser.xml import XmlPageSource
 from galaxy.util import listify, parse_xml, rst_to_html, string_as_bool, string_to_object, xml_text, xml_to_string
 from galaxy.tools.parameters.meta import expand_meta_parameters
 from galaxy.util.bunch import Bunch
@@ -1772,15 +1773,12 @@ class Tool( object, Dictifiable ):
         but it also deals with possible 'display' elements which are supported
         only at the top/page level (not in groups).
         """
-        if not hasattr(page_source, "parent_elem"):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-
-        inputs = self.parse_input_elem( page_source.parent_elem, enctypes )
+        inputs = self.parse_input_elem( page_source, enctypes )
         # Display
         display = page_source.parse_display()
         return display, inputs
 
-    def parse_input_elem( self, parent_elem, enctypes, context=None ):
+    def parse_input_elem( self, page_source, enctypes, context=None ):
         """
         Parse a parent element whose children are inputs -- these could be
         groups (repeat, conditional) or param elements. Groups will be parsed
@@ -1788,14 +1786,17 @@ class Tool( object, Dictifiable ):
         """
         rval = odict()
         context = ExpressionContext( rval, context )
-        for elem in parent_elem:
+        for input_source in page_source.parse_input_sources():
             # Repeat group
-            if elem.tag == "repeat":
+            input_type = input_source.parse_input_type()
+            if input_type == "repeat":
                 group = Repeat()
+                elem = input_source.input_elem
                 group.name = elem.get( "name" )
                 group.title = elem.get( "title" )
                 group.help = elem.get( "help", None )
-                group.inputs = self.parse_input_elem( elem, enctypes, context )
+                page_source = XmlPageSource(elem)
+                group.inputs = self.parse_input_elem( page_source, enctypes, context )
                 group.default = int( elem.get( "default", 0 ) )
                 group.min = int( elem.get( "min", 0 ) )
                 # Use float instead of int so that 'inf' can be used for no max
@@ -1805,8 +1806,9 @@ class Tool( object, Dictifiable ):
                 # Force default to be within min-max range
                 group.default = min( max( group.default, group.min ), group.max )
                 rval[group.name] = group
-            elif elem.tag == "conditional":
+            elif input_type == "conditional":
                 group = Conditional()
+                elem = input_source.input_elem
                 group.name = elem.get( "name" )
                 group.value_ref = elem.get( 'value_ref', None )
                 group.value_ref_in_group = string_as_bool( elem.get( 'value_ref_in_group', 'True' ) )
@@ -1822,8 +1824,8 @@ class Tool( object, Dictifiable ):
                         case = ConditionalWhen()
                         case.value = case_value
                         if case_inputs:
-                            case.inputs = self.parse_input_elem(
-                                ElementTree.XML( "<when>%s</when>" % case_inputs ), enctypes, context )
+                            page_source = XmlPageSource( ElementTree.XML( "<when>%s</when>" % case_inputs ) )
+                            case.inputs = self.parse_input_elem( page_source, enctypes, context )
                         else:
                             case.inputs = odict()
                         group.cases.append( case )
@@ -1839,7 +1841,8 @@ class Tool( object, Dictifiable ):
                     for case_elem in elem.findall( "when" ):
                         case = ConditionalWhen()
                         case.value = case_elem.get( "value" )
-                        case.inputs = self.parse_input_elem( case_elem, enctypes, context )
+                        case_page_source = XmlPageSource(case_elem)
+                        case.inputs = self.parse_input_elem( case_page_source, enctypes, context )
                         group.cases.append( case )
                         try:
                             possible_cases.remove( case.value )
@@ -1854,7 +1857,8 @@ class Tool( object, Dictifiable ):
                         case.inputs = odict()
                         group.cases.append( case )
                 rval[group.name] = group
-            elif elem.tag == "upload_dataset":
+            elif input_type == "upload_dataset":
+                elem = input_source.input_elem
                 group = UploadDataset()
                 group.name = elem.get( "name" )
                 group.title = elem.get( "title" )
@@ -1864,9 +1868,11 @@ class Tool( object, Dictifiable ):
                 rval[ group.file_type_name ].refresh_on_change = True
                 rval[ group.file_type_name ].refresh_on_change_values = \
                     self.app.datatypes_registry.get_composite_extensions()
-                group.inputs = self.parse_input_elem( elem, enctypes, context )
+                group_page_source = XmlPageSource(elem)
+                group.inputs = self.parse_input_elem( group_page_source, enctypes, context )
                 rval[ group.name ] = group
-            elif elem.tag == "param":
+            elif input_type == "param":
+                elem = input_source.input_elem
                 param = self.parse_param_elem( elem, enctypes, context )
                 rval[param.name] = param
                 if hasattr( param, 'data_ref' ):
