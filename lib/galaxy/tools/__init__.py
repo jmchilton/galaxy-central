@@ -1413,14 +1413,15 @@ class Tool( object, Dictifiable ):
             # For backward compatibility, some tools may not have versions yet.
             self.version = "1.0.0"
 
+        # Support multi-byte tools
+        self.is_multi_byte = tool_source.parse_is_multi_byte()
+        # Legacy feature, ignored by UI.
+        self.force_history_refresh = False
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Support multi-byte tools
-        self.is_multi_byte = string_as_bool( root.get( "is_multi_byte", False ) )
-        # Legacy feature, ignored by UI.
-        self.force_history_refresh = False
         self.display_interface = string_as_bool( root.get( 'display_interface', str( self.display_interface ) ) )
         self.require_login = string_as_bool( root.get( 'require_login', str( self.require_login ) ) )
         # Load input translator, used by datasource tools to change names/values of incoming parameters

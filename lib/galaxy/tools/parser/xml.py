@@ -1,4 +1,5 @@
 from .interface import ToolSource
+from galaxy.util import string_as_bool
 
 
 class XmlToolSource(ToolSource):
@@ -31,3 +32,6 @@ class XmlToolSource(ToolSource):
 
     def parse_name(self):
         return self.root.get( "name" )
+
+    def parse_is_multi_byte(self):
+        return string_as_bool( self.root.get( "is_multi_byte", self.default_is_multi_byte ) )

@@ -9,7 +9,7 @@ import unittest
 
 
 TOOL_XML_1 = """
-<tool name="BWA Mapper" id="bwa" version="1.0.1">
+<tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true">
 </tool>
 """
 
@@ -53,6 +53,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_name(self):
         assert self._tool_source.parse_name() == "BWA Mapper"
 
+    def test_is_multi_byte(self):
+        assert self._tool_source.parse_is_multi_byte()
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -71,6 +74,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
     def test_name(self):
         assert self._tool_source.parse_name() == "Bowtie Mapper"
+
+    def test_is_multi_byte(self):
+        assert not self._tool_source.parse_is_multi_byte()
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
@@ -112,3 +118,6 @@ class SpecialToolLoaderTestCase(BaseLoaderTestCase):
         assert tool_module[0] == "galaxy.tools"
         assert tool_module[1] == "ExportHistoryTool"
         assert self._tool_source.parse_tool_type() == "export_history"
+
+    def test_is_multi_byte(self):
+        assert not self._tool_source.parse_is_multi_byte()

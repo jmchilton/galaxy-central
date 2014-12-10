@@ -7,6 +7,7 @@ class ToolSource(object):
     information from.
     """
     __metaclass__ = ABCMeta
+    default_is_multi_byte = False
 
     @abstractmethod
     def parse_id(self):
@@ -35,3 +36,9 @@ class ToolSource(object):
     @abstractmethod
     def parse_name(self):
         """ Parse a short name for tool (required). """
+
+    def parse_is_multi_byte(self):
+        """ Parse is_multi_byte from tool - TODO: figure out what this is and
+        document.
+        """
+        return self.default_is_multi_byte

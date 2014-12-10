@@ -14,3 +14,6 @@ class YamlToolSource(ToolSource):
 
     def parse_name(self):
         return self.root_dict.get("name")
+
+    def parse_is_multi_byte(self):
+        return self.root_dict.get("is_multi_byte", self.default_is_multi_byte)
