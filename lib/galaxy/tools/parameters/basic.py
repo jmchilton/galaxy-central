@@ -756,16 +756,18 @@ class SelectToolParameter( ToolParameter ):
     >>> print p.to_param_dict_string( ["y", "z"] )
     y,z
     """
-    def __init__( self, tool, elem, context=None ):
-        ToolParameter.__init__( self, tool, elem )
-        self.multiple = string_as_bool( elem.get( 'multiple', False ) )
+    def __init__( self, tool, input_source, context=None ):
+        input_source = ensure_input_source( input_source )
+        ToolParameter.__init__( self, tool, input_source )
+        self.multiple = input_source.get_bool( 'multiple', False )
         # Multiple selects are optional by default, single selection is the inverse.
-        self.optional = string_as_bool( elem.get( 'optional', self.multiple ) )
-        self.display = elem.get( 'display', None )
-        self.separator = elem.get( 'separator', ',' )
+        self.optional = input_source.parse_optional( self.multiple )
+        self.display = input_source.get( 'display', None )
+        self.separator = input_source.get( 'separator', ',' )
         self.legal_values = set()
         # TODO: the <dynamic_options> tag is deprecated and should be replaced with the <options> tag.
-        self.dynamic_options = elem.get( "dynamic_options", None )
+        self.dynamic_options = input_source.get( "dynamic_options", None )
+        elem = input_source.elem()
         options = elem.find( 'options' )
         if options is None:
             self.options = None
