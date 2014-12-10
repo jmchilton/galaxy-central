@@ -34,4 +34,12 @@ class XmlToolSource(ToolSource):
         return self.root.get( "name" )
 
     def parse_is_multi_byte(self):
-        return string_as_bool( self.root.get( "is_multi_byte", self.default_is_multi_byte ) )
+        return self._get_attribute_as_bool( "is_multi_byte", self.default_is_multi_byte )
+
+    def parse_display_interface(self, default):
+        return self._get_attribute_as_bool( "display_interface", default )
+
+    def _get_attribute_as_bool( self, attribute, default, elem=None ):
+        if elem is None:
+            elem = self.root
+        return string_as_bool( elem.get( attribute, default ) )

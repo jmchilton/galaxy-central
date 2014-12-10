@@ -17,3 +17,6 @@ class YamlToolSource(ToolSource):
 
     def parse_is_multi_byte(self):
         return self.root_dict.get("is_multi_byte", self.default_is_multi_byte)
+
+    def parse_display_interface(self, default):
+        return self.root_dict.get('display_interface', default)

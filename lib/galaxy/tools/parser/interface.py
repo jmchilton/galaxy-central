@@ -42,3 +42,9 @@ class ToolSource(object):
         document.
         """
         return self.default_is_multi_byte
+
+    def parse_display_interface(self, default):
+        """ Parse display_interface - fallback to default for the tool type
+        (supplied as default parameter) if not specified.
+        """
+        return default

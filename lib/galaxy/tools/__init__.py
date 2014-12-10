@@ -1418,11 +1418,12 @@ class Tool( object, Dictifiable ):
         # Legacy feature, ignored by UI.
         self.force_history_refresh = False
 
+        self.display_interface = tool_source.parse_display_interface( default=self.display_interface )
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        self.display_interface = string_as_bool( root.get( 'display_interface', str( self.display_interface ) ) )
         self.require_login = string_as_bool( root.get( 'require_login', str( self.require_login ) ) )
         # Load input translator, used by datasource tools to change names/values of incoming parameters
         self.input_translator = root.find( "request_param_translation" )
