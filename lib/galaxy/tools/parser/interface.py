@@ -99,3 +99,9 @@ class ToolSource(object):
         driving the tool. Return None to not generate or record such a command.
         """
         return None
+
+    def parse_parallelism(self):
+        """ Return a galaxy.jobs.ParallismInfo object describing task splitting
+        or None.
+        """
+        return None

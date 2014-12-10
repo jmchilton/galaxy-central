@@ -1466,16 +1466,9 @@ class Tool( object, Dictifiable ):
                 command_line = self.version_string_cmd.replace(executable, abs_executable, 1)
                 self.version_string_cmd = version_cmd_interpreter + " " + command_line
 
-        if not hasattr( tool_source, "root" ):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-        root = tool_source.root
-
         # Parallelism for tasks, read from tool config.
-        parallelism = root.find("parallelism")
-        if parallelism is not None and parallelism.get("method"):
-            self.parallelism = ParallelismInfo(parallelism)
-        else:
-            self.parallelism = None
+        self.parallelism = tool_source.parse_parallelism()
+
         # Get JobToolConfiguration(s) valid for this particular Tool.  At least
         # a 'default' will be provided that uses the 'default' handler and
         # 'default' destination.  I thought about moving this to the
@@ -1488,6 +1481,11 @@ class Tool( object, Dictifiable ):
         # In the toolshed context, there is no job config.
         if 'job_config' in dir(self.app):
             self.job_tool_configurations = self.app.job_config.get_job_tool_configurations(self_ids)
+
+        if not hasattr( tool_source, "root" ):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+        root = tool_source.root
+
         # Is this a 'hidden' tool (hidden in tool menu)
         self.hidden = xml_text(root, "hidden")
         if self.hidden:

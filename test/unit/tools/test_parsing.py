@@ -12,6 +12,7 @@ TOOL_XML_1 = """
 <tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true">
     <description>The BWA Mapper</description>
     <version_command interpreter="python">bwa.py --version</version_command>
+    <parallelism method="multi" split_inputs="input1" split_mode="to_size" split_size="1" merge_outputs="out_file1" />
     <command interpreter="python">bwa.py --arg1=42</command>
 </tool>
 """
@@ -85,6 +86,11 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert self._tool_source.parse_version_command() == "bwa.py --version"
         assert self._tool_source.parse_version_command_interpreter() == "python"
 
+    def test_parallelism(self):
+        parallelism_info = self._tool_source.parse_parallelism()
+        assert parallelism_info.method == "multi"
+        assert parallelism_info.attributes["split_inputs"] == "input1"
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -131,6 +137,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         assert self._tool_source.parse_version_command() == "bowtie --version"
         assert self._tool_source.parse_version_command_interpreter() is None
 
+    def test_parallelism(self):
+        assert self._tool_source.parse_parallelism() is None
+
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "ds.xml"
@@ -167,6 +176,9 @@ class DataSourceLoaderTestCase(BaseLoaderTestCase):
 
     def test_redirect_url_params_elem(self):
         assert self._tool_source.parse_redirect_url_params_elem() is not None
+
+    def test_parallelism(self):
+        assert self._tool_source.parse_parallelism() is None
 
 
 class SpecialToolLoaderTestCase(BaseLoaderTestCase):

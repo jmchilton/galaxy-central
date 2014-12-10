@@ -71,6 +71,14 @@ class XmlToolSource(ToolSource):
                 return version_cmd_interpreter
         return None
 
+    def parse_parallelism(self):
+        parallelism = self.root.find("parallelism")
+        parallelism_info = None
+        if parallelism is not None and parallelism.get("method"):
+            from galaxy.jobs import ParallelismInfo
+            return ParallelismInfo(parallelism)
+        return parallelism_info
+
     def parse_redirect_url_params_elem(self):
         return self.root.find("redirect_url_params")
 
