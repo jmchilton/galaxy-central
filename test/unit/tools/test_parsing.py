@@ -9,7 +9,7 @@ import unittest
 
 
 TOOL_XML_1 = """
-<tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true">
+<tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true" hidden="true">
     <description>The BWA Mapper</description>
     <version_command interpreter="python">bwa.py --version</version_command>
     <parallelism method="multi" split_inputs="input1" split_mode="to_size" split_size="1" merge_outputs="out_file1" />
@@ -91,6 +91,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert parallelism_info.method == "multi"
         assert parallelism_info.attributes["split_inputs"] == "input1"
 
+    def test_hidden(self):
+        assert self._tool_source.parse_hidden()
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -140,6 +143,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
     def test_parallelism(self):
         assert self._tool_source.parse_parallelism() is None
 
+    def test_hidden(self):
+        assert not self._tool_source.parse_hidden()
+
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "ds.xml"
@@ -179,6 +185,9 @@ class DataSourceLoaderTestCase(BaseLoaderTestCase):
 
     def test_parallelism(self):
         assert self._tool_source.parse_parallelism() is None
+
+    def test_hidden(self):
+        assert not self._tool_source.parse_hidden()
 
 
 class SpecialToolLoaderTestCase(BaseLoaderTestCase):

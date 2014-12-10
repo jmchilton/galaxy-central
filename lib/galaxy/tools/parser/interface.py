@@ -105,3 +105,8 @@ class ToolSource(object):
         or None.
         """
         return None
+
+    def parse_hidden(self):
+        """ Return boolean indicating whether tool should be hidden in the tool menu.
+        """
+        return False

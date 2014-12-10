@@ -79,6 +79,12 @@ class XmlToolSource(ToolSource):
             return ParallelismInfo(parallelism)
         return parallelism_info
 
+    def parse_hidden(self):
+        hidden = xml_text(self.root, "hidden")
+        if hidden:
+            hidden = string_as_bool(hidden)
+        return hidden
+
     def parse_redirect_url_params_elem(self):
         return self.root.find("redirect_url_params")
 

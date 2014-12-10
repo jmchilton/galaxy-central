@@ -1482,14 +1482,13 @@ class Tool( object, Dictifiable ):
         if 'job_config' in dir(self.app):
             self.job_tool_configurations = self.app.job_config.get_job_tool_configurations(self_ids)
 
+        # Is this a 'hidden' tool (hidden in tool menu)
+        self.hidden = tool_source.parse_hidden()
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Is this a 'hidden' tool (hidden in tool menu)
-        self.hidden = xml_text(root, "hidden")
-        if self.hidden:
-            self.hidden = string_as_bool(self.hidden)
         # Load any tool specific code (optional) Edit: INS 5/29/2007,
         # allow code files to have access to the individual tool's
         # "module" if it has one.  Allows us to reuse code files, etc.
