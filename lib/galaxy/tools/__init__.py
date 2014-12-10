@@ -1525,12 +1525,7 @@ class Tool( object, Dictifiable ):
 
         # Determine if this tool can be used in workflows
         self.is_workflow_compatible = self.check_workflow_compatible(root)
-        # Trackster configuration.
-        trackster_conf = root.find( "trackster_conf" )
-        if trackster_conf is not None:
-            self.trackster_conf = TracksterConfig.parse( trackster_conf )
-        else:
-            self.trackster_conf = None
+        self.__parse_trackster_conf( tool_source )
 
     def __parse_legacy_features(self, tool_source):
         self.code_namespace = dict()
@@ -1598,6 +1593,16 @@ class Tool( object, Dictifiable ):
                 filename = conf_elem.get( "filename", None )
                 text = conf_elem.text
                 self.config_files.append( ( name, filename, text ) )
+
+    def __parse_trackster_conf(self, tool_source):
+        self.trackster_conf = None
+        if not hasattr(tool_source, 'root'):
+            return
+
+        # Trackster configuration.
+        trackster_conf = tool_source.root.find( "trackster_conf" )
+        if trackster_conf is not None:
+            self.trackster_conf = TracksterConfig.parse( trackster_conf )
 
     @property
     def tests( self ):
