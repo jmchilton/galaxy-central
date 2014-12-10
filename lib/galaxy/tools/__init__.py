@@ -1523,10 +1523,7 @@ class Tool( object, Dictifiable ):
         self.citations = self._parse_citations( tool_source )
 
         # Determine if this tool can be used in workflows
-        if not hasattr( tool_source, "root" ):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-        root = tool_source.root
-        self.is_workflow_compatible = self.check_workflow_compatible(root)
+        self.is_workflow_compatible = self.check_workflow_compatible(tool_source)
         self.__parse_trackster_conf( tool_source )
 
     def __parse_legacy_features(self, tool_source):
@@ -1903,7 +1900,7 @@ class Tool( object, Dictifiable ):
                 self.repository_owner = tool_shed_repository.owner
                 self.installed_changeset_revision = tool_shed_repository.installed_changeset_revision
 
-    def check_workflow_compatible( self, root ):
+    def check_workflow_compatible( self, tool_source ):
         """
         Determine if a tool can be used in workflows. External tools and the
         upload tool are currently not supported by workflows.
@@ -1916,8 +1913,11 @@ class Tool( object, Dictifiable ):
         # right now
         if self.tool_type.startswith( 'data_source' ):
             return False
-        if not string_as_bool( root.get( "workflow_compatible", "True" ) ):
-            return False
+
+        if hasattr( tool_source, "root"):
+            root = tool_source.root
+            if not string_as_bool( root.get( "workflow_compatible", "True" ) ):
+                return False
         # TODO: Anyway to capture tools that dynamically change their own
         #       outputs?
         return True
