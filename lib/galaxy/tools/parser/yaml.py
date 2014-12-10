@@ -50,7 +50,18 @@ class YamlToolSource(ToolSource):
         return PagesSource([])
 
     def parse_stdio(self):
-        return [], []
+        from galaxy.jobs.error_level import StdioErrorLevel
+
+        # New format - starting out just using exit code.
+        exit_code_lower = galaxy.tools.ToolStdioExitCode()
+        exit_code_lower.range_start = float("-inf")
+        exit_code_lower.range_end = -1
+        exit_code_lower.error_level = StdioErrorLevel.FATAL
+        exit_code_high = galaxy.tools.ToolStdioExitCode()
+        exit_code_high.range_start = 1
+        exit_code_high.range_end = float("inf")
+        exit_code_lower.error_level = StdioErrorLevel.FATAL
+        return [exit_code_lower, exit_code_high], []
 
     def parse_outputs(self, tool):
         outputs = self.root_dict.get("outputs", {})

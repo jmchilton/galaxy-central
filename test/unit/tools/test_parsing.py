@@ -1,3 +1,5 @@
+from math import isinf
+
 import os.path
 import tempfile
 import shutil
@@ -21,6 +23,9 @@ TOOL_XML_1 = """
     <outputs>
         <data name="out1" format="bam" from_work_dir="out1.bam" />
     </outputs>
+    <stdio>
+        <exit_code range="1:" level="fatal" />
+    </stdio>
 </tool>
 """
 
@@ -123,6 +128,13 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         outputs = self._tool_source.parse_outputs(object())
         assert len(outputs) == 1
 
+    def test_stdio(self):
+        exit, regexes = self._tool_source.parse_stdio()
+        assert len(exit) == 1
+        assert len(regexes) == 0
+        assert exit[0].range_start == 1
+        assert isinf(exit[0].range_end)
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -187,6 +199,16 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
     def test_outputs(self):
         outputs = self._tool_source.parse_outputs(object())
         assert len(outputs) == 1
+
+    def test_stdio(self):
+        exit, regexes = self._tool_source.parse_stdio()
+        assert len(exit) == 2
+
+        assert isinf(exit[0].range_start)
+        assert exit[0].range_start == float("-inf")
+
+        assert exit[1].range_start == 1
+        assert isinf(exit[1].range_end)
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
