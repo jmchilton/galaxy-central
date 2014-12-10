@@ -131,6 +131,13 @@ class ToolSource(object):
         """ Return a list of ToolOutput objects.
         """
 
+    @abstractmethod
+    def parse_stdio(self):
+        """ Builds lists of ToolStdioExitCode and ToolStdioRegex objects
+        to describe tool execution error conditions.
+        """
+        return [], []
+
 
 class PagesSource(object):
     """ Contains a list of Pages - each a list of InputSources -

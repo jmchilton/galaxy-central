@@ -1,3 +1,9 @@
+import logging
+import re
+import traceback
+import sys
+from math import isinf
+
 from .interface import (
     ToolSource,
     PagesSource,
@@ -8,6 +14,8 @@ from galaxy.util import string_as_bool, xml_text, xml_to_string
 from galaxy.tools.deps import requirements
 import galaxy.tools
 from galaxy.tools.parameters import output_collect
+
+log = logging.getLogger( __name__ )
 
 
 class XmlToolSource(ToolSource):
@@ -147,6 +155,205 @@ class XmlToolSource(ToolSource):
         output.actions = galaxy.tools.ToolOutputActionGroup( output, data_elem.find( 'actions' ) )
         output.dataset_collectors = output_collect.dataset_collectors_from_elem( data_elem )
         return output
+
+    def parse_stdio(self):
+        parser = StdioParser(self.root)
+        return parser.stdio_exit_codes, parser.stdio_regexes
+
+
+class StdioParser(object):
+
+    def __init__(self, root):
+        try:
+            self.stdio_exit_codes = list()
+            self.stdio_regexes = list()
+
+            # We should have a single <stdio> element, but handle the case for
+            # multiples.
+            # For every stdio element, add all of the exit_code and regex
+            # subelements that we find:
+            for stdio_elem in ( root.findall( 'stdio' ) ):
+                self.parse_stdio_exit_codes( stdio_elem )
+                self.parse_stdio_regexes( stdio_elem )
+        except Exception:
+            log.error( "Exception in parse_stdio! " + str(sys.exc_info()) )
+
+    def parse_stdio_exit_codes( self, stdio_elem ):
+        """
+        Parse the tool's <stdio> element's <exit_code> subelements.
+        This will add all of those elements, if any, to self.stdio_exit_codes.
+        """
+        try:
+            # Look for all <exit_code> elements. Each exit_code element must
+            # have a range/value.
+            # Exit-code ranges have precedence over a single exit code.
+            # So if there are value and range attributes, we use the range
+            # attribute. If there is neither a range nor a value, then print
+            # a warning and skip to the next.
+            for exit_code_elem in ( stdio_elem.findall( "exit_code" ) ):
+                exit_code = galaxy.tools.ToolStdioExitCode()
+                # Each exit code has an optional description that can be
+                # part of the "desc" or "description" attributes:
+                exit_code.desc = exit_code_elem.get( "desc" )
+                if None == exit_code.desc:
+                    exit_code.desc = exit_code_elem.get( "description" )
+                # Parse the error level:
+                exit_code.error_level = (
+                    self.parse_error_level( exit_code_elem.get( "level" )))
+                code_range = exit_code_elem.get( "range", "" )
+                if None == code_range:
+                    code_range = exit_code_elem.get( "value", "" )
+                if None == code_range:
+                    log.warning( "Tool stdio exit codes must have "
+                                 + "a range or value" )
+                    continue
+                # Parse the range. We look for:
+                #   :Y
+                #  X:
+                #  X:Y   - Split on the colon. We do not allow a colon
+                #          without a beginning or end, though we could.
+                # Also note that whitespace is eliminated.
+                # TODO: Turn this into a single match - it should be
+                # more efficient.
+                code_range = re.sub( "\s", "", code_range )
+                code_ranges = re.split( ":", code_range )
+                if ( len( code_ranges ) == 2 ):
+                    if ( None == code_ranges[0] or '' == code_ranges[0] ):
+                        exit_code.range_start = float( "-inf" )
+                    else:
+                        exit_code.range_start = int( code_ranges[0] )
+                    if ( None == code_ranges[1] or '' == code_ranges[1] ):
+                        exit_code.range_end = float( "inf" )
+                    else:
+                        exit_code.range_end = int( code_ranges[1] )
+                # If we got more than one colon, then ignore the exit code.
+                elif ( len( code_ranges ) > 2 ):
+                    log.warning( "Invalid tool exit_code range %s - ignored"
+                                 % code_range )
+                    continue
+                # Else we have a singular value. If it's not an integer, then
+                # we'll just write a log message and skip this exit_code.
+                else:
+                    try:
+                        exit_code.range_start = int( code_range )
+                    except:
+                        log.error( code_range )
+                        log.warning( "Invalid range start for tool's exit_code %s: exit_code ignored" % code_range )
+                        continue
+                    exit_code.range_end = exit_code.range_start
+                # TODO: Check if we got ">", ">=", "<", or "<=":
+                # Check that the range, regardless of how we got it,
+                # isn't bogus. If we have two infinite values, then
+                # the start must be -inf and the end must be +inf.
+                # So at least warn about this situation:
+                if ( isinf( exit_code.range_start ) and
+                     isinf( exit_code.range_end ) ):
+                    log.warning( "Tool exit_code range %s will match on "
+                                 + "all exit codes" % code_range )
+                self.stdio_exit_codes.append( exit_code )
+        except Exception:
+            log.error( "Exception in parse_stdio_exit_codes! "
+                       + str(sys.exc_info()) )
+            trace = sys.exc_info()[2]
+            if ( None != trace ):
+                trace_msg = repr( traceback.format_tb( trace ) )
+                log.error( "Traceback: %s" % trace_msg )
+
+    def parse_stdio_regexes( self, stdio_elem ):
+        """
+        Look in the tool's <stdio> elem for all <regex> subelements
+        that define how to look for warnings and fatal errors in
+        stdout and stderr. This will add all such regex elements
+        to the Tols's stdio_regexes list.
+        """
+        try:
+            # Look for every <regex> subelement. The regular expression
+            # will have "match" and "source" (or "src") attributes.
+            for regex_elem in ( stdio_elem.findall( "regex" ) ):
+                # TODO: Fill in ToolStdioRegex
+                regex = galaxy.tools.ToolStdioRegex()
+                # Each regex has an optional description that can be
+                # part of the "desc" or "description" attributes:
+                regex.desc = regex_elem.get( "desc" )
+                if None == regex.desc:
+                    regex.desc = regex_elem.get( "description" )
+                # Parse the error level
+                regex.error_level = (
+                    self.parse_error_level( regex_elem.get( "level" ) ) )
+                regex.match = regex_elem.get( "match", "" )
+                if None == regex.match:
+                    # TODO: Convert the offending XML element to a string
+                    log.warning( "Ignoring tool's stdio regex element %s - "
+                                 "the 'match' attribute must exist" )
+                    continue
+                # Parse the output sources. We look for the "src", "source",
+                # and "sources" attributes, in that order. If there is no
+                # such source, then the source defaults to stderr & stdout.
+                # Look for a comma and then look for "err", "error", "out",
+                # and "output":
+                output_srcs = regex_elem.get( "src" )
+                if None == output_srcs:
+                    output_srcs = regex_elem.get( "source" )
+                if None == output_srcs:
+                    output_srcs = regex_elem.get( "sources" )
+                if None == output_srcs:
+                    output_srcs = "output,error"
+                output_srcs = re.sub( "\s", "", output_srcs )
+                src_list = re.split( ",", output_srcs )
+                # Just put together anything to do with "out", including
+                # "stdout", "output", etc. Repeat for "stderr", "error",
+                # and anything to do with "err". If neither stdout nor
+                # stderr were specified, then raise a warning and scan both.
+                for src in src_list:
+                    if re.search( "both", src, re.IGNORECASE ):
+                        regex.stdout_match = True
+                        regex.stderr_match = True
+                    if re.search( "out", src, re.IGNORECASE ):
+                        regex.stdout_match = True
+                    if re.search( "err", src, re.IGNORECASE ):
+                        regex.stderr_match = True
+                    if (not regex.stdout_match and not regex.stderr_match):
+                        log.warning( "Tool id %s: unable to determine if tool "
+                                     "stream source scanning is output, error, "
+                                     "or both. Defaulting to use both." % self.id )
+                        regex.stdout_match = True
+                        regex.stderr_match = True
+                self.stdio_regexes.append( regex )
+        except Exception:
+            log.error( "Exception in parse_stdio_exit_codes! "
+                       + str(sys.exc_info()) )
+            trace = sys.exc_info()[2]
+            if ( None != trace ):
+                trace_msg = repr( traceback.format_tb( trace ) )
+                log.error( "Traceback: %s" % trace_msg )
+
+    # TODO: This method doesn't have to be part of the Tool class.
+    def parse_error_level( self, err_level ):
+        """
+        Parses error level and returns error level enumeration. If
+        unparsable, returns 'fatal'
+        """
+        from galaxy.jobs.error_level import StdioErrorLevel
+        return_level = StdioErrorLevel.FATAL
+        try:
+            if err_level:
+                if ( re.search( "log", err_level, re.IGNORECASE ) ):
+                    return_level = StdioErrorLevel.LOG
+                elif ( re.search( "warning", err_level, re.IGNORECASE ) ):
+                    return_level = StdioErrorLevel.WARNING
+                elif ( re.search( "fatal", err_level, re.IGNORECASE ) ):
+                    return_level = StdioErrorLevel.FATAL
+                else:
+                    log.debug( "Tool %s: error level %s did not match log/warning/fatal" %
+                               ( self.id, err_level ) )
+        except Exception:
+            log.error( "Exception in parse_error_level "
+                       + str(sys.exc_info() ) )
+            trace = sys.exc_info()[2]
+            if ( None != trace ):
+                trace_msg = repr( traceback.format_tb( trace ) )
+                log.error( "Traceback: %s" % trace_msg )
+        return return_level
 
 
 class XmlPagesSource(PagesSource):

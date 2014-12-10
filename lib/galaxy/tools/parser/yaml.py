@@ -46,3 +46,9 @@ class YamlToolSource(ToolSource):
 
     def parse_input_pages(self):
         return PagesSource([])
+
+    def parse_stdio(self):
+        return [], []
+
+    def parse_outputs(self, tool):
+        return []
