@@ -1453,21 +1453,23 @@ class Tool( object, Dictifiable ):
         # Short description of the tool
         self.description = tool_source.parse_description()
 
-        if not hasattr( tool_source, "root" ):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-        root = tool_source.root
-
         # Versioning for tools
         self.version_string_cmd = None
-        version_cmd = root.find("version_command")
-        if version_cmd is not None:
-            self.version_string_cmd = version_cmd.text.strip()
-            version_cmd_interpreter = version_cmd.get( "interpreter", None )
+        version_command = tool_source.parse_version_command()
+        if version_command is not None:
+            self.version_string_cmd = version_command.strip()
+
+            version_cmd_interpreter = tool_source.parse_version_command_interpreter()
             if version_cmd_interpreter:
                 executable = self.version_string_cmd.split()[0]
                 abs_executable = os.path.abspath(os.path.join(self.tool_dir, executable))
                 command_line = self.version_string_cmd.replace(executable, abs_executable, 1)
                 self.version_string_cmd = version_cmd_interpreter + " " + command_line
+
+        if not hasattr( tool_source, "root" ):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+        root = tool_source.root
+
         # Parallelism for tasks, read from tool config.
         parallelism = root.find("parallelism")
         if parallelism is not None and parallelism.get("method"):

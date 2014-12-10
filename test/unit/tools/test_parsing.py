@@ -11,6 +11,7 @@ import unittest
 TOOL_XML_1 = """
 <tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true">
     <description>The BWA Mapper</description>
+    <version_command interpreter="python">bwa.py --version</version_command>
     <command interpreter="python">bwa.py --arg1=42</command>
 </tool>
 """
@@ -22,6 +23,9 @@ version: 1.0.2
 description: "The Bowtie Mapper"
 command: "bowtie_wrapper.pl --map-the-stuff"
 interpreter: "perl"
+runtime_version:
+  command: "bowtie --version"
+
 """
 
 
@@ -77,6 +81,10 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_descripting_parsing(self):
         assert self._tool_source.parse_description() == "The BWA Mapper"
 
+    def test_version_command(self):
+        assert self._tool_source.parse_version_command() == "bwa.py --version"
+        assert self._tool_source.parse_version_command_interpreter() == "python"
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -118,6 +126,10 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
 
     def test_descripting_parsing(self):
         assert self._tool_source.parse_description() == "The Bowtie Mapper"
+
+    def test_version_command(self):
+        assert self._tool_source.parse_version_command() == "bowtie --version"
+        assert self._tool_source.parse_version_command_interpreter() is None
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
@@ -171,3 +183,7 @@ class SpecialToolLoaderTestCase(BaseLoaderTestCase):
 
     def test_is_multi_byte(self):
         assert not self._tool_source.parse_is_multi_byte()
+
+    def test_version_command(self):
+        assert self._tool_source.parse_version_command() is None
+        assert self._tool_source.parse_version_command_interpreter() is None

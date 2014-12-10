@@ -87,3 +87,15 @@ class ToolSource(object):
         XML element.
         """
         return None
+
+    def parse_version_command(self):
+        """ Parse command used to determine version of primary application
+        driving the tool. Return None to not generate or record such a command.
+        """
+        return None
+
+    def parse_version_command_interpreter(self):
+        """ Parse command used to determine version of primary application
+        driving the tool. Return None to not generate or record such a command.
+        """
+        return None

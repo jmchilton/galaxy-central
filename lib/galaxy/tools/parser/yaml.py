@@ -32,3 +32,9 @@ class YamlToolSource(ToolSource):
 
     def parse_interpreter(self):
         return self.root_dict.get("interpreter")
+
+    def parse_version_command(self):
+        return self.root_dict.get("runtime_version", {}).get("command", None)
+
+    def parse_version_command_interpreter(self):
+        return self.root_dict.get("runtime_version", {}).get("interpreter", None)
