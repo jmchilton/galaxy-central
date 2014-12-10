@@ -223,3 +223,8 @@ class InputSource(object):
         defining a dynamic options.
         """
         return []
+
+    def parse_conversion_tuples(self):
+        """ Return list of (name, extension) to describe explicit conversions.
+        """
+        return []

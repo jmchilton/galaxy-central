@@ -1667,8 +1667,8 @@ class DummyDataset( object ):
 
 class BaseDataToolParameter( ToolParameter ):
 
-    def __init__( self, tool, elem, trans ):
-        super(BaseDataToolParameter, self).__init__( tool, elem )
+    def __init__( self, tool, input_source, trans ):
+        super(BaseDataToolParameter, self).__init__( tool, input_source )
 
     def _get_history( self, trans, history=None ):
         class_name = self.__class__.__name__
@@ -1707,32 +1707,28 @@ class BaseDataToolParameter( ToolParameter ):
             datatypes_registry = tool.app.datatypes_registry
         return datatypes_registry
 
-    def _parse_formats( self, trans, tool, elem ):
+    def _parse_formats( self, trans, tool, input_source ):
         datatypes_registry = self._datatypes_registery( trans, tool )
 
         # Build tuple of classes for supported data formats
         formats = []
-        self.extensions = elem.get( 'format', 'data' ).split( "," )
+        self.extensions = input_source.get( 'format', 'data' ).split( "," )
         normalized_extensions = [extension.strip().lower() for extension in self.extensions]
         for extension in normalized_extensions:
             formats.append( datatypes_registry.get_datatype_by_extension( extension ) )
         self.formats = formats
 
-    def _parse_options( self, elem ):
+    def _parse_options( self, input_source ):
         # TODO: Enhance dynamic options for DataToolParameters. Currently,
         #       only the special case key='build' of type='data_meta' is
         #       a valid filter
-        options = elem.find( 'options' )
-        if options is None:
-            self.options = None
-            self.options_filter_attribute = None
-        else:
-            self.options = dynamic_options.DynamicOptions( options, self )
-
-            #HACK to get around current hardcoded limitation of when a set of dynamic options is defined for a DataToolParameter
-            #it always causes available datasets to be filtered by dbkey
-            #this behavior needs to be entirely reworked (in a backwards compatible manner)
-            self.options_filter_attribute = options.get(  'options_filter_attribute', None )
+        self.options_filter_attribute = None
+        self.options = input_source.parse_dynamic_options( self )
+        print self.options
+        if self.options:
+            # TODO: Abstract away XML handling here.
+            options_elem = input_source.elem().find('options')
+            self.options_filter_attribute = options_elem.get(  'options_filter_attribute', None )
         self.is_dynamic = self.options is not None
 
     def _switch_fields( self, fields, default_field ):
@@ -1757,21 +1753,19 @@ class DataToolParameter( BaseDataToolParameter ):
     security stuff will dramatically alter this anyway.
     """
 
-    def __init__( self, tool, elem, trans=None):
-        super(DataToolParameter, self).__init__( tool, elem, trans )
+    def __init__( self, tool, input_source, trans=None):
+        input_source = ensure_input_source( input_source )
+        super(DataToolParameter, self).__init__( tool, input_source, trans )
         # Add metadata validator
-        if not string_as_bool( elem.get( 'no_validation', False ) ):
+        if not input_source.get_bool( 'no_validation', False ):
             self.validators.append( validation.MetadataValidator() )
-        self._parse_formats( trans, tool, elem )
-        self.multiple = string_as_bool( elem.get( 'multiple', False ) )
-        self._parse_options( elem )
+        self._parse_formats( trans, tool, input_source )
+        self.multiple = input_source.get_bool('multiple', False)
+        self._parse_options( input_source )
         # Load conversions required for the dataset input
         self.conversions = []
-        for conv_elem in elem.findall( "conversion" ):
-            name = conv_elem.get( "name" )  # name for commandline substitution
-            conv_extensions = conv_elem.get( "type" )  # target datatype extension
-            # FIXME: conv_extensions should be able to be an ordered list
-            assert None not in [ name, type ], 'A name (%s) and type (%s) are required for explicit conversion' % ( name, type )
+        for name, conv_extensions in input_source.parse_conversion_tuples():
+            assert None not in [ name, conv_extensions ], 'A name (%s) and type (%s) are required for explicit conversion' % ( name, conv_extensions )
             conv_types = [ tool.app.datatypes_registry.get_datatype_by_extension( conv_extensions.lower() ) ]
             self.conversions.append( ( name, conv_extensions, conv_types ) )
 
@@ -2163,16 +2157,17 @@ class DataCollectionToolParameter( BaseDataToolParameter ):
     """
     """
 
-    def __init__( self, tool, elem, trans=None ):
-        super(DataCollectionToolParameter, self).__init__( tool, elem, trans )
-        self.elem = elem
-        self._parse_formats( trans, tool, elem )
+    def __init__( self, tool, input_source, trans=None ):
+        input_source = ensure_input_source( input_source )
+        super(DataCollectionToolParameter, self).__init__( tool, input_source, trans )
+        self._parse_formats( trans, tool, input_source )
+        self._collection_type = input_source.get("collection_type", None)
         self.multiple = False  # Accessed on DataToolParameter a lot, may want in future
-        self._parse_options( elem )  # TODO: Review and test.
+        self._parse_options( input_source )  # TODO: Review and test.
 
     @property
     def collection_type( self ):
-        return self.elem.get( "collection_type", None )
+        return self._collection_type
 
     def _history_query( self, trans ):
         dataset_collection_type_descriptions = trans.app.dataset_collections_service.collection_type_descriptions

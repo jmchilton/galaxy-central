@@ -456,3 +456,12 @@ class XmlInputSource(InputSource):
         if default is None:
             default = self.default_optional
         return self.get_bool( "optional", default )
+
+    def parse_conversion_tuples(self):
+        elem = self.input_elem
+        conversions = []
+        for conv_elem in elem.findall( "conversion" ):
+            name = conv_elem.get( "name" )  # name for commandline substitution
+            conv_extensions = conv_elem.get( "type" )  # target datatype extension
+            conversions.append((name, conv_extensions))
+        return conversions
