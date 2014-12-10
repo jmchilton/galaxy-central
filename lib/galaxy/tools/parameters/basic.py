@@ -243,11 +243,12 @@ class TextToolParameter( ToolParameter ):
     >>> print p.get_html( value="meh" )
     <input type="text" name="blah" size="4" value="meh">
     """
-    def __init__( self, tool, elem ):
-        ToolParameter.__init__( self, tool, elem )
-        self.size = elem.get( 'size' )
-        self.value = elem.get( 'value' )
-        self.area = string_as_bool( elem.get( 'area', False ) )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source(input_source)
+        ToolParameter.__init__( self, tool, input_source )
+        self.size = input_source.get( 'size' )
+        self.value = input_source.get( 'value' )
+        self.area = input_source.get_bool( 'area', False )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
         if value is None:
@@ -285,8 +286,9 @@ class IntegerToolParameter( TextToolParameter ):
 
     dict_collection_visible_keys = ToolParameter.dict_collection_visible_keys + ( 'min', 'max' )
 
-    def __init__( self, tool, elem ):
-        TextToolParameter.__init__( self, tool, elem )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source(input_source)
+        TextToolParameter.__init__( self, tool, input_source )
         if self.value:
             try:
                 int( self.value )
@@ -294,8 +296,8 @@ class IntegerToolParameter( TextToolParameter ):
                 raise ValueError( "An integer is required" )
         elif self.value is None and not self.optional:
             raise ValueError( "The settings for the field named '%s' require a 'value' setting and optionally a default value which must be an integer" % self.name )
-        self.min = elem.get( 'min' )
-        self.max = elem.get( 'max' )
+        self.min = input_source.get( 'min' )
+        self.max = input_source.get( 'max' )
         if self.min:
             try:
                 self.min = int( self.min )
@@ -363,10 +365,11 @@ class FloatToolParameter( TextToolParameter ):
 
     dict_collection_visible_keys = ToolParameter.dict_collection_visible_keys + ( 'min', 'max' )
 
-    def __init__( self, tool, elem ):
-        TextToolParameter.__init__( self, tool, elem )
-        self.min = elem.get( 'min' )
-        self.max = elem.get( 'max' )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source(input_source)
+        TextToolParameter.__init__( self, tool, input_source )
+        self.min = input_source.get( 'min' )
+        self.max = input_source.get( 'max' )
         if self.value:
             try:
                 float( self.value )
@@ -440,11 +443,12 @@ class BooleanToolParameter( ToolParameter ):
     >>> print p.to_param_dict_string( False )
     cellophane chests
     """
-    def __init__( self, tool, elem ):
-        ToolParameter.__init__( self, tool, elem )
-        self.truevalue = elem.get( 'truevalue', 'true' )
-        self.falsevalue = elem.get( 'falsevalue', 'false' )
-        self.checked = string_as_bool( elem.get( 'checked' ) )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source(input_source)
+        ToolParameter.__init__( self, tool, input_source )
+        self.truevalue = input_source.get( 'truevalue', 'true' )
+        self.falsevalue = input_source.get( 'falsevalue', 'false' )
+        self.checked = input_source.get_bool( 'checked', False )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
         checked = self.checked
@@ -501,12 +505,13 @@ class FileToolParameter( ToolParameter ):
     >>> print p.get_html()
     <input type="file" name="blah" galaxy-ajax-upload="true">
     """
-    def __init__( self, tool, elem ):
+    def __init__( self, tool, input_source ):
         """
         Example: C{<param name="bins" type="file" />}
         """
-        ToolParameter.__init__( self, tool, elem )
-        self.ajax = string_as_bool( elem.get( 'ajax-upload' ) )
+        input_source = ensure_input_source(input_source)
+        ToolParameter.__init__( self, tool, input_source )
+        self.ajax = input_source.get_bool( 'ajax-upload', False )
 
     def get_html_field( self, trans=None, value=None, other_values={}  ):
         return form_builder.FileField( self.name, ajax=self.ajax, value=value )
@@ -564,11 +569,12 @@ class FTPFileToolParameter( ToolParameter ):
     """
     Parameter that takes a file uploaded via FTP as a value.
     """
-    def __init__( self, tool, elem ):
+    def __init__( self, tool, input_source ):
         """
         Example: C{<param name="bins" type="file" />}
         """
-        ToolParameter.__init__( self, tool, elem )
+        input_source = ensure_input_source(input_source)
+        ToolParameter.__init__( self, tool, input_source )
 
     @property
     def visible( self ):
@@ -619,9 +625,10 @@ class HiddenToolParameter( ToolParameter ):
     >>> print p.get_html()
     <input type="hidden" name="blah" value="wax so rockin">
     """
-    def __init__( self, tool, elem ):
-        ToolParameter.__init__( self, tool, elem )
-        self.value = elem.get( 'value' )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source( input_source )
+        ToolParameter.__init__( self, tool, input_source )
+        self.value = input_source.get( 'value' )
 
     def get_html_field( self, trans=None, value=None, other_values={} ):
         return form_builder.HiddenField( self.name, self.value )
@@ -643,9 +650,10 @@ class BaseURLToolParameter( ToolParameter ):
     current server base url. Used in all redirects.
     """
 
-    def __init__( self, tool, elem ):
-        ToolParameter.__init__( self, tool, elem )
-        self.value = elem.get( 'value', '' )
+    def __init__( self, tool, input_source ):
+        input_source = ensure_input_source( input_source )
+        ToolParameter.__init__( self, tool, input_source )
+        self.value = input_source.get( 'value', '' )
 
     def get_value( self, trans ):
         # url = trans.request.base + self.value
