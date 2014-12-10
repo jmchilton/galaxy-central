@@ -18,6 +18,7 @@ from galaxy.util.odict import odict
 from sanitize import ToolParameterSanitizer
 import validation
 import dynamic_options
+import galaxy.tools.parser
 from ..parser import get_input_source as ensure_input_source
 from ..parameters import history_query
 from .dataset_matcher import DatasetMatcher

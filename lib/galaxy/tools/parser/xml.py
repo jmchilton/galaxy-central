@@ -2,6 +2,7 @@ import logging
 import re
 import traceback
 import sys
+import uuid
 from math import isinf
 
 from .interface import (
@@ -163,16 +164,229 @@ class XmlToolSource(ToolSource):
 
     def parse_tests_to_dict(self):
         tests_elem = self.root.find("tests")
+        tests = []
         rval = dict(
-            tests=map(test_elem_to_dict, tests_elem.findall("test"))
+            tests=tests
         )
-        if "interactor" in tests_elem.attrib:
-            rval["interactor"] = tests_elem.get("interactor")
+
+        if tests_elem is not None:
+            for i, test_elem in enumerate(tests_elem.findall("test")):
+                tests.append(_test_elem_to_dict(test_elem, i))
+
+            _copy_to_dict_if_present(tests_elem, rval, ["interactor"])
+
         return rval
 
 
-def test_elem_to_dict(test_elem):
-    return test_elem
+def _test_elem_to_dict(test_elem, i):
+    rval = dict(
+        outputs=__parse_output_elems(test_elem),
+        inputs=__parse_input_elems(test_elem, i),
+    )
+    _copy_to_dict_if_present(test_elem, rval, ["interactor", "num_outputs"])
+    return rval
+
+
+def __parse_input_elems(test_elem, i):
+    __expand_input_elems( test_elem )
+    return __parse_inputs_elems( test_elem, i )
+
+
+def __parse_output_elems( test_elem ):
+    outputs = []
+    for output_elem in test_elem.findall( "output" ):
+        name, file, attributes = __parse_output_elem( output_elem )
+        outputs.append( ( name, file, attributes ) )
+    return outputs
+
+
+def __parse_output_elem( output_elem ):
+    attrib = dict( output_elem.attrib )
+    name = attrib.pop( 'name', None )
+    if name is None:
+        raise Exception( "Test output does not have a 'name'" )
+
+    file, attributes = __parse_test_attributes( output_elem, attrib )
+    primary_datasets = {}
+    for primary_elem in ( output_elem.findall( "discovered_dataset" ) or [] ):
+        primary_attrib = dict( primary_elem.attrib )
+        designation = primary_attrib.pop( 'designation', None )
+        if designation is None:
+            raise Exception( "Test primary dataset does not have a 'designation'" )
+        primary_datasets[ designation ] = __parse_test_attributes( primary_elem, primary_attrib )
+    attributes[ "primary_datasets" ] = primary_datasets
+    return name, file, attributes
+
+
+def __parse_test_attributes( output_elem, attrib ):
+    assert_list = __parse_assert_list( output_elem )
+    file = attrib.pop( 'file', None )
+    # File no longer required if an list of assertions was present.
+    attributes = {}
+    # Method of comparison
+    attributes['compare'] = attrib.pop( 'compare', 'diff' ).lower()
+    # Number of lines to allow to vary in logs (for dates, etc)
+    attributes['lines_diff'] = int( attrib.pop( 'lines_diff', '0' ) )
+    # Allow a file size to vary if sim_size compare
+    attributes['delta'] = int( attrib.pop( 'delta', '10000' ) )
+    attributes['sort'] = string_as_bool( attrib.pop( 'sort', False ) )
+    extra_files = []
+    if 'ftype' in attrib:
+        attributes['ftype'] = attrib['ftype']
+    for extra in output_elem.findall( 'extra_files' ):
+        extra_files.append( __parse_extra_files_elem( extra ) )
+    metadata = {}
+    for metadata_elem in output_elem.findall( 'metadata' ):
+        metadata[ metadata_elem.get('name') ] = metadata_elem.get( 'value' )
+    if not (assert_list or file or extra_files or metadata):
+        raise Exception( "Test output defines nothing to check (e.g. must have a 'file' check against, assertions to check, etc...)")
+    attributes['assert_list'] = assert_list
+    attributes['extra_files'] = extra_files
+    attributes['metadata'] = metadata
+    return file, attributes
+
+
+def __parse_assert_list( output_elem ):
+    assert_elem = output_elem.find("assert_contents")
+    assert_list = None
+
+    # Trying to keep testing patch as localized as
+    # possible, this function should be relocated
+    # somewhere more conventional.
+    def convert_elem(elem):
+        """ Converts and XML element to a dictionary format, used by assertion checking code. """
+        tag = elem.tag
+        attributes = dict( elem.attrib )
+        child_elems = list( elem.getchildren() )
+        converted_children = []
+        for child_elem in child_elems:
+            converted_children.append( convert_elem(child_elem) )
+        return {"tag": tag, "attributes": attributes, "children": converted_children}
+    if assert_elem is not None:
+        assert_list = []
+        for assert_child in list(assert_elem):
+            assert_list.append(convert_elem(assert_child))
+
+    return assert_list
+
+
+def __parse_extra_files_elem( extra ):
+    # File or directory, when directory, compare basename
+    # by basename
+    extra_type = extra.get( 'type', 'file' )
+    extra_name = extra.get( 'name', None )
+    assert extra_type == 'directory' or extra_name is not None, \
+        'extra_files type (%s) requires a name attribute' % extra_type
+    extra_value = extra.get( 'value', None )
+    assert extra_value is not None, 'extra_files requires a value attribute'
+    extra_attributes = {}
+    extra_attributes['compare'] = extra.get( 'compare', 'diff' ).lower()
+    extra_attributes['delta'] = extra.get( 'delta', '0' )
+    extra_attributes['lines_diff'] = int( extra.get( 'lines_diff', '0' ) )
+    extra_attributes['sort'] = string_as_bool( extra.get( 'sort', False ) )
+    return extra_type, extra_value, extra_name, extra_attributes
+
+
+def __expand_input_elems( root_elem, prefix="" ):
+    __append_prefix_to_params( root_elem, prefix )
+
+    repeat_elems = root_elem.findall( 'repeat' )
+    indices = {}
+    for repeat_elem in repeat_elems:
+        name = repeat_elem.get( "name" )
+        if name not in indices:
+            indices[ name ] = 0
+            index = 0
+        else:
+            index = indices[ name ] + 1
+            indices[ name ] = index
+
+        new_prefix = __prefix_join( prefix, name, index=index )
+        __expand_input_elems( repeat_elem, new_prefix )
+        __pull_up_params( root_elem, repeat_elem )
+        root_elem.remove( repeat_elem )
+
+    cond_elems = root_elem.findall( 'conditional' )
+    for cond_elem in cond_elems:
+        new_prefix = __prefix_join( prefix, cond_elem.get( "name" ) )
+        __expand_input_elems( cond_elem, new_prefix )
+        __pull_up_params( root_elem, cond_elem )
+        root_elem.remove( cond_elem )
+
+
+def __append_prefix_to_params( elem, prefix ):
+    for param_elem in elem.findall( 'param' ):
+        param_elem.set( "name", __prefix_join( prefix, param_elem.get( "name" ) ) )
+
+
+def __pull_up_params( parent_elem, child_elem ):
+    for param_elem in child_elem.findall( 'param' ):
+        parent_elem.append( param_elem )
+        child_elem.remove( param_elem )
+
+
+def __prefix_join( prefix, name, index=None ):
+    name = name if index is None else "%s_%d" % ( name, index )
+    return name if not prefix else "%s|%s" % ( prefix, name )
+
+
+def _copy_to_dict_if_present( elem, rval, attributes ):
+    for attribute in attributes:
+        if attribute in elem.attrib:
+            rval[attribute] = elem.get(attribute)
+    return rval
+
+
+def __parse_inputs_elems( test_elem, i ):
+    raw_inputs = []
+    for param_elem in test_elem.findall( "param" ):
+        name, value, attrib = __parse_param_elem( param_elem, i )
+        raw_inputs.append( ( name, value, attrib ) )
+    return raw_inputs
+
+
+def __parse_param_elem( param_elem, i=0 ):
+    attrib = dict( param_elem.attrib )
+    if 'values' in attrib:
+        value = attrib[ 'values' ].split( ',' )
+    elif 'value' in attrib:
+        value = attrib['value']
+    else:
+        value = None
+    attrib['children'] = list( param_elem.getchildren() )
+    if attrib['children']:
+        # At this time, we can assume having children only
+        # occurs on DataToolParameter test items but this could
+        # change and would cause the below parsing to change
+        # based upon differences in children items
+        attrib['metadata'] = []
+        attrib['composite_data'] = []
+        attrib['edit_attributes'] = []
+        # Composite datasets need to be renamed uniquely
+        composite_data_name = None
+        for child in attrib['children']:
+            if child.tag == 'composite_data':
+                attrib['composite_data'].append( child )
+                if composite_data_name is None:
+                    # Generate a unique name; each test uses a
+                    # fresh history.
+                    composite_data_name = '_COMPOSITE_RENAMED_t%d_%s' \
+                        % ( i, uuid.uuid1().hex )
+            elif child.tag == 'metadata':
+                attrib['metadata'].append( child )
+            elif child.tag == 'metadata':
+                attrib['metadata'].append( child )
+            elif child.tag == 'edit_attributes':
+                attrib['edit_attributes'].append( child )
+            elif child.tag == 'collection':
+                attrib[ 'collection' ] = galaxy.tools.TestCollectionDef( child, __parse_param_elem )
+        if composite_data_name:
+            # Composite datasets need implicit renaming;
+            # inserted at front of list so explicit declarations
+            # take precedence
+            attrib['edit_attributes'].insert( 0, { 'type': 'name', 'value': composite_data_name } )
+    name = attrib.pop( 'name' )
+    return ( name, value, attrib )
 
 
 class StdioParser(object):
