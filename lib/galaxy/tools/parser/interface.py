@@ -126,6 +126,11 @@ class ToolSource(object):
     def parse_input_pages(self):
         """ Return a PagesSource representing inputs by page for tool. """
 
+    @abstractmethod
+    def parse_outputs(self, tool):
+        """ Return a list of ToolOutput objects.
+        """
+
 
 class PagesSource(object):
     """ Contains a list of Pages - each a list of InputSources -

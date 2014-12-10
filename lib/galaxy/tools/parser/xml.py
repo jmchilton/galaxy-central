@@ -6,6 +6,8 @@ from .interface import (
 )
 from galaxy.util import string_as_bool, xml_text, xml_to_string
 from galaxy.tools.deps import requirements
+import galaxy.tools
+from galaxy.tools.parameters import output_collect
 
 
 class XmlToolSource(ToolSource):
@@ -118,6 +120,33 @@ class XmlToolSource(ToolSource):
 
     def parse_input_pages(self):
         return XmlPagesSource(self.root)
+
+    def parse_outputs(self, tool):
+        out_elem = self.root.find("outputs")
+        if not out_elem:
+            return []
+
+        def _parse(data_elem):
+            return self._parse_output(data_elem, tool)
+
+        return map(_parse, out_elem.findall("data"))
+
+    def _parse_output(self, data_elem, tool):
+        output = galaxy.tools.ToolOutput( data_elem.get("name") )
+        output.format = data_elem.get("format", "data")
+        output.change_format = data_elem.findall("change_format")
+        output.format_source = data_elem.get("format_source", None)
+        output.metadata_source = data_elem.get("metadata_source", "")
+        output.parent = data_elem.get("parent", None)
+        output.label = xml_text( data_elem, "label" )
+        output.count = int( data_elem.get("count", 1) )
+        output.filters = data_elem.findall( 'filter' )
+        output.tool = tool
+        output.from_work_dir = data_elem.get("from_work_dir", None)
+        output.hidden = string_as_bool( data_elem.get("hidden", "") )
+        output.actions = galaxy.tools.ToolOutputActionGroup( output, data_elem.find( 'actions' ) )
+        output.dataset_collectors = output_collect.dataset_collectors_from_elem( data_elem )
+        return output
 
 
 class XmlPagesSource(PagesSource):

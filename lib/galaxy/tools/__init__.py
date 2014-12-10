@@ -1497,12 +1497,13 @@ class Tool( object, Dictifiable ):
         # Parse tool help
         self.parse_help( tool_source )
 
+        # Description of outputs produced by an invocation of the tool
+        self.parse_outputs( tool_source )
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Description of outputs produced by an invocation of the tool
-        self.parse_outputs( root )
         # Parse result handling for tool exit codes and stdout/stderr messages:
         self.parse_stdio( root )
         # Any extra generated config files for the tool
@@ -1730,29 +1731,12 @@ class Tool( object, Dictifiable ):
         while len( self.help_by_page ) < self.npages:
             self.help_by_page.append( self.help )
 
-    def parse_outputs( self, root ):
+    def parse_outputs( self, tool_source ):
         """
         Parse <outputs> elements and fill in self.outputs (keyed by name)
         """
         self.outputs = odict()
-        out_elem = root.find("outputs")
-        if not out_elem:
-            return
-        for data_elem in out_elem.findall("data"):
-            output = ToolOutput( data_elem.get("name") )
-            output.format = data_elem.get("format", "data")
-            output.change_format = data_elem.findall("change_format")
-            output.format_source = data_elem.get("format_source", None)
-            output.metadata_source = data_elem.get("metadata_source", "")
-            output.parent = data_elem.get("parent", None)
-            output.label = xml_text( data_elem, "label" )
-            output.count = int( data_elem.get("count", 1) )
-            output.filters = data_elem.findall( 'filter' )
-            output.from_work_dir = data_elem.get("from_work_dir", None)
-            output.hidden = string_as_bool( data_elem.get("hidden", "") )
-            output.tool = self
-            output.actions = ToolOutputActionGroup( output, data_elem.find( 'actions' ) )
-            output.dataset_collectors = output_collect.dataset_collectors_from_elem( data_elem )
+        for output in tool_source.parse_outputs(self):
             self.outputs[ output.name ] = output
 
     # TODO: Include the tool's name in any parsing warnings.
