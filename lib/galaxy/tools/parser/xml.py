@@ -28,3 +28,6 @@ class XmlToolSource(ToolSource):
         root = self.root
         if root.get( 'tool_type', None ) is not None:
             return root.get( 'tool_type' )
+
+    def parse_name(self):
+        return self.root.get( "name" )

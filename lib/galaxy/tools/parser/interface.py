@@ -31,3 +31,7 @@ class ToolSource(object):
         """ Load simple tool type string (e.g. 'data_source', 'default').
         """
         return None
+
+    @abstractmethod
+    def parse_name(self):
+        """ Parse a short name for tool (required). """

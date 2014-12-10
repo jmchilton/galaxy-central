@@ -9,11 +9,12 @@ import unittest
 
 
 TOOL_XML_1 = """
-<tool id="bwa" version="1.0.1">
+<tool name="BWA Mapper" id="bwa" version="1.0.1">
 </tool>
 """
 
 TOOL_YAML_1 = """
+name: "Bowtie Mapper"
 id: bowtie
 version: 1.0.2
 """
@@ -49,6 +50,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert self._tool_source.parse_tool_module() is None
         assert self._tool_source.parse_tool_type() is None
 
+    def test_name(self):
+        assert self._tool_source.parse_name() == "BWA Mapper"
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -64,6 +68,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         # These just rely on defaults
         assert self._tool_source.parse_tool_module() is None
         assert self._tool_source.parse_tool_type() is None
+
+    def test_name(self):
+        assert self._tool_source.parse_name() == "Bowtie Mapper"
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):

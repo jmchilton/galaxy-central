@@ -1286,10 +1286,7 @@ class Tool( object, Dictifiable ):
         #populate toolshed repository info, if available
         self.populate_tool_shed_info()
         # Parse XML element containing configuration
-        if not hasattr( tool_source, "root" ):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-        else:
-            self.parse( tool_source.root, guid=guid )
+        self.parse( tool_source, guid=guid )
         self.external_runJob_script = app.config.drmaa_external_runjob_script
 
     @property
@@ -1395,26 +1392,31 @@ class Tool( object, Dictifiable ):
                                     return section_id, section_name
         return None, None
 
-    def parse( self, root, guid=None ):
+    def parse( self, tool_source, guid=None ):
         """
         Read tool configuration from the element `root` and fill in `self`.
         """
         # Get the (user visible) name of the tool
-        self.name = root.get( "name" )
+        self.name = tool_source.parse_name()
         if not self.name:
             raise Exception( "Missing tool 'name'" )
         # Get the UNIQUE id for the tool
-        self.old_id = root.get( "id" )
+        self.old_id = tool_source.parse_id()
         if guid is None:
             self.id = self.old_id
         else:
             self.id = guid
         if not self.id:
             raise Exception( "Missing tool 'id'" )
-        self.version = root.get( "version" )
+        self.version = tool_source.parse_version()
         if not self.version:
             # For backward compatibility, some tools may not have versions yet.
             self.version = "1.0.0"
+
+        if not hasattr( tool_source, "root" ):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+        root = tool_source.root
+
         # Support multi-byte tools
         self.is_multi_byte = string_as_bool( root.get( "is_multi_byte", False ) )
         # Legacy feature, ignored by UI.

@@ -12,3 +12,5 @@ class YamlToolSource(ToolSource):
     def parse_version(self):
         return self.root_dict.get("version")
 
+    def parse_name(self):
+        return self.root_dict.get("name")
