@@ -161,6 +161,19 @@ class XmlToolSource(ToolSource):
         parser = StdioParser(self.root)
         return parser.stdio_exit_codes, parser.stdio_regexes
 
+    def parse_tests_to_dict(self):
+        tests_elem = self.root.find("tests")
+        rval = dict(
+            tests=map(test_elem_to_dict, tests_elem.findall("test"))
+        )
+        if "interactor" in tests_elem.attrib:
+            rval["interactor"] = tests_elem.get("interactor")
+        return rval
+
+
+def test_elem_to_dict(test_elem):
+    return test_elem
+
 
 class StdioParser(object):
 

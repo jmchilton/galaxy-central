@@ -228,3 +228,6 @@ class InputSource(object):
         """ Return list of (name, extension) to describe explicit conversions.
         """
         return []
+
+    def parse_tests_to_dict(self):
+        return {'tests': []}

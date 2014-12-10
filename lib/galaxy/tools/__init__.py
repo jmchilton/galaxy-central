@@ -55,7 +55,7 @@ from galaxy.tools.parameters.input_translation import ToolInputTranslator
 from galaxy.tools.parameters.output import ToolOutputActionGroup
 from galaxy.tools.parameters.validation import LateValidationError
 from galaxy.tools.filters import FilterFactory
-from galaxy.tools.test import parse_tests_elem
+from galaxy.tools.test import parse_tests
 from galaxy.tools.parser import get_tool_source
 from galaxy.tools.parser.xml import XmlPageSource
 from galaxy.util import listify, parse_xml, rst_to_html, string_as_bool, string_to_object, xml_text, xml_to_string
@@ -1569,16 +1569,8 @@ class Tool( object, Dictifiable ):
                     self.options[option] = option_elem.get(option, str(value))
 
     def __parse_tests(self, tool_source):
-        # Currently only available for tool XML.
-        # TODO: Abstract XML out of this logic.
-        if not hasattr(tool_source, 'root'):
-            self.__tests_elem = ElementTree.fromstring("<tests />")
-            self.__tests_populated = False
-        else:
-            root = tool_source.root
-            # Tests
-            self.__tests_elem = root.find( "tests" )
-            self.__tests_populated = False
+        self.__tests_source = tool_source
+        self.__tests_populated = False
 
     def __parse_config_files(self, tool_source):
         self.config_files = []
@@ -1607,11 +1599,12 @@ class Tool( object, Dictifiable ):
     @property
     def tests( self ):
         if not self.__tests_populated:
-            tests_elem = self.__tests_elem
-            if tests_elem:
+            tests_source = self.__tests_source
+            if tests_source:
                 try:
-                    self.__tests = parse_tests_elem( self, tests_elem )
+                    self.__tests = parse_tests( self, tests_source )
                 except:
+                    self.__tests = None
                     log.exception( "Failed to parse tool tests" )
             else:
                 self.__tests = None

@@ -19,15 +19,16 @@ DEFAULT_MAX_SECS = 120
 
 
 @nottest
-def parse_tests_elem(tool, tests_elem):
+def parse_tests(tool, tests_source):
     """
     Build ToolTestBuilder objects for each "<test>" elements and
     return default interactor (if any).
     """
     default_interactor = os.environ.get( 'GALAXY_TEST_DEFAULT_INTERACTOR', DEFAULT_INTERACTOR )
-    tests_default_interactor = tests_elem.get( 'interactor', default_interactor )
+    tests_dict = tests_source.parse_tests_to_dict()
+    tests_default_interactor = tests_dict.get( 'interactor', default_interactor )
     tests = []
-    for i, test_elem in enumerate( tests_elem.findall( 'test' ) ):
+    for i, test_elem in enumerate(tests_dict.get('tests', [])):
         test = ToolTestBuilder( tool, test_elem, i, default_interactor=tests_default_interactor )
         tests.append( test )
     return tests
