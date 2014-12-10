@@ -53,6 +53,9 @@ class XmlToolSource(ToolSource):
         command_el = self._command_el
         return (command_el is not None) and command_el.get("interpreter", None)
 
+    def parse_redirect_url_params_elem(self):
+        return self.root.find("redirect_url_params")
+
     @property
     def _command_el(self):
         return self.root.find("command")

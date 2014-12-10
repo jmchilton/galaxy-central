@@ -74,3 +74,12 @@ class ToolSource(object):
         (for instance this might be 'python' to run a Python wrapper located
         adjacent to the tool).
         """
+
+    def parse_redirect_url_params_elem(self):
+        """ Return an XML element describing redirect_url_params.
+
+        If we wish to support this feature for non-XML based tools this should
+        be converted to return some sort of object interface instead of a RAW
+        XML element.
+        """
+        return None

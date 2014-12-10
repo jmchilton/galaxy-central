@@ -108,6 +108,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         assert self._tool_source.parse_command() == "bowtie_wrapper.pl --map-the-stuff"
         assert self._tool_source.parse_interpreter() == "perl"
 
+    def test_parse_redirect_url_params_elem(self):
+        assert self._tool_source.parse_redirect_url_params_elem() is None
+
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "ds.xml"
@@ -125,6 +128,9 @@ class DataSourceLoaderTestCase(BaseLoaderTestCase):
             </value_translation>
         </request_param>
     </request_param_translation>
+    <!-- Following block doesn't really belong here - not sure what block is suppose to do actually cannot
+         find actual usage. -->
+    <redirect_url_params>cow</redirect_url_params>
     <uihints minwidth="800"/>
     <outputs>
         <data name="output" format="txt" />
@@ -138,6 +144,9 @@ class DataSourceLoaderTestCase(BaseLoaderTestCase):
 
     def test_parse_request_param_translation_elem(self):
         assert self._tool_source.parse_request_param_translation_elem() is not None
+
+    def test_redirect_url_params_elem(self):
+        assert self._tool_source.parse_redirect_url_params_elem() is not None
 
 
 class SpecialToolLoaderTestCase(BaseLoaderTestCase):

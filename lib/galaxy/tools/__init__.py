@@ -1439,12 +1439,8 @@ class Tool( object, Dictifiable ):
             self.command = ''
             self.interpreter = None
 
-        if not hasattr( tool_source, "root" ):
-            raise Exception("Galaxy cannot yet load this tool definition type.")
-        root = tool_source.root
-
         # Parameters used to build URL for redirection to external app
-        redirect_url_params = root.find( "redirect_url_params" )
+        redirect_url_params = tool_source.parse_redirect_url_params_elem()
         if redirect_url_params is not None and redirect_url_params.text is not None:
             # get rid of leading / trailing white space
             redirect_url_params = redirect_url_params.text.strip()
@@ -1453,6 +1449,11 @@ class Tool( object, Dictifiable ):
             self.redirect_url_params = redirect_url_params.replace( ' ', '**^**' )
         else:
             self.redirect_url_params = ''
+
+        if not hasattr( tool_source, "root" ):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+        root = tool_source.root
+
         # Short description of the tool
         self.description = xml_text(root, "description")
         # Versioning for tools
