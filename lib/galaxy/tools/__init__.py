@@ -1494,12 +1494,13 @@ class Tool( object, Dictifiable ):
         # Parse tool inputs (if there are any required)
         self.parse_inputs( tool_source )
 
+        # Parse tool help
+        self.parse_help( tool_source )
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        # Parse tool help
-        self.parse_help( root )
         # Description of outputs produced by an invocation of the tool
         self.parse_outputs( root )
         # Parse result handling for tool exit codes and stdout/stderr messages:
@@ -1680,18 +1681,19 @@ class Tool( object, Dictifiable ):
                 self.input_required = True
                 break
 
-    def parse_help( self, root ):
+    def parse_help( self, tool_source ):
         """
         Parse the help text for the tool. Formatted in reStructuredText, but
         stored as Mako to allow for dynamic image paths.
         This implementation supports multiple pages.
         """
         # TODO: Allow raw HTML or an external link.
-        self.help = root.find("help")
+        self.help = None
         self.help_by_page = list()
         help_header = ""
         help_footer = ""
-        if self.help is not None:
+        if hasattr( tool_source, 'root' ) and tool_source.root.find( 'help' ) is not None:
+            self.help = tool_source.root.find( 'help' )
             if self.repository_id and self.help.text.find( '.. image:: ' ) >= 0:
                 # Handle tool help image display for tools that are contained in repositories in the tool shed or installed into Galaxy.
                 lock = threading.Lock()
