@@ -1505,14 +1505,7 @@ class Tool( object, Dictifiable ):
         # Parse result handling for tool exit codes and stdout/stderr messages:
         self.parse_stdio( root )
         # Any extra generated config files for the tool
-        self.config_files = []
-        conf_parent_elem = root.find("configfiles")
-        if conf_parent_elem:
-            for conf_elem in conf_parent_elem.findall( "configfile" ):
-                name = conf_elem.get( "name" )
-                filename = conf_elem.get( "filename", None )
-                text = conf_elem.text
-                self.config_files.append( ( name, filename, text ) )
+        self.__parse_config_files(tool_source)
         # Action
         action = tool_source.parse_action_module()
         if action is None:
@@ -1592,6 +1585,20 @@ class Tool( object, Dictifiable ):
             # Tests
             self.__tests_elem = root.find( "tests" )
             self.__tests_populated = False
+
+    def __parse_config_files(self, tool_source):
+        self.config_files = []
+        if not hasattr(tool_source, 'root'):
+            return
+
+        root = tool_source.root
+        conf_parent_elem = root.find("configfiles")
+        if conf_parent_elem:
+            for conf_elem in conf_parent_elem.findall( "configfile" ):
+                name = conf_elem.get( "name" )
+                filename = conf_elem.get( "filename", None )
+                text = conf_elem.text
+                self.config_files.append( ( name, filename, text ) )
 
     @property
     def tests( self ):
