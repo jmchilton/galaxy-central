@@ -14,6 +14,7 @@ from galaxy.util import string_as_bool, xml_text, xml_to_string
 from galaxy.tools.deps import requirements
 import galaxy.tools
 from galaxy.tools.parameters import output_collect
+from galaxy.tools.parameters import dynamic_options
 
 log = logging.getLogger( __name__ )
 
@@ -417,3 +418,23 @@ class XmlInputSource(InputSource):
 
     def parse_validator_elems(self):
         return self.input_elem.findall("validator")
+
+    def parse_dynamic_options(self, param):
+        """ Return a galaxy.tools.parameters.dynamic_options.DynamicOptions
+        if appropriate.
+        """
+        options_elem = self.input_elem.find( 'options' )
+        if options_elem is None:
+            options = None
+        else:
+            options = dynamic_options.DynamicOptions( options_elem, param )
+        return options
+
+    def parse_static_options(self):
+        static_options = list()
+        elem = self.input_elem
+        for index, option in enumerate( elem.findall( "option" ) ):
+            value = option.get( "value" )
+            selected = string_as_bool( option.get( "selected", False ) )
+            static_options.append( ( option.text or value, value, selected ) )
+        return static_options

@@ -767,21 +767,14 @@ class SelectToolParameter( ToolParameter ):
         self.legal_values = set()
         # TODO: the <dynamic_options> tag is deprecated and should be replaced with the <options> tag.
         self.dynamic_options = input_source.get( "dynamic_options", None )
-        elem = input_source.elem()
-        options = elem.find( 'options' )
-        if options is None:
-            self.options = None
-        else:
-            self.options = dynamic_options.DynamicOptions( options, self )
+        self.options = input_source.parse_dynamic_options(self)
+        if self.options is not None:
             for validator in self.options.validators:
                 self.validators.append( validator )
         if self.dynamic_options is None and self.options is None:
-            self.static_options = list()
-            for index, option in enumerate( elem.findall( "option" ) ):
-                value = option.get( "value" )
+            self.static_options = input_source.parse_static_options()
+            for (title, value, selected) in self.static_options:
                 self.legal_values.add( value )
-                selected = string_as_bool( option.get( "selected", False ) )
-                self.static_options.append( ( option.text or value, value, selected ) )
         self.is_dynamic = ( ( self.dynamic_options is not None ) or ( self.options is not None ) )
 
     def get_options( self, trans, other_values ):
