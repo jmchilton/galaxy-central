@@ -396,3 +396,24 @@ class XmlInputSource(InputSource):
 
     def parse_input_type(self):
         return self.input_elem.tag
+
+    def elem(self):
+        return self.input_elem
+
+    def get(self, key, value=None):
+        return self.input_elem.get(key, value)
+
+    def get_bool(self, key, default):
+        return string_as_bool( self.get(key, default ) )
+
+    def parse_label(self):
+        return xml_text(self.input_elem, "label")
+
+    def parse_help(self):
+        return xml_text(self.input_elem, "help")
+
+    def parse_sanitizer_elem(self):
+        return self.input_elem.find("sanitizer")
+
+    def parse_validator_elems(self):
+        return self.input_elem.findall("validator")

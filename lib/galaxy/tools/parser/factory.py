@@ -10,6 +10,9 @@ import yaml
 
 from .yaml import YamlToolSource
 from .xml import XmlToolSource
+from .xml import XmlInputSource
+from .interface import InputSource
+
 
 from galaxy.tools.loader import load_tool as load_tool_xml
 
@@ -28,3 +31,12 @@ def get_tool_source(config_file):
         tree = load_tool_xml(config_file)
         root = tree.getroot()
         return XmlToolSource(root)
+
+
+def get_input_source(content):
+    """ Wraps XML elements in a XmlInputSource until everything
+    is consumed using the tool source interface.
+    """
+    if not isinstance(content, InputSource):
+        content = XmlInputSource(content)
+    return content

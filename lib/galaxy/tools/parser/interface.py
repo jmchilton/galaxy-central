@@ -165,4 +165,49 @@ class PageSource(object):
 
 
 class InputSource(object):
-    pass
+    __metaclass__ = ABCMeta
+    default_optional = False
+
+    def elem(self):
+        # For things in transition that still depend on XML - provide a way
+        # to grab it and just throw an error if feature is attempted to be
+        # used with other tool sources.
+        raise NotImplementedError("Galaxy does not yet support this tool feature.")
+
+    @abstractmethod
+    def get(self, key, value=None):
+        """ Return simple named properties as string for this input source.
+        keys to be supported depend on the parameter type.
+        """
+
+    @abstractmethod
+    def get_bool(self, key, default):
+        """ Return simple named properties as boolean for this input source.
+        keys to be supported depend on the parameter type.
+        """
+
+    def parse_label(self):
+        return self.get("label")
+
+    def parse_help(self):
+        return self.get("label")
+
+    def parse_sanitizer_elem(self):
+        """ Return an XML description of sanitizers. This is a stop gap
+        until we can rework galaxy.tools.parameters.sanitize to not
+        explicitly depend on XML.
+        """
+        return None
+
+    def parse_validator_elems(self):
+        """ Return an XML description of sanitizers. This is a stop gap
+        until we can rework galaxy.tools.parameters.validation to not
+        explicitly depend on XML.
+        """
+        return []
+
+    def parse_optional(self, default=None):
+        """ Return boolean indicating wheter parameter is optional. """
+        if default is None:
+            default = self.default_optional
+        return self.get_bool( "optional", default )

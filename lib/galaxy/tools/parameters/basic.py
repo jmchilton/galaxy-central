@@ -18,6 +18,7 @@ from galaxy.util.odict import odict
 from sanitize import ToolParameterSanitizer
 import validation
 import dynamic_options
+from ..parser import get_input_source as ensure_input_source
 from ..parameters import history_query
 from .dataset_matcher import DatasetMatcher
 from .dataset_matcher import DatasetCollectionMatcher
@@ -37,24 +38,34 @@ class ToolParameter( object, Dictifiable ):
     """
     dict_collection_visible_keys = ( 'name', 'type', 'label', 'help' )
 
-    def __init__( self, tool, param, context=None ):
+    def __init__( self, tool, input_source, context=None ):
+        input_source = ensure_input_source(input_source)
         self.tool = tool
         self.refresh_on_change = False
         self.refresh_on_change_values = []
-        self.name = param.get("name")
-        self.type = param.get("type")
-        self.label = util.xml_text(param, "label")
-        self.help = util.xml_text(param, "help")
-        self.sanitizer = param.find( "sanitizer" )
-        if self.sanitizer is not None:
-            self.sanitizer = ToolParameterSanitizer.from_element( self.sanitizer )
+        self.name = input_source.get("name")
+        self.type = input_source.get("type")
+        self.label = input_source.parse_label()
+        self.help = input_source.parse_help()
+        sanitizer_elem = input_source.parse_sanitizer_elem()
+        if sanitizer_elem:
+            self.sanitizer = ToolParameterSanitizer.from_element( sanitizer_elem )
+        else:
+            self.sanitizer = None
         self.html = "no html set"
-        self.repeat = param.get("repeat", None)
-        self.condition = param.get( "condition", None )
+        try:
+            # These don't do anything right? These we should
+            # delete these two lines and eliminate checks for
+            # self.repeat in this file. -John
+            self.repeat = input_source.elem().get("repeat", None)
+            self.condition = input_source.elem().get( "condition", None )
+        except Exception:
+            self.repeat = None
+
         # Optional DataToolParameters are used in tools like GMAJ and LAJ
-        self.optional = string_as_bool( param.get( 'optional', False ) )
+        self.optional = input_source.parse_optional()
         self.validators = []
-        for elem in param.findall("validator"):
+        for elem in input_source.parse_validator_elems():
             self.validators.append( validation.Validator.from_element( self, elem ) )
 
     @property
