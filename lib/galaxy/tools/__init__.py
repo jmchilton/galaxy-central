@@ -57,6 +57,7 @@ from galaxy.tools.parameters.output import ToolOutputActionGroup
 from galaxy.tools.parameters.validation import LateValidationError
 from galaxy.tools.filters import FilterFactory
 from galaxy.tools.test import parse_tests_elem
+from galaxy.tools.parser import get_tool_source
 from galaxy.util import listify, parse_xml, rst_to_html, string_as_bool, string_to_object, xml_text, xml_to_string
 from galaxy.tools.parameters.meta import expand_meta_parameters
 from galaxy.util.bunch import Bunch
@@ -743,20 +744,23 @@ class ToolBox( object, Dictifiable ):
         """Load a single tool from the file named by `config_file` and return an instance of `Tool`."""
         # Parse XML configuration file and get the root element
         tree = load_tool( config_file )
-        root = tree.getroot()
+        tool_source = get_tool_source( config_file )
         # Allow specifying a different tool subclass to instantiate
-        if root.find( "type" ) is not None:
-            type_elem = root.find( "type" )
-            module = type_elem.get( 'module', 'galaxy.tools' )
-            cls = type_elem.get( 'class' )
+        tool_module = tool_source.parse_tool_module()
+        if tool_module is not None:
+            module, cls = tool_module
             mod = __import__( module, globals(), locals(), [cls] )
             ToolClass = getattr( mod, cls )
-        elif root.get( 'tool_type', None ) is not None:
-            ToolClass = tool_types.get( root.get( 'tool_type' ) )
+        elif tool_source.parse_tool_type():
+            tool_type = tool_source.parse_tool_type()
+            ToolClass = tool_types.get( tool_type )
         else:
             # Normal tool - only insert dynamic resource parameters for these
             # tools.
-            if hasattr( self.app, "job_config" ):  # toolshed may not have job_config?
+            root = getattr( tool_source, "root", None )
+            # TODO: mucking with the XML directly like this is terrible,
+            # modify inputs directly post load if possible.
+            if root and hasattr( self.app, "job_config" ):  # toolshed may not have job_config?
                 tool_id = root.get( 'id' ) if root else None
                 parameters = self.app.job_config.get_tool_resource_parameters( tool_id )
                 if parameters:
@@ -773,7 +777,7 @@ class ToolBox( object, Dictifiable ):
                     inputs.append( conditional_element )
 
             ToolClass = Tool
-        tool = ToolClass( config_file, root, self.app, guid=guid, repository_id=repository_id, **kwds )
+        tool = ToolClass( config_file, tool_source, self.app, guid=guid, repository_id=repository_id, **kwds )
         tool_id = tool.id
         if not tool_id.startswith("__"):
             # do not monitor special tools written to tmp directory - no reason
@@ -1238,7 +1242,7 @@ class Tool( object, Dictifiable ):
     dict_collection_visible_keys = ( 'id', 'name', 'version', 'description' )
     default_template = 'tool_form.mako'
 
-    def __init__( self, config_file, root, app, guid=None, repository_id=None ):
+    def __init__( self, config_file, tool_source, app, guid=None, repository_id=None ):
         """Load a tool from the config named by `config_file`"""
         # Determine the full path of the directory where the tool config is
         self.config_file = config_file
@@ -1282,7 +1286,10 @@ class Tool( object, Dictifiable ):
         #populate toolshed repository info, if available
         self.populate_tool_shed_info()
         # Parse XML element containing configuration
-        self.parse( root, guid=guid )
+        if not hasattr( tool_source, "root" ):
+            raise Exception("Galaxy cannot yet load this tool definition type.")
+        else:
+            self.parse( tool_source.root, guid=guid )
         self.external_runJob_script = app.config.drmaa_external_runjob_script
 
     @property
