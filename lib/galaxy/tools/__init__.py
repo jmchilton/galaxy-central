@@ -1485,7 +1485,7 @@ class Tool( object, Dictifiable ):
         # Is this a 'hidden' tool (hidden in tool menu)
         self.hidden = tool_source.parse_hidden()
 
-        self.__parse_legacy_code_features(tool_source)
+        self.__parse_legacy_features(tool_source)
 
         # Load any tool specific options (optional)
         self.options = dict( sanitize=True, refresh=False )
@@ -1521,12 +1521,6 @@ class Tool( object, Dictifiable ):
             module, cls = action
             mod = __import__( module, globals(), locals(), [cls])
             self.tool_action = getattr( mod, cls )()
-        # User interface hints
-        self.uihints = {}
-        uihints_elem = root.find( "uihints" )
-        if uihints_elem is not None:
-            for key, value in uihints_elem.attrib.iteritems():
-                self.uihints[ key ] = value
         # Tests
         self.__tests_elem = root.find( "tests" )
         self.__tests_populated = False
@@ -1547,9 +1541,11 @@ class Tool( object, Dictifiable ):
         else:
             self.trackster_conf = None
 
-    def __parse_legacy_code_features(self, tool_source):
+    def __parse_legacy_features(self, tool_source):
         self.code_namespace = dict()
         self.hook_map = {}
+        self.uihints = {}
+
         if not hasattr(tool_source, 'root'):
             return
 
@@ -1566,6 +1562,12 @@ class Tool( object, Dictifiable ):
             file_name = code_elem.get("file")
             code_path = os.path.join( self.tool_dir, file_name )
             execfile( code_path, self.code_namespace )
+
+        # User interface hints
+        uihints_elem = root.find( "uihints" )
+        if uihints_elem is not None:
+            for key, value in uihints_elem.attrib.iteritems():
+                self.uihints[ key ] = value
 
     def __update_options_dict(self, tool_source):
         # TODO: Move following logic into ToolSource abstraction.
