@@ -1422,13 +1422,18 @@ class DrillDownSelectToolParameter( SelectToolParameter ):
     >>> print p.options
     [{'selected': False, 'name': 'Heading 1', 'value': 'heading1', 'options': [{'selected': False, 'name': 'Option 1', 'value': 'option1', 'options': []}, {'selected': False, 'name': 'Option 2', 'value': 'option2', 'options': []}, {'selected': False, 'name': 'Heading 1', 'value': 'heading1', 'options': [{'selected': False, 'name': 'Option 3', 'value': 'option3', 'options': []}, {'selected': False, 'name': 'Option 4', 'value': 'option4', 'options': []}]}]}, {'selected': False, 'name': 'Option 5', 'value': 'option5', 'options': []}]
     """
-    def __init__( self, tool, elem, context=None ):
+    def __init__( self, tool, input_source, context=None ):
+        input_source = ensure_input_source( input_source )
+
         def recurse_option_elems( cur_options, option_elems ):
             for option_elem in option_elems:
                 selected = string_as_bool( option_elem.get( 'selected', False ) )
                 cur_options.append( { 'name': option_elem.get( 'name' ), 'value': option_elem.get( 'value' ), 'options': [], 'selected': selected  } )
                 recurse_option_elems( cur_options[-1]['options'], option_elem.findall( 'option' ) )
-        ToolParameter.__init__( self, tool, elem )
+        ToolParameter.__init__( self, tool, input_source )
+        # TODO: abstract XML out of here - so non-XML InputSources can
+        # specify DrillDown parameters.
+        elem = input_source.elem()
         self.multiple = string_as_bool( elem.get( 'multiple', False ) )
         self.display = elem.get( 'display', None )
         self.hierarchy = elem.get( 'hierarchy', 'exact' )  # exact or recurse
