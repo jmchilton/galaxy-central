@@ -1420,11 +1420,12 @@ class Tool( object, Dictifiable ):
 
         self.display_interface = tool_source.parse_display_interface( default=self.display_interface )
 
+        self.require_login = tool_source.parse_require_login( self.require_login )
+
         if not hasattr( tool_source, "root" ):
             raise Exception("Galaxy cannot yet load this tool definition type.")
         root = tool_source.root
 
-        self.require_login = string_as_bool( root.get( 'require_login', str( self.require_login ) ) )
         # Load input translator, used by datasource tools to change names/values of incoming parameters
         self.input_translator = root.find( "request_param_translation" )
         if self.input_translator:

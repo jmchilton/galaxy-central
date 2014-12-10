@@ -20,3 +20,6 @@ class YamlToolSource(ToolSource):
 
     def parse_display_interface(self, default):
         return self.root_dict.get('display_interface', default)
+
+    def parse_require_login(self, default):
+        return self.root_dict.get('require_login', default)

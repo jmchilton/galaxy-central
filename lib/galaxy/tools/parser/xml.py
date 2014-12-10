@@ -39,6 +39,9 @@ class XmlToolSource(ToolSource):
     def parse_display_interface(self, default):
         return self._get_attribute_as_bool( "display_interface", default )
 
+    def parse_require_login(self, default):
+        return self._get_attribute_as_bool( "require_login", default )
+
     def _get_attribute_as_bool( self, attribute, default, elem=None ):
         if elem is None:
             elem = self.root

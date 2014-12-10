@@ -9,7 +9,7 @@ import unittest
 
 
 TOOL_XML_1 = """
-<tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true">
+<tool name="BWA Mapper" id="bwa" version="1.0.1" is_multi_byte="true" display_interface="true" require_login="true">
 </tool>
 """
 
@@ -59,6 +59,9 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
     def test_display_interface(self):
         assert self._tool_source.parse_display_interface(False)
 
+    def test_require_login(self):
+        assert self._tool_source.parse_require_login(False)
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -84,6 +87,9 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
     def test_display_interface(self):
         assert not self._tool_source.parse_display_interface(False)
         assert self._tool_source.parse_display_interface(True)
+
+    def test_require_login(self):
+        assert not self._tool_source.parse_require_login(False)
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):

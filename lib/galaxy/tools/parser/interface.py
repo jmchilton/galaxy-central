@@ -48,3 +48,8 @@ class ToolSource(object):
         (supplied as default parameter) if not specified.
         """
         return default
+
+    def parse_require_login(self, default):
+        """ Parse whether the tool requires login (as a bool).
+        """
+        return default
