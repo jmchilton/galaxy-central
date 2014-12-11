@@ -1664,8 +1664,10 @@ class Tool( object, Dictifiable ):
         # thus hardcoded)  FIXME: hidden parameters aren't
         # parameters at all really, and should be passed in a different
         # way, making this check easier.
+        template_macros = {}
         if hasattr(tool_source, 'root'):
-            self.template_macro_params = template_macro_params(tool_source.root)
+            template_macros = template_macro_params(tool_source.root)
+        self.template_macro_params = template_macros
         for param in self.inputs.values():
             if not isinstance( param, ( HiddenToolParameter, BaseURLToolParameter ) ):
                 self.input_required = True
