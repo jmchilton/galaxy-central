@@ -1725,7 +1725,6 @@ class BaseDataToolParameter( ToolParameter ):
         #       a valid filter
         self.options_filter_attribute = None
         self.options = input_source.parse_dynamic_options( self )
-        print self.options
         if self.options:
             # TODO: Abstract away XML handling here.
             options_elem = input_source.elem().find('options')

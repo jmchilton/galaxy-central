@@ -1,6 +1,8 @@
 from abc import ABCMeta
 from abc import abstractmethod
 
+NOT_IMPLEMENTED_MESSAGE = "Galaxy tool format does not yet support this tool feature."
+
 
 class ToolSource(object):
     """ This interface represents an abstract source to parse tool
@@ -175,7 +177,7 @@ class InputSource(object):
         # For things in transition that still depend on XML - provide a way
         # to grab it and just throw an error if feature is attempted to be
         # used with other tool sources.
-        raise NotImplementedError("Galaxy does not yet support this tool feature.")
+        raise NotImplementedError(NOT_IMPLEMENTED_MESSAGE)
 
     @abstractmethod
     def get(self, key, value=None):
@@ -231,3 +233,14 @@ class InputSource(object):
         """ Return list of (name, extension) to describe explicit conversions.
         """
         return []
+
+    def parse_nested_inputs_source(self):
+        # For repeats
+        raise NotImplementedError(NOT_IMPLEMENTED_MESSAGE)
+
+    def parse_test_input_source(self):
+        # For conditionals
+        raise NotImplementedError(NOT_IMPLEMENTED_MESSAGE)
+
+    def parse_when_input_sources(self):
+        raise NotImplementedError(NOT_IMPLEMENTED_MESSAGE)

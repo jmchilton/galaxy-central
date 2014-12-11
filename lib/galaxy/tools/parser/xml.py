@@ -692,3 +692,23 @@ class XmlInputSource(InputSource):
             conv_extensions = conv_elem.get( "type" )  # target datatype extension
             conversions.append((name, conv_extensions))
         return conversions
+
+    def parse_nested_inputs_source(self):
+        elem = self.input_elem
+        return XmlPageSource(elem)
+
+    def parse_test_input_source(self):
+        elem = self.input_elem
+        input_elem = elem.find( "param" )
+        assert input_elem is not None, "<conditional> must have a child <param>"
+        return XmlInputSource(input_elem)
+
+    def parse_when_input_sources(self):
+        elem = self.input_elem
+
+        sources = []
+        for case_elem in elem.findall( "when" ):
+            value = case_elem.get( "value" )
+            case_page_source = XmlPageSource(case_elem)
+            sources.append((value, case_page_source))
+        return sources

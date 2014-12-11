@@ -1785,16 +1785,15 @@ class Tool( object, Dictifiable ):
             input_type = input_source.parse_input_type()
             if input_type == "repeat":
                 group = Repeat()
-                elem = input_source.input_elem
-                group.name = elem.get( "name" )
-                group.title = elem.get( "title" )
-                group.help = elem.get( "help", None )
-                page_source = XmlPageSource(elem)
+                group.name = input_source.get( "name" )
+                group.title = input_source.get( "title" )
+                group.help = input_source.get( "help", None )
+                page_source = input_source.parse_nested_inputs_source()
                 group.inputs = self.parse_input_elem( page_source, enctypes, context )
-                group.default = int( elem.get( "default", 0 ) )
-                group.min = int( elem.get( "min", 0 ) )
+                group.default = int( input_source.get( "default", 0 ) )
+                group.min = int( input_source.get( "min", 0 ) )
                 # Use float instead of int so that 'inf' can be used for no max
-                group.max = float( elem.get( "max", "inf" ) )
+                group.max = float( input_source.get( "max", "inf" ) )
                 assert group.min <= group.max, \
                     ValueError( "Min repeat count must be less-than-or-equal to the max." )
                 # Force default to be within min-max range
@@ -1802,11 +1801,10 @@ class Tool( object, Dictifiable ):
                 rval[group.name] = group
             elif input_type == "conditional":
                 group = Conditional()
-                elem = input_source.input_elem
-                group.name = elem.get( "name" )
-                group.value_ref = elem.get( 'value_ref', None )
-                group.value_ref_in_group = string_as_bool( elem.get( 'value_ref_in_group', 'True' ) )
-                value_from = elem.get( "value_from" )
+                group.name = input_source.get( "name" )
+                group.value_ref = input_source.get( 'value_ref', None )
+                group.value_ref_in_group = input_source.get_bool( 'value_ref_in_group', True )
+                value_from = input_source.get("value_from", None)
                 if value_from:
                     value_from = value_from.split( ':' )
                     group.value_from = locals().get( value_from[0] )
@@ -1825,18 +1823,16 @@ class Tool( object, Dictifiable ):
                         group.cases.append( case )
                 else:
                     # Should have one child "input" which determines the case
-                    input_elem = elem.find( "param" )
-                    assert input_elem is not None, "<conditional> must have a child <param>"
-                    group.test_param = self.parse_param_elem( input_elem, enctypes, context )
+                    test_param_input_source = input_source.parse_test_input_source()
+                    group.test_param = self.parse_param_elem( test_param_input_source, enctypes, context )
                     possible_cases = list( group.test_param.legal_values )  # store possible cases, undefined whens will have no inputs
                     # Must refresh when test_param changes
                     group.test_param.refresh_on_change = True
                     # And a set of possible cases
-                    for case_elem in elem.findall( "when" ):
+                    for (value, case_inputs_source) in input_source.parse_when_input_sources():
                         case = ConditionalWhen()
-                        case.value = case_elem.get( "value" )
-                        case_page_source = XmlPageSource(case_elem)
-                        case.inputs = self.parse_input_elem( case_page_source, enctypes, context )
+                        case.value = value
+                        case.inputs = self.parse_input_elem( case_inputs_source, enctypes, context )
                         group.cases.append( case )
                         try:
                             possible_cases.remove( case.value )
@@ -1852,7 +1848,7 @@ class Tool( object, Dictifiable ):
                         group.cases.append( case )
                 rval[group.name] = group
             elif input_type == "upload_dataset":
-                elem = input_source.input_elem
+                elem = input_source.elem()
                 group = UploadDataset()
                 group.name = elem.get( "name" )
                 group.title = elem.get( "title" )

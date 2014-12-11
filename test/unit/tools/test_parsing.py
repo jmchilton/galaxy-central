@@ -34,7 +34,7 @@ TOOL_XML_1 = """
         <test>
             <param name="foo" value="5">
             </param>
-            <output name="out1" file="moo.txt" lines_diff="4" compare="sim_size">
+            <output name="out1" lines_diff="4" compare="sim_size">
                 <metadata name="dbkey" value="hg19" />
             </output>
         </test>
@@ -67,11 +67,26 @@ inputs:
     type: integer
     min: 7
     max: 8
+  - name: moo
+    label: cow
+    type: repeat
+    blocks:
+      - name: nestinput
+        type: data
+      - name: nestsample
+        type: text
 tests:
    - inputs:
        foo: 5
      outputs:
        out1: moo.txt
+   - inputs:
+       foo:
+         value: 5
+     outputs:
+       out1:
+         lines_diff: 4
+         compare: sim_size
 """
 
 
@@ -178,6 +193,16 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert attributes1["compare"] == "diff"
         assert attributes1["lines_diff"] == 0
 
+        test2 = tests[1]
+        outputs = test2["outputs"]
+        assert len(outputs) == 1
+        output2 = outputs[0]
+        assert output2[0] == 'out1'
+        assert output2[1] is None
+        attributes1 = output2[2]
+        assert attributes1["compare"] == "sim_size"
+        assert attributes1["lines_diff"] == 4
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -260,12 +285,12 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         assert len(page_sources) == 1
         page_source = page_sources[0]
         input_sources = page_source.parse_input_sources()
-        assert len(input_sources) == 1
+        assert len(input_sources) == 2
 
     def test_tests(self):
         tests_dict = self._tool_source.parse_tests_to_dict()
         tests = tests_dict["tests"]
-        assert len(tests) == 1
+        assert len(tests) == 2
         test_dict = tests[0]
         inputs = test_dict["inputs"]
         assert len(inputs) == 1
@@ -281,6 +306,16 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         attributes1 = output1[2]
         assert attributes1["compare"] == "diff"
         assert attributes1["lines_diff"] == 0
+
+        test2 = tests[1]
+        outputs = test2["outputs"]
+        assert len(outputs) == 1
+        output2 = outputs[0]
+        assert output2[0] == 'out1'
+        assert output2[1] is None
+        attributes1 = output2[2]
+        assert attributes1["compare"] == "sim_size"
+        assert attributes1["lines_diff"] == 4
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):

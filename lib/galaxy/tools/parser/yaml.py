@@ -148,7 +148,21 @@ def _parse_test(i, test_dict):
         # TODO
         attributes["metadata"] = {}
         # TODO
-        attributes["assert_list"] = []
+        assert_list = []
+        for key, assertion in attributes.get("asserts", {}).iteritems():
+            # TODO: not handling nested assertions correctly,
+            # not sure these are used though.
+            children = []
+            if "children" in assertion:
+                children = assertion["children"]
+                del assertion["children"]
+            assert_dict = dict(
+                tag=key,
+                attributes=assertion,
+                children=children,
+            )
+            assert_list.append(assert_dict)
+        attributes["assert_list"] = assert_list
 
         _ensure_has(attributes, defaults)
 
@@ -177,7 +191,41 @@ class YamlInputSource(InputSource):
         return self.input_dict.get(key, default)
 
     def parse_input_type(self):
-        return "param"
+        input_type = self.input_dict["type"]
+        if input_type == "repeat":
+            return "repeat"
+        elif input_type == "conditional":
+            return "conditional"
+        else:
+            return "param"
+
+    def parse_nested_inputs_source(self):
+        assert self.parse_input_type() == "repeat"
+        return YamlPageSource(self.input_dict["blocks"])
+
+    def parse_test_input_source(self):
+        test_dict = self.input_dict.get( "test", None )
+        assert test_dict is not None, "conditional must contain a `test` definition"
+        return YamlInputSource(test_dict)
+
+    def parse_when_input_sources(self):
+        input_dict = self.input_dict
+
+        sources = []
+        for value, block in input_dict.get("when", {}).items():
+            if value is True:
+                value = "true"
+            elif value is False:
+                value = "false"
+            else:
+                value = str(value)
+
+            # str here to loose type information like XML, needed?
+            if not isinstance(block, list):
+                block = [block]
+            case_page_source = YamlPageSource(block)
+            sources.append((value, case_page_source))
+        return sources
 
 
 def _ensure_has(dict, defaults):
