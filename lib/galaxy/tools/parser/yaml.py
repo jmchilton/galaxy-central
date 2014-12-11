@@ -96,6 +96,65 @@ class YamlToolSource(ToolSource):
         output.dataset_collectors = output_collect.dataset_collectors_from_list( discover_datasets_dicts )
         return output
 
+    def parse_tests_to_dict(self):
+        tests = []
+        rval = dict(
+            tests=tests
+        )
+
+        for i, test_dict in enumerate(self.root_dict.get("tests", [])):
+            tests.append(_parse_test(i, test_dict))
+
+        return rval
+
+
+def _parse_test(i, test_dict):
+    inputs = test_dict["inputs"]
+    if isinstance(inputs, dict):
+        new_inputs = []
+        for key, value in inputs.iteritems():
+            new_inputs.append((key, value, {}))
+        test_dict["inputs"] = new_inputs
+
+    outputs = test_dict["outputs"]
+
+    new_outputs = []
+    if isinstance(outputs, dict):
+        for key, value in outputs.iteritems():
+            if isinstance(value, dict):
+                attributes = value
+                file = attributes.get("file")
+            else:
+                file = value
+                attributes = {}
+            new_outputs.append((key, file, attributes))
+    else:
+        for output in outputs:
+            name = output["name"]
+            value = output.get("file", None)
+            attributes = output
+            new_outputs.append((name, value, attributes))
+
+    for output in new_outputs:
+        attributes = output[2]
+        defaults = {
+            'compare': 'diff',
+            'lines_diff': 0,
+            'delta': 1000,
+            'sort': False,
+        }
+        # TODO
+        attributes["extra_files"] = []
+        # TODO
+        attributes["metadata"] = {}
+        # TODO
+        attributes["assert_list"] = []
+
+        _ensure_has(attributes, defaults)
+
+    test_dict["outputs"] = new_outputs
+    return test_dict
+
 
 class YamlPageSource(PageSource):
 
@@ -116,3 +175,12 @@ class YamlInputSource(InputSource):
 
     def get_bool(self, key, default):
         return self.input_dict.get(key, default)
+
+    def parse_input_type(self):
+        return "param"
+
+
+def _ensure_has(dict, defaults):
+    for key, value in defaults.iteritems():
+        if key not in dict:
+            dict[key] = value
