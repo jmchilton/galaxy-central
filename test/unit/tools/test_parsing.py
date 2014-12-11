@@ -26,6 +26,19 @@ TOOL_XML_1 = """
     <stdio>
         <exit_code range="1:" level="fatal" />
     </stdio>
+    <tests>
+        <test>
+            <param name="foo" value="5" />
+            <output name="out1" file="moo.txt" />
+        </test>
+        <test>
+            <param name="foo" value="5">
+            </param>
+            <output name="out1" file="moo.txt" lines_diff="4" compare="sim_size">
+                <metadata name="dbkey" value="hg19" />
+            </output>
+        </test>
+    </tests>
 </tool>
 """
 
@@ -54,6 +67,11 @@ inputs:
     type: integer
     min: 7
     max: 8
+tests:
+   - inputs:
+       foo: 5
+     outputs:
+       out1: moo.txt
 """
 
 
@@ -140,6 +158,26 @@ class XmlLoaderTestCase(BaseLoaderTestCase):
         assert exit[0].range_start == 1
         assert isinf(exit[0].range_end)
 
+    def test_tests(self):
+        tests_dict = self._tool_source.parse_tests_to_dict()
+        tests = tests_dict["tests"]
+        assert len(tests) == 2
+        test_dict = tests[0]
+        inputs = test_dict["inputs"]
+        assert len(inputs) == 1
+        input1 = inputs[0]
+        assert input1[0] == "foo"
+        assert input1[1] == "5"
+
+        outputs = test_dict["outputs"]
+        assert len(outputs) == 1
+        output1 = outputs[0]
+        assert output1[0] == 'out1'
+        assert output1[1] == 'moo.txt'
+        attributes1 = output1[2]
+        assert attributes1["compare"] == "diff"
+        assert attributes1["lines_diff"] == 0
+
 
 class YamlLoaderTestCase(BaseLoaderTestCase):
     source_file_name = "bwa.yml"
@@ -223,6 +261,26 @@ class YamlLoaderTestCase(BaseLoaderTestCase):
         page_source = page_sources[0]
         input_sources = page_source.parse_input_sources()
         assert len(input_sources) == 1
+
+    def test_tests(self):
+        tests_dict = self._tool_source.parse_tests_to_dict()
+        tests = tests_dict["tests"]
+        assert len(tests) == 1
+        test_dict = tests[0]
+        inputs = test_dict["inputs"]
+        assert len(inputs) == 1
+        input1 = inputs[0]
+        assert input1[0] == "foo"
+        assert input1[1] == 5
+
+        outputs = test_dict["outputs"]
+        assert len(outputs) == 1
+        output1 = outputs[0]
+        assert output1[0] == 'out1'
+        assert output1[1] == 'moo.txt'
+        attributes1 = output1[2]
+        assert attributes1["compare"] == "diff"
+        assert attributes1["lines_diff"] == 0
 
 
 class DataSourceLoaderTestCase(BaseLoaderTestCase):
