@@ -1,0 +1,43 @@
+id: simple_constructs_y
+name: simple_constructs_y
+version: 1.0
+command:
+  >
+    echo "$booltest"  >> $out_file1;
+    echo "$inttest"   >> $out_file1;
+    echo "$floattest" >> $out_file1;
+    cat "$simp_file"   >> $out_file1;
+inputs:
+- name: booltest
+  type: boolean
+  truevalue: booltrue
+  falsevalue: boolfalse
+  checked: false
+- name: inttest
+  type: integer
+  value: 1
+- name: floattest
+  type: float
+  value: 1.0
+- name: simp_file
+  type: data
+outputs:
+  out_file1:
+    format: txt
+tests:
+- inputs:
+    booltest: true
+    inttest: 12456
+    floattest: 6.789
+    simp_file: simple_line.txt
+  outputs:
+    out_file1:
+      asserts:
+        has_line:
+          line: booltrue
+        has_line:
+          line: 12456
+        has_line:
+          line: 6.789
+        has_line:
+          line: "This is a line of text."
