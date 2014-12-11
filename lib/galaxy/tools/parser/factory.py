@@ -21,7 +21,12 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def get_tool_source(config_file):
+def get_tool_source(config_file, enable_beta_formats=True):
+    if not enable_beta_formats:
+        tree = load_tool_xml(config_file)
+        root = tree.getroot()
+        return XmlToolSource(root)
+
     if config_file.endswith(".yml"):
         log.info("Loading tool from YAML - this is experimental - tool will not function in future.")
         with open(config_file, "r") as f:
