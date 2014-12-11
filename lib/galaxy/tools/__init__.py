@@ -1866,21 +1866,20 @@ class Tool( object, Dictifiable ):
                 group.inputs = self.parse_input_elem( group_page_source, enctypes, context )
                 rval[ group.name ] = group
             elif input_type == "param":
-                elem = input_source.input_elem
-                param = self.parse_param_elem( elem, enctypes, context )
+                param = self.parse_param_elem( input_source, enctypes, context )
                 rval[param.name] = param
                 if hasattr( param, 'data_ref' ):
                     param.ref_input = context[ param.data_ref ]
                 self.input_params.append( param )
         return rval
 
-    def parse_param_elem( self, input_elem, enctypes, context ):
+    def parse_param_elem( self, input_source, enctypes, context ):
         """
         Parse a single "<param>" element and return a ToolParameter instance.
         Also, if the parameter has a 'required_enctype' add it to the set
         enctypes.
         """
-        param = ToolParameter.build( self, input_elem )
+        param = ToolParameter.build( self, input_source )
         param_enctype = param.get_required_enctype()
         if param_enctype:
             enctypes.add( param_enctype )
