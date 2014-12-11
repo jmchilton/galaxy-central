@@ -505,7 +505,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
 
     def __encode_workflow( self, trans, stored_workflow, workflow ):
         item = stored_workflow.to_dict( view='element', value_mapper={ 'id': trans.security.encode_id } )
-        item['url'] = url_for('workflow', id=id)
+        item['url'] = url_for('workflow', id=item['id'])
         item['owner'] = stored_workflow.user.username
         inputs = {}
         for step in workflow.steps:
