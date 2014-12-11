@@ -743,7 +743,6 @@ class ToolBox( object, Dictifiable ):
     def load_tool( self, config_file, guid=None, repository_id=None, **kwds ):
         """Load a single tool from the file named by `config_file` and return an instance of `Tool`."""
         # Parse XML configuration file and get the root element
-        tree = load_tool( config_file )
         tool_source = get_tool_source( config_file, getattr( self.app.config, "enable_beta_tool_formats" ) )
         # Allow specifying a different tool subclass to instantiate
         tool_module = tool_source.parse_tool_module()
