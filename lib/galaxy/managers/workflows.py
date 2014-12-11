@@ -236,11 +236,11 @@ class WorkflowContentsManager(UsesAnnotations):
             missing_tools=missing_tool_tups
         )
 
-    def update_workflow_from_dict(self, trans, stored_workflow, workflow_data):
+    def update_workflow_from_dict(self, trans, stored_workflow, workflow_data, secure=True):
         # Put parameters in workflow mode
         trans.workflow_building_mode = True
         # Convert incoming workflow data from json
-        data = json.loads( workflow_data )
+        data = _as_dict(workflow_data)
         # Create new workflow from incoming data
         workflow = model.Workflow()
         # Just keep the last name (user can rename later)
@@ -268,7 +268,7 @@ class WorkflowContentsManager(UsesAnnotations):
             steps_by_external_id[ step_dict['id' ] ] = step
             # FIXME: Position should be handled inside module
             step.position = step_dict['position']
-            module = module_factory.from_dict( trans, step_dict )
+            module = module_factory.from_dict( trans, step_dict, secure=False )
             module.save_to_step( step )
             if 'workflow_outputs' in step_dict:
                 for output_name in step_dict['workflow_outputs']:
@@ -311,6 +311,13 @@ class WorkflowContentsManager(UsesAnnotations):
         if workflow.has_cycles:
             errors.append( "This workflow contains cycles" )
         return workflow, errors
+
+
+def _as_dict(object):
+    if isinstance(object, basestring):
+        return json.loads(object)
+    else:
+        return object
 
 
 class MissingToolsException(object):

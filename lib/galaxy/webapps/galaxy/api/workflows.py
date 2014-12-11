@@ -272,7 +272,7 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
         return self.__api_import_new_workflow( trans, payload, **kwd )
 
     @expose_api
-    def update( self, trans, id, payload ):
+    def update( self, trans, id, payload, **kwds ):
         """
         * PUT /api/workflows/{id}
             updates the workflow stored with ``id``
@@ -289,11 +289,12 @@ class WorkflowsAPIController(BaseAPIController, UsesStoredWorkflowMixin, UsesHis
         :returns:   serialized version of the workflow
         """
         stored_workflow = self.__get_stored_workflow( trans, id )
-        workflow_contents_manager = workflows.WorkflowContentManager()
+        workflow_contents_manager = workflows.WorkflowContentsManager()
         workflow, errors = workflow_contents_manager.update_workflow_from_dict(
             trans,
             stored_workflow,
             payload,
+            secure=False,
         )
         return self.__encode_workflow( trans, stored_workflow, workflow )
 
