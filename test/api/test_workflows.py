@@ -235,8 +235,30 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
     def test_update( self ):
         upload_response = self.__test_upload( )
         workflow_id = upload_response.json()["id"]
-        show_response = self._get( "workflow/%s" % workflow_id ).json()
-        print show_response
+        workflow_content = self._download_workflow(workflow_id)
+        steps = workflow_content["steps"]
+
+        def tweak_step(step):
+            assert step['position']['top'] != 1
+            assert step['position']['left'] != 1
+            step['position'] = {'top': 1, 'left': 1}
+
+        map(tweak_step, steps.values())
+        payload = dumps( workflow_content )
+        raw_url = 'workflows/%s' % workflow_id
+        url = self._api_url( raw_url, use_key=True )
+        put_response = put( url, data=payload )
+        self._assert_status_code_is( put_response, 200 )
+
+        updated_workflow_content = self._download_workflow(workflow_id)
+
+        def check_step(step):
+            assert step['position']['top'] == 1
+            assert step['position']['left'] == 1
+
+        print updated_workflow_content
+        map(check_step, updated_workflow_content['steps'].values())
+        print self._show_workflow(workflow_id)
         assert False
 
     def test_import_deprecated( self ):
