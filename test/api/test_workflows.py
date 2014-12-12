@@ -233,8 +233,21 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
         return upload_response
 
     def test_update( self ):
+        original_workflow = self.workflow_populator.load_workflow( name="test_import" )
+
         upload_response = self.__test_upload( )
         workflow_id = upload_response.json()["id"]
+
+        def update(workflow_object):
+            data = dict(
+                workflow=workflow_object
+            )
+            raw_url = 'workflows/%s' % workflow_id
+            url = self._api_url( raw_url, use_key=True )
+            put_response = put( url, data=dumps(data) )
+            self._assert_status_code_is( put_response, 200 )
+            return put_response
+
         workflow_content = self._download_workflow(workflow_id)
         steps = workflow_content["steps"]
 
@@ -244,22 +257,23 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
             step['position'] = {'top': 1, 'left': 1}
 
         map(tweak_step, steps.values())
-        payload = dumps( workflow_content )
-        raw_url = 'workflows/%s' % workflow_id
-        url = self._api_url( raw_url, use_key=True )
-        put_response = put( url, data=payload )
-        self._assert_status_code_is( put_response, 200 )
 
-        updated_workflow_content = self._download_workflow(workflow_id)
+        update(workflow_content)
 
         def check_step(step):
             assert step['position']['top'] == 1
             assert step['position']['left'] == 1
 
-        print updated_workflow_content
+        updated_workflow_content = self._download_workflow(workflow_id)
         map(check_step, updated_workflow_content['steps'].values())
-        print self._show_workflow(workflow_id)
-        assert False
+
+        # Re-update against original worklfow...
+        update(original_workflow)
+
+        updated_workflow_content = self._download_workflow(workflow_id)
+
+        # Make sure the positions have been updated.
+        map(tweak_step, updated_workflow_content['steps'].values())
 
     def test_import_deprecated( self ):
         workflow_id = self.workflow_populator.simple_workflow( "test_import_published_deprecated", publish=True )
