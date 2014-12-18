@@ -341,13 +341,21 @@ class ToolRunner( BaseUIController ):
         if not tool:
             return False # bad tool_id
         nonfile_params = galaxy.util.Params( kwd, sanitize=False )
-        if kwd.get( 'tool_state', None ) not in ( None, 'None' ):
-            encoded_state = galaxy.util.string_to_object( kwd["tool_state"] )
-            tool_state = DefaultToolState()
-            tool_state.decode( encoded_state, tool, trans.app )
-        else:
+        updated_state = False
+        try:
+            if kwd.get( 'tool_state', None ) not in ( None, 'None' ):
+                encoded_state = galaxy.util.string_to_object( kwd["tool_state"] )
+                tool_state = DefaultToolState()
+                tool_state.decode( encoded_state, tool, trans.app )
+                tool.update_state( trans, tool.inputs, tool_state.inputs, kwd, update_only=True )
+                updated_state = True
+        except KeyError:
+            # Had state but if was for an older version of the tool with
+            # incompatible parameters - just generate a new state.
+            updated_state = False
+        if not updated_state:
             tool_state = tool.new_state( trans )
-        tool.update_state( trans, tool.inputs, tool_state.inputs, kwd, update_only = True )
+            tool.update_state( trans, tool.inputs, tool_state.inputs, kwd, update_only=True )
         datasets = []
         dataset_upload_inputs = []
         for input_name, input in tool.inputs.iteritems():
