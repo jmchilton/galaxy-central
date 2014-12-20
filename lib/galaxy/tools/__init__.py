@@ -226,7 +226,7 @@ class ToolBox( object, Dictifiable ):
             if parsing_shed_tool_conf:
                 config_elems.append( elem )
             if elem.tag == 'tool':
-                self.load_tool_tag_set( elem, self.tool_panel, self.integrated_tool_panel, tool_path, load_panel_dict, guid=elem.get( 'guid' ), index=index )
+                self.load_tool_tag_set( elem, self.tool_panel, self.integrated_tool_panel, tool_path, load_panel_dict, index=index )
             elif elem.tag == 'workflow':
                 self.load_workflow_tag_set( elem, self.tool_panel, self.integrated_tool_panel, load_panel_dict, index=index )
             elif elem.tag == 'section':
@@ -577,9 +577,10 @@ class ToolBox( object, Dictifiable ):
                 select_field.add_option( 'version %s' % option_tup[ 0 ], option_tup[ 1 ] )
         return select_field
 
-    def load_tool_tag_set( self, elem, panel_dict, integrated_panel_dict, tool_path, load_panel_dict, guid=None, index=None ):
+    def load_tool_tag_set( self, elem, panel_dict, integrated_panel_dict, tool_path, load_panel_dict, index=None ):
         try:
             path = elem.get( "file" )
+            guid = elem.get( "guid" )
             repository_id = None
             if guid is None:
                 tool_shed_repository = None
@@ -690,7 +691,7 @@ class ToolBox( object, Dictifiable ):
             integrated_elems = integrated_section.elems
         for sub_index, sub_elem in enumerate( elem ):
             if sub_elem.tag == 'tool':
-                self.load_tool_tag_set( sub_elem, elems, integrated_elems, tool_path, load_panel_dict, guid=sub_elem.get( 'guid' ), index=sub_index )
+                self.load_tool_tag_set( sub_elem, elems, integrated_elems, tool_path, load_panel_dict, index=sub_index )
             elif sub_elem.tag == 'workflow':
                 self.load_workflow_tag_set( sub_elem, elems, integrated_elems, load_panel_dict, index=sub_index )
             elif sub_elem.tag == 'label':
