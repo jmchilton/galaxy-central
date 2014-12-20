@@ -72,7 +72,6 @@ class ToolPanelManager( object ):
                     self.app.toolbox.integrated_tool_panel,
                     tool_path,
                     load_panel_dict=True,
-                    guid=config_elem.get( 'guid' )
                 )
         # Replace the old list of in-memory config_elems with the new list for this shed_tool_conf_dict.
         shed_tool_conf_dict[ 'config_elems' ] = config_elems
