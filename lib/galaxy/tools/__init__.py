@@ -417,29 +417,24 @@ class ToolBox( object, Dictifiable ):
         tree = parse_xml( self.integrated_tool_panel_config )
         root = tree.getroot()
         for elem in root:
+            key = elem.get( 'id' )
             if elem.tag == 'tool':
-                key = 'tool_%s' % elem.get( 'id' )
-                self.integrated_tool_panel[ key ] = None
+                self.integrated_tool_panel.stub_tool( key )
             elif elem.tag == 'workflow':
-                key = 'workflow_%s' % elem.get( 'id' )
-                self.integrated_tool_panel[ key ] = None
+                self.integrated_tool_panel.stub_workflow( key )
             elif elem.tag == 'section':
                 section = ToolSection( elem )
                 for section_elem in elem:
+                    section_id = section_elem.get( 'id' )
                     if section_elem.tag == 'tool':
-                        key = 'tool_%s' % section_elem.get( 'id' )
-                        section.elems[ key ] = None
+                        section.elems.stub_tool( section_id )
                     elif section_elem.tag == 'workflow':
-                        key = 'workflow_%s' % section_elem.get( 'id' )
-                        section.elems[ key ] = None
+                        section.elems.stub_workflow( section_id )
                     elif section_elem.tag == 'label':
-                        key = 'label_%s' % section_elem.get( 'id' )
-                        section.elems[ key ] = None
-                key = elem.get( 'id' )
-                self.integrated_tool_panel[ key ] = section
+                        section.elems.stub_label( section_id )
+                self.integrated_tool_panel.append_section( key, section )
             elif elem.tag == 'label':
-                key = 'label_%s' % elem.get( 'id' )
-                self.integrated_tool_panel[ key ] = None
+                section.stub_label( key )
 
     def write_integrated_tool_panel_config_file( self ):
         """
