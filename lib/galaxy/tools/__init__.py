@@ -531,6 +531,9 @@ class ToolBox( object, Dictifiable ):
         # else exact match - leave unmodified.
         return tool_id
 
+    def tools( self ):
+        return self.tools_by_id.iteritems()
+
     def get_loaded_tools_by_lineage( self, tool_id ):
         """Get all loaded tools associated by lineage to the tool whose id is tool_id."""
         tool_lineage = self.lineage_map.get( tool_id )
