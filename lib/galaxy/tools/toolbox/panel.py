@@ -5,6 +5,12 @@ class ToolPanelElements( odict ):
     """ Represents an ordered dictionary of tool entries.
     """
 
+    def update_or_append( self, index, key, value ):
+        if key in self or index is None:
+            self[ key ] = value
+        else:
+            self.insert( index, key, value )
+
     def has_tool_with_id( self, tool_id ):
         key = 'tool_%s' % tool_id
         return key in self
