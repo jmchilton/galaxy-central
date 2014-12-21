@@ -476,8 +476,11 @@ class ToolBox( object, Dictifiable ):
         shutil.move( filename, os.path.abspath( self.integrated_tool_panel_config ) )
         os.chmod( self.integrated_tool_panel_config, 0644 )
 
-    def get_tool( self, tool_id, tool_version=None, get_all_versions=False ):
+    def get_tool( self, tool_id, tool_version=None, get_all_versions=False, exact=False ):
         """Attempt to locate a tool in the tool box."""
+        if get_all_versions and exact:
+            raise AssertionError("Cannot specify get_tool with both get_all_versions and exact as True")
+
         if tool_id in self.tools_by_id and not get_all_versions:
             #tool_id exactly matches an available tool by id (which is 'old' tool_id or guid)
             return self.tools_by_id[ tool_id ]
@@ -510,6 +513,9 @@ class ToolBox( object, Dictifiable ):
         if tool_id in self.tools_by_id:
             return[ self.tools_by_id[ tool_id ] ]
         return None
+
+    def has_tool( self, tool_id, exact=False ):
+        return self.get_tool( tool_id, exact=exact ) is not None
 
     def get_tool_id( self, tool_id ):
         """ Take a tool id (potentially from a different Galaxy instance or that
