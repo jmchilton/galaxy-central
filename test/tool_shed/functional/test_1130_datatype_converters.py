@@ -64,6 +64,7 @@ class TestDatatypeConverters( ShedTwillTestCase ):
         Install bed_to_gff_converter_0130, checking that the option to select the tool panel section is *not* displayed.
         '''
         self.galaxy_logout()
+        assert not self.__bed_to_gff_converter_loaded()
         self.galaxy_login( email=common.admin_email, username=common.admin_username )
         repository = self.test_db_util.get_repository_by_name_and_owner( repository_name, common.test_user_1_name )
         preview_strings_displayed = [ repository.name, self.get_repository_tip( repository ) ]
@@ -78,6 +79,7 @@ class TestDatatypeConverters( ShedTwillTestCase ):
                                  strings_not_displayed=strings_not_displayed,
                                  post_submit_strings_displayed=[ repository.name, 'New' ],
                                  includes_tools_for_display_in_tool_panel=False )
+        assert self.__bed_to_gff_converter_loaded()
         
     def test_0015_uninstall_and_verify_tool_panel_section( self ):
         '''Uninstall bed_to_gff_converter_0130 and verify that the saved tool_panel_section is None.'''
@@ -89,3 +91,9 @@ class TestDatatypeConverters( ShedTwillTestCase ):
         repository = self.test_db_util.get_installed_repository_by_name_owner( repository_name, common.test_user_1_name )
         self.uninstall_repository( repository )
         self.verify_installed_repository_no_tool_panel_section( repository )
+        assert not self.__bed_to_gff_converter_loaded()
+
+    def __bed_to_gff_converter_loaded( self ):
+        converters = self.get_converters( )
+        print converters
+        return len( [ c for c in converters if c["source"] == "bed" and c["target"] == "gff" ] ) != 0

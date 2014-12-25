@@ -750,11 +750,15 @@ class ShedTwillTestCase( TwillTestCase ):
         return str( repo.changectx( repo.changelog.tip() ) )
         
     def get_sniffers_count( self ):
-        url = '/api/datatypes/sniffers'
+        return len( self.to_json( '/api/datatypes/sniffers' ) )
+
+    def get_converters( self ):
+        return self.to_json( '/api/datatypes/converters' )
+
+    def to_json( self, url ):
         self.visit_galaxy_url( url )
         html = self.last_page()
-        sniffers = loads( html )
-        return len( sniffers )
+        return loads( html )
 
     def get_tools_from_repository_metadata( self, repository, include_invalid=False ):
         '''Get a list of valid and (optionally) invalid tool dicts from the repository metadata.'''
