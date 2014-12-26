@@ -37,7 +37,7 @@ class ToolLineage(object):
 
     @abstractmethod
     def get_version_ids( self, reverse=False ):
-            """ Return an ordered list of lineages in this chain, from
+        """ Return an ordered list of lineages in this chain, from
         oldest to newest.
         """
 
