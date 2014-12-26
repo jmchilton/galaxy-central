@@ -135,6 +135,10 @@ class ToolBox( object, Dictifiable ):
         # shed-related shed_tool_conf.xml file.
         self.shed_tool_confs = []
         self.tools_by_id = {}
+        # Tool lineages can contain chains of related tools with different ids
+        # so each will be present once in the above dictionary. The following
+        # dictionary can instead hold multiple tools with different versions.
+        self.tool_versions_by_id = {}
         self.workflows_by_id = {}
         # In-memory dictionary that defines the layout of the tool panel.
         self.tool_panel = odict()
@@ -494,6 +498,9 @@ class ToolBox( object, Dictifiable ):
             raise AssertionError("Cannot specify get_tool with both get_all_versions and exact as True")
 
         if tool_id in self.tools_by_id and not get_all_versions:
+            if tool_version and tool_version in self.tool_versions_by_id[ tool_id ]:
+                return self.tool_versions_by_id[ tool_id ][ tool_version ]
+
             #tool_id exactly matches an available tool by id (which is 'old' tool_id or guid)
             return self.tools_by_id[ tool_id ]
         #exact tool id match not found, or all versions requested, search for other options, e.g. migrated tools or different versions
@@ -842,7 +849,11 @@ class ToolBox( object, Dictifiable ):
         return tool
 
     def register_tool( self, tool ):
-        self.tools_by_id[ tool.id ] = tool
+        tool_id = tool.id
+        self.tools_by_id[ tool_id ] = tool
+        if tool_id not in self.tool_versions_by_id:
+            version = tool.version or None
+            self.tool_versions_by_id[ tool_id ] = { version: tool }
 
     def package_tool( self, trans, tool_id ):
         """

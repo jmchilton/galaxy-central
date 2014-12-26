@@ -294,6 +294,17 @@ class ToolBoxTestCase( BaseToolBoxTestCase ):
         assert self.toolbox.get_tool( "test_tool", tool_version="0.1" ).guid == "github.com/galaxyproect/example/test_tool/0.1"
         assert self.toolbox.get_tool( "test_tool", tool_version="0.2" ).guid == "github.com/galaxyproect/example/test_tool/0.2"
 
+    def test_default_lineage( self ):
+        self._init_tool( filename="tool_v01.xml", version="0.1" )
+        self._init_tool( filename="tool_v02.xml", version="0.2" )
+        self._add_config( """<toolbox><tool file="tool_v01.xml" /><tool file="tool_v02.xml" /></toolbox>""" )
+        tool_v01 = self.toolbox.get_tool( "test_tool", tool_version="0.1" )
+        tool_v02 = self.toolbox.get_tool( "test_tool", tool_version="0.2" )
+        assert tool_v02.id == "test_tool"
+        assert tool_v02.version == "0.2", tool_v02.version
+        assert tool_v01.id == "test_tool"
+        assert tool_v01.version == "0.1"
+
     def __remove_itp( self ):
         os.remove( os.path)
 
