@@ -649,6 +649,7 @@ class ToolBox( object, Dictifiable ):
                 tool_lineage = self.lineage_map.register( tool, tool_shed_repository=tool_shed_repository )
                 # Load the tool's lineage ids.
                 tool.lineage_ids = tool_lineage.get_version_ids( )
+                tool.lineage = tool_lineage
                 self.tool_tag_manager.handle_tags( tool.id, elem )
                 self.__add_tool( tool, load_panel_dict, panel_dict )
             # Always load the tool into the integrated_panel_dict, or it will not be included in the integrated_tool_panel.xml file.
@@ -814,7 +815,10 @@ class ToolBox( object, Dictifiable ):
 
     def register_tool( self, tool ):
         tool_id = tool.id
-        self.tools_by_id[ tool_id ] = tool
+        if tool_id in self.tools_by_id:
+            lineage = getattr( tool, "lineage", None )
+
+            self.tools_by_id[ tool_id ] = tool
         if tool_id not in self.tool_versions_by_id:
             version = tool.version or None
             self.tool_versions_by_id[ tool_id ] = { version: tool }

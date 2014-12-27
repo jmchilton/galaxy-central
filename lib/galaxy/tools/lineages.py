@@ -1,3 +1,6 @@
+import threading
+from distutils.version import LooseVersion
+
 from abc import ABCMeta
 from abc import abstractmethod
 
@@ -17,7 +20,8 @@ class LineageMap(object):
             if tool_shed_repository:
                 lineage = ToolShedLineage.from_tool(self.app, tool, tool_shed_repository)
             else:
-                lineage = SingletonLineage(tool_id)
+                lineage = StockLineage.for_tool_id(tool_id)
+                lineage.register_version( tool.version )
             self.lineage_map[tool_id] = lineage
         return self.lineage_map[tool_id]
 
@@ -41,16 +45,75 @@ class ToolLineage(object):
         oldest to newest.
         """
 
+    @abstractmethod
+    def get_versions( self, reverse=False ):
+        """ Return an ordered list of lineages (ToolLineageVersion) in this
+        chain, from oldest to newest.
+        """
 
-class SingletonLineage(ToolLineage):
+
+class ToolLineageVersion(object):
+    """ Represents a single tool in a lineage. If lineage is based
+    around GUIDs that somehow encode the version (either using GUID
+    or a simple tool id and a version). """
+    
+    def __init__(self, id, version):
+        self.id = id
+        self.version = version
+
+    @staticmethod
+    def from_id_and_verion( self, id, version ):
+        assert version is not None
+        return ToolLineageVersion( id, version )
+
+    @staticmethod
+    def from_guid( self, guid ):
+        return ToolLineageVersion( guid, None )
+
+    @property
+    def id_based( self ):
+        """ Return True if the lineage is defined by GUIDs (in this
+        case the indexer of the tools (i.e. the ToolBox) should ignore
+        the tool_version (because it is encoded in the GUID and managed
+        externally).
+        """
+        return self.version is None
+
+
+class StockLineage(ToolLineage):
     """ Single stand-alone tool - with no lineage.
     """
+    lineages_by_id = {}
+    lock = threading.Lock()
 
     def __init__(self, tool_id, **kwds):
         self.tool_id = tool_id
+        self.tool_versions = set()
 
     def get_version_ids( self, reverse=False ):
         return [self.tool_id]
+
+    @staticmethod
+    def for_tool_id( tool_id ):
+        lineages_by_id = StockLineage.lineages_by_id
+        with StockLineage.lock:
+            if tool_id not in lineages_by_id:
+                lineages_by_id[ tool_id ] = StockLineage( tool_id )
+        return lineages_by_id[ tool_id ]
+
+    def register_version( self, tool_version ):
+        assert tool_version is not None
+        self.tool_versions.add( tool_version )
+
+    def get_versions( self, reverse=False ):
+        versions = [ ToolLineageVersion( self.tool_id, v ) for v in self.tool_versions ]
+        sorted( versions, key=StockLineage._compare )
+
+    @staticmethod
+    def _compare( tool_lineage_version_1, tool_lineage_version_2 ):
+        v1 = LooseVersion( tool_lineage_version_1.version )
+        v2 = LooseVersion( tool_lineage_version_2.version )
+        return v1.__cmp__( v2 )
 
 
 class ToolShedLineage(ToolLineage):
@@ -80,6 +143,9 @@ class ToolShedLineage(ToolLineage):
 
     def get_version_ids( self, reverse=False ):
         return self.tool_version.get_version_ids( self.app, reverse=reverse )
+
+    def get_versions( self, reverse=False ):
+        return map( ToolLineageVersion.from_guid, self.get_version_ids( reverse=reverse ) )
 
 
 def get_install_tool_version( app, tool_id ):
