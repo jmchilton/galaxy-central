@@ -1,0 +1,40 @@
+from .interface import ToolLineage
+
+
+class ToolShedLineage(ToolLineage):
+    """ Representation of tool lineage derived from tool shed repository
+    installations. """
+
+    def __init__(self, app, tool_version):
+        self.app = app
+        self.tool_version = tool_version
+
+    @staticmethod
+    def from_tool( app, tool, tool_shed_repository ):
+        # Make sure the tool has a tool_version.
+        if not get_install_tool_version( app, tool.id ):
+            tool_version = app.install_model.ToolVersion( tool_id=tool.id, tool_shed_repository=tool_shed_repository )
+            app.install_model.context.add( tool_version )
+            app.install_model.context.flush()
+        return ToolShedLineage( app, tool.tool_version )
+
+    @staticmethod
+    def from_tool_id( app, tool_id ):
+        tool_version = get_install_tool_version( app, tool_id )
+        if tool_version:
+            return ToolShedLineage( app, tool_version )
+        else:
+            return None
+
+    def get_version_ids( self, reverse=False ):
+        return self.tool_version.get_version_ids( self.app, reverse=reverse )
+
+
+def get_install_tool_version( app, tool_id ):
+    return app.install_model.context.query(
+        app.install_model.ToolVersion
+    ).filter(
+        app.install_model.ToolVersion.table.c.tool_id == tool_id
+    ).first()
+
+__all__ = [ "ToolShedLineage" ]
