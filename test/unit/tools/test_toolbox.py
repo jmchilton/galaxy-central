@@ -305,6 +305,15 @@ class ToolBoxTestCase( BaseToolBoxTestCase ):
         assert tool_v01.id == "test_tool"
         assert tool_v01.version == "0.1"
 
+    def test_grouping_with_default_lineage( self ):
+        self._init_tool( filename="tool_v01.xml", version="0.1" )
+        self._init_tool( filename="tool_v02.xml", version="0.2" )
+        self._add_config( """<toolbox><tool file="tool_v01.xml" /><tool file="tool_v02.xml" /></toolbox>""" )
+        assert len( self.toolbox.tool_panel ) == 1
+        tool = self.toolbox.tool_panel["tool_test_tool"]
+        assert tool.version == "0.2", tool.version
+        assert tool.id == "test_tool"
+
     def __remove_itp( self ):
         os.remove( os.path)
 

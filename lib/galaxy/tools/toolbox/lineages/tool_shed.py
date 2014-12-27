@@ -1,4 +1,5 @@
 from .interface import ToolLineage
+from .interface import ToolLineageVersion
 
 
 class ToolShedLineage(ToolLineage):
@@ -28,6 +29,9 @@ class ToolShedLineage(ToolLineage):
 
     def get_version_ids( self, reverse=False ):
         return self.tool_version.get_version_ids( self.app, reverse=reverse )
+
+    def get_versions( self, reverse=False ):
+        return map( ToolLineageVersion.from_guid, self.get_version_ids( reverse=reverse ) )
 
 
 def get_install_tool_version( app, tool_id ):
