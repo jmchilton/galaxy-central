@@ -30,12 +30,12 @@ class ToolLineageVersion(object):
         self.version = version
 
     @staticmethod
-    def from_id_and_verion( self, id, version ):
+    def from_id_and_verion( id, version ):
         assert version is not None
         return ToolLineageVersion( id, version )
 
     @staticmethod
-    def from_guid( self, guid ):
+    def from_guid( guid ):
         return ToolLineageVersion( guid, None )
 
     @property
