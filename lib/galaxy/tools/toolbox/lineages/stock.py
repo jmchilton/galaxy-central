@@ -1,6 +1,6 @@
 import threading
 
-from distuils.versions import LooseVersion
+from distutils.version import LooseVersion
 
 from .interface import ToolLineage
 from .interface import ToolLineageVersion
@@ -34,7 +34,7 @@ class StockLineage(ToolLineage):
 
     def get_versions( self, reverse=False ):
         versions = [ ToolLineageVersion( self.tool_id, v ) for v in self.tool_versions ]
-        sorted( versions, key=StockLineage._compare )
+        return sorted( versions, cmp=StockLineage._compare )
 
     @staticmethod
     def _compare( tool_lineage_version_1, tool_lineage_version_2 ):
