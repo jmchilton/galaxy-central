@@ -46,6 +46,9 @@ def create_or_verify_database( url, engine_options={} ):
         # Let this go, it could possibly work with db's we don't support
         log.error( "database_connection contains an unknown SQLAlchemy database dialect: %s" % dialect )
     # Create engine and metadata
+    if ":memory:" in url:
+        return
+
     engine = create_engine( url, **engine_options )
     meta = MetaData( bind=engine )
     # Try to load dataset table
