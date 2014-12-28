@@ -40,4 +40,5 @@ class StockLineage(ToolLineage):
 
 
 def _to_loose_version( tool_lineage_version ):
-    return LooseVersion( tool_lineage_version.version )
+    version = str( tool_lineage_version.version )
+    return LooseVersion( version )
