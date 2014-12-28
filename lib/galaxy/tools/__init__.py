@@ -1152,6 +1152,8 @@ class ToolBox( object, Dictifiable ):
         """ Return True if tool1 is considered "newer" given its own lineage
         description.
         """
+        if not hasattr( tool1, "lineage" ):
+            return True
         lineage_tool_versions = tool1.lineage.get_versions()
         for lineage_tool_version in lineage_tool_versions:
             lineage_tool = self._tool_from_lineage_version( lineage_tool_version )
