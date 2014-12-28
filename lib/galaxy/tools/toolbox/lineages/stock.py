@@ -34,10 +34,10 @@ class StockLineage(ToolLineage):
 
     def get_versions( self, reverse=False ):
         versions = [ ToolLineageVersion( self.tool_id, v ) for v in self.tool_versions ]
-        return sorted( versions, cmp=StockLineage._compare )
+        # Sort using LooseVersion which defines an appropriate __cmp__
+        # method for comparing tool versions.
+        return sorted( versions, key=_to_loose_version )
 
-    @staticmethod
-    def _compare( tool_lineage_version_1, tool_lineage_version_2 ):
-        v1 = LooseVersion( tool_lineage_version_1.version )
-        v2 = LooseVersion( tool_lineage_version_2.version )
-        return v1.__cmp__( v2 )
+
+def _to_loose_version( tool_lineage_version ):
+    return LooseVersion( tool_lineage_version.version )
