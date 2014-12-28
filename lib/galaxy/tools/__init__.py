@@ -851,15 +851,19 @@ class ToolBox( object, Dictifiable ):
 
     def register_tool( self, tool ):
         tool_id = tool.id
+        version = tool.version or None
+        if tool_id not in self.tool_versions_by_id:
+            self.tool_versions_by_id[ tool_id ] = { version: tool }
+        else:
+            self.tool_versions_by_id[ tool_id ][ version ] = tool
         if tool_id in self.tools_by_id:
-            lineage = getattr( tool, "lineage", None )
-            # TODO:
-            self.tools_by_id[ tool_id ] = tool
+            related_tool = self.tools_by_id[ tool_id ]
+            # This one becomes the default un-versioned tool
+            # if newer.
+            if self._newer_tool( tool, related_tool ):
+                self.tools_by_id[ tool_id ] = tool
         else:
             self.tools_by_id[ tool_id ] = tool
-        if tool_id not in self.tool_versions_by_id:
-            version = tool.version or None
-            self.tool_versions_by_id[ tool_id ] = { version: tool }
 
     def package_tool( self, trans, tool_id ):
         """
