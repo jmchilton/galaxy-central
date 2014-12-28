@@ -1131,9 +1131,11 @@ class ToolBox( object, Dictifiable ):
         if tool_lineage is None:
             assert tool is not None
             tool_lineage = tool.lineage
-        lineage_ids = tool_lineage.get_version_ids( reverse=True )
-        for lineage_id in lineage_ids:
-            if lineage_id in self.tools_by_id:
+        lineage_tool_versions = tool_lineage.get_versions( reverse=True )
+        for lineage_tool_version in lineage_tool_versions:
+            lineage_tool = self._tool_from_lineage_version( lineage_tool_version )
+            if lineage_tool:
+                lineage_id = lineage_tool.id
                 loaded_version_key = 'tool_%s' % lineage_id
                 if loaded_version_key in panel_dict:
                     return panel_dict[ loaded_version_key ]
@@ -1143,7 +1145,20 @@ class ToolBox( object, Dictifiable ):
         """ Return True if tool1 is considered "newer" given its own lineage
         description.
         """
-        return tool1.lineage_ids.index( tool1.id ) > tool1.lineage_ids.index( tool2.id )
+        lineage_tool_versions = tool1.lineage.get_versions()
+        for lineage_tool_version in lineage_tool_versions:
+            lineage_tool = self._tool_from_lineage_version( lineage_tool_version )
+            if lineage_tool is tool1:
+                return False
+            if lineage_tool is tool2:
+                return True
+        return True
+
+    def _tool_from_lineage_version( self, lineage_tool_version ):
+        if lineage_tool_version.id_based:
+            return self.tools_by_id.get( lineage_tool_version.id, None )
+        else:
+            return self.tool_versions_by_id.get( lineage_tool_version.id, {} ).get( lineage_tool_version.version, None )
 
 
 def _filter_for_panel( item, filters, context ):
