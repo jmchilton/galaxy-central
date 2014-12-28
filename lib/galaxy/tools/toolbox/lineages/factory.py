@@ -1,4 +1,5 @@
 from .tool_shed import ToolShedLineage
+from .stock import StockLineage
 
 
 class LineageMap(object):
@@ -13,7 +14,11 @@ class LineageMap(object):
         tool_id = tool.id
         if tool_id not in self.lineage_map:
             tool_shed_repository = kwds.get("tool_shed_repository", None)
-            lineage = ToolShedLineage.from_tool(self.app, tool, tool_shed_repository)
+            if tool_shed_repository:
+                lineage = ToolShedLineage.from_tool(self.app, tool, tool_shed_repository)
+            else:
+                lineage = StockLineage.for_tool_id( tool_id )
+                lineage.register_version( tool.version )
             self.lineage_map[tool_id] = lineage
         return self.lineage_map[tool_id]
 
