@@ -494,6 +494,9 @@ class ToolBox( object, Dictifiable ):
 
     def get_tool( self, tool_id, tool_version=None, get_all_versions=False, exact=False ):
         """Attempt to locate a tool in the tool box."""
+        if tool_version:
+            tool_version = str( tool_version )
+
         if get_all_versions and exact:
             raise AssertionError("Cannot specify get_tool with both get_all_versions and exact as True")
 
