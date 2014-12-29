@@ -18,9 +18,11 @@ class LineageMap(object):
                 lineage = ToolShedLineage.from_tool(self.app, tool, tool_shed_repository)
             else:
                 lineage = StockLineage.for_tool_id( tool_id )
-                lineage.register_version( tool.version )
             self.lineage_map[tool_id] = lineage
-        return self.lineage_map[tool_id]
+        lineage = self.lineage_map[tool_id]
+        if isinstance( lineage, StockLineage ):
+            lineage.register_version( tool.version )
+        return lineage
 
     def get(self, tool_id):
         if tool_id not in self.lineage_map:

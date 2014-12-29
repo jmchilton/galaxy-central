@@ -558,11 +558,12 @@ class ToolBox( object, Dictifiable ):
         """Get all loaded tools associated by lineage to the tool whose id is tool_id."""
         tool_lineage = self.lineage_map.get( tool_id )
         if tool_lineage:
-            tool_version_ids = tool_lineage.get_version_ids( )
+            lineage_tool_versions = tool_lineage.get_versions( )
             available_tool_versions = []
-            for tool_version_id in tool_version_ids:
-                if tool_version_id in self.tools_by_id:
-                    available_tool_versions.append( self.tools_by_id[ tool_version_id ] )
+            for lineage_tool_version in lineage_tool_versions:
+                tool = self._tool_from_lineage_version( lineage_tool_version )
+                if tool:
+                    available_tool_versions.append( tool )
             return available_tool_versions
         else:
             if tool_id in self.tools_by_id:
