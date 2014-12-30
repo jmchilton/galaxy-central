@@ -444,6 +444,20 @@ class WorkflowsApiTestCase( BaseWorkflowsApiTestCase ):
     def test_run_workflow( self ):
         self.__run_cat_workflow( inputs_by='step_id' )
 
+    @skip_without_tool( "multiple_versions" )
+    def test_run_versioned_tools( self ):
+        workflow_version_01 = self._upload_yaml_workflow( """
+- tool_id: multiple_versions
+  tool_version: 0.1
+  state: {}
+""" )
+        workflow_version_02 = self._upload_yaml_workflow( """
+- tool_id: multiple_versions
+  tool_version: 0.2
+  state: {}
+""" )
+        pass
+
     def __run_cat_workflow( self, inputs_by ):
         workflow = self.workflow_populator.load_workflow( name="test_for_run" )
         workflow["steps"]["0"]["uuid"] = str(uuid4())
