@@ -171,6 +171,11 @@ var GalaxyMenu = Backbone.Model.extend({
                 extra_class : "admin-only",
                 title_attribute : 'Administer this Galaxy'
             });
+            tab_admin.add({
+                title       : "Beta Admin",
+                content     : "admin/beta",
+                target      : "_frame"
+            });
             this.masthead.append(tab_admin);
         }
 

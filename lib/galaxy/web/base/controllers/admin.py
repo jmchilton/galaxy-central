@@ -25,6 +25,18 @@ class Admin( object ):
     delete_operation = None
     undelete_operation = None
     purge_operation = None
+    
+    @web.expose
+    def beta( self, trans, **kwd ):
+        # define app configuration for generic mako template
+        app = {
+            'jscript': "galaxy.admin"
+        }
+        config = {
+            'title': 'Galaxy Admin',
+            'app': app
+        }
+        return trans.fill_template( 'galaxy.panels.mako', config=config )
 
     @web.expose
     @web.require_admin
