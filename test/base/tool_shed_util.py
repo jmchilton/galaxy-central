@@ -57,40 +57,26 @@ def parse_tool_panel_config( config, shed_tools_dict ):
     root = tree.getroot()
     tool_path = root.get('tool_path')
     for elem in root:
-        if elem.tag == 'tool':
-            galaxy_test_file_dir, \
-                last_tested_repository_name, \
-                last_tested_changeset_revision = get_installed_repository_info( elem,
-                                                                                last_galaxy_test_file_dir,
-                                                                                last_tested_repository_name,
-                                                                                last_tested_changeset_revision,
-                                                                                tool_path )
-            if galaxy_test_file_dir:
-                if not has_test_data:
-                    has_test_data = True
-                if galaxy_test_file_dir != last_galaxy_test_file_dir:
-                    if not os.path.isabs( galaxy_test_file_dir ):
-                        galaxy_test_file_dir = os.path.join( os.getcwd(), galaxy_test_file_dir )
-                guid = elem.get( 'guid' )
-                shed_tools_dict[ guid ] = galaxy_test_file_dir
-                last_galaxy_test_file_dir = galaxy_test_file_dir
-        elif elem.tag == 'section':
-            for section_elem in elem:
-                if section_elem.tag == 'tool':
-                    galaxy_test_file_dir, \
-                        last_tested_repository_name, \
-                        last_tested_changeset_revision = get_installed_repository_info( section_elem,
-                                                                                        last_galaxy_test_file_dir,
-                                                                                        last_tested_repository_name,
-                                                                                        last_tested_changeset_revision,
-                                                                                        tool_path )
-                    if galaxy_test_file_dir:
-                        if not has_test_data:
-                            has_test_data = True
-                        if galaxy_test_file_dir != last_galaxy_test_file_dir:
-                            if not os.path.isabs( galaxy_test_file_dir ):
-                                galaxy_test_file_dir = os.path.join( os.getcwd(), galaxy_test_file_dir )
-                        guid = section_elem.get( 'guid' )
-                        shed_tools_dict[ guid ] = galaxy_test_file_dir
-                        last_galaxy_test_file_dir = galaxy_test_file_dir
+        if elem.tag == 'section':
+            nested_elems = elem
+        else:
+            nested_elems = [elem]
+        for nested_elem in nested_elems:
+            if nested_elem.tag == 'tool':
+                galaxy_test_file_dir, \
+                    last_tested_repository_name, \
+                    last_tested_changeset_revision = get_installed_repository_info( nested_elem,
+                                                                                    last_galaxy_test_file_dir,
+                                                                                    last_tested_repository_name,
+                                                                                    last_tested_changeset_revision,
+                                                                                    tool_path )
+                if galaxy_test_file_dir:
+                    if not has_test_data:
+                        has_test_data = True
+                    if galaxy_test_file_dir != last_galaxy_test_file_dir:
+                        if not os.path.isabs( galaxy_test_file_dir ):
+                            galaxy_test_file_dir = os.path.join( os.getcwd(), galaxy_test_file_dir )
+                    guid = nested_elem.get( 'guid' )
+                    shed_tools_dict[ guid ] = galaxy_test_file_dir
+                    last_galaxy_test_file_dir = galaxy_test_file_dir
     return has_test_data, shed_tools_dict
