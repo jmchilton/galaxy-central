@@ -19,7 +19,45 @@ log = logging.getLogger(__name__)
 repository_installation_timeout = 600
 
 
-def get_installed_repository_info( elem, last_galaxy_test_file_dir, last_tested_repository_name, last_tested_changeset_revision, tool_path ):
+def parse_tool_panel_config( config, shed_tools_dict ):
+    """
+    Parse a shed-related tool panel config to generate the shed_tools_dict. This only happens when testing tools installed from the tool shed.
+    """
+    last_galaxy_test_file_dir = None
+    last_tested_repository_name = None
+    last_tested_changeset_revision = None
+    tool_path = None
+    has_test_data = False
+    tree = parse_xml( config )
+    root = tree.getroot()
+    tool_path = root.get('tool_path')
+    for elem in root:
+        if elem.tag == 'section':
+            nested_elems = elem
+        else:
+            nested_elems = [elem]
+        for nested_elem in nested_elems:
+            if nested_elem.tag == 'tool':
+                galaxy_test_file_dir, \
+                    last_tested_repository_name, \
+                    last_tested_changeset_revision = __get_installed_repository_info( nested_elem,
+                                                                                      last_galaxy_test_file_dir,
+                                                                                      last_tested_repository_name,
+                                                                                      last_tested_changeset_revision,
+                                                                                      tool_path )
+                if galaxy_test_file_dir:
+                    if not has_test_data:
+                        has_test_data = True
+                    if galaxy_test_file_dir != last_galaxy_test_file_dir:
+                        if not os.path.isabs( galaxy_test_file_dir ):
+                            galaxy_test_file_dir = os.path.join( os.getcwd(), galaxy_test_file_dir )
+                    guid = nested_elem.get( 'guid' )
+                    shed_tools_dict[ guid ] = galaxy_test_file_dir
+                    last_galaxy_test_file_dir = galaxy_test_file_dir
+    return has_test_data, shed_tools_dict
+
+
+def __get_installed_repository_info( elem, last_galaxy_test_file_dir, last_tested_repository_name, last_tested_changeset_revision, tool_path ):
     """
     Return the GALAXY_TEST_FILE_DIR, the containing repository name and the
     change set revision for the tool elem. This only happens when testing
@@ -44,39 +82,4 @@ def get_installed_repository_info( elem, last_galaxy_test_file_dir, last_tested_
     return last_galaxy_test_file_dir, last_tested_repository_name, last_tested_changeset_revision
 
 
-def parse_tool_panel_config( config, shed_tools_dict ):
-    """
-    Parse a shed-related tool panel config to generate the shed_tools_dict. This only happens when testing tools installed from the tool shed.
-    """
-    last_galaxy_test_file_dir = None
-    last_tested_repository_name = None
-    last_tested_changeset_revision = None
-    tool_path = None
-    has_test_data = False
-    tree = parse_xml( config )
-    root = tree.getroot()
-    tool_path = root.get('tool_path')
-    for elem in root:
-        if elem.tag == 'section':
-            nested_elems = elem
-        else:
-            nested_elems = [elem]
-        for nested_elem in nested_elems:
-            if nested_elem.tag == 'tool':
-                galaxy_test_file_dir, \
-                    last_tested_repository_name, \
-                    last_tested_changeset_revision = get_installed_repository_info( nested_elem,
-                                                                                    last_galaxy_test_file_dir,
-                                                                                    last_tested_repository_name,
-                                                                                    last_tested_changeset_revision,
-                                                                                    tool_path )
-                if galaxy_test_file_dir:
-                    if not has_test_data:
-                        has_test_data = True
-                    if galaxy_test_file_dir != last_galaxy_test_file_dir:
-                        if not os.path.isabs( galaxy_test_file_dir ):
-                            galaxy_test_file_dir = os.path.join( os.getcwd(), galaxy_test_file_dir )
-                    guid = nested_elem.get( 'guid' )
-                    shed_tools_dict[ guid ] = galaxy_test_file_dir
-                    last_galaxy_test_file_dir = galaxy_test_file_dir
-    return has_test_data, shed_tools_dict
+__all__ = [ "parse_tool_panel_config", "repository_installation_timeout" ]
