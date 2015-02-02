@@ -134,6 +134,17 @@ class SelectToolParameterWrapper( ToolParameterValueWrapper ):
         self._path_rewriter = path_rewriter or DEFAULT_PATH_REWRITER
         self.fields = self.SelectToolParameterFieldWrapper( input, value, other_values, self._path_rewriter )
 
+    def __getitem__(self, n):
+        """
+        Enable iteration over select parameters without explicit casting.
+        #if 'foo' in $outputs:
+            --foo $foo_output
+        #end if
+        """
+        if isinstance( self.value, list ):
+            return self.value[ n ]
+        return self.value
+
     def __str__( self ):
         # Assuming value is never a path - otherwise would need to pass
         # along following argument value_map=self._path_rewriter.

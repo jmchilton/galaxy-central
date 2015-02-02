@@ -3,7 +3,19 @@
   <configfiles>
     <configfile name="config">${select_ex}</configfile>
   </configfiles>
-  <command>cat $config > $output; echo '$select_optional' > $output2</command>
+  <command>
+    cat $config > $output;
+        echo '$select_optional' > $output2;
+        #if $select_ex[0] == "--ex1"
+            echo "found ex1 first" > $output3;
+        #else
+            echo "ext1 not first" > $output3;
+        #end if
+
+        #if "ex2" in $select_ex:
+            echo "ex2 in select_ex" >> $output3;
+        #end if
+  </command>
   <inputs>
     <param name="select_ex" type="select" display="checkboxes" multiple="true">
       <option value="--ex1">Ex1</option>
@@ -22,7 +34,8 @@
   </inputs>
   <outputs>
     <data format="txt" name="output" />
-    <data format="txt" name="output2" />    
+    <data format="txt" name="output2" />
+    <data format="txt" name="output3" />
   </outputs>
   <tests>
     <test>
@@ -32,12 +45,32 @@
           <has_line line="--ex1,ex2,--ex3" />
         </assert_contents>
       </output>
+      <output name="output3">
+        <assert_contents>
+          <has_line line="found ex1 first" />
+          <has_line line="ex2 in select_ex" />
+        </assert_contents>
+      </output>
     </test>
     <test>
       <param name="select_ex" value="Ex1" />
       <output name="output">
         <assert_contents>
           <has_line line="--ex1" />
+        </assert_contents>
+      </output>
+      <output name="output3">
+        <assert_contents>
+          <has_line line="found ex1 first" />
+        </assert_contents>
+      </output>
+    </test>
+    <test>
+      <param name="select_ex" value="ex2,--ex3" />
+      <output name="output3">
+        <assert_contents>
+          <has_line line="ext1 not first" />
+          <has_line line="ex2 in select_ex" />
         </assert_contents>
       </output>
     </test>
