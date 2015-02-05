@@ -16,7 +16,10 @@ class CoreWorkflowSchedulingPlugin( ActiveWorkflowSchedulingPlugin ):
     plugin_type = "core"
 
     def __init__( self, **kwds ):
-        pass
+        batch_job_count = kwds.get("batch_job_count", None)
+        if batch_job_count is not None:
+            batch_job_count = int( batch_job_count )
+        self.batch_job_count = batch_job_count
 
     def startup( self, app ):
         self.app = app
@@ -41,6 +44,7 @@ class CoreWorkflowSchedulingPlugin( ActiveWorkflowSchedulingPlugin ):
             workflow=workflow,
             workflow_run_config=workflow_run_config,
             workflow_invocation=workflow_invocation,
+            batch_job_count=self.batch_job_count,
         )
 
 __all__ = [ CoreWorkflowSchedulingPlugin ]

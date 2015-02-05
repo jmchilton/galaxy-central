@@ -22,8 +22,8 @@ def invoke( trans, workflow, workflow_run_config, workflow_invocation=None, popu
 
 
 # Entry point for core workflow scheduler.
-def schedule( trans, workflow, workflow_run_config, workflow_invocation ):
-    return __invoke( trans, workflow, workflow_run_config, workflow_invocation )
+def schedule( trans, workflow, workflow_run_config, workflow_invocation, **kwds ):
+    return __invoke( trans, workflow, workflow_run_config, workflow_invocation, **kwds )
 
 
 BASIC_WORKFLOW_STEP_TYPES = [ None, "tool", "data_input", "data_collection_input" ]
@@ -53,7 +53,7 @@ def force_queue( trans, workflow ):
     return False
 
 
-def __invoke( trans, workflow, workflow_run_config, workflow_invocation=None, populate_state=False ):
+def __invoke( trans, workflow, workflow_run_config, workflow_invocation=None, populate_state=False, **kwds ):
     """ Run the supplied workflow in the supplied target_history.
     """
     if populate_state:
@@ -64,6 +64,7 @@ def __invoke( trans, workflow, workflow_run_config, workflow_invocation=None, po
         workflow,
         workflow_run_config,
         workflow_invocation=workflow_invocation,
+        **kwds
     )
     try:
         outputs = invoker.invoke()
@@ -105,7 +106,7 @@ def queue_invoke( trans, workflow, workflow_run_config, request_params={}, popul
 
 class WorkflowInvoker( object ):
 
-    def __init__( self, trans, workflow, workflow_run_config, workflow_invocation=None ):
+    def __init__( self, trans, workflow, workflow_run_config, workflow_invocation=None, batch_job_count=None ):
         self.trans = trans
         self.workflow = workflow
         if workflow_invocation is None:
@@ -123,6 +124,7 @@ class WorkflowInvoker( object ):
         else:
             self.workflow_invocation = workflow_invocation
 
+        self.batch_job_count = batch_job_count
         self.workflow_invocation.copy_inputs_to_history = workflow_run_config.copy_inputs_to_history
         self.workflow_invocation.replacement_dict = workflow_run_config.replacement_dict
 
@@ -133,13 +135,19 @@ class WorkflowInvoker( object ):
         workflow_invocation = self.workflow_invocation
         remaining_steps = self.progress.remaining_steps()
         delayed_steps = False
+        current_batch_job_count = 0
         for step in remaining_steps:
             jobs = None
             try:
+                if self.batch_job_count is not None and current_batch_job_count >= self.batch_job_count:
+                    raise modules.DelayedWorkflowEvaluation()
+
                 self.__check_implicitly_dependent_steps(step)
 
                 jobs = self._invoke_step( step )
                 for job in (util.listify( jobs ) or [None]):
+                    if job is not None:
+                        current_batch_job_count += 1
                     # Record invocation
                     workflow_invocation_step = model.WorkflowInvocationStep()
                     workflow_invocation_step.workflow_invocation = workflow_invocation
