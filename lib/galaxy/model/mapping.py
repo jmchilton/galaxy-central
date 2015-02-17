@@ -16,7 +16,7 @@ from sqlalchemy.orm.collections import attribute_mapped_collection
 from galaxy import model
 from galaxy.model.orm.engine_factory import build_engine
 from galaxy.model.orm.now import now
-from galaxy.model.custom_types import JSONType, MetadataType, TrimmedString, UUIDType
+from galaxy.model.custom_types import JSONType, MetadataType, TrimmedString, UUIDType, MutableDict
 from galaxy.model.base import ModelMapping
 from galaxy.security import GalaxyRBACAgent
 
@@ -110,7 +110,7 @@ model.HistoryDatasetAssociation.table = Table( "history_dataset_association", me
     Column( "peek" , TEXT ),
     Column( "tool_version" , TEXT ),
     Column( "extension", TrimmedString( 64 ) ),
-    Column( "metadata", MetadataType(), key="_metadata" ),
+    Column( "metadata", MutableDict.as_mutable(MetadataType), key="_metadata" ),
     Column( "parent_id", Integer, ForeignKey( "history_dataset_association.id" ), nullable=True ),
     Column( "designation", TrimmedString( 255 ) ),
     Column( "deleted", Boolean, index=True, default=False ),
@@ -317,7 +317,7 @@ model.LibraryDatasetDatasetAssociation.table = Table( "library_dataset_dataset_a
     Column( "peek" , TEXT ),
     Column( "tool_version" , TEXT ),
     Column( "extension", TrimmedString( 64 ) ),
-    Column( "metadata", MetadataType(), key="_metadata" ),
+    Column( "metadata", MutableDict.as_mutable(MetadataType), key="_metadata" ),
     Column( "parent_id", Integer, ForeignKey( "library_dataset_dataset_association.id" ), nullable=True ),
     Column( "designation", TrimmedString( 255 ) ),
     Column( "deleted", Boolean, index=True, default=False ),
@@ -331,7 +331,7 @@ model.LibraryDatasetDatasetAssociation.table = Table( "library_dataset_dataset_a
 
 model.ExtendedMetadata.table = Table("extended_metadata", metadata,
     Column( "id", Integer, primary_key=True ),
-    Column( "data", JSONType ) )
+    Column( "data", MutableDict.as_mutable(JSONType) ) )
 
 model.ExtendedMetadataIndex.table = Table("extended_metadata_index", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -411,7 +411,7 @@ model.Job.table = Table( "job", metadata,
     Column( "job_runner_name", String( 255 ) ),
     Column( "job_runner_external_id", String( 255 ) ),
     Column( "destination_id", String( 255 ), nullable=True ),
-    Column( "destination_params", JSONType, nullable=True ),
+    Column( "destination_params", MutableDict.as_mutable(JSONType), nullable=True ),
     Column( "object_store_id", TrimmedString( 255 ), index=True ),
     Column( "imported", Boolean, default=False, index=True ),
     Column( "params", TrimmedString(255), index=True ),
@@ -593,7 +593,7 @@ model.PostJobAction.table = Table("post_job_action", metadata,
     Column("workflow_step_id", Integer, ForeignKey( "workflow_step.id" ), index=True, nullable=False),
     Column("action_type", String(255), nullable=False),
     Column("output_name", String(255), nullable=True),
-    Column("action_arguments", JSONType, nullable=True))
+    Column("action_arguments", MutableDict.as_mutable(JSONType), nullable=True))
 
 model.PostJobActionAssociation.table = Table("post_job_action_association", metadata,
     Column("id", Integer, primary_key=True),
@@ -606,7 +606,7 @@ model.DeferredJob.table = Table( "deferred_job", metadata,
     Column( "update_time", DateTime, default=now, onupdate=now ),
     Column( "state", String( 64 ), index=True ),
     Column( "plugin", String( 128 ), index=True ),
-    Column( "params", JSONType ) )
+    Column( "params", MutableDict.as_mutable(JSONType) ) )
 
 model.TransferJob.table = Table( "transfer_job", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -617,7 +617,7 @@ model.TransferJob.table = Table( "transfer_job", metadata,
     Column( "info", TEXT ),
     Column( "pid", Integer ),
     Column( "socket", Integer ),
-    Column( "params", JSONType ) )
+    Column( "params", MutableDict.as_mutable(JSONType) ) )
 
 model.DatasetCollection.table = Table( "dataset_collection", metadata,
     Column( "id", Integer, primary_key=True ),
@@ -725,14 +725,14 @@ model.WorkflowStep.table = Table( "workflow_step", metadata,
     Column( "type", String(64) ),
     Column( "tool_id", TEXT ),
     Column( "tool_version", TEXT ), # Reserved for future
-    Column( "tool_inputs", JSONType ),
-    Column( "tool_errors", JSONType ),
-    Column( "position", JSONType ),
-    Column( "config", JSONType ),
+    Column( "tool_inputs", MutableDict.as_mutable(JSONType) ),
+    Column( "tool_errors", MutableDict.as_mutable(JSONType) ),
+    Column( "position", MutableDict.as_mutable(JSONType) ),
+    Column( "config", MutableDict.as_mutable(JSONType) ),
     Column( "order_index", Integer ),
     Column( "uuid", UUIDType ),
     Column( "label", Unicode(255) ),
-    ## Column( "input_connections", JSONType )
+    ## Column( "input_connections", MutableDict.as_mutable(JSONType) )
     )
 
 
@@ -741,7 +741,7 @@ model.WorkflowRequestStepState.table = Table(
     Column( "id", Integer, primary_key=True ),
     Column( "workflow_invocation_id", Integer, ForeignKey("workflow_invocation.id", onupdate="CASCADE", ondelete="CASCADE" )),
     Column( "workflow_step_id", Integer, ForeignKey("workflow_step.id" )),
-    Column( "value", JSONType ),
+    Column( "value", MutableDict.as_mutable(JSONType) ),
 )
 
 
@@ -808,7 +808,7 @@ model.WorkflowInvocationStep.table = Table( "workflow_invocation_step", metadata
     Column( "workflow_invocation_id", Integer, ForeignKey( "workflow_invocation.id" ), index=True, nullable=False ),
     Column( "workflow_step_id",  Integer, ForeignKey( "workflow_step.id" ), index=True, nullable=False ),
     Column( "job_id",  Integer, ForeignKey( "job.id" ), index=True, nullable=True ),
-    Column( "action", JSONType, nullable=True ),
+    Column( "action", MutableDict.as_mutable(JSONType), nullable=True ),
 )
 
 model.StoredWorkflowUserShareAssociation.table = Table( "stored_workflow_user_share_connection", metadata,
@@ -851,9 +851,9 @@ model.FormDefinition.table = Table('form_definition', metadata,
             Integer,
             ForeignKey( "form_definition_current.id", name='for_def_form_def_current_id_fk', use_alter=True ),
             index=True ),
-    Column( "fields", JSONType() ),
+    Column( "fields", MutableDict.as_mutable(JSONType) ),
     Column( "type", TrimmedString( 255 ), index=True ),
-    Column( "layout", JSONType() ), )
+    Column( "layout", MutableDict.as_mutable(JSONType) ), )
 
 model.ExternalService.table = Table( 'external_service', metadata,
     Column( "id", Integer, primary_key=True ),
@@ -895,7 +895,7 @@ model.FormValues.table = Table('form_values', metadata,
     Column( "create_time", DateTime, default=now ),
     Column( "update_time", DateTime, default=now, onupdate=now ),
     Column( "form_definition_id", Integer, ForeignKey( "form_definition.id" ), index=True ),
-    Column( "content", JSONType()) )
+    Column( "content", MutableDict.as_mutable(JSONType)) )
 
 model.Request.table = Table('request', metadata,
     Column( "id", Integer, primary_key=True),
@@ -903,7 +903,7 @@ model.Request.table = Table('request', metadata,
     Column( "update_time", DateTime, default=now, onupdate=now ),
     Column( "name", TrimmedString( 255 ), nullable=False ),
     Column( "desc", TEXT ),
-    Column( "notification", JSONType() ),
+    Column( "notification", MutableDict.as_mutable(JSONType) ),
     Column( "form_values_id", Integer, ForeignKey( "form_values.id" ), index=True ),
     Column( "request_type_id", Integer, ForeignKey( "request_type.id" ), index=True ),
     Column( "user_id", Integer, ForeignKey( "galaxy_user.id" ), index=True ),
@@ -929,7 +929,7 @@ model.Sample.table = Table('sample', metadata,
     Column( "library_id", Integer, ForeignKey( "library.id" ), index=True ),
     Column( "folder_id", Integer, ForeignKey( "library_folder.id" ), index=True ),
     Column( "deleted", Boolean, index=True, default=False ),
-    Column( "workflow", JSONType, nullable=True ),
+    Column( "workflow", MutableDict.as_mutable(JSONType), nullable=True ),
     Column( "history_id", Integer, ForeignKey( "history.id" ), nullable=True) )
 
 model.SampleState.table = Table('sample_state', metadata,
@@ -1031,7 +1031,7 @@ model.VisualizationRevision.table = Table( "visualization_revision", metadata,
     Column( "visualization_id", Integer, ForeignKey( "visualization.id" ), index=True, nullable=False ),
     Column( "title", TEXT ),
     Column( "dbkey", TEXT, index=True ),
-    Column( "config", JSONType )
+    Column( "config", MutableDict.as_mutable(JSONType) )
     )
 
 model.VisualizationUserShareAssociation.table = Table( "visualization_user_share_association", metadata,
