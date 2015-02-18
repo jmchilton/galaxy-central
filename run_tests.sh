@@ -60,6 +60,22 @@ with_framework_test_tools_arg=""
 
 driver="python"
 
+if [ "$1" = "--dockerize" ];
+then
+    shift
+    if [ "$1" = "--db" ]; then
+       db_type=$2
+       shift 2
+    else
+       db_type="sqlite"
+    fi
+    DOCKER_EXTRA_ARGS=${DOCKER_ARGS:-""}
+    DOCKER_RUN_EXTRA_ARGS=${DOCKER_ARGS:-""}
+    DOCKER_IMAGE=${DOCKER_IMAGE:-"galaxyprojectdotorg/test"}
+    docker $DOCKER_EXTRA_ARGS run $DOCKER_RUN_EXTRA_ARGS -e "GALAXY_TEST_DATABASE_TYPE=$db_type" --rm -v `pwd`:/galaxy $DOCKER_IMAGE "$@"
+    exit $?
+fi
+
 while :
 do
     case "$1" in
